@@ -420,7 +420,7 @@ public final class InitializerProcessor {
           VarVersionPair varPair = new VarVersionPair((VarExprent)expr);
           if (!method.varproc.getExternalVars().contains(varPair)) {
             String varName = method.varproc.getVarName(varPair);
-            if (!varName.equals("this") && !varName.endsWith(".this")) { // FIXME: remove direct comparison with strings
+            if (varName == null || !varName.equals("this") && !varName.endsWith(".this")) { // FIXME: remove direct comparison with strings
               return false;
             }
           }

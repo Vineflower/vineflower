@@ -1,6 +1,7 @@
 // Copyright 2000-2017 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.vars;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
@@ -663,7 +664,7 @@ public class VarDefinitionHelper {
           VarType t1 = this.varproc.getVarType(ret.getKey());
           VarType t2 = this.varproc.getVarType(ret.getValue());
 
-          if (t1.isSuperset(t2) || t2.isSuperset(t1)) {
+          if (t1 != null && t2 != null && (t1.isSuperset(t2) || t2.isSuperset(t1))) {
             // TODO: this only checks for totally disjoint types, there are instances where merging is incorrect with primitives
 
             boolean ok = true;
@@ -1601,10 +1602,11 @@ public class VarDefinitionHelper {
 
                 // Try to perform a rename
                 String name = mw.varproc.getVarName(vvp);
+                String original = name;
                 name = rename(nameMap, name);
 
                 // Did we rename? If so, we should add it to the name map and set as clashing
-                if (!mw.varproc.getVarName(vvp).equals(name)) {
+                if (original != null && !original.equals(name)) {
                   mw.varproc.setClashingName(vvp, name);
                   nameMap.put(new VarInMethod(vvp, mt2), name);
                 }
@@ -1624,6 +1626,60 @@ public class VarDefinitionHelper {
             for (Entry<VarInMethod, String> e : new HashSet<>(nameMap.entrySet())) {
               if (e.getKey().mt == mt2) {
                 nameMap.remove(e.getKey());
+              }
+            }
+          }
+        }
+      } else if (!newExprent.isLambda() && newExprent.isAnonymous()) {
+        ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(newExprent.getNewType().value);
+        if (node != null && node.getWrapper() != null) {
+          for (String mthKey : node.getWrapper().getMethods().getLstKeys()) {
+            MethodWrapper mw = node.getWrapper().getMethods().getWithKey(mthKey);
+            StructMethod mt2 = node.getWrapper().getClassStruct().getMethod(mthKey);
+            if (mt2 != null && mw != null && !mt2.hasModifier(CodeConstants.ACC_SYNTHETIC)) {
+              // Propagate current data through to method
+              VarDefinitionHelper vardef = new VarDefinitionHelper(mw.root, mt2, mw.varproc, false);
+
+              // Do lambda parameter rename
+
+              // Calculate which varversions are the parameters
+              // This gnarly logic is needed to ensure that the varversions we're looking at are parameters.
+              // Notably, lambdas can reference *outer* variables *before* params are listed, this is to handle that case.
+              
+              MethodDescriptor md = mt2.methodDescriptor();
+              int start = mt2.hasModifier(CodeConstants.ACC_STATIC) ? 0 : 1;
+              final int startIdx = start;
+              for (int i = 0; i < md.params.length; i++) {
+                if (i >= startIdx) {
+                  VarVersionPair vvp = new VarVersionPair(start, 0);
+
+                  // Try to perform a rename
+                  String name = mw.varproc.getVarName(vvp);
+                  String original = name;
+                  name = rename(nameMap, name);
+
+                  // Did we rename? If so, we should add it to the name map and set as clashing
+                  if (original != null && !original.equals(name)) {
+                    mw.varproc.setClashingName(vvp, name);
+                    nameMap.put(new VarInMethod(vvp, mt2), name);
+                  }
+                }
+
+                start += md.params[i].stackSize;
+              }
+
+              // Iterate clashing names with the lambda's body, with the context of the outer method
+              vardef.iterateClashingNames(mw.root, mt2, varDefinitions, liveVarDefs, nameMap);
+
+              for (Entry<VarVersionPair, String> e : vardef.getClashingNames().entrySet()) {
+                mw.varproc.setClashingName(e.getKey(), e.getValue());
+              }
+
+              // Pop all the variables we've seen, now that the lambda processing is done
+              for (Entry<VarInMethod, String> e : new HashSet<>(nameMap.entrySet())) {
+                if (e.getKey().mt == mt2) {
+                  nameMap.remove(e.getKey());
+                }
               }
             }
           }
@@ -1703,7 +1759,7 @@ public class VarDefinitionHelper {
     }
   }
 
-  private static String rename(Map<VarInMethod, String> nameMap, String name) {
+  private static @NotNull String rename(Map<VarInMethod, String> nameMap, String name) {
     while (nameMap.containsValue(name)) {
       name += "x";
     }

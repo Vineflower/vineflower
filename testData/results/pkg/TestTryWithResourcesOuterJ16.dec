@@ -309,7 +309,7 @@ public class TestTryWithResourcesOuterJ16 {
    }// 93
 
    public void testSame4(File file) throws FileNotFoundException {
-      try (Scanner scanner = new Scanner(file)) {
+      try (Scanner scanner = new Scanner(file)) {// 96
          Scanner var3 = scanner;
 
          try {
@@ -330,7 +330,7 @@ public class TestTryWithResourcesOuterJ16 {
             scanner.close();
          }
       }
-   }// 96 100
+   }// 100
 
    private Scanner create(File file) throws FileNotFoundException {
       return new Scanner(file);// 104
@@ -349,6 +349,8 @@ class 'pkg/TestTryWithResourcesOuterJ16' {
       e      14
       10      27
       11      27
+      12      27
+      13      27
       14      28
       15      28
       16      28
@@ -356,14 +358,20 @@ class 'pkg/TestTryWithResourcesOuterJ16' {
       1b      15
       1d      16
       1e      16
+      1f      16
+      20      16
       21      18
       22      18
+      23      18
+      24      18
       28      19
       2a      20
       2b      20
       2c      20
       2d      20
       2e      20
+      2f      20
+      30      20
       31      24
       32      24
       33      24
@@ -385,6 +393,8 @@ class 'pkg/TestTryWithResourcesOuterJ16' {
       b      37
       d      50
       e      50
+      f      50
+      10      50
       11      51
       12      51
       13      51
@@ -392,14 +402,20 @@ class 'pkg/TestTryWithResourcesOuterJ16' {
       18      38
       1a      39
       1b      39
+      1c      39
+      1d      39
       1e      41
       1f      41
+      20      41
+      21      41
       25      42
       27      43
       28      43
       29      43
       2a      43
       2b      43
+      2c      43
+      2d      43
       2e      47
       2f      47
       30      47
@@ -425,9 +441,13 @@ class 'pkg/TestTryWithResourcesOuterJ16' {
       1e      65
       1f      65
       20      65
+      21      65
+      22      65
       23      78
       24      78
       25      78
+      26      78
+      27      78
       28      79
       29      79
       2a      79
@@ -437,21 +457,29 @@ class 'pkg/TestTryWithResourcesOuterJ16' {
       32      67
       33      67
       34      67
+      35      67
+      36      67
       37      69
       38      69
       39      69
+      3a      69
+      3b      69
       3f      70
       41      71
       42      71
       43      71
       44      71
       45      71
+      46      71
+      47      71
       48      75
       49      75
       4a      75
       4b      93
       4c      93
       4d      93
+      4e      93
+      4f      93
       50      94
       51      94
       52      94
@@ -461,15 +489,21 @@ class 'pkg/TestTryWithResourcesOuterJ16' {
       5a      82
       5b      82
       5c      82
+      5d      82
+      5e      82
       5f      84
       60      84
       61      84
+      62      84
+      63      84
       67      85
       69      86
       6a      86
       6b      86
       6c      86
       6d      86
+      6e      86
+      6f      86
       70      90
       71      90
       72      90
@@ -495,9 +529,13 @@ class 'pkg/TestTryWithResourcesOuterJ16' {
       1e      108
       1f      108
       20      108
+      21      108
+      22      108
       23      121
       24      121
       25      121
+      26      121
+      27      121
       28      122
       29      122
       2a      122
@@ -507,21 +545,29 @@ class 'pkg/TestTryWithResourcesOuterJ16' {
       32      110
       33      110
       34      110
+      35      110
+      36      110
       37      112
       38      112
       39      112
+      3a      112
+      3b      112
       3f      113
       41      114
       42      114
       43      114
       44      114
       45      114
+      46      114
+      47      114
       48      118
       49      118
       4a      118
       4b      136
       4c      136
       4d      136
+      4e      136
+      4f      136
       50      137
       51      137
       52      137
@@ -531,15 +577,21 @@ class 'pkg/TestTryWithResourcesOuterJ16' {
       5a      125
       5b      125
       5c      125
+      5d      125
+      5e      125
       5f      127
       60      127
       61      127
+      62      127
+      63      127
       67      128
       69      129
       6a      129
       6b      129
       6c      129
       6d      129
+      6e      129
+      6f      129
       70      133
       71      133
       72      133
@@ -565,9 +617,13 @@ class 'pkg/TestTryWithResourcesOuterJ16' {
       1e      151
       1f      151
       20      151
+      21      151
+      22      151
       23      164
       24      164
       25      164
+      26      164
+      27      164
       28      165
       29      165
       2a      165
@@ -577,21 +633,29 @@ class 'pkg/TestTryWithResourcesOuterJ16' {
       32      153
       33      153
       34      153
+      35      153
+      36      153
       37      155
       38      155
       39      155
+      3a      155
+      3b      155
       3f      156
       41      157
       42      157
       43      157
       44      157
       45      157
+      46      157
+      47      157
       48      161
       49      161
       4a      161
       4b      179
       4c      179
       4d      179
+      4e      179
+      4f      179
       50      180
       51      180
       52      180
@@ -601,15 +665,21 @@ class 'pkg/TestTryWithResourcesOuterJ16' {
       5a      168
       5b      168
       5c      168
+      5d      168
+      5e      168
       5f      170
       60      170
       61      170
+      62      170
+      63      170
       67      171
       69      172
       6a      172
       6b      172
       6c      172
       6d      172
+      6e      172
+      6f      172
       70      176
       71      176
       72      176
@@ -635,6 +705,8 @@ class 'pkg/TestTryWithResourcesOuterJ16' {
       18      206
       19      206
       1a      206
+      1b      206
+      1c      206
       1d      207
       1e      207
       1f      207
@@ -644,20 +716,28 @@ class 'pkg/TestTryWithResourcesOuterJ16' {
       27      195
       28      195
       29      195
+      2a      195
+      2b      195
       2c      197
       2d      197
       2e      197
+      2f      197
+      30      197
       34      198
       36      199
       37      199
       38      199
       39      199
       3a      199
+      3b      199
+      3c      199
       3d      203
       3e      203
       3f      203
       40      221
       41      221
+      42      221
+      43      221
       44      222
       45      222
       46      222
@@ -665,14 +745,20 @@ class 'pkg/TestTryWithResourcesOuterJ16' {
       4b      209
       4d      210
       4e      210
+      4f      210
+      50      210
       51      212
       52      212
+      53      212
+      54      212
       58      213
       5a      214
       5b      214
       5c      214
       5d      214
       5e      214
+      5f      214
+      60      214
       61      218
       62      218
       63      218
@@ -694,6 +780,8 @@ class 'pkg/TestTryWithResourcesOuterJ16' {
       13      247
       14      247
       15      247
+      16      247
+      17      247
       18      248
       19      248
       1a      248
@@ -703,20 +791,28 @@ class 'pkg/TestTryWithResourcesOuterJ16' {
       22      236
       23      236
       24      236
+      25      236
+      26      236
       27      238
       28      238
       29      238
+      2a      238
+      2b      238
       2f      239
       31      240
       32      240
       33      240
       34      240
       35      240
+      36      240
+      37      240
       38      244
       39      244
       3a      244
       3b      262
       3c      262
+      3d      262
+      3e      262
       3f      263
       40      263
       41      263
@@ -724,14 +820,20 @@ class 'pkg/TestTryWithResourcesOuterJ16' {
       46      250
       48      251
       49      251
+      4a      251
+      4b      251
       4c      253
       4d      253
+      4e      253
+      4f      253
       53      254
       55      255
       56      255
       57      255
       58      255
       59      255
+      5a      255
+      5b      255
       5c      259
       5d      259
       5e      259
@@ -753,6 +855,8 @@ class 'pkg/TestTryWithResourcesOuterJ16' {
       13      288
       14      288
       15      288
+      16      288
+      17      288
       18      289
       19      289
       1a      289
@@ -762,15 +866,21 @@ class 'pkg/TestTryWithResourcesOuterJ16' {
       22      277
       23      277
       24      277
+      25      277
+      26      277
       27      279
       28      279
       29      279
+      2a      279
+      2b      279
       2f      280
       31      281
       32      281
       33      281
       34      281
       35      281
+      36      281
+      37      281
       38      285
       39      285
       3a      285
@@ -780,6 +890,8 @@ class 'pkg/TestTryWithResourcesOuterJ16' {
       3e      292
       40      305
       41      305
+      42      305
+      43      305
       44      306
       45      306
       46      306
@@ -787,14 +899,20 @@ class 'pkg/TestTryWithResourcesOuterJ16' {
       4b      293
       4d      294
       4e      294
+      4f      294
+      50      294
       51      296
       52      296
+      53      296
+      54      296
       58      297
       5a      298
       5b      298
       5c      298
       5d      298
       5e      298
+      5f      298
+      60      298
       61      302
       62      302
       63      302
@@ -812,6 +930,8 @@ class 'pkg/TestTryWithResourcesOuterJ16' {
       e      315
       10      328
       11      328
+      12      328
+      13      328
       14      329
       15      329
       16      329
@@ -819,38 +939,24 @@ class 'pkg/TestTryWithResourcesOuterJ16' {
       1b      316
       1d      317
       1e      317
+      1f      317
+      20      317
       21      319
       22      319
+      23      319
+      24      319
       28      320
       2a      321
       2b      321
       2c      321
       2d      321
       2e      321
+      2f      321
+      30      321
       31      325
       32      325
       33      325
       38      332
-      39      332
-      3a      332
-      3b      332
-      3c      332
-      3d      332
-      3e      332
-      3f      332
-      40      332
-      41      332
-      42      332
-      43      332
-      44      332
-      45      332
-      46      332
-      47      332
-      48      332
-      49      332
-      4a      332
-      4b      332
-      4c      332
    }
 
    method 'create (Ljava/io/File;)Ljava/util/Scanner;' {
@@ -918,7 +1024,7 @@ Lines mapping:
 91 <-> 293
 92 <-> 306
 93 <-> 309
-96 <-> 333
+96 <-> 312
 97 <-> 317
 98 <-> 316
 99 <-> 329

@@ -12,6 +12,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.gen.CodeType;
+import org.jetbrains.java.decompiler.struct.gen.TypeFamily;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 
 import java.util.*;
@@ -143,7 +144,7 @@ public final class SecondaryFunctionsHelper {
             break;
           }
         } else if (obj instanceof Exprent) {
-          Exprent retexpr = identifySecondaryFunctions((Exprent) obj, true, varProc, options);
+          Exprent retexpr = identifySecondaryFunctions(stat, (Exprent) obj, true, varProc, options);
           if (retexpr != null) {
             if (stat.getExprents() == null) {
               // only head expressions can be replaced!
@@ -162,7 +163,7 @@ public final class SecondaryFunctionsHelper {
     return ret;
   }
 
-  private static Exprent identifySecondaryFunctions(Exprent exprent, boolean statement_level, VarProcessor varProc, IdentifySecondaryOptions options) {
+  private static Exprent identifySecondaryFunctions(Statement stat, Exprent exprent, boolean statement_level, VarProcessor varProc, IdentifySecondaryOptions options) {
     if (exprent instanceof FunctionExprent) {
       FunctionExprent fexpr = (FunctionExprent) exprent;
 
@@ -253,7 +254,7 @@ public final class SecondaryFunctionsHelper {
       replaced = false;
 
       for (Exprent expr : exprent.getAllExprents()) {
-        Exprent retexpr = identifySecondaryFunctions(expr, false, varProc, options);
+        Exprent retexpr = identifySecondaryFunctions(stat, expr, false, varProc, options);
         if (retexpr != null) {
           exprent.replaceExprent(expr, retexpr);
           retexpr.addBytecodeOffsets(expr.bytecode);
@@ -402,6 +403,60 @@ public final class SecondaryFunctionsHelper {
 
             return new FunctionExprent(FunctionType.TERNARY, Arrays.asList(
               head, new ConstExprent(VarType.VARTYPE_INT, 0, null), iff), fexpr.bytecode);
+          case I2B:
+          case I2C:
+          case I2S:
+            if (lstOperands.get(0) instanceof FunctionExprent) {
+              FunctionExprent innerFunction = (FunctionExprent) lstOperands.get(0);
+              VarType castType = innerFunction.getFuncType().castType;
+              if (castType == VarType.VARTYPE_INT) {
+                // longs, floats and doubles are converted to ints before being converted to bytes, shorts or chars
+                innerFunction.setNeedsCast(false);
+                return ret;
+              }
+            }
+            // fallthrough
+          case I2L:
+          case I2F:
+          case I2D:
+          case L2F:
+          case L2D:
+          case F2D:
+            VarType exprType = lstOperands.get(0).getExprType();
+            VarType castType = fexpr.getSimpleCastType();
+
+            // Simplify widening cast
+            if (castType.typeFamily == TypeFamily.INTEGER) {
+              if (castType.isStrictSuperset(exprType)) {
+                fexpr.setNeedsCast(false);
+                return ret;
+              }
+            } else if (castType.typeFamily.isGreater(exprType.typeFamily)) {
+              fexpr.setNeedsCast(false);
+              return ret;
+            }
+            break;
+          case ADD:
+          case SUB:
+          case MUL:
+          case DIV:
+            Exprent left = lstOperands.get(0);
+            boolean leftImplicitCast = left instanceof FunctionExprent && ((FunctionExprent) left).getSimpleCastType() != null && !((FunctionExprent) left).doesCast();
+            Exprent right = lstOperands.get(1);
+            boolean rightImplicitCast = right instanceof FunctionExprent && ((FunctionExprent) right).getSimpleCastType() != null && !((FunctionExprent) right).doesCast();
+
+            if (leftImplicitCast && rightImplicitCast && right.getExprType() == left.getExprType()) {
+              // Only a single cast is needed explicitly
+              ((FunctionExprent) left).setNeedsCast(true);
+            }
+            break;
+          case SHL:
+          case SHR:
+          case USHR:
+            Exprent op = lstOperands.get(0);
+            if (op instanceof FunctionExprent && ((FunctionExprent) op).getSimpleCastType() != null && !((FunctionExprent) op).doesCast()) {
+              ((FunctionExprent) op).setNeedsCast(true);
+            }
         }
         break;
       case ASSIGNMENT: // check for conditional assignment
@@ -464,8 +519,17 @@ public final class SecondaryFunctionsHelper {
         }
         break;
       case INVOCATION:
+        InvocationExprent invocationExpr = (InvocationExprent) exprent;
+        if (invocationExpr.isBoxingCall()) {
+          Exprent param = invocationExpr.getLstParameters().get(0);
+          // Keep casts of boxed exprents
+          if (param instanceof FunctionExprent && ((FunctionExprent) param).getSimpleCastType() != null && !((FunctionExprent) param).doesCast()) {
+            ((FunctionExprent) param).setNeedsCast(true);
+          }
+        }
+
         if (!statement_level) { // simplify if exprent is a real expression. The opposite case is pretty absurd, can still happen however (and happened at least once).
-          Exprent retexpr = ConcatenationHelper.contractStringConcat(exprent);
+          Exprent retexpr = ConcatenationHelper.contractStringConcat(stat.getTopParent(), exprent);
           if (!exprent.equals(retexpr)) {
             return retexpr;
           }
@@ -508,6 +572,16 @@ public final class SecondaryFunctionsHelper {
     return exprent.type == Exprent.Type.VAR || exprent.type == Exprent.Type.CONST;
   }
 
+  private static boolean hasPattern(Exprent exprent) {
+    for (Exprent ex : exprent.getAllExprents(false, true)) {
+      if (ex instanceof PatternExprent || ex instanceof FunctionExprent func && func.getFuncType() == FunctionType.INSTANCEOF && func.getLstOperands().size() > 2) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   public static Exprent propagateBoolNot(Exprent exprent) {
 
     if (exprent instanceof FunctionExprent) {
@@ -517,10 +591,13 @@ public final class SecondaryFunctionsHelper {
 
         Exprent param = fexpr.getLstOperands().get(0);
 
-        if (param instanceof FunctionExprent) {
-          FunctionExprent fparam = (FunctionExprent) param;
+        if (param instanceof FunctionExprent fparam) {
 
           FunctionType ftype = fparam.getFuncType();
+          // Can't change any patterns, except for nested '!' which we can peek through
+          if (hasPattern(fparam) && ftype != FunctionType.BOOL_NOT) {
+            return null;
+          }
           boolean canSimplify = false;
           switch (ftype) {
             case BOOL_NOT:

@@ -28,28 +28,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class KConstructor {
+public record KConstructor(
+  KParameter[] parameters,
+  ProtobufFlags.Constructor flags,
+  MethodWrapper method,
+  boolean isPrimary,
+  DefaultArgsMap defaultArgs,
+  ClassesProcessor.ClassNode node,
+  ProtobufFlags.Class classFlags
+) {
   private static final VarType DEFAULT_CONSTRUCTOR_MARKER = new VarType("kotlin/jvm/internal/DefaultConstructorMarker", true);
-
-  public final ProtobufFlags.Constructor flags;
-  public final KParameter[] parameters;
-  public final boolean isPrimary;
-
-  public final MethodWrapper method;
-  private final ClassesProcessor.ClassNode node;
-
-  private KConstructor(
-    KParameter[] parameters,
-    ProtobufFlags.Constructor flags,
-    MethodWrapper method,
-    boolean isPrimary,
-    ClassesProcessor.ClassNode node) {
-    this.parameters = parameters;
-    this.flags = flags;
-    this.method = method;
-    this.isPrimary = isPrimary;
-    this.node = node;
-  }
 
   public static Data parse(ClassesProcessor.ClassNode node) {
     MetadataNameResolver resolver = KotlinDecompilationContext.getNameResolver();
@@ -89,7 +77,7 @@ public class KConstructor {
       if (method == null) {
         if (classFlags.kind == ProtoBuf.Class.Kind.ANNOTATION_CLASS) {
           // Annotation classes are very odd and don't actually have a constructor under the hood
-          KConstructor kConstructor = new KConstructor(parameters, flags, null, false, node);
+          KConstructor kConstructor = new KConstructor(parameters, flags, null, false, null, node, classFlags);
           return new Data(null, kConstructor);
         }
 
@@ -99,7 +87,22 @@ public class KConstructor {
 
       boolean isPrimary = !flags.isSecondary;
 
-      KConstructor kConstructor = new KConstructor(parameters, flags, method, isPrimary, node);
+      StringBuilder defaultArgsDesc = new StringBuilder("(");
+      if (classFlags.kind == ProtoBuf.Class.Kind.ENUM_CLASS) {
+        // Kotlin drops hidden name/ordinal parameters for enum constructors in its metadata
+        defaultArgsDesc.append("Ljava/lang/String;").append("I");
+      }
+
+      for (KParameter parameter : parameters) {
+        defaultArgsDesc.append(parameter.type());
+      }
+
+      defaultArgsDesc.append("I".repeat(parameters.length / 32 + 1));
+      defaultArgsDesc.append("Lkotlin/jvm/internal/DefaultConstructorMarker;)V");
+
+      DefaultArgsMap defaultArgs = DefaultArgsMap.from(wrapper.getMethodWrapper("<init>", defaultArgsDesc.toString()), method, parameters);
+
+      KConstructor kConstructor = new KConstructor(parameters, flags, method, isPrimary, defaultArgs, node, classFlags);
       constructors.put(method.methodStruct, kConstructor);
 
       if (isPrimary) {
@@ -117,6 +120,8 @@ public class KConstructor {
 
     TextBuffer buf = new TextBuffer();
     RootStatement root = method.root;
+
+    String methodKey = InterpreterUtil.makeUniqueKey(method.methodStruct.getName(), method.methodStruct.getDescriptor());
 
     if (!isPrimary) {
       if (flags.hasAnnotations) {
@@ -143,6 +148,10 @@ public class KConstructor {
         first = false;
 
         parameter.stringify(indent + 1, buf);
+
+        if (parameter.flags().declaresDefault) {
+          buf.append(defaultArgs.toJava(parameter, indent + 1), node.classStruct.qualifiedName, methodKey);
+        }
       }
 
       buf.appendPossibleNewline("", true).popNewlineGroup();
@@ -165,8 +174,7 @@ public class KConstructor {
       } else {
         buf.append(": ");
 
-        InvocationExprent invocation = (InvocationExprent) firstExpr;
-        buf.append(invocation.toJava(indent + 1), node.classStruct.qualifiedName, InterpreterUtil.makeUniqueKey(method.methodStruct.getName(), method.methodStruct.getDescriptor()));
+        buf.append(firstExpr.toJava(indent + 1), node.classStruct.qualifiedName, methodKey);
 
         method.getOrBuildGraph().first.exprents.remove(0);
       }
@@ -189,8 +197,7 @@ public class KConstructor {
     TextBuffer body = root.toJava(indent + 1);
     body.addBytecodeMapping(root.getDummyExit().bytecode);
 
-    StructMethod mt = method.methodStruct;
-    buf.append(body, node.classStruct.qualifiedName, InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor()));
+    buf.append(body, node.classStruct.qualifiedName, methodKey);
 
     buf.appendIndent(indent).append("}").appendLineSeparator();
 
@@ -204,43 +211,52 @@ public class KConstructor {
     TextBuffer buf = new TextBuffer();
     boolean appended = false;
 
-    if (flags.hasAnnotations) {
-      buf.append(" ");
-      // -1 for indent indicates inline
-      KotlinWriter.appendAnnotations(buf, -1, method.methodStruct, TypeAnnotation.METHOD_RETURN_TYPE);
-      KotlinWriter.appendJvmAnnotations(buf, -1, method.methodStruct, false, method.classStruct.getPool(), TypeAnnotation.METHOD_RETURN_TYPE);
-      appended = true;
-    }
+    String methodKey = InterpreterUtil.makeUniqueKey(method.methodStruct.getName(), method.methodStruct.getDescriptor());
 
-    // For cleanliness, public primary constructors are not forced public by the config option
-    if (flags.visibility != ProtoBuf.Visibility.PUBLIC || (appended && DecompilerContext.getOption(KotlinOptions.SHOW_PUBLIC_VISIBILITY))) {
-      buf.append(" ");
-      KUtils.appendVisibility(buf, flags.visibility);
-      appended = true;
-    }
-
-    if (appended) {
-      buf.append("constructor");
-    }
-
-    if (parameters.length > 0 || appended) {
-      buf.append("(").pushNewlineGroup(indent, 1);
-
-      boolean first = true;
-      for (KParameter parameter : parameters) {
-        if (!first) {
-          buf.append(",").appendPossibleNewline(" ");
-        }
-
-        first = false;
-
-        parameter.stringify(indent + 1, buf);
+    if (classFlags.kind != ProtoBuf.Class.Kind.OBJECT && classFlags.kind != ProtoBuf.Class.Kind.COMPANION_OBJECT) {
+      if (flags.hasAnnotations) {
+        buf.append(" ");
+        // -1 for indent indicates inline
+        KotlinWriter.appendAnnotations(buf, -1, method.methodStruct, TypeAnnotation.METHOD_RETURN_TYPE);
+        KotlinWriter.appendJvmAnnotations(buf, -1, method.methodStruct, false, method.classStruct.getPool(), TypeAnnotation.METHOD_RETURN_TYPE);
+        appended = true;
       }
 
-      buf.appendPossibleNewline("", true).popNewlineGroup().append(")");
+      // For cleanliness, public primary constructors are not forced public by the config option
+      if ((flags.visibility != ProtoBuf.Visibility.PUBLIC || (appended && DecompilerContext.getOption(KotlinOptions.SHOW_PUBLIC_VISIBILITY))) &&
+        classFlags.kind != ProtoBuf.Class.Kind.ENUM_CLASS // Enum constructors are always private implicitly
+      ) {
+        buf.append(" ");
+        KUtils.appendVisibility(buf, flags.visibility);
+        appended = true;
+      }
+
+      if (appended) {
+        buf.append("constructor");
+      }
+
+      if (parameters.length > 0 || appended) {
+        buf.append("(").pushNewlineGroup(indent, 1);
+
+        boolean first = true;
+        for (KParameter parameter : parameters) {
+          if (!first) {
+            buf.append(",").appendPossibleNewline(" ");
+          }
+
+          first = false;
+
+          parameter.stringify(indent + 1, buf);
+
+          if (parameter.flags().declaresDefault) {
+            buf.append(defaultArgs.toJava(parameter, indent + 1), node.classStruct.qualifiedName, methodKey);
+          }
+        }
+
+        buf.appendPossibleNewline("", true).popNewlineGroup().append(")");
+      }
     }
 
-    RootStatement root = method.root;
     if (method.getOrBuildGraph().first.exprents.isEmpty()) {
       // No ability to declare super constructor call
       buffer.append(buf);
@@ -248,15 +264,14 @@ public class KConstructor {
     }
 
     Exprent firstExpr = method.getOrBuildGraph().first.exprents.get(0);
-    if (!(firstExpr instanceof InvocationExprent) || !((InvocationExprent) firstExpr).getName().equals("<init>")) {
+    if (!(firstExpr instanceof InvocationExprent invocation) || !invocation.getName().equals("<init>")) {
       // no detected super constructor call
       buffer.append(buf);
       return false;
 //      throw new IllegalStateException("First expression of constructor is not InvocationExprent");
     }
 
-    InvocationExprent invocation = (InvocationExprent) firstExpr;
-    if (invocation.getClassname().equals("java/lang/Object")) {
+    if (invocation.getClassname().equals("java/lang/Object") || classFlags.kind == ProtoBuf.Class.Kind.ENUM_CLASS) {
       // No need to declare super constructor call
       buffer.append(buf);
       return false;
@@ -278,17 +293,10 @@ public class KConstructor {
 
     method.getOrBuildGraph().first.exprents.remove(0);
 
-    buffer.append(buf, node.classStruct.qualifiedName, InterpreterUtil.makeUniqueKey(method.methodStruct.getName(), method.methodStruct.getDescriptor()));
+    buffer.append(buf, node.classStruct.qualifiedName, methodKey);
     return true;
   }
 
-  public static class Data {
-    public final Map<StructMethod, KConstructor> constructors;
-    public final KConstructor primary;
-
-    public Data(Map<StructMethod, KConstructor> constructors, KConstructor primary) {
-      this.constructors = constructors;
-      this.primary = primary;
-    }
+  public record Data(Map<StructMethod, KConstructor> constructors, KConstructor primary) {
   }
 }

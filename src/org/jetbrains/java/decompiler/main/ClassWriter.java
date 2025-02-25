@@ -1,6 +1,7 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.main;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import net.fabricmc.fernflower.api.IFabricJavadocProvider;
 import org.jetbrains.java.decompiler.api.plugin.StatementWriter;
 import org.jetbrains.java.decompiler.code.CodeConstants;
@@ -284,7 +285,7 @@ public class ClassWriter implements StatementWriter {
                   MethodWrapper outerWrapper = (MethodWrapper)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
                   DecompilerContext.setProperty(DecompilerContext.CURRENT_METHOD_WRAPPER, methodWrapper);
                   try {
-                    TextBuffer codeBuffer = firstExpr.toJava(indent + 1);
+                    TextBuffer codeBuffer = firstExpr.toJava(indent);
   
                     if (firstExpr instanceof ExitExprent)
                       codeBuffer.setStart(6); // skip return
@@ -308,6 +309,9 @@ public class ClassWriter implements StatementWriter {
                     DecompilerContext.setProperty(DecompilerContext.CURRENT_METHOD_WRAPPER, outerWrapper);
                   }
                 }
+              } else if (firstStat instanceof BasicBlockStatement && firstStat.getExprents() != null && firstStat.getExprents().isEmpty()) {
+                buffer.append(" {}");
+                simpleLambda = true;
               }
             }
           }
@@ -374,7 +378,19 @@ public class ClassWriter implements StatementWriter {
       // write class definition
       writeClassDefinition(node, buffer, indent);
 
-      boolean hasContent = false;
+      final AtomicBoolean hasContent = new AtomicBoolean(false);
+      // writeClassDefinition will skip adding a trailing newline for anonymous classes.
+      // This allows us to only add it if we end up writing any content for the class, so something
+      // like `new Object() {}` will not have a newline in between `{` and `}`.
+      // The runnable should be executed immediately before writing any anonymous class content to the buffer.
+      // hasContent also fills a similar purpose, determining whether elements need an extra newline prepended due to previous content being written.
+      final Runnable haveContent = () -> {
+        if (!hasContent.get() && node.type == ClassNode.Type.ANONYMOUS) {
+          buffer.appendLineSeparator();
+        }
+        hasContent.set(true);
+      };
+
       boolean enumFields = false;
 
       List<StructRecordComponent> components = cl.getRecordComponents();
@@ -440,9 +456,8 @@ public class ClassWriter implements StatementWriter {
         TextBuffer fieldBuffer = new TextBuffer();
         writeField(wrapper, cl, fd, fieldBuffer, indent + 1);
         fieldBuffer.clearUnassignedBytecodeMappingData();
+        haveContent.run();
         buffer.append(fieldBuffer);
-
-        hasContent = true;
       }
 
       if (enumFields) {
@@ -469,10 +484,10 @@ public class ClassWriter implements StatementWriter {
         TextBuffer methodBuffer = new TextBuffer();
         boolean methodSkipped = !writeMethod(node, mt, i, methodBuffer, indent + 1);
         if (!methodSkipped) {
-          if (hasContent) {
+          if (hasContent.get()) {
             buffer.appendLineSeparator();
           }
-          hasContent = true;
+          haveContent.run();
           buffer.append(methodBuffer);
         }
       }
@@ -486,16 +501,21 @@ public class ClassWriter implements StatementWriter {
                          wrapper.getHiddenMembers().contains(innerCl.qualifiedName);
           if (hide) continue;
 
-          if (hasContent) {
+          if (hasContent.get()) {
             buffer.appendLineSeparator();
           }
-          writeClass(inner, buffer, indent + 1);
-
-          hasContent = true;
+          TextBuffer clsBuffer = new TextBuffer();
+          writeClass(inner, clsBuffer, indent + 1);
+          haveContent.run();
+          buffer.append(clsBuffer);
         }
       }
 
-      buffer.appendIndent(indent).append('}');
+      if (hasContent.get() || node.type != ClassNode.Type.ANONYMOUS) {
+        // Skip indent for anonymous classes with no content, since we also skipped the newline in the cls definition
+        buffer.appendIndent(indent);
+      }
+      buffer.append('}');
 
       if (node.type != ClassNode.Type.ANONYMOUS) {
         buffer.appendLineSeparator();
@@ -619,7 +639,8 @@ public class ClassWriter implements StatementWriter {
       if (markSynthetics) {
         appendSyntheticClassComment(cl, buffer);
       }
-      buffer.append(" {").appendLineSeparator();
+      buffer.append(" {");
+      // Omit trailing newline, will be added by the caller if there is any content in the class
       return;
     }
 
@@ -673,8 +694,9 @@ public class ClassWriter implements StatementWriter {
     List<StructRecordComponent> components = cl.getRecordComponents();
 
     if (components != null) {
-      // records are implicitly final
+      // records are implicitly static and final
       flags &= ~CodeConstants.ACC_FINAL;
+      flags &= ~CodeConstants.ACC_STATIC;
     }
 
     appendModifiers(buffer, flags, CLASS_ALLOWED, isInterface, CLASS_EXCLUDED);
@@ -1170,8 +1192,9 @@ public class ClassWriter implements StatementWriter {
 
         buffer.pushNewlineGroup(indent, 0);
         for (int i = start; i < md.params.length; i++) {
-          VarType parameterType = hasDescriptor && paramCount < descriptor.parameterTypes.size() ? descriptor.parameterTypes.get(paramCount) : md.params[i];
-          if (mask == null || mask.get(i) == null) {
+          boolean real = mask == null || mask.get(i) == null;
+          VarType parameterType = real && hasDescriptor && paramCount < descriptor.parameterTypes.size() ? descriptor.parameterTypes.get(paramCount) : md.params[i];
+          if (real) {
             if (paramCount > 0) {
               buffer.append(",");
               buffer.appendPossibleNewline(" ");
@@ -1241,8 +1264,8 @@ public class ClassWriter implements StatementWriter {
           throwsExceptions = true;
           buffer.append(" throws ");
 
-          boolean useDescriptor = hasDescriptor && !descriptor.exceptionTypes.isEmpty();
-          for (int i = 0; i < attr.getThrowsExceptions().size(); i++) {
+          boolean useDescriptor = descriptor != null && !descriptor.exceptionTypes.isEmpty();
+          for (int i = 0; i < (attr == null ? descriptor.exceptionTypes.size() : attr.getThrowsExceptions().size()); i++) {
             if (i > 0) {
               buffer.append(", ");
             }

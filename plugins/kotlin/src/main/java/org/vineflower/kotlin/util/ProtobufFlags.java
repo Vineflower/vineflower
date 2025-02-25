@@ -222,30 +222,20 @@ public interface ProtobufFlags {
   //endregion
 
   static String toString(ProtoBuf.Visibility visibility) {
-    switch (visibility) {
-      case PRIVATE:
-      case PRIVATE_TO_THIS:
-        return "private";
-      case PROTECTED:
-        return "protected";
-      case INTERNAL:
-        return "internal";
-      default:
-        return "public";
-    }
+    return switch (visibility) {
+      case PRIVATE, PRIVATE_TO_THIS -> "private";
+      case PROTECTED -> "protected";
+      case INTERNAL -> "internal";
+      default -> "public";
+    };
   }
 
   static String toString(ProtoBuf.Modality modality) {
-    switch (modality) {
-      case FINAL:
-        return "final";
-      case OPEN:
-        return "open";
-      case ABSTRACT:
-        return "abstract";
-      case SEALED:
-        return "sealed";
-    }
-    throw new IllegalStateException("Unknown modality: " + modality);
+    return switch (modality) {
+      case FINAL -> "final";
+      case OPEN -> "open";
+      case ABSTRACT -> "abstract";
+      case SEALED -> "sealed";
+    };
   }
 }

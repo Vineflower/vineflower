@@ -23,6 +23,25 @@ class 'pkg/TestSwitchPatternMatchingInstanceof4' {
       4      6
       9      7
       10      7
+      11      7
+      12      7
+      13      7
+      14      7
+      15      7
+      16      7
+      17      7
+      18      7
+      19      7
+      1a      7
+      1b      7
+      1c      7
+      1d      7
+      1e      7
+      1f      7
+      20      7
+      21      7
+      22      7
+      23      7
       28      8
       29      8
       2a      8
@@ -30,6 +49,8 @@ class 'pkg/TestSwitchPatternMatchingInstanceof4' {
       2c      8
       2d      8
       2e      8
+      2f      8
+      30      8
       35      8
       36      8
       37      8
@@ -43,38 +64,33 @@ class 'pkg/TestSwitchPatternMatchingInstanceof4' {
       43      8
       44      8
       45      8
+      46      8
+      47      8
       4d      8
       4e      8
       4f      9
       50      9
       51      9
-      52      9
-      53      9
-      54      9
-      55      9
-      56      9
       57      9
       58      9
-      59      9
-      5a      9
-      5b      9
       5c      9
       5d      9
-      5e      9
-      5f      9
-      60      9
       61      9
       62      9
-      66      10
-      69      12
-      6a      12
-      6b      12
-      6c      12
-      6d      12
-      6e      12
+      63      9
+      64      9
+      65      9
+      66      9
+      6c      10
       6f      12
       70      12
-      74      14
+      71      12
+      72      12
+      73      12
+      74      12
+      75      12
+      76      12
+      7a      14
    }
 }
 

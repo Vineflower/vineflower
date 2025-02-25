@@ -94,12 +94,13 @@ public class SwitchExprent extends Exprent {
           buf.appendField(field.getName(), false, field.getClassname(), field.getName(), field.getDescriptor());
         } else if (value instanceof FunctionExprent && ((FunctionExprent) value).getFuncType() == FunctionExprent.FunctionType.INSTANCEOF) {
           // Pattern matching variables
-          List<Exprent> operands = ((FunctionExprent) value).getLstOperands();
-          buf.append(operands.get(1).toJava(indent));
-          buf.append(" ");
-          // We're pasting the var type, don't do it again
-          ((VarExprent)operands.get(2)).setDefinition(false);
-          buf.append(operands.get(2).toJava(indent));
+
+          Pattern pattern = (Pattern) value.getAllExprents().get(2);
+          for (VarExprent var : pattern.getPatternVars()) {
+            var.setWritingPattern();
+          }
+
+          buf.append(value.getAllExprents().get(2).toJava(indent));
         } else {
           buf.append(value.toJava(indent));
         }
@@ -148,17 +149,17 @@ public class SwitchExprent extends Exprent {
             ((ConstExprent)content).setConstType(this.type);
           }
 
-          buf.append(content.toJava(indent).append(";"));
+          buf.append(content.toJava(indent + 1).append(";"));
         } else if (exprent instanceof ExitExprent) {
           ExitExprent exit = (ExitExprent) exprent;
 
           if (exit.getExitType() == ExitExprent.Type.THROW) {
-            buf.append(exit.toJava(indent).append(";"));
+            buf.append(exit.toJava(indent + 1).append(";"));
           } else {
             throw new IllegalStateException("Can't have return in switch expression");
           }
         } else { // Catchall
-          buf.append(exprent.toJava(indent).append(";"));
+          buf.append(exprent.toJava(indent + 1).append(";"));
         }
       } else {
         buf.append("{");

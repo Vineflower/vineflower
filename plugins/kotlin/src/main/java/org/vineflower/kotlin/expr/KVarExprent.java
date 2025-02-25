@@ -3,6 +3,7 @@ package org.vineflower.kotlin.expr;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
+import org.jetbrains.java.decompiler.modules.decompiler.vars.VarTypeProcessor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.vineflower.kotlin.KotlinWriter;
@@ -11,6 +12,8 @@ import org.vineflower.kotlin.util.KTypes;
 import java.util.BitSet;
 
 public class KVarExprent extends VarExprent implements KExprent {
+  private boolean isExceptionType;
+
   public KVarExprent(int index, VarType varType, VarProcessor processor, BitSet bytecode) {
     super(index, varType, processor, bytecode);
   }
@@ -44,19 +47,27 @@ public class KVarExprent extends VarExprent implements KExprent {
     buffer.addBytecodeMapping(bytecode);
 
     boolean definition = isDefinition();
-    if (definition) {
-      // TODO: inference of var/val
-      buffer.append("var ");
+    if (definition && !isExceptionType) {
+      VarProcessor processor = getProcessor();
+
+      boolean isFinal = isEffectivelyFinal() ||
+        (processor != null && processor.getVarFinal(getVarVersionPair()) != VarTypeProcessor.FinalType.NON_FINAL);
+
+      buffer.append(isFinal ? "val " : "var ");
     }
 
     buffer.append(getName());
 
-    if (definition) {
+    if (definition || isExceptionType) {
       buffer.append(": ");
       buffer.append(KTypes.getKotlinType(getDefinitionVarType()));
     }
 
     return buffer;
+  }
+
+  public void setExceptionType(boolean isExceptionType) {
+    this.isExceptionType = isExceptionType;
   }
 
   @Override

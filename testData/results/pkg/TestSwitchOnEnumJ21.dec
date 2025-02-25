@@ -90,7 +90,59 @@ public class TestSwitchOnEnumJ21 {
       }
    }// 91
 
-   static enum TestEnum {
+   public void testComplexPattern(TestSwitchOnEnumJ21.A param1) {
+      // $VF: Couldn't be decompiled
+      // Bytecode:
+      // 00: aload 1
+      // 01: astore 2
+      // 02: bipush 0
+      // 03: istore 3
+      // 04: aload 2
+      // 05: iload 3
+      // 06: invokedynamic typeSwitch (Ljava/lang/Object;I)I bsm=java/lang/runtime/SwitchBootstraps.typeSwitch (Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite; args=[ null.invoke Ljava/lang/Enum$EnumDesc;, pkg/TestSwitchOnEnumJ21$TestEnum, pkg/TestSwitchOnEnumJ21$A ]
+      // 0b: tableswitch 100 -1 2 89 29 40 57
+      // 28: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 2b: ldc "b"
+      // 2d: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // 30: goto 7a
+      // 33: aload 2
+      // 34: checkcast pkg/TestSwitchOnEnumJ21$TestEnum
+      // 37: astore 4
+      // 39: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 3c: ldc "enum"
+      // 3e: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // 41: goto 7a
+      // 44: aload 2
+      // 45: astore 5
+      // 47: aload 5
+      // 49: instanceof pkg/TestSwitchOnEnumJ21$C
+      // 4c: ifne 54
+      // 4f: bipush 3
+      // 50: istore 3
+      // 51: goto 04
+      // 54: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 57: aload 5
+      // 59: invokeinterface pkg/TestSwitchOnEnumJ21$A.getClass ()Ljava/lang/Class; 1
+      // 5e: invokevirtual java/io/PrintStream.println (Ljava/lang/Object;)V
+      // 61: goto 7a
+      // 64: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 67: ldc "null"
+      // 69: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // 6c: goto 7a
+      // 6f: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 72: ldc "default"
+      // 74: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // 77: goto 7a
+      // 7a: return
+   }
+
+   interface A {
+   }
+
+   public static class C implements TestSwitchOnEnumJ21.A {
+   }
+
+   static enum TestEnum implements TestSwitchOnEnumJ21.A {
       A,
       B,
       C;
@@ -101,6 +153,33 @@ class 'pkg/TestSwitchOnEnumJ21' {
    method 'test1 (Lpkg/TestSwitchOnEnumJ21$TestEnum;)I' {
       0      6
       4      6
+      5      6
+      6      6
+      7      6
+      8      6
+      9      6
+      a      6
+      b      6
+      c      6
+      d      6
+      e      6
+      f      6
+      10      6
+      11      6
+      12      6
+      13      6
+      14      6
+      15      6
+      16      6
+      17      6
+      18      6
+      19      6
+      1a      6
+      1b      6
+      1c      6
+      1d      6
+      1e      6
+      1f      6
       2a      7
       2e      8
       32      9
@@ -111,6 +190,33 @@ class 'pkg/TestSwitchOnEnumJ21' {
       3      14
       7      14
       8      14
+      9      14
+      a      14
+      b      14
+      c      14
+      d      14
+      e      14
+      f      14
+      10      14
+      11      14
+      12      14
+      13      14
+      14      14
+      15      14
+      16      14
+      17      14
+      18      14
+      19      14
+      1a      14
+      1b      14
+      1c      14
+      1d      14
+      1e      14
+      1f      14
+      20      14
+      21      14
+      22      14
+      23      14
       2e      15
       32      16
       36      17
@@ -121,6 +227,34 @@ class 'pkg/TestSwitchOnEnumJ21' {
       0      22
       4      22
       b      22
+      c      22
+      d      22
+      e      22
+      f      22
+      10      22
+      11      22
+      12      22
+      13      22
+      14      22
+      15      22
+      16      22
+      17      22
+      18      22
+      19      22
+      1a      22
+      1b      22
+      1c      22
+      1d      22
+      1e      22
+      1f      22
+      20      22
+      21      22
+      22      22
+      23      22
+      24      22
+      25      22
+      26      22
+      27      22
       32      24
       36      25
       3a      26
@@ -132,6 +266,34 @@ class 'pkg/TestSwitchOnEnumJ21' {
       0      31
       4      31
       b      31
+      c      31
+      d      31
+      e      31
+      f      31
+      10      31
+      11      31
+      12      31
+      13      31
+      14      31
+      15      31
+      16      31
+      17      31
+      18      31
+      19      31
+      1a      31
+      1b      31
+      1c      31
+      1d      31
+      1e      31
+      1f      31
+      20      31
+      21      31
+      22      31
+      23      31
+      24      31
+      25      31
+      26      31
+      27      31
       32      33
       36      34
       3a      35
@@ -142,10 +304,39 @@ class 'pkg/TestSwitchOnEnumJ21' {
    method 'test5 (Lpkg/TestSwitchOnEnumJ21$TestEnum;Z)I' {
       0      40
       4      40
+      5      40
+      6      40
+      7      40
+      8      40
+      9      40
+      a      40
+      b      40
+      c      40
+      d      40
+      e      40
+      f      40
+      10      40
+      11      40
+      12      40
+      13      40
+      14      40
+      15      40
+      16      40
+      17      40
+      18      40
+      19      40
+      1a      40
+      1b      40
+      1c      40
+      1d      40
+      1e      40
+      1f      40
       2a      41
       2e      42
       32      44
       33      44
+      34      44
+      35      44
       36      45
       37      45
       38      46
@@ -158,6 +349,25 @@ class 'pkg/TestSwitchOnEnumJ21' {
    method 'testDefault (Lpkg/TestSwitchOnEnumJ21$TestEnum;)I' {
       0      56
       4      56
+      5      56
+      6      56
+      7      56
+      8      56
+      9      56
+      a      56
+      b      56
+      c      56
+      d      56
+      e      56
+      f      56
+      10      56
+      11      56
+      12      56
+      13      56
+      14      56
+      15      56
+      16      56
+      17      56
       18      57
       1c      58
       1d      56
@@ -167,6 +377,25 @@ class 'pkg/TestSwitchOnEnumJ21' {
       3      63
       7      63
       8      63
+      9      63
+      a      63
+      b      63
+      c      63
+      d      63
+      e      63
+      f      63
+      10      63
+      11      63
+      12      63
+      13      63
+      14      63
+      15      63
+      16      63
+      17      63
+      18      63
+      19      63
+      1a      63
+      1b      63
       1c      64
       20      65
       21      63
@@ -175,6 +404,33 @@ class 'pkg/TestSwitchOnEnumJ21' {
    method 'testStatement (Lpkg/TestSwitchOnEnumJ21$TestEnum;)V' {
       0      70
       4      70
+      5      70
+      6      70
+      7      70
+      8      70
+      9      70
+      a      70
+      b      70
+      c      70
+      d      70
+      e      70
+      f      70
+      10      70
+      11      70
+      12      70
+      13      70
+      14      70
+      15      70
+      16      70
+      17      70
+      18      70
+      19      70
+      1a      70
+      1b      70
+      1c      70
+      1d      70
+      1e      70
+      1f      70
       20      72
       21      72
       22      72
@@ -199,12 +455,33 @@ class 'pkg/TestSwitchOnEnumJ21' {
       39      78
       3a      78
       3b      78
+      3c      78
+      3d      78
       3e      80
    }
 
    method 'testStatementDefault (Lpkg/TestSwitchOnEnumJ21$TestEnum;)V' {
       0      83
       4      83
+      5      83
+      6      83
+      7      83
+      8      83
+      9      83
+      a      83
+      b      83
+      c      83
+      d      83
+      e      83
+      f      83
+      10      83
+      11      83
+      12      83
+      13      83
+      14      83
+      15      83
+      16      83
+      17      83
       18      85
       19      85
       1a      85
@@ -220,6 +497,8 @@ class 'pkg/TestSwitchOnEnumJ21' {
       26      88
       27      88
       28      88
+      29      88
+      2a      88
       2b      90
    }
 }

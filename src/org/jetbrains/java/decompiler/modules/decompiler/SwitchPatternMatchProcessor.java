@@ -5,6 +5,7 @@ import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.struct.consts.PooledConstant;
 import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
@@ -15,6 +16,7 @@ import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.Pair;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 public final class SwitchPatternMatchProcessor {
   public static boolean processPatternMatching(Statement root) {
@@ -66,6 +68,7 @@ public final class SwitchPatternMatchProcessor {
     Exprent realSelector = origParams.get(0);
     boolean guarded = true;
     boolean isEnumSwitch = value.getName().equals("enumSwitch");
+    boolean nullCase = false;
     List<Pair<Statement, Exprent>> references = new ArrayList<>();
     if (origParams.get(1) instanceof VarExprent) {
       VarExprent var = (VarExprent) origParams.get(1);
@@ -134,6 +137,7 @@ public final class SwitchPatternMatchProcessor {
 
         // -1 always means null
         if (caseValue == -1) {
+          nullCase = true;
           allCases.remove(caseExpr);
           ConstExprent nullConst = new ConstExprent(VarType.VARTYPE_NULL, null, null);
           // null can be shared with a pattern or default; put it at the end, but before default, to make sure it doesn't get
@@ -155,34 +159,74 @@ public final class SwitchPatternMatchProcessor {
           oldStat.replaceWith(caseStat);
         }
       }
-      // make instanceof from assignment
-      BasicBlockStatement caseStatBlock = caseStat.getBasichead();
-      if (caseStatBlock.getExprents().size() >= 1) {
-        Exprent expr = caseStatBlock.getExprents().get(0);
-        if (expr instanceof AssignmentExprent) {
-          AssignmentExprent assign = (AssignmentExprent) expr;
 
-          if (assign.getLeft() instanceof VarExprent) {
-            VarExprent var = (VarExprent) assign.getLeft();
+      PatternExprent pattern;
+      if (stat.getCaseGuards().size() > i && stat.getCaseGuards().get(i) instanceof PatternExprent) {
+        pattern = (PatternExprent) stat.getCaseGuards().set(i, null);
+      } else {
+        pattern = identifySwitchRecordPatternMatch(stat, stat.getCaseStatements().get(i), false);
+      }
 
-            if (assign.getRight() instanceof FunctionExprent && ((FunctionExprent) assign.getRight()).getFuncType() == FunctionExprent.FunctionType.CAST) {
-              FunctionExprent cast = (FunctionExprent) assign.getRight();
+      if (pattern != null) {
+        List<Exprent> operands = new ArrayList<>();
+        operands.add(realSelector);
+        operands.add(new ConstExprent(pattern.getExprType(), null, null));
+        operands.add(pattern);
 
-              List<Exprent> operands = new ArrayList<>();
-              operands.add(cast.getLstOperands().get(0)); // checking var
-              operands.add(cast.getLstOperands().get(1)); // type
-              operands.add(var); // pattern match var
+        FunctionExprent function = new FunctionExprent(FunctionType.INSTANCEOF, operands, null);
+        allCases.set(0, function);
+      } else {
 
-              FunctionExprent func = new FunctionExprent(FunctionExprent.FunctionType.INSTANCEOF, operands, null);
+        // make instanceof from assignment
+        BasicBlockStatement caseStatBlock = caseStat.getBasichead();
+        if (caseStatBlock.getExprents().size() >= 1) {
+          Exprent expr = caseStatBlock.getExprents().get(0);
+          if (expr instanceof AssignmentExprent) {
+            AssignmentExprent assign = (AssignmentExprent) expr;
 
-              caseStatBlock.getExprents().remove(0);
+            if (assign.getLeft() instanceof VarExprent) {
+              VarExprent var = (VarExprent) assign.getLeft();
 
-              // TODO: ssau representation
-              // any shared nulls will be at the end, and patterns & defaults can't be shared, so its safe to overwrite whatever's here
-              allCases.set(0, func);
+              if (assign.getRight() instanceof FunctionExprent && ((FunctionExprent) assign.getRight()).getFuncType() == FunctionExprent.FunctionType.CAST) {
+                FunctionExprent cast = (FunctionExprent) assign.getRight();
+
+                List<Exprent> operands = new ArrayList<>();
+                operands.add(cast.getLstOperands().get(0)); // checking var
+                operands.add(cast.getLstOperands().get(1)); // type
+                operands.add(var); // pattern match var
+
+                FunctionExprent func = new FunctionExprent(FunctionExprent.FunctionType.INSTANCEOF, operands, null);
+
+                caseStatBlock.getExprents().remove(0);
+
+                // TODO: ssau representation
+                // any shared nulls will be at the end, and patterns & defaults can't be shared,
+                // so its safe to overwrite whatever's here
+                allCases.set(0, func);
+              }
             }
           }
         }
+      }
+    }
+
+    for (int i = 0; i < stat.getCaseValues().size(); i++) {
+      if (stat.getCaseValues().get(i).contains(null)) {
+        // Default case statements are required to be last
+        stat.getCaseValues().add(stat.getCaseValues().remove(i));
+        stat.getCaseStatements().add(stat.getCaseStatements().remove(i));
+        stat.getCaseEdges().add(stat.getCaseEdges().remove(i));
+        if (i < stat.getCaseGuards().size()) {
+          if (stat.getCaseGuards().get(i) != null) {
+            while (stat.getCaseGuards().size() < stat.getCaseStatements().size()) {
+              stat.getCaseGuards().add(null);
+            }
+            stat.getCaseGuards().add(stat.getCaseGuards().remove(i));
+          } else {
+            stat.getCaseGuards().remove(i);
+          }
+        }
+        break;
       }
     }
 
@@ -242,6 +286,70 @@ public final class SwitchPatternMatchProcessor {
       }
     }
 
+    // Try to inline:
+    // var stackVar = ...
+    // Objects.requireNonNull(stackVar)
+    // var var1 = stackVar
+    // switch (var1) {
+    //
+    // to:
+    // switch (...) {
+
+    Exprent oldSelector = realSelector;
+    // inline head
+    List<Exprent> basicHead = stat.getBasichead().getExprents();
+    if (realSelector instanceof VarExprent var && basicHead != null && basicHead.size() >= 1) {
+      if (basicHead.get(basicHead.size() - 1) instanceof AssignmentExprent assignment && assignment.getLeft() instanceof VarExprent assigned) {
+        if (var.equals(assigned) && !var.isVarReferenced(root,
+            Stream.concat(
+                Stream.of(assigned),
+                stat.getCaseValues().stream()
+                    .flatMap(List::stream)
+                    .filter(exp -> exp instanceof FunctionExprent func && func.getFuncType() == FunctionType.INSTANCEOF && func.getLstOperands().get(0) instanceof VarExprent checked && checked.equals(var))
+                    .map(exp -> (VarExprent) ((FunctionExprent) exp).getLstOperands().get(0)))
+                .toArray(VarExprent[]::new))) {
+          realSelector = assignment.getRight();
+          basicHead.remove(basicHead.size() - 1);
+        }
+      }
+    }
+
+    // Check for non null
+    if (basicHead != null && basicHead.size() >= 1 && realSelector instanceof VarExprent var && !nullCase) {
+      Exprent last = basicHead.get(basicHead.size() - 1);
+      AssignmentExprent stackAssignment = null;
+      if (last instanceof InvocationExprent inv && inv.isStatic() && inv.getClassname().equals("java/util/Objects") && inv.getName().equals("requireNonNull") && inv.getStringDescriptor().equals("(Ljava/lang/Object;)Ljava/lang/Object;")) {
+        VarExprent requireNonNullStackVar = null;
+        if (inv.getLstParameters().get(0) instanceof VarExprent varExprent) {
+          requireNonNullStackVar = varExprent;
+        }
+        if (basicHead.size() >= 2 && var.isStack() && !nullCase && basicHead.get(basicHead.size() - 2) instanceof AssignmentExprent assignment && assignment.getLeft() instanceof VarExprent assigned && var.equals(assigned) && !var.isVarReferenced(root, assigned, requireNonNullStackVar)) {
+          stackAssignment = assignment;
+        }
+        if (var.equals(inv.getLstParameters().get(0)) || (inv.getLstParameters().get(0).getExprentUse() & Exprent.MULTIPLE_USES) != 0 && inv.getLstParameters().get(0).equals(stackAssignment.getRight())) {
+          basicHead.remove(basicHead.size() - 1);
+          // Check for other assignment
+          if (basicHead.size() >= 1 && var.isStack() && !nullCase) {
+            last = basicHead.get(basicHead.size() - 1);
+            if (stackAssignment != null) {
+              realSelector = stackAssignment.getRight();
+              basicHead.remove(basicHead.size() - 1);
+            }
+          }
+        }
+      }
+    }
+
+    if (oldSelector != realSelector) {
+      Exprent finalSelector = realSelector;
+      // Replace the original selector with the new selector in instanceof check in case values
+      stat.getCaseValues().stream()
+          .flatMap(List::stream)
+          .filter(Objects::nonNull)
+          .filter(exp -> exp instanceof FunctionExprent func && func.getFuncType() == FunctionType.INSTANCEOF && func.getLstOperands().get(0).equals(oldSelector))
+          .forEach(exp -> ((FunctionExprent) exp).getLstOperands().set(0, finalSelector));
+    }
+
     head.setValue(realSelector); // SwitchBootstraps.typeSwitch(o, var1) -> o
 
     if (guarded && stat.getParent() instanceof DoStatement) {
@@ -265,6 +373,23 @@ public final class SwitchPatternMatchProcessor {
     // alternatively, it can be inverted as `if (guardCond) { /* regular case code... */ break; } idx = __thisIdx + 1;`
     if (reference.b instanceof AssignmentExprent) {
       Statement assignStat = reference.a;
+
+      // If a record pattern contains an `instanceof` check then a guard is used so
+      // attempt to eliminate it
+      for (int i = 0; i < stat.getCaseStatements().size(); i++) {
+        if (stat.getCaseStatements().get(i).containsStatement(assignStat)) {
+          Statement patternStat = stat.getCaseStatements().get(i);
+          PatternExprent pattern = identifySwitchRecordPatternMatch(stat, patternStat, simulate);
+          if (pattern != null) {
+            if (!simulate) {
+              guards.put(stat.getCaseValues().get(i), pattern);
+            }
+            return true;
+          }
+          break;
+        }
+      }
+
       // Note: This can probably be checked earlier
       if (assignStat.getAllPredecessorEdges().size() > 1) {
         return false;
@@ -381,6 +506,28 @@ public final class SwitchPatternMatchProcessor {
       }
     }
     return false;
+  }
+
+  private static PatternExprent identifySwitchRecordPatternMatch(SwitchStatement stat, Statement statement, boolean simulate) {
+    BasicBlockStatement head = statement.getBasichead();
+    if (head.getExprents() == null || head.getExprents().isEmpty()) {
+      return null;
+    }
+
+    Exprent first = head.getExprents().get(0);
+
+    if (!(first instanceof AssignmentExprent assignment)) {
+      return null;
+    }
+
+    if (!(assignment.getLeft() instanceof VarExprent assigned)) {
+      return null;
+    }
+    PatternExprent pattern = IfPatternMatchProcessor.identifyRecordPatternMatch(stat, statement, assigned, assigned.getExprType(), simulate);
+    if (pattern != null && !simulate) {
+      head.getExprents().remove(0);
+    }
+    return pattern;
   }
 
   private static boolean isSwitchPatternMatch(SwitchHeadExprent head) {

@@ -24,4 +24,9 @@ class TestReflection {
     println(f)
     f(TestReflection())
   }
+
+  fun testThis() {
+    val x = this::class
+    println(x)
+  }
 }

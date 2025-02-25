@@ -1,9 +1,9 @@
 package pkg
 
-class TestSafeCasts {
+public class TestSafeCasts {
    public fun test(obj: Any): Boolean {
-      var t: Int = obj as? Integer;// 5
-      if ((obj as? Integer) != null) {// 7
+      val t: Int = obj as? Int;// 5
+      if ((obj as? Int) != null) {// 7
          if (t == 1) {
             return true;
          }
@@ -13,11 +13,11 @@ class TestSafeCasts {
    }
 
    public fun testTestBefore(obj: Any): Boolean? {
-      if (obj !is Integer) {// 11
+      if (obj !is Int) {// 11
          return null;// 12
       } else {
-         var t: Int = obj as? Integer;// 15
-         if ((obj as? Integer) != null) {// 17
+         val t: Int = obj as? Int;// 15
+         if ((obj as? Int) != null) {// 17
             if (t == 1) {
                return true;
             }
@@ -32,12 +32,12 @@ class TestSafeCasts {
    }
 
    public fun testSmartCastIncompatible(obj: Any): Boolean {
-      return obj is Integer && (obj as? java.lang.String) == "1";// 27 31 33
+      return obj is Int && (obj as? java.lang.String) == "1";// 27 31 33
    }
 
    public fun testCastNonNullToNullable(obj: Any): Boolean {
-      var t: Int = obj as? Integer;// 37
-      if ((obj as? Integer) != null) {// 39
+      val t: Int = obj as? Int;// 37
+      if ((obj as? Int) != null) {// 39
          if (t == 1) {
             return true;
          }
@@ -47,11 +47,11 @@ class TestSafeCasts {
    }
 
    public fun testBeforeNonNullToNullable(obj: Any): Boolean? {
-      if (obj !is Integer) {// 43
+      if (obj !is Int) {// 43
          return null;// 44
       } else {
-         var t: Int = obj as? Integer;// 47
-         if ((obj as? Integer) != null) {// 49
+         val t: Int = obj as? Int;// 47
+         if ((obj as? Int) != null) {// 49
             if (t == 1) {
                return true;
             }
@@ -62,8 +62,8 @@ class TestSafeCasts {
    }
 
    public fun testCastNullableToNullable(obj: Any?): Boolean {
-      var t: Int = obj as? Integer;// 53
-      if ((obj as? Integer) != null) {// 55
+      val t: Int = obj as? Int;// 53
+      if ((obj as? Int) != null) {// 55
          if (t == 1) {
             return true;
          }
@@ -73,11 +73,11 @@ class TestSafeCasts {
    }
 
    public fun testBeforeNullableToNullable(obj: Any?): Boolean? {
-      if (obj != null && obj !is Integer) {// 59
+      if (obj != null && obj !is Int) {// 59
          return null;// 60
       } else {
-         var t: Int = obj as? Integer;// 63
-         if ((obj as? Integer) != null) {// 65
+         val t: Int = obj as? Int;// 63
+         if ((obj as? Int) != null) {// 65
             if (t == 1) {
                return true;
             }
@@ -91,16 +91,22 @@ class TestSafeCasts {
 class 'pkg/TestSafeCasts' {
    method 'test (Ljava/lang/Object;)Z' {
       a      4
+      b      4
+      c      4
       d      4
       15      4
       16      5
       17      6
       1a      5
+      1b      5
+      1c      5
       21      6
       22      6
       23      6
       24      6
       25      6
+      26      6
+      27      6
       28      7
       2c      11
       2d      7
@@ -109,29 +115,40 @@ class 'pkg/TestSafeCasts' {
    method 'testTestBefore (Ljava/lang/Object;)Ljava/lang/Boolean;' {
       6      15
       a      15
+      b      15
+      c      15
       d      16
       e      16
-      13      18
+      f      18
+      15      18
       16      18
-      1e      18
-      1f      19
-      20      20
-      23      19
-      2a      20
-      2b      20
+      17      18
+      18      18
+      20      18
+      21      19
+      22      20
+      25      19
+      26      19
+      27      19
       2c      20
       2d      20
       2e      20
-      31      21
-      35      25
-      36      21
-      37      21
+      2f      20
+      30      20
+      31      20
+      32      20
+      33      21
+      37      25
       38      21
       39      21
+      3a      21
+      3b      21
    }
 
    method 'testHardIncompatible (I)Z' {
       7      30
+      8      30
+      9      30
       a      30
       b      30
       c      30
@@ -148,25 +165,36 @@ class 'pkg/TestSafeCasts' {
       8      34
       9      34
       a      34
-      13      34
+      b      34
+      c      34
+      f      34
+      15      34
       16      34
-      1f      34
-      20      34
+      17      34
+      18      34
       21      34
+      22      34
+      23      34
    }
 
    method 'testCastNonNullToNullable (Ljava/lang/Object;)Z' {
       a      38
+      b      38
+      c      38
       d      38
       15      38
       16      39
       17      40
       1a      39
+      1b      39
+      1c      39
       21      40
       22      40
       23      40
       24      40
       25      40
+      26      40
+      27      40
       28      41
       2c      45
       2d      41
@@ -175,39 +203,54 @@ class 'pkg/TestSafeCasts' {
    method 'testBeforeNonNullToNullable (Ljava/lang/Object;)Ljava/lang/Boolean;' {
       6      49
       a      49
+      b      49
+      c      49
       d      50
       e      50
-      13      52
+      f      52
+      15      52
       16      52
-      1e      52
-      1f      53
-      20      54
-      23      53
-      2a      54
-      2b      54
+      17      52
+      18      52
+      20      52
+      21      53
+      22      54
+      25      53
+      26      53
+      27      53
       2c      54
       2d      54
       2e      54
-      31      55
-      35      59
-      36      55
-      37      55
+      2f      54
+      30      54
+      31      54
+      32      54
+      33      55
+      37      59
       38      55
       39      55
+      3a      55
+      3b      55
    }
 
    method 'testCastNullableToNullable (Ljava/lang/Object;)Z' {
       4      64
+      5      64
+      6      64
       7      64
       f      64
       10      65
       11      66
       14      65
+      15      65
+      16      65
       1b      66
       1c      66
       1d      66
       1e      66
       1f      66
+      20      66
+      21      66
       22      67
       26      71
       27      67
@@ -216,27 +259,40 @@ class 'pkg/TestSafeCasts' {
    method 'testBeforeNullableToNullable (Ljava/lang/Object;)Ljava/lang/Boolean;' {
       0      75
       2      75
+      3      75
+      4      75
       a      75
+      b      75
+      c      75
       d      75
+      e      75
+      f      75
       10      76
       11      76
-      16      78
+      12      78
+      18      78
       19      78
-      21      78
-      22      79
-      23      80
-      26      79
-      2d      80
-      2e      80
+      1a      78
+      1b      78
+      23      78
+      24      79
+      25      80
+      28      79
+      29      79
+      2a      79
       2f      80
       30      80
       31      80
-      34      81
-      38      85
-      39      81
-      3a      81
+      32      80
+      33      80
+      34      80
+      35      80
+      36      81
+      3a      85
       3b      81
       3c      81
+      3d      81
+      3e      81
    }
 }
 

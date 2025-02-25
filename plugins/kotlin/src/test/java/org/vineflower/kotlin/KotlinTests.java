@@ -7,12 +7,15 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import java.nio.file.Path;
 
 import static org.jetbrains.java.decompiler.SingleClassesTestBase.TestDefinition.Version.KOTLIN;
+import static org.jetbrains.java.decompiler.SingleClassesTestBase.TestDefinition.Version.KOTLIN_OLD;
 
 public class KotlinTests extends SingleClassesTestBase {
 
   protected Path getClassFile(DecompilerTestFixture fixture, TestDefinition.Version version, String name) {
     Path reg = fixture.getTestDataDir().resolve("classes/" + version.directory + "/" + name + ".class");
     Path kt = fixture.getTestDataDir().resolve("classes/" + version.directory + "/" + name + "Kt.class");
+
+    int x = 0;
 
     return reg.toFile().exists() ? reg : kt;
   }
@@ -85,5 +88,9 @@ public class KotlinTests extends SingleClassesTestBase {
     register(KOTLIN, "TestReflection");
     register(KOTLIN, "TestConstructors");
     register(KOTLIN, "TestContracts");
+    register(KOTLIN, "TestStringInterpolation");
+    register(KOTLIN_OLD, "TestClassicStringInterpolation");
+    register(KOTLIN, "TestCompanionObject");
+    register(KOTLIN, "TestEnumClass");
   }
 }

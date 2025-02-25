@@ -36,6 +36,8 @@ import java.io.IOException;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ClassesProcessor implements CodeConstants {
   public static final int AVERAGE_CLASS_SIZE = 16 * 1024;
@@ -94,8 +96,31 @@ public class ClassesProcessor implements CodeConstants {
     boolean bDecompileInner = DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_INNER);
     boolean verifyAnonymousClasses = DecompilerContext.getOption(IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES);
 
+    Matcher excludedMatcher = null;
+    String excludedRegex = DecompilerContext.getProperty(IFernflowerPreferences.EXCLUDED_CLASSES).toString();
+    if (!excludedRegex.isEmpty()) {
+      excludedMatcher = Pattern.compile(excludedRegex).matcher("");
+    }
+
+    // Filter any duplicate classes
+
+    List<StructClass> ownClasses = context.getOwnClasses();
+    List<StructClass> classes = new ArrayList<>();
+    Set<String> names = new LinkedHashSet<>();
+
+    for (StructClass cl : ownClasses) {
+      if (names.add(cl.qualifiedName)) {
+        classes.add(cl);
+      } else {
+        DecompilerContext.getLogger().writeMessage("Skipping processing already existing class: " + cl.qualifiedName, IFernflowerLogger.Severity.ERROR);
+      }
+    }
+
     // create class nodes
-    for (StructClass cl : context.getOwnClasses()) {
+    for (StructClass cl : classes) {
+      if (excludedMatcher != null && excludedMatcher.reset(cl.qualifiedName).matches()) {
+        continue;
+      }
       if (!mapRootClasses.containsKey(cl.qualifiedName)) {
         if (bDecompileInner) {
           StructInnerClassesAttribute inner = cl.getAttribute(StructGeneralAttribute.ATTRIBUTE_INNER_CLASSES);
@@ -165,7 +190,8 @@ public class ClassesProcessor implements CodeConstants {
               if (enclClassName == null || innerName.equals(enclClassName)) {
                 continue;  // invalid name or self reference
               }
-              if (rec.type == ClassNode.Type.MEMBER && !innerName.equals(enclClassName + '$' + entry.simpleName)) {
+              if (DecompilerContext.getOption(IFernflowerPreferences.VALIDATE_INNER_CLASSES_NAMES) &&
+                  rec.type == ClassNode.Type.MEMBER && !innerName.equals(enclClassName + '$' + entry.simpleName)) {
                 continue;  // not a real inner class
               }
 

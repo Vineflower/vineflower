@@ -213,6 +213,8 @@ class 'pkg/TestAnonymousClass' {
    method 'foo (I)V' {
       0      54
       1      54
+      2      54
+      3      54
       c      55
       d      62
       e      62
@@ -227,6 +229,8 @@ class 'pkg/TestAnonymousClass' {
       1a      65
       1b      65
       1c      65
+      1d      65
+      1e      65
       1f      67
    }
 

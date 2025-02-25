@@ -34,6 +34,8 @@ class 'pkg/TestRecordCanonicalConstructor2' {
       5      4
       6      5
       7      5
+      8      5
+      9      5
       e      6
       f      6
       13      6
@@ -43,6 +45,8 @@ class 'pkg/TestRecordCanonicalConstructor2' {
    method '<init> (Ljava/lang/String;Ljava/lang/Object;)V' {
       4      11
       5      11
+      6      11
+      7      11
       c      12
       d      12
       11      12
@@ -70,6 +74,8 @@ class 'pkg/TestRecordCanonicalConstructor2' {
       8      20
       9      21
       a      21
+      b      21
+      c      21
       11      22
       12      22
       16      22

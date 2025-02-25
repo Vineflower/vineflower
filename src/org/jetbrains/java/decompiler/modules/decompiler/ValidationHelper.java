@@ -203,6 +203,12 @@ public final class ValidationHelper {
       return;
     }
 
+    if (stat.type == Statement.StatementType.BASIC_BLOCK) {
+      if (stat.getAllSuccessorEdges().isEmpty()) {
+        throw new IllegalStateException("Basic block " + stat + " has no edges");
+      }
+    }
+
     switch (stat.type) {
       case IF:
         validateIfStatement((IfStatement) stat);
@@ -361,11 +367,11 @@ public final class ValidationHelper {
       // ensure all exprents are unique
       Map<ID<Exprent>, DirectNode> allExprents = new HashMap<>();
 
-      for (var node : graph.nodes) {
-        for (var exprent : node.exprents) {
-          for (var subExprent : exprent.getAllExprents(true, true)) {
+      for (DirectNode node : graph.nodes) {
+        for (Exprent exprent : node.exprents) {
+          for (Exprent subExprent : exprent.getAllExprents(true, true)) {
             ID<Exprent> key = new ID<>(subExprent);
-            if (allExprents.containsKey(key)) {
+            if (allExprents.containsKey(key) && !(subExprent instanceof VarExprent)) {
               throw new IllegalStateException(
                 "Duplicated exprent: " + subExprent + " (Sub exprent of: " + exprent + ") in dgraph. " +
                   "Appears in both node " + node.id + " and node " + allExprents.get(key).id + "!"

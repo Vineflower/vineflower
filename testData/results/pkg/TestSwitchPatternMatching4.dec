@@ -1,11 +1,8 @@
 package pkg;
 
-import java.util.Objects;
-
 public class TestSwitchPatternMatching4 {
    static void test(Object s) {
-      Objects.requireNonNull(s);// 5
-      switch (s) {
+      switch (s) {// 5
          default:
             System.out.println("default");// 7
       }
@@ -14,25 +11,33 @@ public class TestSwitchPatternMatching4 {
 
 class 'pkg/TestSwitchPatternMatching4' {
    method 'test (Ljava/lang/Object;)V' {
-      0      6
-      2      6
-      3      6
-      4      6
-      9      7
-      10      7
-      1c      9
-      1d      9
-      1e      9
-      1f      9
-      20      9
-      21      9
-      22      9
-      23      9
-      24      11
+      0      4
+      9      4
+      10      4
+      11      4
+      12      4
+      13      4
+      14      4
+      15      4
+      16      4
+      17      4
+      18      4
+      19      4
+      1a      4
+      1b      4
+      1c      6
+      1d      6
+      1e      6
+      1f      6
+      20      6
+      21      6
+      22      6
+      23      6
+      24      8
    }
 }
 
 Lines mapping:
-5 <-> 7
-7 <-> 10
-9 <-> 12
+5 <-> 5
+7 <-> 7
+9 <-> 9

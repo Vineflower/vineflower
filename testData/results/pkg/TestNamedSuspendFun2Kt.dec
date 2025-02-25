@@ -11,19 +11,19 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Metadata(
-   mv = {1, 6, 0},
+   mv = {2, 0, 0},
    k = 2,
    xi = 48,
-   d1 = {"\u0000\n\n\u0000\n\u0002\u0010\b\n\u0002\b\u0003\u001a\u0011\u0010\u0000\u001a\u00020\u0001H\u0086@ø\u0001\u0000¢\u0006\u0002\u0010\u0002\u001a\u0011\u0010\u0003\u001a\u00020\u0001H\u0086@ø\u0001\u0000¢\u0006\u0002\u0010\u0002\u0082\u0002\u0004\n\u0002\b\u0019¨\u0006\u0004"},
-   d2 = {"bar", "", "(Lkotlin/coroutines/Continuation;)Ljava/lang/Object;", "foo2", "vineflower_testDataKotlin"}
+   d1 = {"\u0000\n\n\u0000\n\u0002\u0010\b\n\u0002\b\u0003\u001a\u000e\u0010\u0000\u001a\u00020\u0001H\u0086@¢\u0006\u0002\u0010\u0002\u001a\u000e\u0010\u0003\u001a\u00020\u0001H\u0086@¢\u0006\u0002\u0010\u0002¨\u0006\u0004"},
+   d2 = {"foo2", "", "(Lkotlin/coroutines/Continuation;)Ljava/lang/Object;", "bar", "vineflower_testDataKotlin"}
 )
 public final class TestNamedSuspendFun2Kt {
    // $VF: Handled exception range with multiple entry points by splitting it
-   // $VF: Inserted dummy exception handlers to handle obfuscated exceptions
+   // $VF: Duplicated exception handlers to handle obfuscated exceptions
    // $VF: Irreducible bytecode was duplicated to produce valid code
    // $VF: Could not inline inconsistent finally blocks
    @Nullable
-   public static final Object foo2(@NotNull Continuation<? super Integer> var0) {
+   public static final Object foo2(@NotNull Continuation<? super Integer> $completion) {
       Continuation $continuation;
 
       @DebugMetadata(
@@ -36,7 +36,7 @@ public final class TestNamedSuspendFun2Kt {
          c = "pkg.TestNamedSuspendFun2Kt"
       )
       @Metadata(
-         mv = {1, 6, 0},
+         mv = {2, 0, 0},
          k = 3,
          xi = 48
       )
@@ -57,111 +57,117 @@ public final class TestNamedSuspendFun2Kt {
          }
       }
 
-      label261: {
-         if (var0 instanceof NamelessClass_1) {
-            $continuation = (NamelessClass_1)var0;
+      label272: {
+         if ($completion instanceof NamelessClass_1) {
+            $continuation = (NamelessClass_1)$completion;
             if (($continuation.label & -2147483648) != 0) {
                $continuation.label -= -2147483648;
-               break label261;
+               break label272;
             }
          }
 
-         $continuation = new NamelessClass_1(var0);
+         $continuation = new NamelessClass_1($completion);
       }
 
       Object var4;
-      label279: {
-         Throwable var10000;
-         label250: {
-            Object $result = $continuation.result;
-            var4 = IntrinsicsKt.getCOROUTINE_SUSPENDED();
-            switch ($continuation.label) {
-               case 0:
+      label261: {
+         Object $result = $continuation.result;
+         var4 = IntrinsicsKt.getCOROUTINE_SUSPENDED();
+         switch ($continuation.label) {
+            case 0:
+               ResultKt.throwOnFailure($result);
+               break;
+            case 1:
+               Object var10000;
+               try {
                   ResultKt.throwOnFailure($result);
-                  break;
-               case 1:
-                  try {
-                     ResultKt.throwOnFailure($result);
-                     var10000 = (Throwable)$result;
-                  } catch (Throwable var19) {
-                     var10000 = var19;
-                     boolean var10001 = false;
-                     break label250;
+                  var10000 = $result;
+               } catch (Throwable var18) {
+                  $continuation.L$0 = var18;
+                  $continuation.label = 4;
+                  if (bar($continuation) == var4) {
+                     return var4;// 2
                   }
 
-                  try {
-                     int x = ((Number)var10000).intValue();// 5
-                     if (x == 0) {// 6
-                        break label279;
-                     }
-                  } catch (Throwable var17) {
-                     var10000 = var17;
-                     boolean var25 = false;
-                     break label250;
-                  }
+                  throw var18;
+               }
 
-                  $continuation.label = 3;
+               try {
+                  int x = ((Number)var10000).intValue();// 5
+                  if (x == 0) {// 6
+                     break label261;
+                  }
+               } catch (Throwable var19) {
+                  $continuation.L$0 = var19;
+                  $continuation.label = 4;
                   if (bar($continuation) == var4) {
                      return var4;
                   }
-                  break;
-               case 2:
-                  ResultKt.throwOnFailure($result);
-                  return Boxing.boxInt(1);// 2 7 8 9 11
-               case 3:
-                  ResultKt.throwOnFailure($result);
-                  break;
-               case 4:
-                  Throwable x = (Throwable)$continuation.L$0;
-                  ResultKt.throwOnFailure($result);
-                  throw x;
-               default:
-                  throw new IllegalStateException("call to 'resume' before 'invoke' with coroutine");
-            }
 
-            while (true) {
-               try {
-                  $continuation.label = 1;
-                  var10000 = (Throwable)bar($continuation);// 4
-               } catch (Throwable var18) {
-                  var10000 = var18;
-                  boolean var26 = false;
-                  break;
-               }
-
-               if (var10000 == var4) {
-                  return var4;
-               }
-
-               try {
-                  int var22 = ((Number)var10000).intValue();
-                  if (var22 == 0) {
-                     break label279;
-                  }
-               } catch (Throwable var20) {
-                  var10000 = var20;
-                  boolean var27 = false;
-                  break;
+                  throw var19;
                }
 
                $continuation.label = 3;
                if (bar($continuation) == var4) {
                   return var4;
                }
+               break;
+            case 2:
+               ResultKt.throwOnFailure($result);
+               return Boxing.boxInt(1);// 11
+            case 3:
+               ResultKt.throwOnFailure($result);
+               break;
+            case 4:
+               Throwable x = (Throwable)$continuation.L$0;
+               ResultKt.throwOnFailure($result);
+               throw x;
+            default:
+               throw new IllegalStateException("call to 'resume' before 'invoke' with coroutine");
+         }
+
+         while (true) {
+            Object var23;
+            try {
+               $continuation.label = 1;
+               var23 = bar($continuation);// 4
+            } catch (Throwable var17) {
+               $continuation.L$0 = var17;
+               $continuation.label = 4;
+               if (bar($continuation) == var4) {
+                  return var4;
+               }
+
+               throw var17;
+            }
+
+            if (var23 == var4) {
+               return var4;
+            }
+
+            try {
+               int var22 = ((Number)var23).intValue();
+               if (var22 == 0) {
+                  break;
+               }
+            } catch (Throwable var20) {
+               $continuation.L$0 = var20;
+               $continuation.label = 4;
+               if (bar($continuation) == var4) {
+                  return var4;
+               }
+
+               throw var20;
+            }
+
+            $continuation.label = 3;
+            if (bar($continuation) == var4) {
+               return var4;
             }
          }
-
-         Throwable x = var10000;
-         $continuation.L$0 = x;
-         $continuation.label = 4;
-         if (bar($continuation) == var4) {
-            return var4;
-         }
-
-         throw x;
       }
 
-      $continuation.label = 2;
+      $continuation.label = 2;// 8
       return bar($continuation) == var4 ? var4 : Boxing.boxInt(1);
    }
 
@@ -210,6 +216,8 @@ class 'pkg/TestNamedSuspendFun2Kt' {
       2      60
       3      60
       4      60
+      5      60
+      6      60
       7      61
       8      61
       9      61
@@ -223,6 +231,8 @@ class 'pkg/TestNamedSuspendFun2Kt' {
       11      62
       12      62
       13      62
+      14      62
+      15      62
       16      63
       1b      63
       1c      63
@@ -232,165 +242,193 @@ class 'pkg/TestNamedSuspendFun2Kt' {
       21      64
       28      68
       2c      68
-      2d      75
-      2e      75
-      2f      75
-      30      75
-      31      75
-      32      76
-      33      76
-      34      76
-      35      76
-      36      76
-      37      77
-      38      77
-      39      77
-      3a      77
-      3b      77
-      5c      79
-      5d      79
-      62      124
-      63      123
-      64      123
-      65      123
-      66      123
-      67      123
-      68      124
-      6c      131
-      6d      131
-      6e      131
-      71      132
-      72      132
-      73      132
-      75      83
-      76      83
-      77      83
-      78      83
-      79      84
-      7a      92
-      7b      92
-      7c      92
-      7d      92
-      7e      92
-      7f      92
-      80      92
-      81      93
-      82      93
-      85      164
-      86      163
-      87      163
-      88      163
-      89      163
-      8a      163
-      8b      164
-      8c      164
-      8d      164
-      8f      164
-      90      164
-      91      164
-      94      164
-      95      164
-      97      108
-      98      108
-      99      108
-      9a      108
-      9d      109
-      9e      109
-      9f      109
-      a0      103
-      a1      102
-      a2      102
-      a3      102
-      a4      102
-      a5      102
-      a6      103
-      a7      103
-      a8      103
-      a9      109
-      aa      103
-      ab      103
-      ac      103
-      ad      109
-      ae      109
-      af      104
-      b0      104
-      b1      104
-      b2      109
-      b3      109
-      b4      109
-      b5      109
-      b6      109
-      b7      109
-      b8      109
-      b9      109
-      ba      109
-      bb      109
-      bc      109
-      bd      109
-      be      109
-      bf      109
-      c0      109
-      c1      109
-      c2      109
-      c3      109
-      c4      109
-      c5      109
-      c6      109
-      c7      109
-      c8      109
-      c9      109
-      ca      109
-      cb      109
-      cc      109
-      cd      109
-      ce      109
-      cf      109
-      d0      109
-      d1      109
-      d2      109
-      d3      109
-      d4      109
-      d5      109
-      d6      109
-      d7      109
-      d8      109
-      d9      109
-      da      109
-      db      109
-      dc      109
-      dd      109
-      de      109
-      df      109
-      e0      109
-      e1      109
-      e2      109
-      e3      109
-      e4      109
-      e5      109
-      e6      109
-      ec      118
-      ed      118
-      f1      118
+      2d      73
+      2e      73
+      2f      73
+      30      73
+      31      73
+      32      74
+      33      74
+      34      74
+      35      74
+      36      74
+      37      75
+      38      75
+      39      75
+      3a      75
+      3b      75
+      3c      75
+      3d      75
+      3e      75
+      3f      75
+      40      75
+      41      75
+      42      75
+      43      75
+      44      75
+      45      75
+      46      75
+      47      75
+      48      75
+      49      75
+      4a      75
+      4b      75
+      4c      75
+      4d      75
+      4e      75
+      4f      75
+      50      75
+      51      75
+      52      75
+      53      75
+      54      75
+      55      75
+      56      75
+      57      75
+      58      75
+      59      75
+      5a      75
+      5b      75
+      5c      77
+      5d      77
+      5e      77
+      5f      77
+      62      132
+      63      131
+      64      131
+      65      131
+      66      131
+      67      131
+      68      132
+      69      132
+      6a      132
+      6c      143
+      6d      143
+      6e      143
+      6f      143
+      70      143
+      71      144
+      72      144
+      73      144
+      75      82
+      76      82
+      77      82
+      78      82
+      79      83
+      7a      95
+      7b      95
+      7c      95
+      7d      95
+      7e      95
+      7f      95
+      80      95
+      81      96
+      82      96
+      83      96
+      84      96
+      85      170
+      86      169
+      87      169
+      88      169
+      89      169
+      8a      169
+      8b      170
+      8c      170
+      8d      170
+      8f      170
+      90      170
+      91      170
+      92      170
+      93      170
+      94      170
+      95      170
+      97      115
+      98      115
+      99      115
+      9a      115
+      9d      116
+      a0      110
+      a1      109
+      a2      109
+      a3      109
+      a4      109
+      a5      109
+      a6      110
+      a7      110
+      a8      110
+      aa      110
+      ab      110
+      ac      110
+      ad      110
+      ae      110
+      af      111
+      b0      111
+      b1      111
+      b2      118
+      b3      118
+      b4      118
+      b5      118
+      bc      136
+      bd      134
+      be      134
+      bf      134
+      c0      134
+      c1      134
+      c2      135
+      c3      135
+      c4      135
+      c5      135
+      c6      135
+      c7      136
+      c8      136
+      c9      136
+      cb      136
+      cc      136
+      cd      136
+      ce      136
+      cf      136
+      d0      88
+      d1      88
+      d2      88
+      d3      121
+      d4      121
+      d5      121
+      d6      121
+      d7      121
+      d8      121
+      d9      121
+      da      121
+      db      122
+      dc      122
+      dd      122
+      de      122
+      e1      91
+      e2      91
+      e3      116
+      e4      116
+      e5      116
+      ec      125
+      ed      125
+      f1      125
    }
 
    method 'bar (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;' {
-      0      169
-      1      169
-      2      169
-      3      169
-      4      169
+      0      175
+      1      175
+      2      175
+      3      175
+      4      175
    }
 }
 
 Lines mapping:
-2 <-> 110
-4 <-> 125
-5 <-> 93
-6 <-> 94
-7 <-> 110
-8 <-> 110
-9 <-> 110
-11 <-> 110
-14 <-> 170
+2 <-> 89
+4 <-> 133
+5 <-> 96
+6 <-> 97
+8 <-> 170
+11 <-> 117
+14 <-> 176
 Not mapped:
 3
+9

@@ -1,6 +1,6 @@
 package pkg
 
-class TestInfixFun {
+public class TestInfixFun {
    public fun test() {
       System.out.println(test$times(2, "Bye "));// 7
    }// 8

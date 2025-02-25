@@ -7,9 +7,9 @@ import java.time.Duration
 
 plugins {
   id 'jacoco'
-  id 'com.github.johnrengelman.shadow' version '8.1.1'
-  id 'org.jetbrains.kotlin.jvm' version '1.6.21'
-  id("io.github.gradle-nexus.publish-plugin") version '2.0.0-rc-2'
+  id 'com.gradleup.shadow' version '8.3.0'
+  id 'org.jetbrains.kotlin.jvm' version '2.0.0'
+  id("io.github.gradle-nexus.publish-plugin") version '2.0.0'
 }
 
 apply plugin: 'jacoco'
@@ -20,19 +20,19 @@ apply plugin: 'maven-publish'
 apply plugin: 'signing'
 
 allprojects {
-  apply plugin: 'com.github.johnrengelman.shadow'
+  apply plugin: 'com.gradleup.shadow'
   apply plugin: 'java'
   ext.isArm = System.getProperty('os.arch') == 'aarch64'
 
   group = 'org.vineflower'
 
   compileJava {
-    sourceCompatibility = '11'
-    targetCompatibility = '11'
+    sourceCompatibility = '17'
+    targetCompatibility = '17'
   }
 
   java.toolchain {
-    languageVersion = JavaLanguageVersion.of(11)
+    languageVersion = JavaLanguageVersion.of(17)
   }
 
   repositories {
@@ -56,9 +56,9 @@ allprojects {
 }
 
 group = 'org.vineflower'
-archivesBaseName = 'vineflower'
+base.archivesName = 'vineflower'
 
-version = '1.10.1'
+version = '1.11.0'
 
 def ENV = System.getenv()
 version = version + (ENV.GITHUB_ACTIONS ? "" : "+local")
@@ -146,7 +146,7 @@ def testJavaRuntimes = [:]
         languageVersion = JavaLanguageVersion.of(runtimeVersion)
     }
 }
-[16, 17, 19, 21].forEach { version -> createJavaTestDataSet(version, "Preview", ["--enable-preview"]) }
+[16, 17, 21].forEach { version -> createJavaTestDataSet(version, "Preview", ["--enable-preview"]) }
 [8, 16].forEach { version -> createJavaTestDataSet(version, "NoDebug", ["-g:none"])}
 
 task compileTestDataJasm(type: JasmCompile) {

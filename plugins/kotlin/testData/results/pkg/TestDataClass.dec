@@ -1,10 +1,10 @@
 package pkg
 
-data class TestDataClass(dataClassVal: Regex, variableWithVeryLongName: Int, requestLineWrapsIfTheParamListIsTooLong: List<String>, nullability: String?) {
+public data class TestDataClass(dataClassVal: Regex, variableWithVeryLongName: Int, requestLineWrapsIfTheParamListIsTooLong: List<String>, nullability: String?) {
    public final val dataClassVal: Regex
-   public final val nullability: String?
-   public final val requestLineWrapsIfTheParamListIsTooLong: List<String>
    public final val variableWithVeryLongName: Int
+   public final val requestLineWrapsIfTheParamListIsTooLong: List<String>
+   public final val nullability: String?
 
    init {
       this.dataClassVal = dataClassVal;// 4
@@ -29,42 +29,17 @@ data class TestDataClass(dataClassVal: Regex, variableWithVeryLongName: Int, req
       return this.nullability;
    }
 
-   public fun copy(dataClassVal: Regex, variableWithVeryLongName: Int, requestLineWrapsIfTheParamListIsTooLong: List<String>, nullability: String?): TestDataClass {
+   public fun copy(
+      dataClassVal: Regex = this.dataClassVal,
+      variableWithVeryLongName: Int = this.variableWithVeryLongName,
+      requestLineWrapsIfTheParamListIsTooLong: List<String> = this.requestLineWrapsIfTheParamListIsTooLong,
+      nullability: String? = this.nullability
+   ): TestDataClass {
       return new TestDataClass(dataClassVal, variableWithVeryLongName, requestLineWrapsIfTheParamListIsTooLong, nullability);
    }
 
-   @JvmStatic
-   @JvmSynthetic
-   fun `copy$default`(var0: TestDataClass, var1: Regex, var2: Int, var3: java.util.List, var4: java.lang.String, var5: Int, var6: Any): TestDataClass {
-      if ((var5 and 1) != 0) {
-         var1 = var0.dataClassVal;
-      }
-
-      if ((var5 and 2) != 0) {
-         var2 = var0.variableWithVeryLongName;
-      }
-
-      if ((var5 and 4) != 0) {
-         var3 = var0.requestLineWrapsIfTheParamListIsTooLong;
-      }
-
-      if ((var5 and 8) != 0) {
-         var4 = var0.nullability;
-      }
-
-      return var0.copy(var1, var2, var3, var4);
-   }
-
    public open fun toString(): String {
-      return "TestDataClass(dataClassVal="
-         + this.dataClassVal
-         + ", variableWithVeryLongName="
-         + this.variableWithVeryLongName
-         + ", requestLineWrapsIfTheParamListIsTooLong="
-         + this.requestLineWrapsIfTheParamListIsTooLong
-         + ", nullability="
-         + this.nullability
-         + ")";
+      return "TestDataClass(dataClassVal=${this.dataClassVal}, variableWithVeryLongName=${this.variableWithVeryLongName}, requestLineWrapsIfTheParamListIsTooLong=${this.requestLineWrapsIfTheParamListIsTooLong}, nullability=${this.nullability})";
    }
 
    public open fun hashCode(): Int {
@@ -82,7 +57,7 @@ data class TestDataClass(dataClassVal: Regex, variableWithVeryLongName: Int, req
       } else if (other !is TestDataClass) {
          return false;
       } else {
-         var var2: TestDataClass = other as TestDataClass;
+         val var2: TestDataClass = other as TestDataClass;
          if (!(this.dataClassVal == (other as TestDataClass).dataClassVal)) {
             return false;
          } else if (this.variableWithVeryLongName != var2.variableWithVeryLongName) {
@@ -155,202 +130,177 @@ class 'pkg/TestDataClass' {
    }
 
    method 'copy (Lkotlin/text/Regex;ILjava/util/List;Ljava/lang/String;)Lpkg/TestDataClass;' {
-      10      32
-      11      32
-      12      32
-      13      32
-      14      32
-      18      32
+      7      32
+      8      32
+      9      32
+      a      32
+      10      37
+      11      37
+      12      37
+      13      33
+      14      33
+      15      33
+      16      33
+      18      37
+      1f      34
+      20      34
+      21      34
+      22      34
+      2c      35
+      2d      35
+      2e      35
+      2f      35
    }
 
-   method 'copy$default (Lpkg/TestDataClass;Lkotlin/text/Regex;ILjava/util/List;Ljava/lang/String;ILjava/lang/Object;)Lpkg/TestDataClass;' {
-      0      38
-      1      38
-      2      38
-      3      38
-      4      38
-      7      39
-      8      39
-      9      39
-      a      39
-      b      39
-      c      42
-      d      42
-      e      42
-      f      42
-      10      42
-      13      43
-      14      43
-      15      43
-      16      43
-      17      43
+   method 'toString ()Ljava/lang/String;' {
+      0      41
+      1      41
+      2      41
+      3      41
+      4      41
+      5      41
+      6      41
+      7      41
+      8      41
+      9      41
+      a      41
+      b      41
+      c      41
+      d      41
+      e      41
+      f      41
+      10      41
+      11      41
+      12      41
+      13      41
+      14      41
+      15      41
+   }
+
+   method 'hashCode ()I' {
+      0      46
+      1      46
+      2      46
+      3      46
+      4      46
+      5      46
+      6      46
+      8      46
+      9      46
+      a      46
+      b      46
+      c      46
+      d      46
+      e      46
+      f      46
+      10      46
+      11      46
+      12      46
+      13      46
+      15      46
+      16      46
+      17      46
       18      46
-      19      46
-      1a      46
-      1b      46
-      1c      46
+      19      47
+      1a      47
+      1b      47
+      1c      47
+      1d      47
+      1e      47
       1f      47
-      20      47
-      21      47
-      22      47
-      23      47
-      24      50
-      25      50
+      20      46
+      22      46
+      23      49
+      24      49
+      25      45
       26      50
       27      50
       28      50
       29      50
-      2c      51
-      2d      51
-      2e      51
-      2f      51
-      30      51
-      31      51
-      32      54
-      33      54
-      34      54
-      35      54
-      36      54
-      37      54
-      38      54
-      39      54
-      3a      54
-      3b      54
-   }
-
-   method 'toString ()Ljava/lang/String;' {
-      0      59
-      1      59
-      2      59
-      3      59
-      4      61
-      5      61
-      6      61
-      7      61
-      8      63
-      9      63
-      a      63
-      b      63
-      c      65
-      d      65
-      e      65
-      f      65
-      10      58
-      11      58
-      12      58
-      13      58
-      14      58
-      15      58
-   }
-
-   method 'hashCode ()I' {
-      0      71
-      1      71
-      2      71
-      3      71
-      4      71
-      5      71
-      6      71
-      8      71
-      9      71
-      a      71
-      b      71
-      c      71
-      d      71
-      e      71
-      f      71
-      10      71
-      11      71
-      12      71
-      13      71
-      15      71
-      16      71
-      17      71
-      18      71
-      19      72
-      1a      72
-      1b      72
-      1c      72
-      1d      72
-      1e      72
-      1f      72
-      20      71
-      22      71
-      23      74
-      24      74
-      25      70
-      26      75
-      27      75
-      28      75
-      29      75
-      2a      75
-      2d      75
-      31      75
-      32      75
-      33      75
-      34      75
-      35      75
-      38      70
-      3b      70
+      2a      50
+      2b      50
+      2c      50
+      2d      50
+      31      50
+      32      50
+      33      50
+      34      50
+      35      50
+      36      50
+      37      50
+      38      45
+      3b      45
    }
 
    method 'equals (Ljava/lang/Object;)Z' {
-      0      79
-      1      79
-      2      79
-      5      80
-      6      80
-      7      81
-      b      81
-      e      82
-      f      82
-      10      84
-      11      84
-      12      84
-      13      84
-      14      84
-      15      85
-      16      85
-      17      85
-      18      85
-      19      85
-      1a      85
-      1b      85
-      1c      85
-      20      85
-      23      86
-      24      86
-      25      87
-      26      87
-      27      87
-      28      87
-      29      87
-      2a      87
-      2b      87
-      2c      87
-      2d      87
-      30      88
-      31      88
-      32      89
-      33      89
-      34      89
-      35      89
-      36      89
-      37      89
-      38      89
-      39      89
-      3d      89
-      40      90
-      41      90
-      42      92
-      43      92
-      44      92
-      45      92
-      46      92
-      47      92
-      48      92
-      49      92
-      4d      92
+      0      54
+      1      54
+      2      54
+      3      54
+      4      54
+      5      55
+      6      55
+      7      56
+      b      56
+      c      56
+      d      56
+      e      57
+      f      57
+      10      59
+      11      59
+      12      59
+      13      59
+      14      59
+      15      60
+      16      60
+      17      60
+      18      60
+      19      60
+      1a      60
+      1b      60
+      1c      60
+      20      60
+      21      60
+      22      60
+      23      61
+      24      61
+      25      62
+      26      62
+      27      62
+      28      62
+      29      62
+      2a      62
+      2b      62
+      2c      62
+      2d      62
+      2e      62
+      2f      62
+      30      63
+      31      63
+      32      64
+      33      64
+      34      64
+      35      64
+      36      64
+      37      64
+      38      64
+      39      64
+      3d      64
+      3e      64
+      3f      64
+      40      65
+      41      65
+      42      67
+      43      67
+      44      67
+      45      67
+      46      67
+      47      67
+      48      67
+      49      67
+      4d      67
+      4e      67
+      4f      67
    }
 }
 

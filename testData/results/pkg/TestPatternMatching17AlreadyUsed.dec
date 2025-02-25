@@ -166,6 +166,8 @@ class 'pkg/TestPatternMatching17AlreadyUsed' {
       c      6
       d      6
       e      6
+      f      6
+      10      6
       15      6
       16      7
       17      7
@@ -175,6 +177,8 @@ class 'pkg/TestPatternMatching17AlreadyUsed' {
       1b      7
       1c      7
       1d      7
+      1e      7
+      1f      7
       20      9
    }
 
@@ -194,6 +198,8 @@ class 'pkg/TestPatternMatching17AlreadyUsed' {
       c      14
       d      14
       e      14
+      f      14
+      10      14
       15      14
       16      15
       17      15
@@ -203,6 +209,8 @@ class 'pkg/TestPatternMatching17AlreadyUsed' {
       1b      15
       1c      15
       1d      15
+      1e      15
+      1f      15
       20      17
    }
 
@@ -222,6 +230,8 @@ class 'pkg/TestPatternMatching17AlreadyUsed' {
       c      22
       d      22
       e      22
+      f      22
+      10      22
       15      22
       16      23
       17      23
@@ -231,6 +241,8 @@ class 'pkg/TestPatternMatching17AlreadyUsed' {
       1b      23
       1c      23
       1d      23
+      1e      23
+      1f      23
       20      25
    }
 
@@ -250,6 +262,8 @@ class 'pkg/TestPatternMatching17AlreadyUsed' {
       c      30
       d      30
       e      30
+      f      30
+      10      30
       15      30
       16      31
       17      31
@@ -259,6 +273,8 @@ class 'pkg/TestPatternMatching17AlreadyUsed' {
       1b      31
       1c      31
       1d      31
+      1e      31
+      1f      31
       20      33
    }
 
@@ -271,6 +287,8 @@ class 'pkg/TestPatternMatching17AlreadyUsed' {
       5      37
       6      37
       7      37
+      8      37
+      9      37
       e      37
       f      38
       10      38
@@ -280,6 +298,8 @@ class 'pkg/TestPatternMatching17AlreadyUsed' {
       14      38
       15      38
       16      38
+      17      38
+      18      38
       19      40
    }
 
@@ -292,6 +312,8 @@ class 'pkg/TestPatternMatching17AlreadyUsed' {
       5      44
       6      44
       7      44
+      8      44
+      9      44
       e      44
       f      45
       10      45
@@ -311,6 +333,8 @@ class 'pkg/TestPatternMatching17AlreadyUsed' {
       21      47
       22      47
       23      47
+      24      47
+      25      47
       26      49
    }
 
@@ -323,6 +347,8 @@ class 'pkg/TestPatternMatching17AlreadyUsed' {
       5      53
       6      53
       7      53
+      8      53
+      9      53
       a      54
       b      54
       c      54
@@ -351,6 +377,8 @@ class 'pkg/TestPatternMatching17AlreadyUsed' {
       6      63
       7      63
       8      63
+      9      63
+      a      63
       b      64
       c      64
       d      64
@@ -358,6 +386,8 @@ class 'pkg/TestPatternMatching17AlreadyUsed' {
       f      64
       10      64
       11      64
+      12      64
+      13      64
       1a      64
       1b      65
       1c      65
@@ -367,6 +397,8 @@ class 'pkg/TestPatternMatching17AlreadyUsed' {
       20      65
       21      65
       22      65
+      23      65
+      24      65
       25      63
       26      63
       27      63
@@ -383,6 +415,8 @@ class 'pkg/TestPatternMatching17AlreadyUsed' {
       6      73
       7      73
       8      73
+      9      73
+      a      73
       b      74
       c      74
       d      74
@@ -390,6 +424,8 @@ class 'pkg/TestPatternMatching17AlreadyUsed' {
       f      74
       10      74
       11      74
+      12      74
+      13      74
       14      75
       15      75
       16      75
@@ -422,6 +458,8 @@ class 'pkg/TestPatternMatching17AlreadyUsed' {
       5      84
       6      84
       7      84
+      8      84
+      9      84
       e      84
       f      85
       10      85
@@ -431,11 +469,15 @@ class 'pkg/TestPatternMatching17AlreadyUsed' {
       14      85
       15      85
       16      85
+      17      85
+      18      85
       19      88
       1a      88
       1b      88
       1c      88
       1d      88
+      1e      88
+      1f      88
       24      88
       25      89
       26      89
@@ -445,6 +487,8 @@ class 'pkg/TestPatternMatching17AlreadyUsed' {
       2a      89
       2b      89
       2c      89
+      2d      89
+      2e      89
       2f      91
    }
 
@@ -457,6 +501,8 @@ class 'pkg/TestPatternMatching17AlreadyUsed' {
       5      95
       6      95
       7      95
+      8      95
+      9      95
       e      95
       f      96
       10      96
@@ -466,11 +512,15 @@ class 'pkg/TestPatternMatching17AlreadyUsed' {
       14      96
       15      96
       16      96
+      17      96
+      18      96
       19      99
       1a      99
       1b      99
       1c      99
       1d      99
+      1e      99
+      1f      99
       24      99
       25      100
       26      100
@@ -480,11 +530,15 @@ class 'pkg/TestPatternMatching17AlreadyUsed' {
       2a      100
       2b      100
       2c      100
+      2d      100
+      2e      100
       2f      103
       30      103
       31      103
       32      103
       33      103
+      34      103
+      35      103
       3a      103
       3b      104
       3c      104
@@ -494,11 +548,15 @@ class 'pkg/TestPatternMatching17AlreadyUsed' {
       40      104
       41      104
       42      104
+      43      104
+      44      104
       45      107
       46      107
       47      107
       48      107
       49      107
+      4a      107
+      4b      107
       50      107
       51      108
       52      108
@@ -508,6 +566,8 @@ class 'pkg/TestPatternMatching17AlreadyUsed' {
       56      108
       57      108
       58      108
+      59      108
+      5a      108
       5b      110
    }
 
@@ -520,6 +580,8 @@ class 'pkg/TestPatternMatching17AlreadyUsed' {
       5      114
       6      114
       7      114
+      8      114
+      9      114
       a      115
       b      115
       c      115
@@ -540,6 +602,8 @@ class 'pkg/TestPatternMatching17AlreadyUsed' {
       1b      119
       1c      119
       1d      119
+      1e      119
+      1f      119
       20      120
       21      120
       22      120
@@ -567,6 +631,8 @@ class 'pkg/TestPatternMatching17AlreadyUsed' {
       5      128
       6      128
       7      128
+      8      128
+      9      128
       a      129
       b      129
       c      129
@@ -587,6 +653,8 @@ class 'pkg/TestPatternMatching17AlreadyUsed' {
       1b      133
       1c      133
       1d      133
+      1e      133
+      1f      133
       20      134
       21      134
       22      134
@@ -607,6 +675,8 @@ class 'pkg/TestPatternMatching17AlreadyUsed' {
       31      138
       32      138
       33      138
+      34      138
+      35      138
       36      139
       37      139
       38      139
@@ -627,6 +697,8 @@ class 'pkg/TestPatternMatching17AlreadyUsed' {
       47      143
       48      143
       49      143
+      4a      143
+      4b      143
       4c      144
       4d      144
       4e      144

@@ -40,6 +40,8 @@ class 'pkg/TestInlineAssignments' {
       a      8
       b      8
       c      8
+      d      8
+      e      8
       14      8
       15      8
       16      8
@@ -54,6 +56,8 @@ class 'pkg/TestInlineAssignments' {
       e      13
       f      13
       10      13
+      11      13
+      12      13
       18      13
       19      13
       1a      13
@@ -69,6 +73,8 @@ class 'pkg/TestInlineAssignments' {
       9      18
       a      18
       b      18
+      c      18
+      d      18
       13      18
       14      18
       15      18

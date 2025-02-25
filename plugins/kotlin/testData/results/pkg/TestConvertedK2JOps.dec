@@ -1,11 +1,10 @@
 package pkg
 
-class TestConvertedK2JOps {
-   public final val any: Any = new Object()
+public class TestConvertedK2JOps {
    public final val list: List<String> = CollectionsKt.listOf(new java.lang.String[]{"a", "b", "c"})
-   public final val map: Map<String, String> = MapsKt.mapOf(new Pair[]{TuplesKt.to("a", "b"), TuplesKt.to("c", "d")})
    public final val set: Set<String> = SetsKt.setOf(new java.lang.String[]{"a", "b", "c"})
-
+   public final val map: Map<String, String> = MapsKt.mapOf(new Pair[]{TuplesKt.to("a", "b"), TuplesKt.to("c", "d")})
+   public final val any: Any = new Object()
 
    public fun codeConstructs() {
       System.out.println("Hello, world!");// 10
@@ -14,20 +13,20 @@ class TestConvertedK2JOps {
 
 class 'pkg/TestConvertedK2JOps' {
    method 'codeConstructs ()V' {
-      0      10
-      1      10
-      2      10
-      3      10
-      4      10
-      6      10
-      7      10
-      8      10
-      c      11
+      0      9
+      1      9
+      2      9
+      3      9
+      4      9
+      6      9
+      7      9
+      8      9
+      c      10
    }
 }
 
 Lines mapping:
-10 <-> 11
-12 <-> 12
+10 <-> 10
+12 <-> 11
 Not mapped:
 11

@@ -20,6 +20,6 @@ public class KInvocationExprent extends InvocationExprent implements KExprent {
 
   @Override
   public Exprent copy() {
-    return new KInvocationExprent((InvocationExprent) super.copy());
+    return new KInvocationExprent(this);
   }
 }

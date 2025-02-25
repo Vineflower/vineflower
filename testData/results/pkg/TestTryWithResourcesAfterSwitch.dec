@@ -51,6 +51,8 @@ class 'pkg/TestTryWithResourcesAfterSwitch' {
       3      7
       4      8
       5      8
+      6      8
+      7      8
       f      9
       10      11
       11      11
@@ -59,6 +61,25 @@ class 'pkg/TestTryWithResourcesAfterSwitch' {
       2d      13
       2e      13
       38      12
+      39      12
+      3a      12
+      3b      12
+      3c      12
+      3d      12
+      3e      12
+      3f      12
+      40      12
+      41      12
+      42      12
+      43      12
+      44      12
+      45      12
+      46      12
+      47      12
+      48      12
+      49      12
+      4a      12
+      4b      12
       4c      15
       4d      15
       4e      15
@@ -73,6 +94,8 @@ class 'pkg/TestTryWithResourcesAfterSwitch' {
       61      18
       62      18
       63      18
+      64      18
+      65      18
       bf      24
       c4      20
       c5      20
@@ -80,6 +103,8 @@ class 'pkg/TestTryWithResourcesAfterSwitch' {
       c7      20
       c8      20
       c9      20
+      ca      20
+      cb      20
    }
 
    method 'test2 ()V' {
@@ -89,6 +114,8 @@ class 'pkg/TestTryWithResourcesAfterSwitch' {
       3      27
       4      28
       5      28
+      6      28
+      7      28
       f      29
       10      31
       11      31
@@ -97,6 +124,25 @@ class 'pkg/TestTryWithResourcesAfterSwitch' {
       2d      33
       2e      33
       38      32
+      39      32
+      3a      32
+      3b      32
+      3c      32
+      3d      32
+      3e      32
+      3f      32
+      40      32
+      41      32
+      42      32
+      43      32
+      44      32
+      45      32
+      46      32
+      47      32
+      48      32
+      49      32
+      4a      32
+      4b      32
       50      35
       51      35
       52      35
@@ -107,6 +153,8 @@ class 'pkg/TestTryWithResourcesAfterSwitch' {
       5c      36
       5d      36
       5e      36
+      5f      36
+      60      36
       b5      42
       ba      38
       bb      38
@@ -114,6 +162,8 @@ class 'pkg/TestTryWithResourcesAfterSwitch' {
       bd      38
       be      38
       bf      38
+      c0      38
+      c1      38
    }
 }
 

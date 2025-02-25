@@ -21,7 +21,7 @@ import java.util.BitSet;
 import java.util.List;
 import java.util.Set;
 
-public final class CatchStatement extends Statement {
+public class CatchStatement extends Statement {
   private final List<List<String>> exctstrings = new ArrayList<>();
   private final List<VarExprent> vars = new ArrayList<>();
   private final List<Exprent> resources = new ArrayList<>();
@@ -30,11 +30,11 @@ public final class CatchStatement extends Statement {
   // constructors
   // *****************************************************************************
 
-  private CatchStatement() {
+  protected CatchStatement() {
     super(StatementType.TRY_CATCH);
   }
 
-  private CatchStatement(Statement head, Statement next, Set<Statement> setHandlers) {
+  protected CatchStatement(Statement head, Statement next, Set<Statement> setHandlers) {
     this();
 
     first = head;

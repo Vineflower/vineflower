@@ -128,7 +128,7 @@ public class VarProcessor {
     return varNamesCollector;
   }
 
-  public VarType getVarType(VarVersionPair pair) {
+  public @Nullable VarType getVarType(VarVersionPair pair) {
     return varVersions == null ? null : varVersions.getVarType(pair);
   }
 

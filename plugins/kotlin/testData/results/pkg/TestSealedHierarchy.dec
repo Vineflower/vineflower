@@ -1,7 +1,7 @@
 package pkg
 
-sealed class TestSealedHierarchy protected constructor() {
-   class TestClass(x: Int) : TestSealedHierarchy() {// 5
+public sealed class TestSealedHierarchy protected constructor() {
+   public class TestClass(x: Int) : TestSealedHierarchy() {// 5
       public final val x: Int
 
       init {
@@ -9,11 +9,7 @@ sealed class TestSealedHierarchy protected constructor() {
       }
    }
 
-   object TestObject private constructor() : TestSealedHierarchy() {// 4
-      @JvmStatic
-      public TestSealedHierarchy.TestObject INSTANCE = new TestSealedHierarchy.TestObject();
-
-   }
+   public object TestObject : TestSealedHierarchy()// 4
 }
 
 class 'pkg/TestSealedHierarchy$TestClass' {

@@ -3,16 +3,21 @@ plugins {
   id 'org.jetbrains.kotlin.jvm'
 }
 
-apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'com.gradleup.shadow'
 apply plugin: 'java'
 apply plugin: 'maven-publish'
 
 group = 'org.vineflower'
 version = "0.1.0"
-archivesBaseName = 'vineflower-kotlin'
+base.archivesName = 'vineflower-kotlin'
 
 sourceSets {
   testDataKotlin.kotlin.srcDirs files("testData/src/kt/")
+  testDataOldKotlin.kotlin.srcDirs files("testData/src/ktold/")
+}
+
+configurations {
+  testDataOldKotlinImplementation.extendsFrom testDataKotlinImplementation
 }
 
 dependencies {
@@ -34,6 +39,20 @@ compileTestDataKotlinKotlin {
   destinationDirectory = file("testData/classes/kt")
 }
 testDataClasses.dependsOn(testDataKotlinClasses)
+
+compileTestDataOldKotlinKotlin {
+  destinationDirectory = file("testData/classes/ktold")
+  kotlinOptions {
+    compilerOptions {
+      freeCompilerArgs = [ // Kotlin 2.0 defaults to invokedynamic implementations. Use class implementations instead.
+        "-Xlambdas=class",
+        "-Xsam-conversions=class",
+        "-Xstring-concat=inline",
+      ]
+    }
+  }
+}
+testDataClasses.dependsOn(testDataOldKotlinClasses)
 
 jar {
   enabled = false

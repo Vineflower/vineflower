@@ -1,6 +1,6 @@
 package pkg
 
-class TestComparison {
+public class TestComparison {
    public fun test2(a: Any, b: Any): Boolean {
       return a == b;// 5
    }
@@ -37,18 +37,24 @@ class 'pkg/TestComparison' {
       c      8
       d      8
       e      8
+      f      8
+      10      8
       16      8
    }
 
    method 'testNull2 (Ljava/lang/Object;)Z' {
       0      12
       1      12
+      2      12
+      3      12
       9      12
    }
 
    method 'testNull3 (Ljava/lang/Object;)Z' {
       0      16
       1      16
+      2      16
+      3      16
       9      16
    }
 
@@ -62,6 +68,8 @@ class 'pkg/TestComparison' {
       0      24
       1      24
       2      24
+      3      24
+      4      24
       a      24
    }
 }

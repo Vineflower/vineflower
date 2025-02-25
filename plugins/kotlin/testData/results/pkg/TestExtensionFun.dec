@@ -1,6 +1,6 @@
 package pkg
 
-class TestExtensionFun {
+public class TestExtensionFun {
    public fun CharSequence.repeat2(n: Int): String {
       return StringsKt.repeat(`$this$repeat2`, n);// 5
    }

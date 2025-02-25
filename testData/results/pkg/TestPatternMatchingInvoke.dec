@@ -1,0 +1,121 @@
+package pkg;
+
+public class TestPatternMatchingInvoke {
+   public TestPatternMatchingInvoke.I get() {
+      return new TestPatternMatchingInvoke.A();// 17
+   }
+
+   public boolean bool() {
+      return true;// 21
+   }
+
+   public void test(boolean cond) {
+      System.out.println("Before");// 25
+      if (this.bool()) {// 27
+         System.out.println("Inner");// 28
+         TestPatternMatchingInvoke.I i = this.get();// 29
+         if (cond && i instanceof TestPatternMatchingInvoke.A) {// 30
+            TestPatternMatchingInvoke.I i2 = this.get();// 31
+            System.out.println(i2);// 32
+         }
+      }
+
+      System.out.println("After");// 36
+   }// 37
+
+   class A implements TestPatternMatchingInvoke.I {
+   }
+
+   class B implements TestPatternMatchingInvoke.I {
+   }
+
+   interface I {
+   }
+}
+
+class 'pkg/TestPatternMatchingInvoke' {
+   method 'get ()Lpkg/TestPatternMatchingInvoke$I;' {
+      8      4
+   }
+
+   method 'bool ()Z' {
+      0      8
+      1      8
+   }
+
+   method 'test (Z)V' {
+      0      12
+      1      12
+      2      12
+      3      12
+      4      12
+      5      12
+      6      12
+      7      12
+      8      13
+      9      13
+      a      13
+      b      13
+      c      13
+      d      13
+      e      13
+      f      14
+      10      14
+      11      14
+      12      14
+      13      14
+      14      14
+      15      14
+      16      14
+      17      15
+      18      15
+      19      15
+      1a      15
+      1b      15
+      1c      16
+      1d      16
+      1e      16
+      1f      16
+      20      16
+      21      16
+      22      16
+      23      16
+      24      16
+      25      16
+      26      16
+      27      17
+      28      17
+      29      17
+      2a      17
+      2b      17
+      2c      18
+      2d      18
+      2e      18
+      2f      18
+      30      18
+      31      18
+      32      18
+      33      22
+      34      22
+      35      22
+      36      22
+      37      22
+      38      22
+      39      22
+      3a      22
+      3b      23
+   }
+}
+
+Lines mapping:
+17 <-> 5
+21 <-> 9
+25 <-> 13
+27 <-> 14
+28 <-> 15
+29 <-> 16
+30 <-> 17
+31 <-> 18
+32 <-> 19
+36 <-> 23
+37 <-> 24

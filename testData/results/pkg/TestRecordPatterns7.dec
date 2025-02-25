@@ -1,0 +1,179 @@
+package pkg;
+
+import java.util.Objects;
+
+public class TestRecordPatterns7 {
+   public void test(Object o) {
+      if (o instanceof TestRecordPatterns7.A(TestRecordPatterns7.C(TestRecordPatterns7.B(int var26, int var27), int var25), int var22, TestRecordPatterns7.B(int var28, int var29))// 5
+         )
+       {
+         System.out.println(var26 + var27 + var25 + var22 + var28 + var29);// 6
+      }
+   }// 8
+
+   public void test2(Object o) {
+      Objects.requireNonNull(o);
+
+      System.out
+         .println(// 11
+            switch (o) {
+               case TestRecordPatterns7.A(TestRecordPatterns7.C(TestRecordPatterns7.B(int var28, int var29), int var27), int var24, TestRecordPatterns7.B(int var30, int var31)) -> var28// 12
+                  + var29
+                  + var27
+                  + var24
+                  + var30
+                  + var31;
+               default -> 0;// 13
+            }
+         );
+   }
+
+   record A(TestRecordPatterns7.C c, int i, TestRecordPatterns7.B b2) {
+   }
+
+   record B(int i1, int i2) {
+   }
+
+   record C(TestRecordPatterns7.B b, int i) {
+   }
+}
+
+class 'pkg/TestRecordPatterns7' {
+   method 'test (Ljava/lang/Object;)V' {
+      0      6
+      1      6
+      2      6
+      3      6
+      4      6
+      5      6
+      6      6
+      21      6
+      22      6
+      23      9
+      24      9
+      4f      6
+      50      6
+      51      9
+      52      9
+      5a      6
+      5b      6
+      5c      9
+      5d      9
+      65      6
+      66      6
+      67      9
+      68      9
+      70      6
+      71      6
+      72      9
+      73      9
+      7b      6
+      7c      6
+      7d      9
+      7e      9
+      81      9
+      82      9
+      83      9
+      84      9
+      85      9
+      86      9
+      87      9
+      88      9
+      89      9
+      8a      9
+      8b      9
+      8c      9
+      8d      9
+      8e      9
+      8f      9
+      90      9
+      91      9
+      92      9
+      93      9
+      94      9
+      95      9
+      96      9
+      97      9
+      a9      11
+   }
+
+   method 'test2 (Ljava/lang/Object;)V' {
+      0      16
+      1      16
+      2      16
+      3      14
+      5      14
+      6      14
+      7      14
+      c      18
+      13      18
+      14      18
+      15      18
+      16      18
+      17      18
+      18      18
+      19      18
+      1a      18
+      1b      18
+      1c      18
+      1d      18
+      1e      18
+      1f      18
+      20      18
+      21      18
+      22      18
+      23      18
+      42      19
+      43      19
+      44      22
+      45      22
+      73      19
+      74      19
+      75      21
+      76      21
+      7e      19
+      7f      19
+      80      19
+      81      19
+      89      19
+      8a      19
+      8b      20
+      8c      20
+      94      19
+      95      19
+      96      23
+      97      23
+      9f      19
+      a0      19
+      a1      24
+      a2      24
+      a5      19
+      a6      19
+      ad      20
+      ae      20
+      af      19
+      b1      21
+      b2      19
+      b4      22
+      b5      19
+      b7      23
+      b8      19
+      ba      24
+      bb      19
+      c1      25
+      c5      17
+      c6      17
+      c7      17
+      c8      28
+   }
+}
+
+Lines mapping:
+5 <-> 7
+6 <-> 10
+8 <-> 12
+11 <-> 18
+12 <-> 20
+13 <-> 26
+Not mapped:
+15

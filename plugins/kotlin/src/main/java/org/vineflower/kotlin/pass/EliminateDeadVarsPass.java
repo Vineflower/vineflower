@@ -40,14 +40,11 @@ public class EliminateDeadVarsPass implements Pass {
         for (int i = 0; i < exprents.size(); i++) {
           Exprent ex = exprents.get(i);
 
-          if (ex instanceof AssignmentExprent) {
-            AssignmentExprent aex = (AssignmentExprent) ex;
+          if (ex instanceof AssignmentExprent aex) {
             Exprent left = aex.getLeft();
             Exprent right = aex.getRight();
 
-            if (left instanceof VarExprent) {
-              VarExprent var = (VarExprent) left;
-
+            if (left instanceof VarExprent var) {
               VarVersionPair vvp = var.getVarVersionPair();
               if (isPureToReplace(right)) {
                 if (!ssu.nodes.getWithKey(vvp).hasAnySuccessors()) {
@@ -75,9 +72,7 @@ public class EliminateDeadVarsPass implements Pass {
       return true;
     }
 
-    if (expr instanceof FieldExprent) {
-      FieldExprent field = (FieldExprent) expr;
-
+    if (expr instanceof FieldExprent field) {
       return field.isStatic() && field.getClassname().equals("kotlin/Unit");
     }
 

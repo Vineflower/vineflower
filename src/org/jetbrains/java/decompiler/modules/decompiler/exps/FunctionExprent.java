@@ -3,7 +3,6 @@
  */
 package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
-import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.plugins.PluginImplementationException;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
@@ -241,7 +240,7 @@ public class FunctionExprent extends Exprent {
     if (funcType == FunctionType.CAST) {
       this.needsCast = true;
       VarType right = lstOperands.get(0).getInferredExprType(upperBound);
-      VarType cast = lstOperands.get(1).getExprType();
+      List<VarType> cast = lstOperands.subList(1, lstOperands.size()).stream().map(Exprent::getExprType).toList();
 
       if (upperBound != null && (upperBound.isGeneric() || right.isGeneric())) {
         Map<VarType, List<VarType>> names = this.getNamedGenerics();
@@ -259,12 +258,8 @@ public class FunctionExprent extends Exprent {
         }
 
         if (types != null) {
-          boolean anyMatch = false; //TODO: allMatch instead of anyMatch?
-          for (VarType type : types) {
-            anyMatch |= DecompilerContext.getStructContext().instanceOf(type.value, cast.value);
-          }
-
-          if (anyMatch) {
+          List<VarType> finalTypes = types;
+          if (cast.stream().allMatch(castType -> finalTypes.stream().anyMatch(type -> DecompilerContext.getStructContext().instanceOf(type.value, castType.value)))) {
             this.needsCast = false;
           }
         } else {
@@ -279,7 +274,8 @@ public class FunctionExprent extends Exprent {
           return right;
         }
       } else { //TODO: Capture generics to make cast better?
-        this.needsCast = right.type == CodeType.NULL || !DecompilerContext.getStructContext().instanceOf(right.value, cast.value) || right.arrayDim != cast.arrayDim;
+        final VarType finalRight = right;
+        this.needsCast = right.type == CodeType.NULL || cast.stream().anyMatch(castType -> !DecompilerContext.getStructContext().instanceOf(finalRight.value, castType.value)) || cast.stream().anyMatch(castType -> finalRight.arrayDim != castType.arrayDim);
       }
 
       return getExprType();
@@ -438,9 +434,9 @@ public class FunctionExprent extends Exprent {
         break;
       }
       case INSTANCEOF:
-        if (lstOperands.size() > 2) { // pattern matching instanceof
+        if (lstOperands.size() > 2 && lstOperands.get(2) instanceof VarExprent var) { // pattern matching instanceof
           // The type of the defined var must be the type being tested
-          result.addMinTypeExprent(lstOperands.get(2), lstOperands.get(1).getExprType());
+          result.addMinTypeExprent(var, lstOperands.get(1).getExprType());
         }
         break;
       case STR_CONCAT:
@@ -607,7 +603,13 @@ public class FunctionExprent extends Exprent {
         if (!needsCast) {
           return buf.append(lstOperands.get(0).toJava(indent));
         }
-        return buf.append(lstOperands.get(1).toJava(indent)).encloseWithParens().append(wrapOperandString(lstOperands.get(0), true, indent));
+        for (int i = 1; i < lstOperands.size(); i++) {
+          if (i > 1) {
+            buf.append(" & ");
+          }
+          buf.append(lstOperands.get(i).toJava(indent));
+        }
+        return buf.encloseWithParens().append(wrapOperandString(lstOperands.get(0), true, indent));
       case ARRAY_LENGTH:
         Exprent arr = lstOperands.get(0);
 
@@ -628,14 +630,22 @@ public class FunctionExprent extends Exprent {
         buf.popNewlineGroup();
         return buf;
       case INSTANCEOF:
-        buf.append(wrapOperandString(lstOperands.get(0), true, indent)).append(" instanceof ").append(wrapOperandString(lstOperands.get(1), true, indent));
+        buf.append(wrapOperandString(lstOperands.get(0), true, indent)).append(" instanceof ");
 
         if (this.lstOperands.size() > 2) {
           // Pattern instanceof creation- only happens when we have more than 2 exprents
-          buf.append(" ");
-          ((VarExprent)this.lstOperands.get(2)).setDefinition(false);
+
+          Pattern pattern = (Pattern) this.lstOperands.get(2);
+          for (VarExprent var : pattern.getPatternVars()) {
+            var.setWritingPattern();
+          }
+
           buf.append(wrapOperandString(this.lstOperands.get(2), true, indent));
+        } else {
+          buf.append(wrapOperandString(lstOperands.get(1), true, indent));
         }
+
+
         return buf;
       case LCMP:
       case FCMPL:
@@ -663,9 +673,12 @@ public class FunctionExprent extends Exprent {
           inv.forceUnboxing(true);
         }
       }
-      return buf.append(wrapOperandString(lstOperands.get(0), true, indent))
-                .prepend("(" + ExprProcessor.getTypeName(funcType.castType) + ")")
-                .addTypeNameToken(funcType.castType, 1);
+
+      if (!needsCast) {
+        return buf.append(lstOperands.get(0).toJava(indent));
+      }
+
+      return buf.append(ExprProcessor.getTypeName(funcType.castType)).encloseWithParens().append(wrapOperandString(lstOperands.get(0), true, indent));
     }
 
     //        return "<unknown function>";
@@ -695,7 +708,7 @@ public class FunctionExprent extends Exprent {
 
   @Override
   public int getPrecedence() {
-    if (funcType == FunctionType.CAST && !doesCast()) {
+    if ((funcType == FunctionType.CAST || funcType.castType != null) && !doesCast()) {
       return lstOperands.get(0).getPrecedence();
     }
 
@@ -724,7 +737,10 @@ public class FunctionExprent extends Exprent {
       if (parentheses) {
         if (expr instanceof FunctionExprent &&
             ((FunctionExprent)expr).getFuncType() == funcType) {
-          parentheses = !ASSOCIATIVITY.contains(funcType);
+          // Float operations are not assocative!
+          if (expr.getExprType() != VarType.VARTYPE_FLOAT && expr.getExprType() != VarType.VARTYPE_DOUBLE) {
+            parentheses = !ASSOCIATIVITY.contains(funcType);
+          }
         }
       }
     }
@@ -904,9 +920,11 @@ public class FunctionExprent extends Exprent {
           // but it comes down to the same ideas.
           varMaps.makeFullyMutable();
 
-          VarExprent var = (VarExprent) this.getLstOperands().get(2);
+          Pattern pattern = (Pattern) this.getLstOperands().get(2);
 
-          sFormsConstructor.updateVarExprent(var, stat, varMaps.getIfTrue(), calcLiveVars);
+          for (VarExprent var : pattern.getPatternVars()) {
+            sFormsConstructor.updateVarExprent(var, stat, varMaps.getIfTrue(), calcLiveVars);
+          }
         }
 
         return;

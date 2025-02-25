@@ -17,7 +17,7 @@ public class TestClassVar {
    }// 37
 
    public Long testFieldSSAU1() {
-      return new Long((long)(this.field_int++));// 40
+      return new Long(this.field_int++);// 40
    }
 
    public void testComplexPropagation() {
@@ -45,20 +45,30 @@ class 'pkg/TestClassVar' {
       3      7
       4      7
       5      7
+      6      7
+      7      7
       8      9
       9      9
       a      9
       b      9
+      c      9
+      d      9
       1f      11
       20      11
       21      11
       22      11
       23      11
+      24      11
+      25      11
       26      12
       27      12
       28      12
       29      12
+      2a      12
+      2b      12
       2e      7
+      2f      7
+      30      7
       34      16
    }
 
@@ -79,24 +89,34 @@ class 'pkg/TestClassVar' {
       3      25
       4      25
       5      25
+      6      25
+      7      25
       8      26
       9      26
       a      28
       b      28
       c      28
       d      28
+      e      28
+      f      28
       10      28
       11      28
+      12      28
+      13      28
       14      29
       15      29
       16      29
       1a      32
       1b      32
       1c      32
+      1d      32
+      1e      32
       1f      33
       20      33
       21      33
       22      33
+      23      33
+      24      33
       28      36
    }
 }

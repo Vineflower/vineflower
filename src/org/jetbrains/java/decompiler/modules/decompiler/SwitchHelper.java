@@ -10,12 +10,12 @@ import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
+import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.gen.FieldDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.TypeFamily;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
-import org.jetbrains.java.decompiler.util.DotExporter;
 import org.jetbrains.java.decompiler.util.Pair;
 
 import java.util.*;
@@ -38,7 +38,7 @@ public final class SwitchHelper {
   }
 
   private static boolean simplify(SwitchStatement switchStatement, StructMethod mt, RootStatement root) {
-    if (simplifyNewEnumSwitch(switchStatement)) {
+    if (simplifySwitchOnEnumJ21(switchStatement, root)) {
       return true;
     }
 
@@ -90,7 +90,7 @@ public final class SwitchHelper {
                       }
                     }
 
-                    if (targetsField) {
+                    if (targetsField && ((ArrayExprent) left).getIndex() instanceof InvocationExprent) {
                       mapping.put(assignment.getRight(), ((InvocationExprent) ((ArrayExprent) left).getIndex()).getInstance());
                     }
                   } else if (fieldAssignments.contains(exprent)) {
@@ -285,7 +285,7 @@ public final class SwitchHelper {
     return false;
   }
 
-  private static boolean simplifyNewEnumSwitch(SwitchStatement switchSt) {
+  private static boolean simplifySwitchOnEnumJ21(SwitchStatement switchSt, RootStatement root) {
     SwitchHeadExprent head = (SwitchHeadExprent) switchSt.getHeadexprent();
     Exprent inner = head.getValue();
 
@@ -313,14 +313,18 @@ public final class SwitchHelper {
     if (inner instanceof InvocationExprent && ((InvocationExprent) inner).getName().equals("ordinal")) {
       InvocationExprent invInner = (InvocationExprent) inner;
 
-      ClassesProcessor.ClassNode classNode = DecompilerContext.getClassProcessor().getMapRootClasses().get(invInner.getClassname());
+      StructClass classStruct = DecompilerContext.getStructContext().getClass(invInner.getClassname());
+      if (classStruct == null) {
+        root.addComment("$VF: Unable to simplify switch-on-enum, as the enum class was not able to be found.", true);
+        return false;
+      }
 
       // Check for enum
-      if ((classNode.classStruct.getAccessFlags() & CodeConstants.ACC_ENUM) == CodeConstants.ACC_ENUM) {
+      if ((classStruct.getAccessFlags() & CodeConstants.ACC_ENUM) == CodeConstants.ACC_ENUM) {
         List<String> enumNames = new ArrayList<>();
 
         // Capture fields
-        for (StructField fd : classNode.classStruct.getFields()) {
+        for (StructField fd : classStruct.getFields()) {
           if ((fd.getAccessFlags() & CodeConstants.ACC_ENUM) == CodeConstants.ACC_ENUM) {
             enumNames.add(fd.getName());
           }
@@ -350,21 +354,9 @@ public final class SwitchHelper {
 
             if (list.size() == 1 && list.get(0) == null) { // default by itself
               Statement st = switchSt.getCaseStatements().get(i);
-              // Check for a block with something inside
-              if (st.type == Statement.StatementType.BASIC_BLOCK && st.getExprents().size() == 1) {
-                Exprent check = st.getExprents().get(0);
-                // throw ...
-                if (check instanceof ExitExprent && ((ExitExprent) check).getExitType() == ExitExprent.Type.THROW) {
-                  Exprent i1 = ((ExitExprent) check).getValue();
-                  // throw new ...
-                  if (i1 instanceof NewExprent) {
-                    // throw new MatchException
-                    if (((NewExprent) i1).getNewType().toString().equals("Ljava/lang/MatchException;")) {
-
-                      st.replaceWithEmpty();
-                    }
-                  }
-                }
+              if (IfPatternMatchProcessor.isStatementMatchThrow(st)) {
+                // Replace it with an empty block
+                st.replaceWithEmpty();
               }
             }
           }
@@ -407,8 +399,9 @@ public final class SwitchHelper {
         ClassesProcessor.ClassNode classNode = DecompilerContext.getClassProcessor().getMapRootClasses().get(field.getClassname());
         
         if (classNode == null || !"[I".equals(field.getDescriptor().descriptorString)) {
+          // TODO: tighten up this check to avoid false positives
           return field.getName().startsWith("$SwitchMap") || //This is non-standard but we don't have any more information so..
-            (index instanceof InvocationExprent && ((InvocationExprent) index).getName().equals("ordinal"));
+            (index instanceof InvocationExprent && ((InvocationExprent) index).getName().equals("ordinal")) && field.isStatic();
         }
 
         StructField stField;

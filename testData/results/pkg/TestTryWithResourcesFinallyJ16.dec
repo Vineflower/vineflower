@@ -41,6 +41,8 @@ class 'pkg/TestTryWithResourcesFinallyJ16' {
       37      11
       38      11
       39      11
+      3a      11
+      3b      11
    }
 
    method 'testFunc (Ljava/io/File;)V' {
@@ -61,6 +63,8 @@ class 'pkg/TestTryWithResourcesFinallyJ16' {
       3c      19
       3d      19
       3e      19
+      3f      19
+      40      19
    }
 
    method 'create (Ljava/io/File;)Ljava/util/Scanner;' {

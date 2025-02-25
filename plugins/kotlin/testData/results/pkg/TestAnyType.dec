@@ -1,6 +1,6 @@
 package pkg
 
-class TestAnyType {
+public class TestAnyType {
    public fun test(param: Any): Int {
       if (param is java.lang.String) {// 5
          return (param as java.lang.String).length();// 6
@@ -18,6 +18,8 @@ class 'pkg/TestAnyType' {
       8      4
       9      4
       a      4
+      b      4
+      c      4
       d      5
       e      5
       f      5

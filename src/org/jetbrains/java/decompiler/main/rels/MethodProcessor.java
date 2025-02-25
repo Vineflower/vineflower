@@ -7,6 +7,7 @@ import org.jetbrains.java.decompiler.api.plugin.pass.PassContext;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.InstructionSequence;
 import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
+import org.jetbrains.java.decompiler.code.cfg.ExceptionRangeCFG;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.main.decompiler.CancelationManager;
@@ -137,7 +138,6 @@ public class MethodProcessor implements Runnable {
     DecompilerContext.getCounterContainer().setCounter(CounterContainer.VAR_COUNTER, mt.getLocalVariables());
 
     if (ExceptionDeobfuscator.hasObfuscatedExceptions(graph)) {
-      DecompilerContext.getLogger().writeMessage("Heavily obfuscated exception ranges found!", IFernflowerLogger.Severity.WARN);
       DotExporter.toDotFile(graph, mt, "cfgExceptionsPre", true);
 
       if (!ExceptionDeobfuscator.handleMultipleEntryExceptionRanges(graph)) {
@@ -190,7 +190,14 @@ public class MethodProcessor implements Runnable {
       debugCurrentlyDecompiling.set(root);
     }
 
-    decompileRecord.add("ProcessFinally_Post", root);
+    // In rare cases, the final round of finally processing can reveal another synchronized statement. Try to parse it now.
+    if (DomHelper.buildSynchronized(root)) {
+      decompileRecord.add("BuildFinallySynchronized", root);
+    }
+
+    if (finallyProcessed > 0) {
+      decompileRecord.add("ProcessFinally_Post", root);
+    }
 
     // remove synchronized exception handler
     // not until now because of comparison between synchronized statements in the finally cycle
@@ -301,6 +308,11 @@ public class MethodProcessor implements Runnable {
       // Apply post processing transformations
       if (SecondaryFunctionsHelper.identifySecondaryFunctions(root, varProc)) {
         decompileRecord.add("IdentifySecondary", root);
+        continue;
+      }
+
+      if (IntersectionCastProcessor.makeIntersectionCasts(root)) {
+        decompileRecord.add("intersectionCasts", root);
         continue;
       }
 

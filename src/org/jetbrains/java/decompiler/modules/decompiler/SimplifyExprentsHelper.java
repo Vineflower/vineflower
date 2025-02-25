@@ -90,13 +90,13 @@ public class SimplifyExprentsHelper {
         }
       }
     } else {
-      res = simplifyStackVarsExprents(expressions, cl, firstInvocation);
+      res = simplifyStackVarsExprents(expressions, cl, stat, firstInvocation);
     }
 
     return res;
   }
 
-  private static boolean simplifyStackVarsExprents(List<Exprent> list, StructClass cl, boolean firstInvocation) {
+  private static boolean simplifyStackVarsExprents(List<Exprent> list, StructClass cl, Statement stat, boolean firstInvocation) {
     boolean res = false;
 
     int index = 0;
@@ -149,7 +149,7 @@ public class SimplifyExprentsHelper {
         }
       }
 
-      if (isAssignmentReturn(current, next)) {
+      if (isAssignmentReturn(current, next, stat)) {
         list.remove(index);
         res = true;
         continue;
@@ -396,7 +396,7 @@ public class SimplifyExprentsHelper {
    * Note that this is transformation will result into java that is less like the original.
    * TODO: put this behind a compiler option.
    */
-  private static boolean isAssignmentReturn(Exprent first, Exprent second) {
+  private static boolean isAssignmentReturn(Exprent first, Exprent second, Statement stat) {
     //If assignment then exit.
     if (first instanceof AssignmentExprent
         && second instanceof ExitExprent) {
@@ -406,12 +406,20 @@ public class SimplifyExprentsHelper {
       if (assignment.getCondType() == null
           && exit.getExitType() == ExitExprent.Type.RETURN
           && exit.getValue() != null
-          && assignment.getLeft() instanceof VarExprent
-          && exit.getValue() instanceof VarExprent) {
-        VarExprent assignmentLeft = (VarExprent) assignment.getLeft();
-        VarExprent exitValue = (VarExprent) exit.getValue();
+          && assignment.getLeft() instanceof VarExprent assignmentLeft
+          && exit.getValue() instanceof VarExprent exitValue) {
         //If the assignment before the return is immediately used in the return, inline it.
         if (assignmentLeft.equals(exitValue) && !assignmentLeft.isStack() && !exitValue.isStack()) {
+          // Avoid doing this transform for potential pattern matches, as they should be processed by the pattern matcher first.
+          if (stat.getTopParent().mt.getBytecodeVersion().hasIfPatternMatching()
+            && stat.getParent() instanceof IfStatement ifst && !ifst.isPatternMatched() && stat.getExprents().indexOf(first) == 0
+            && assignment.getRight() instanceof FunctionExprent func && func.getFuncType() == FunctionType.CAST
+            // Most expensive, do it last
+            && ifst.getHeadexprent().getAllExprents(true, false).stream().anyMatch(e -> e instanceof FunctionExprent f && f.getFuncType() == FunctionType.INSTANCEOF)
+          ) {
+            return false;
+          }
+
           exit.replaceExprent(exitValue, assignment.getRight());
           return true;
         }
@@ -675,20 +683,30 @@ public class SimplifyExprentsHelper {
   // Try to find the first valid usage of a variable for PPMM inlining.
   // Returns Pair{parent exprent, variable exprent to replace}
   private static Pair<Exprent, VarExprent> findFirstValidUsage(VarExprent match, Exprent next) {
-    Deque<Exprent> stack = new LinkedList<>();
+    List<Exprent> stack = new ArrayList<>();
+    List<Exprent> parent = new ArrayList<>();
     stack.add(next);
+    parent.add(null);
 
     while (!stack.isEmpty()) {
-      Exprent expr = stack.removeLast();
+      Exprent expr = stack.remove(stack.size() - 1);
+      Exprent parentExpr = parent.remove(parent.size() - 1);
 
       List<Exprent> exprents = expr.getAllExprents();
+
+      if (parentExpr != null &&
+        expr instanceof VarExprent ve &&
+        ve.getIndex() == match.getIndex() &&
+        ve.getVersion() == match.getVersion()) {
+        return Pair.of(parentExpr, ve);
+      }
 
       if (expr instanceof FunctionExprent) {
         FunctionExprent func = (FunctionExprent) expr;
 
         // Don't inline ppmm into more ppmm
         if (isPPMM(func)) {
-          continue;
+          return null;
         }
 
         // Don't consider || or &&
@@ -710,30 +728,18 @@ public class SimplifyExprentsHelper {
       // Reverse iteration to ensure DFS
       for (int i = exprents.size() - 1; i >= 0; i--) {
         Exprent ex = exprents.get(i);
-        boolean add = true;
 
-        // Skip LHS of assignment as it is invalid
-        if (expr instanceof AssignmentExprent) {
-          add = ex != ((AssignmentExprent) expr).getLeft();
+        // Avoid making something like `++a = 5`. It shouldn't happen but better be safe than sorry.
+        if (expr instanceof AssignmentExprent asExpr &&
+          ex == asExpr.getLeft() &&
+          ex instanceof VarExprent innerEx &&
+          innerEx.getIndex() == match.getIndex()
+        ) {
+          continue;
         }
 
-        // Check var if we find
-        if (add && ex instanceof VarExprent) {
-          VarExprent ve = (VarExprent) ex;
-
-          if (ve.getIndex() == match.getIndex() && ve.getVersion() == match.getVersion()) {
-            return Pair.of(expr, ve);
-          }
-        }
-
-        // Ignore ++/-- exprents as they aren't valid usages to replace
-        if (ex instanceof FunctionExprent) {
-          add = !isPPMM((FunctionExprent) ex);
-        }
-
-        if (add) {
-          stack.add(ex);
-        }
+        stack.add(ex);
+        parent.add(expr);
       }
     }
 

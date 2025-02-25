@@ -27,7 +27,7 @@ public class TestAssignmentInDoWhile {
       int[] array = new int[100];// 29
       int x = 3;// 31
 
-      while (x < 50 && (x = x + array[x]) < 100) {// 33 38
+      while (x < 50 && (x += array[x]) < 100) {// 33 38
       }
 
       System.out.println("Hi");// 39
@@ -37,7 +37,7 @@ public class TestAssignmentInDoWhile {
       int[] array = new int[100];// 43
       int x = 3;// 45
 
-      while (x < 50 && (x = x + (array[x] & 7)) < 100) {// 47 52
+      while (x < 50 && (x += array[x] & 7) < 100) {// 47 52
       }
 
       System.out.println("Hi");// 53
@@ -47,7 +47,7 @@ public class TestAssignmentInDoWhile {
       int[] array = new int[100];// 57
       int x = 3;// 59
 
-      while (x < 50 && (x = x + array[x]) < 100 && x > 10) {// 61 66
+      while (x < 50 && (x += array[x]) < 100 && x > 10) {// 61 66
       }
 
       System.out.println("Hi");// 67
@@ -57,7 +57,7 @@ public class TestAssignmentInDoWhile {
       int[] array = new int[100];// 71
       int x = 3;// 73
 
-      while (x < 50 && ((x = x + array[x]) < 100 || x > 10)) {// 75 80
+      while (x < 50 && ((x += array[x]) < 100 || x > 10)) {// 75 80
       }
 
       System.out.println("Hi");// 81
@@ -72,12 +72,16 @@ class 'pkg/TestAssignmentInDoWhile' {
       3      6
       4      6
       5      6
+      6      6
+      7      6
       9      6
       a      6
       b      6
       c      6
       d      6
       e      6
+      f      6
+      10      6
       11      9
       12      9
       13      9
@@ -96,6 +100,8 @@ class 'pkg/TestAssignmentInDoWhile' {
       3      15
       4      15
       5      15
+      6      15
+      7      15
       8      16
       9      16
       a      16
@@ -103,6 +109,8 @@ class 'pkg/TestAssignmentInDoWhile' {
       c      17
       d      17
       e      17
+      f      17
+      10      17
       11      22
       12      22
       13      22
@@ -124,15 +132,17 @@ class 'pkg/TestAssignmentInDoWhile' {
       8      29
       9      29
       a      29
-      d      29
+      b      29
+      c      29
       e      29
       f      29
       10      29
-      11      29
       13      29
       14      29
       15      29
       16      29
+      17      29
+      18      29
       19      32
       1a      32
       1b      32
@@ -154,18 +164,20 @@ class 'pkg/TestAssignmentInDoWhile' {
       8      39
       9      39
       a      39
-      d      39
+      b      39
+      c      39
       e      39
       f      39
       10      39
       11      39
       12      39
       13      39
-      14      39
       16      39
       17      39
       18      39
       19      39
+      1a      39
+      1b      39
       1c      42
       1d      42
       1e      42
@@ -187,19 +199,23 @@ class 'pkg/TestAssignmentInDoWhile' {
       8      49
       9      49
       a      49
-      d      49
+      b      49
+      c      49
       e      49
       f      49
       10      49
-      11      49
       13      49
       14      49
       15      49
       16      49
+      17      49
+      18      49
       19      49
       1a      49
       1b      49
       1c      49
+      1d      49
+      1e      49
       1f      52
       20      52
       21      52
@@ -221,19 +237,23 @@ class 'pkg/TestAssignmentInDoWhile' {
       8      59
       9      59
       a      59
-      d      59
+      b      59
+      c      59
       e      59
       f      59
       10      59
-      11      59
       13      59
       14      59
       15      59
       16      59
+      17      59
+      18      59
       19      59
       1a      59
       1b      59
       1c      59
+      1d      59
+      1e      59
       1f      62
       20      62
       21      62

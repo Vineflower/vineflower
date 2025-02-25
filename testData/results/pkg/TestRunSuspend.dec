@@ -4,14 +4,15 @@ import kotlin.Metadata;
 import kotlin.Result;
 import kotlin.ResultKt;
 import kotlin.Unit;
+import kotlin.jvm.internal.Intrinsics;
 import org.jetbrains.annotations.Nullable;
 
 @Metadata(
-   mv = {1, 6, 0},
+   mv = {2, 0, 0},
    k = 1,
    xi = 48,
-   d1 = {"\u0000\u0018\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0002\b\u0002\n\u0002\u0018\u0002\n\u0002\u0010\u0002\n\u0002\b\u0006\b\u0002\u0018\u00002\u00020\u0001B\u0005¢\u0006\u0002\u0010\u0002J\u0006\u0010\n\u001a\u00020\u0005R+\u0010\u0003\u001a\n\u0012\u0004\u0012\u00020\u0005\u0018\u00010\u0004X\u0086\u000eø\u0001\u0000ø\u0001\u0001ø\u0001\u0002¢\u0006\u000e\n\u0000\u001a\u0004\b\u0006\u0010\u0007\"\u0004\b\b\u0010\t\u0082\u0002\u000f\n\u0002\b\u0019\n\u0005\b¡\u001e0\u0001\n\u0002\b!¨\u0006\u000b"},
-   d2 = {"Lpkg/TestRunSuspend;", "", "()V", "result", "Lkotlin/Result;", "", "getResult-xLWZpok", "()Lkotlin/Result;", "setResult", "(Lkotlin/Result;)V", "await", "vineflower_testDataKotlin"}
+   d1 = {"\u0000\u0018\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0002\b\u0003\n\u0002\u0018\u0002\n\u0002\u0010\u0002\n\u0002\b\u0006\b\u0002\u0018\u00002\u00020\u0001B\u0007¢\u0006\u0004\b\u0002\u0010\u0003J\u0006\u0010\u000b\u001a\u00020\u0006R\"\u0010\u0004\u001a\n\u0012\u0004\u0012\u00020\u0006\u0018\u00010\u0005X\u0086\u000e¢\u0006\u000e\n\u0000\u001a\u0004\b\u0007\u0010\b\"\u0004\b\t\u0010\n¨\u0006\f"},
+   d2 = {"Lpkg/TestRunSuspend;", "", "<init>", "()V", "result", "Lkotlin/Result;", "", "getResult-xLWZpok", "()Lkotlin/Result;", "setResult", "(Lkotlin/Result;)V", "await", "vineflower_testDataKotlin"}
 )
 final class TestRunSuspend {
    @Nullable
@@ -42,6 +43,7 @@ final class TestRunSuspend {
                return;
             }
 
+            Intrinsics.checkNotNull(this, "null cannot be cast to non-null type java.lang.Object");
             this.wait();
          }
       }
@@ -50,68 +52,76 @@ final class TestRunSuspend {
 
 class 'pkg/TestRunSuspend' {
    method '<init> ()V' {
-      4      20
+      4      21
    }
 
    method 'getResult-xLWZpok ()Lkotlin/Result;' {
-      0      24
-      1      24
-      2      24
-      3      24
-      4      24
+      0      25
+      1      25
+      2      25
+      3      25
+      4      25
    }
 
    method 'setResult (Lkotlin/Result;)V' {
-      0      28
-      1      28
-      2      28
-      3      28
-      4      28
-      5      29
+      0      29
+      1      29
+      2      29
+      3      29
+      4      29
+      5      30
    }
 
    method 'await ()V' {
-      0      33
-      2      33
-      3      33
-      5      34
-      6      34
-      8      37
-      9      37
-      a      37
-      b      37
-      c      37
-      d      38
-      e      38
-      11      44
-      12      44
-      13      44
-      14      44
-      15      44
-      16      44
-      17      44
-      1b      39
-      1c      39
-      1d      39
-      1e      39
-      1f      39
-      20      39
+      0      34
+      2      34
+      3      34
+      5      35
+      6      35
+      8      38
+      9      38
+      a      38
+      b      38
+      c      38
+      d      39
+      e      39
+      f      39
+      10      39
+      11      45
+      12      45
+      13      45
+      14      45
+      15      45
+      16      45
+      17      46
+      18      46
+      19      46
+      1a      46
+      1b      46
+      1c      46
+      1d      46
       21      40
       22      40
       23      40
       24      40
       25      40
+      26      40
+      27      41
+      28      41
       29      41
+      2a      41
+      2b      41
+      2f      42
    }
 }
 
 Lines mapping:
-4 <-> 21
-5 <-> 29
-7 <-> 34
-9 <-> 38
-10 <-> 39
-12 <-> 40
+4 <-> 22
+5 <-> 30
+7 <-> 35
+9 <-> 39
+10 <-> 40
+12 <-> 41
 Not mapped:
 8
 13

@@ -37,12 +37,13 @@ public class KotlinPlugin implements Plugin {
 
   @Override
   public LanguageSpec getLanguageSpec() {
-    return new LanguageSpec("kotlin", new KotlinChooser(), new DomHelper(), new KotlinWriter(), makePass());
+    return new LanguageSpec("kotlin", new KotlinChooser(), new DomHelper(), new KotlinWriter(), makePass(), "kt");
   }
 
   private static Pass makePass() {
     return new MainPassBuilder()
       .addPass("Finally", new JavaFinallyPass())
+      .addPass("BuildFinallySynchronized", ctx -> DomHelper.buildSynchronized(ctx.getRoot()))
       .addPass("RemoveSynchronized", ctx -> DomHelper.removeSynchronizedHandler(ctx.getRoot()))
       .addPass("CondenseSequences", WrappedPass.of(ctx -> SequenceHelper.condenseSequences(ctx.getRoot())))
       .addPass("ClearStatements", WrappedPass.of(ctx -> ClearStructHelper.clearStatements(ctx.getRoot())))
@@ -81,6 +82,7 @@ public class KotlinPlugin implements Plugin {
       .addPass("ReplaceExprs", new ReplaceExprentsPass())
       // TODO: preference for this pass
       .addPass("ResugarMethods", new ResugarKotlinMethodsPass())
+      .addPass("CollapseStringConcat", new CollapseStringConcatPass())
       .addPass("ReplaceContinue", ctx -> LabelHelper.replaceContinueWithBreak(ctx.getRoot()))
 
       .build();

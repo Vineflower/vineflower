@@ -29,6 +29,8 @@ class 'pkg/TestIfPatternMatchMethod' {
       7      4
       8      4
       9      4
+      a      4
+      b      4
       10      4
       11      5
       12      5
@@ -40,6 +42,8 @@ class 'pkg/TestIfPatternMatchMethod' {
       18      5
       19      5
       1a      5
+      1b      5
+      1c      5
       1d      7
    }
 
@@ -52,6 +56,8 @@ class 'pkg/TestIfPatternMatchMethod' {
       5      10
       6      10
       7      10
+      8      10
+      9      10
       a      11
       b      11
       c      11
@@ -70,6 +76,8 @@ class 'pkg/TestIfPatternMatchMethod' {
       19      12
       1a      12
       1b      12
+      1c      12
+      1d      12
       1e      14
    }
 
@@ -82,10 +90,14 @@ class 'pkg/TestIfPatternMatchMethod' {
       5      17
       6      17
       7      17
+      8      17
+      9      17
       a      17
       b      17
       f      17
       10      17
+      11      17
+      12      17
       13      17
    }
 }

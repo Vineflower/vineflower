@@ -29,10 +29,8 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import static org.jetbrains.java.decompiler.DecompilerTestFixture.assertFilesEqual;
 import static org.jetbrains.java.decompiler.DecompilerTestFixture.getContent;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 /*
@@ -57,11 +55,11 @@ public abstract class SingleClassesTestBase {
     testSets.add(currentTestSet);
   }
 
-  protected final void register(TestDefinition.Version version, String testClass, String... others) {
-    register(version, testClass, false, others);
+  protected final TestDefinition register(TestDefinition.Version version, String testClass, String... others) {
+    return register(version, testClass, false, others);
   }
 
-  private void register(TestDefinition.Version version, String testClass, boolean failable, String... others) {
+  private TestDefinition register(TestDefinition.Version version, String testClass, boolean failable, String... others) {
     if (classNames.contains(testClass)) {
       throw new AssertionFailedError("Registered same class twice! " + testClass);
     }
@@ -69,17 +67,21 @@ public abstract class SingleClassesTestBase {
 
     List<String> othersList = new ArrayList<>(others.length);
     for (String other : others) othersList.add(getFullClassName(other));
-    currentTestSet.testDefinitions.add(new TestDefinition(version, getFullClassName(testClass), othersList, failable));
+    TestDefinition test = new TestDefinition(version, getFullClassName(testClass), othersList, failable);
+    currentTestSet.testDefinitions.add(test);
+    return test;
   }
 
   @Deprecated
   // Temporary fix for inconsistent javac code generation
-  protected final void registerFailable(TestDefinition.Version version, String testClass, String... others) {
-    register(version, testClass, true, others);
+  protected final TestDefinition registerFailable(TestDefinition.Version version, String testClass, String... others) {
+    return register(version, testClass, true, others);
   }
 
-  protected final void registerRaw(TestDefinition.Version version, String testClass, String ...others) {
-    currentTestSet.testDefinitions.add(new TestDefinition(version, testClass, Arrays.asList(others), false));
+  protected final TestDefinition registerRaw(TestDefinition.Version version, String testClass, String ...others) {
+    TestDefinition test = new TestDefinition(version, testClass, Arrays.asList(others), false);
+    currentTestSet.testDefinitions.add(test);
+    return test;
   }
 
   private static String getFullClassName(String className) {
@@ -181,6 +183,7 @@ public abstract class SingleClassesTestBase {
     public final List<String> others;
     public final boolean failable;
     private final DecompilerTestFixture fixture = new DecompilerTestFixture();
+    private String expectedFileName;
 
     public TestDefinition(Version version, String testClass, List<String> others, boolean failable) {
       this.version = version;
@@ -195,6 +198,10 @@ public abstract class SingleClassesTestBase {
 
     public Path getReferenceFile() {
       return SingleClassesTestBase.getReferenceFile(fixture, testClass);
+    }
+
+    public void setExpectedFileName(String expectedFileName) {
+      this.expectedFileName = expectedFileName;
     }
 
     public void run(Object[] options, SingleClassesTestBase base) throws IOException {
@@ -220,8 +227,21 @@ public abstract class SingleClassesTestBase {
 
       String testFileName = classFile.getFileName().toString();
       String testName = testFileName.substring(0, testFileName.length() - 6);
-      Path decompiledFile = fixture.getTargetDir().resolve(testName + ".java");
-      assertTrue(Files.isRegularFile(decompiledFile));
+
+      Path decompiledFile;
+      if (expectedFileName != null) {
+        decompiledFile = fixture.getTargetDir().resolve(expectedFileName);
+      } else {
+        // First try a name copying that of the original classfile along with the extension matching the compiler's language
+        decompiledFile = fixture.getTargetDir().resolve(testName + '.' + version.extension);
+
+        if (!Files.isRegularFile(decompiledFile)) {
+          // If that fails, try with a .java extension
+          decompiledFile = fixture.getTargetDir().resolve(testName + ".java");
+        }
+      }
+
+      assertTrue(Files.isRegularFile(decompiledFile), "Decompiled file not found: " + decompiledFile);
 
       String decompiledContent = getContent(decompiledFile);
 
@@ -229,7 +249,7 @@ public abstract class SingleClassesTestBase {
         // scala likes to generate "unrelated" classfiles for the majority of its functionality
         // tack those onto the end of the decompiled files
         for (String companionFile : others) {
-          Path decompiledCompanion = fixture.getTargetDir().resolve(companionFile + ".java");
+          Path decompiledCompanion = fixture.getTargetDir().resolve(companionFile + '.' + version.extension);
           // cut off any packages
           decompiledCompanion = fixture.getTargetDir().resolve(decompiledCompanion.getFileName());
           assertTrue(Files.isRegularFile(decompiledCompanion));
@@ -288,7 +308,8 @@ public abstract class SingleClassesTestBase {
       JAVA_21(21),
       JAVA_21_PREVIEW(21, "preview", "Preview"),
       GROOVY("groovy", "Groovy"),
-      KOTLIN("kt", "Kotlin"),
+      KOTLIN("kt", "Kotlin", "kt"),
+      KOTLIN_OLD("ktold", "Kotlin (old defaults)", "kt"),
       SCALA("scala", "Scala"),
       JASM("jasm", "Custom (jasm)"),
       ;
@@ -298,11 +319,17 @@ public abstract class SingleClassesTestBase {
       public final int runtimeVersion;
       public final String directory;
       public final String display;
+      public final String extension;
 
-      Version(String directory, String display) {
+      Version(String directory, String display, String extension) {
         this.runtimeVersion = UNKNOWN_RUNTIME;
         this.directory = directory;
         this.display = display;
+        this.extension = extension;
+      }
+
+      Version(String directory, String display) {
+        this(directory, display, "java");
       }
 
       Version(int javaVersion) {
@@ -313,6 +340,7 @@ public abstract class SingleClassesTestBase {
         this.runtimeVersion = javaVersion;
         this.directory = "java" + javaVersion + suffix;
         this.display = "Java " + javaVersion + (!display.isEmpty() ? " " + display : "");
+        this.extension = "java";
       }
 
       @Override

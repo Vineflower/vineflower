@@ -5,8 +5,8 @@ public class TestStackCastParam {
    public int y;
 
    public void test(String s) {
-      float var10002 = (float)this.x;
-      get().b.accept(s, var10002, (float)this.y);// 8
+      float var10002 = this.x;
+      get().b.accept(s, var10002, this.y);// 8
    }// 9
 
    public static TestStackCastParam.A get() {
