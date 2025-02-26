@@ -1,0 +1,142 @@
+package pkg;
+
+public class TestSwitchExpressionReturnType {
+   public int asInt(TestSwitchExpressionReturnType.Type type) {
+      return switch (type) {// 5
+         case A -> 6000;// 6
+         case B -> 6001;// 7
+         case C -> 6002;// 8
+         case D -> 6003;// 9
+      };
+   }
+
+   public char asChar(TestSwitchExpressionReturnType.Type type) {
+      return switch (type) {// 14
+         case A -> 'ᝰ';// 15
+         case B -> '\u1771';// 16
+         case C -> 'ᝲ';// 17
+         case D -> 'ᝳ';// 18
+      };
+   }
+
+   static enum Type {
+      A,
+      B,
+      C,
+      D;
+   }
+}
+
+class 'pkg/TestSwitchExpressionReturnType' {
+   method 'asInt (Lpkg/TestSwitchExpressionReturnType$Type;)I' {
+      3      4
+      7      4
+      8      4
+      9      4
+      a      4
+      b      4
+      c      4
+      d      4
+      e      4
+      f      4
+      10      4
+      11      4
+      12      4
+      13      4
+      14      4
+      15      4
+      16      4
+      17      4
+      18      4
+      19      4
+      1a      4
+      1b      4
+      1c      4
+      1d      4
+      1e      4
+      1f      4
+      20      4
+      21      4
+      22      4
+      23      4
+      24      4
+      25      4
+      26      4
+      27      4
+      28      5
+      29      5
+      2a      5
+      2e      6
+      2f      6
+      30      6
+      34      7
+      35      7
+      36      7
+      3a      8
+      3b      8
+      3c      8
+      48      4
+   }
+
+   method 'asChar (Lpkg/TestSwitchExpressionReturnType$Type;)C' {
+      3      13
+      7      13
+      8      13
+      9      13
+      a      13
+      b      13
+      c      13
+      d      13
+      e      13
+      f      13
+      10      13
+      11      13
+      12      13
+      13      13
+      14      13
+      15      13
+      16      13
+      17      13
+      18      13
+      19      13
+      1a      13
+      1b      13
+      1c      13
+      1d      13
+      1e      13
+      1f      13
+      20      13
+      21      13
+      22      13
+      23      13
+      24      13
+      25      13
+      26      13
+      27      13
+      28      14
+      29      14
+      2a      14
+      2e      15
+      2f      15
+      30      15
+      34      16
+      35      16
+      36      16
+      3a      17
+      3b      17
+      3c      17
+      48      13
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 6
+7 <-> 7
+8 <-> 8
+9 <-> 9
+14 <-> 14
+15 <-> 15
+16 <-> 16
+17 <-> 17
+18 <-> 18
