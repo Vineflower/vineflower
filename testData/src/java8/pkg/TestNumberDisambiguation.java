@@ -64,6 +64,12 @@ public class TestNumberDisambiguation {
   public void baz(int a, double b, double c) {
   }
 
+  public void varargs(int... a) {
+  }
+
+  public void varargs(float... a) {
+  }
+
   public void test() {
     int i = 24;
     foo((byte) i);
@@ -89,5 +95,8 @@ public class TestNumberDisambiguation {
     baz(0, Long.MAX_VALUE, i);
     baz(0, Float.MAX_VALUE, i);
     baz(0, Double.MAX_VALUE, i);
+
+    varargs(i);
+    varargs((float) i);
   }
 }

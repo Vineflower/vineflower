@@ -1421,6 +1421,16 @@ public class InvocationExprent extends Exprent {
             ((FunctionExprent) exp).setNeedsCast(true);
           }
 
+          if (i == md.params.length - 1 && mt.hasModifier(CodeConstants.ACC_VARARGS)) {
+            if (exp instanceof NewExprent newE && newE.getExprType().arrayDim > 0) {
+              for (Exprent entry : newE.getLstArrayElements()) {
+                if (entry instanceof FunctionExprent func && func.getSimpleCastType() != null) {
+                  func.setNeedsCast(true);
+                }
+              }
+            }
+          }
+
           // Check if the current parameters and method descriptor are of the same type, or if the descriptor's type is a superset of the parameter's type.
           // This check ensures that parameters that can be safely passed don't have an unneeded cast on them, such as System.out.println((int)5);.
           // TODO: The root cause of the above issue seems to be threading related- When debugging line by line it doesn't cast, but when running normally it does. More digging needs to be done to figure out why this happens.
