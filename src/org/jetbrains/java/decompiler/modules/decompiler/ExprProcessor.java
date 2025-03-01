@@ -832,25 +832,7 @@ public class ExprProcessor implements CodeConstants {
 
     List<StatEdge> lstSuccs = stat.getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL);
     if (lstSuccs.size() == 1) {
-      StatEdge edge = lstSuccs.get(0);
-      if (edge.getType() != StatEdge.TYPE_REGULAR && edge.explicit && !(edge.getDestination() instanceof DummyExitStatement)) {
-        buf.appendIndent(indent);
-
-        switch (edge.getType()) {
-          case StatEdge.TYPE_BREAK:
-            addDeletedGotoInstructionMapping(stat, buf);
-            buf.append("break");
-            break;
-          case StatEdge.TYPE_CONTINUE:
-            addDeletedGotoInstructionMapping(stat, buf);
-            buf.append("continue");
-        }
-
-        if (edge.labeled) {
-          buf.append(" label").append(edge.closure.id);
-        }
-        buf.append(";").appendLineSeparator();
-      }
+      jmpWrapperEdge(stat, indent, lstSuccs.get(0), buf);
     }
 
     if (buf.length() == 0 && semicolon) {
@@ -858,6 +840,32 @@ public class ExprProcessor implements CodeConstants {
     }
 
     return buf;
+  }
+
+  public static void jmpWrapperEdge(Statement stat, int indent, StatEdge edge, TextBuffer buf) {
+
+    if (edge.getType() != StatEdge.TYPE_REGULAR && edge.explicit && !(edge.getDestination() instanceof DummyExitStatement)) {
+      buf.appendIndent(indent);
+
+      switch (edge.getType()) {
+        case StatEdge.TYPE_BREAK:
+          if (stat != null) {
+            addDeletedGotoInstructionMapping(stat, buf);
+          }
+          buf.append("break");
+          break;
+        case StatEdge.TYPE_CONTINUE:
+          if (stat != null) {
+            addDeletedGotoInstructionMapping(stat, buf);
+          }
+          buf.append("continue");
+      }
+
+      if (edge.labeled) {
+        buf.append(" label").append(edge.closure.id);
+      }
+      buf.append(";").appendLineSeparator();
+    }
   }
 
   public static String buildJavaClassName(String name) {

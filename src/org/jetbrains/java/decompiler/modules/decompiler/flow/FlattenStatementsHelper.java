@@ -403,6 +403,9 @@ public class FlattenStatementsHelper {
           List<Exprent> values = caseValues.get(i);
           List<StatEdge> thisCaseEdges = caseEdges.get(i);
           Statement thisCaseStatement = caseStatements.get(i);
+          if (thisCaseStatement == null) {
+            thisCaseStatement = thisCaseEdges.get(0).getDestination();
+          }
 
           // Default case val can be null
           List<Exprent> finalVals = null;

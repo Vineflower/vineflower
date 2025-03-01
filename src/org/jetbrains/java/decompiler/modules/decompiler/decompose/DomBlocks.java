@@ -27,7 +27,7 @@ public class DomBlocks {
   }
 
   static class DomEdge {
-    private final @NotNull DomBlock source;
+    private @NotNull DomBlock source;
     private @NotNull DomBlock destination;
     private @Nullable DomBlock closure;
     private @NotNull DomEdgeType type;
@@ -89,6 +89,13 @@ public class DomBlocks {
       return this;
     }
 
+    DomEdge changeSource(DomBlock source) {
+      this.source.removeSuccessor(this);
+      this.source = source;
+      this.source.addSuccessor(this);
+      return this;
+    }
+
     DomEdge changeClosure(@Nullable DomBlock closure) {
       if (this.closure != null) {
         this.closure.removeEnclosed(this);
@@ -105,6 +112,14 @@ public class DomBlocks {
       return "DomEdge{" + source + " --" + type + "-> " + destination + "}";
 
     }
+
+    public void delete() {
+      if (this.closure != null) {
+        this.closure.removeEnclosed(this);
+      }
+      this.source.removeSuccessor(this);
+      this.destination.removePredecessor(this);
+    }
   }
 
   abstract static class DomBlock {
@@ -120,6 +135,10 @@ public class DomBlocks {
 
     void addPredecessor(DomEdge edge) {
       this.predecessors.add(edge);
+    }
+
+    void removeSuccessor(DomEdge edge) {
+      this.successors.remove(edge);
     }
 
     void removePredecessor(DomEdge edge) {
@@ -167,6 +186,12 @@ public class DomBlocks {
     }
   }
 
+  abstract static class RawDomBlock extends DomBlock {
+    abstract public List<? extends DomEdge> inlinableEdges();
+
+    abstract public DomBlock resolve(Map<? super DomEdge, ? extends DomBlock> blocks);
+  }
+
   static class DomExit extends DomBlock {
 
     @Override
@@ -181,9 +206,9 @@ public class DomBlocks {
   }
 
   static class DomBasicBlock extends DomBlock {
-    public final BasicBlock block;
+    public final @Nullable BasicBlock block;
 
-    DomBasicBlock(BasicBlock block) {
+    DomBasicBlock(@Nullable BasicBlock block) {
       this.block = block;
     }
 
@@ -229,6 +254,149 @@ public class DomBlocks {
     }
   }
 
+  static class RawDomSwitchBlock extends RawDomBlock {
+    public final DomBasicBlock head;
+    public final DomEdge defaultEdge;
+    public final List<DomEdge> edges;
+    public final int[] values;
+
+    RawDomSwitchBlock(DomBasicBlock head, DomEdge defaultEdge, List<DomEdge> edges, int[] values) {
+      this.head = head;
+      this.defaultEdge = defaultEdge;
+      this.edges = edges;
+      this.values = values;
+    }
+
+    @Override
+    public void getRecursive(Collection<? super DomBlock> doms) {
+      doms.add(this);
+      this.head.getRecursive(doms);
+    }
+
+    @Override
+    public Collection<? extends DomBlock> getChildren() {
+      return List.of(this.head);
+    }
+
+
+    @Override
+    public List<? extends DomEdge> inlinableEdges() {
+      List<DomEdge> res = new ArrayList<>(this.edges.size() + 1);
+      res.addAll(this.edges);
+      res.add(this.defaultEdge);
+      return res;
+    }
+
+    private static DomEdge resolveEdge(DomEdge edge, Map<? super DomEdge, ? extends DomBlock> blocks) {
+      DomBlock dest = blocks.get(edge);
+      if (dest == null) {
+        // Block couldn't be inlined, let's make a fake basic block
+        dest = new DomBasicBlock(null);
+
+        DomEdge newEdge = DomEdge.create(edge.getSource(), dest, edge.getClosure(), DomEdgeType.REGULAR);
+
+        edge.changeSource(dest);
+        return newEdge;
+      }
+
+      edge.changeDestination(dest).changeType(DomEdgeType.REGULAR);
+      return edge;
+    }
+
+    @Override
+    public DomSwitchBlock resolve(Map<? super DomEdge, ? extends DomBlock> blocks) {
+      DomEdge newDefaultEdge = resolveEdge(this.defaultEdge, blocks);
+      DomBlock newDefaultBlock = newDefaultEdge.getDestination();
+
+      List<DomEdge> newEdges = new ArrayList<>(this.edges.size());
+      List<DomBlock> newBlocks = new ArrayList<>(this.edges.size());
+      for (DomEdge edge : this.edges) {
+        DomEdge newEdge = resolveEdge(edge, blocks);
+        newEdges.add(newEdge);
+        newBlocks.add(newEdge.getDestination());
+      }
+
+      DomSwitchBlock newSwitch = new DomSwitchBlock(
+        this.head,
+        newDefaultEdge,
+        newDefaultBlock,
+        newEdges,
+        newBlocks,
+        this.values
+      );
+
+      for (DomEdge domEdge : new ArrayList<>(this.getPredecessors())) {
+        domEdge.changeDestination(newSwitch);
+      }
+
+      for (DomEdge domEdge : new ArrayList<>(this.getSuccessors())) {
+        domEdge.changeSource(newSwitch);
+      }
+
+      for (DomEdge domEdge : new ArrayList<>(this.getEnclosed())) {
+        domEdge.changeClosure(newSwitch);
+      }
+
+      return newSwitch;
+    }
+  }
+
+  static class DomSwitchBlock extends DomBlock {
+    public final DomBasicBlock head;
+    public final DomEdge defaultEdge;
+    public final DomBlock defaultBlock;
+    public final List<DomEdge> edges;
+    public final List<DomBlock> blocks;
+    public final int[] values;
+
+    DomSwitchBlock(
+      DomBasicBlock head,
+      DomEdge defaultEdge,
+      DomBlock defaultBlock,
+      List<DomEdge> edges,
+      List<DomBlock> blocks,
+      int[] values
+    ) {
+      this.head = head;
+      this.defaultEdge = defaultEdge;
+      this.defaultBlock = defaultBlock;
+      this.edges = edges;
+      this.blocks = blocks;
+      this.values = values;
+    }
+
+    @Override
+    public void getRecursive(Collection<? super DomBlock> doms) {
+      doms.add(this);
+      this.head.getRecursive(doms);
+      this.defaultBlock.getRecursive(doms);
+      for (DomBlock block : this.blocks) {
+        block.getRecursive(doms);
+      }
+    }
+
+    @Override
+    public Collection<? extends DomBlock> getChildren() {
+      List<DomBlock> lst = new ArrayList<>(this.blocks.size() + 2);
+      lst.add(this.head);
+      lst.addAll(this.blocks);
+      lst.add(this.defaultBlock);
+      return lst;
+    }
+
+    public DomEdge getDefaultEdge() {
+      return this.defaultEdge;
+    }
+
+    public List<DomEdge> getEdges() {
+      return this.edges;
+    }
+
+    public int[] getValues() {
+      return this.values;
+    }
+  }
+
   static class DomLoopBlock extends DomBlock {
     public final DomBlock body;
 
@@ -269,13 +437,13 @@ public class DomBlocks {
     }
   }
 
-  static class DomTryCatchBlock extends DomBlock {
+  static class RawDomTryCatchBlock extends RawDomBlock {
     public final Set<BasicBlock> protectedRange;
     public final DomBlock tryBlock;
     public final LinkedHashMap<List<String>, DomEdge> handlers = new LinkedHashMap<>();
-    public final LinkedHashMap<List<String>, DomCatchBlock> handlerBlocks = new LinkedHashMap<>();
+    public final LinkedHashMap<List<String>, RawDomCatchBlock> handlerBlocks = new LinkedHashMap<>();
 
-    DomTryCatchBlock(Collection<BasicBlock> protectedRange, DomBlock tryBlock) {
+    RawDomTryCatchBlock(Collection<BasicBlock> protectedRange, DomBlock tryBlock) {
       this.protectedRange = new HashSet<>(protectedRange);
       this.tryBlock = tryBlock;
     }
@@ -296,12 +464,88 @@ public class DomBlocks {
       lst.addAll(this.handlerBlocks.values());
       return lst;
     }
+
+    @Override
+    public List<? extends DomEdge> inlinableEdges() {
+      return new ArrayList<>(handlers.values());
+    }
+
+    @Override
+    public DomBlock resolve(Map<? super DomEdge, ? extends DomBlock> blocks) {
+      LinkedHashMap<List<String>, DomEdge> handlers = new LinkedHashMap<>();
+      LinkedHashMap<List<String>, DomBlock> handlerBlocks = new LinkedHashMap<>();
+
+      for (var entry : this.handlers.entrySet()) {
+        var oldEdge = entry.getValue();
+        // TODO: assert that there is always a single pred and it is an exception edge
+        var predEdge = oldEdge.getSource().getPredecessors().iterator().next();
+        if (blocks.containsKey(entry.getValue())) {
+          var targetBlock = blocks.get(entry.getValue());
+          predEdge.changeDestination(targetBlock);
+          oldEdge.delete();
+          handlers.put(entry.getKey(), predEdge);
+          handlerBlocks.put(entry.getKey(), targetBlock);
+        } else {
+          var targetBlock = new DomBasicBlock(null);
+          predEdge.changeDestination(targetBlock);
+          oldEdge.changeSource(targetBlock);
+          handlers.put(entry.getKey(), predEdge);
+          handlerBlocks.put(entry.getKey(), targetBlock);
+        }
+      }
+
+      var res = new DomTryCatchBlock(this.protectedRange, this.tryBlock, handlers, handlerBlocks);
+      for (DomEdge edge : new ArrayList<>(this.getEnclosed())) {
+        edge.changeClosure(res);
+      }
+      for (DomEdge edge : new ArrayList<>(this.getPredecessors())) {
+        edge.changeDestination(res);
+      }
+      return res;
+    }
   }
 
-  static class DomCatchBlock extends DomBlock {
+
+  static class DomTryCatchBlock extends DomBlock {
+    public final Set<BasicBlock> protectedRange;
+    public final DomBlock tryBlock;
+    public final LinkedHashMap<List<String>, DomEdge> handlers;
+    public final LinkedHashMap<List<String>, DomBlock> handlerBlocks;
+
+    DomTryCatchBlock(
+      Collection<BasicBlock> protectedRange,
+      DomBlock tryBlock,
+      LinkedHashMap<List<String>, DomEdge> handlers,
+      LinkedHashMap<List<String>, DomBlock> handlerBlocks
+    ) {
+      this.protectedRange = new HashSet<>(protectedRange);
+      this.tryBlock = tryBlock;
+      this.handlers = handlers;
+      this.handlerBlocks = handlerBlocks;
+    }
+
+    @Override
+    public void getRecursive(Collection<? super DomBlock> doms) {
+      doms.add(this);
+      this.tryBlock.getRecursive(doms);
+      for (var edge : this.handlerBlocks.values()) {
+        edge.getRecursive(doms);
+      }
+    }
+
+    @Override
+    public Collection<? extends DomBlock> getChildren() {
+      List<DomBlock> lst = new ArrayList<>(this.handlerBlocks.size() + 1);
+      lst.add(this.tryBlock);
+      lst.addAll(this.handlerBlocks.values());
+      return lst;
+    }
+  }
+
+  static class RawDomCatchBlock extends DomBlock {
     public final List<String> exceptionTypes;
 
-    DomCatchBlock(List<String> exceptionTypes) {
+    RawDomCatchBlock(List<String> exceptionTypes) {
       ValidationHelper.notNull(exceptionTypes);
       this.exceptionTypes = exceptionTypes;
     }

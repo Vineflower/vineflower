@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 public class DotExporter {
   public static final String DOTS_FOLDER = System.getProperty("DOT_EXPORT_DIR", null);
@@ -356,7 +357,10 @@ public class DotExporter {
 
       return java;
     } catch (Exception e) {
-      return "Could not get content";
+      return ("Could not get content: " + e.getMessage() + "\\n" + Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.joining("\\n")))
+        .replace("\"", "\\\"")
+        .replace("\r", "")
+        .replace("\n", "\\l");
     }
   }
 

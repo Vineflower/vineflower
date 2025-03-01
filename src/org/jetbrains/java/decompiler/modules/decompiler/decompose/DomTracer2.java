@@ -39,7 +39,10 @@ class DomTracer2 {
       } else {
         topLevel = "label=\"" + s + "\"";
       }
-      toDotFile(gen, this.structMethod, this.filePrefix, "g" + this.counter, map, topLevel);
+
+      if (DOTS_FOLDER != null) {
+        toDotFile(gen, this.structMethod, this.filePrefix, "g" + this.counter, map, topLevel);
+      }
 
       if (COLLECT_STRINGS) {
         this.string += "(g" + this.counter + ") ";
@@ -162,6 +165,13 @@ class DomTracer2 {
           extraData.put(ifBlock.getElseEdge(), "Else Edge");
         }
       }
+      else if (domBlock instanceof DomSwitchBlock switchBlock) {
+        extraData.put(switchBlock.getDefaultEdge(), "Default Edge");
+
+        for (int i = 0; i < switchBlock.getEdges().size(); i++) {
+          extraData.put(switchBlock.getEdges().get(i), "Case " + switchBlock.getValues()[i]);
+        }
+      }
 //      else if (domBlock instanceof DomTryCatchBlock tryCatchBlock) {
 //        for (var entry : tryCatchBlock.handlers.entrySet()) {
 //          extraData.put(entry.getValue(), "Handler: " + String.join(", ", entry.getKey()));
@@ -196,12 +206,12 @@ class DomTracer2 {
         // TODO do same for predecessors?
         if (extraData.containsKey(edge)) {
           String data = extraData.get(edge);
-          edgeType = edgeType == null ? data : edgeType + " (" + data + ")";
+          edgeType = edgeType == null ? data : edgeType + "\\l" + data;
           extraDataSeen.add(edge);
         }
 
         if (edge.getClosure() != null) {
-          edgeType = edgeType == null ? "Closure: " + edge.getClosure().getId() : edgeType + " (Closure: " + edge.getClosure().getId() + ")";
+          edgeType = edgeType == null ? "Closure: " + edge.getClosure().getId() : edgeType + "\\lClosure: " + edge.getClosure().getId();
         }
 
         if (edge.getType() == DomEdgeType.CONTINUE) {
@@ -373,11 +383,21 @@ class DomTracer2 {
     } else if (st instanceof DomLoopBlock) {
       return "Loop";
     } else if (st instanceof DomBasicBlock basicBlock) {
-      return "Basic Block #" + basicBlock.block.getId();
-    } else if (st instanceof DomCatchBlock catchBlock) {
-      return "Catch " + String.join(", ", catchBlock.exceptionTypes);
+      if (basicBlock.block == null) {
+        return "Basic Block (fake)";
+      } else {
+        return "Basic Block #" + basicBlock.block.getId();
+      }
+    } else if (st instanceof RawDomCatchBlock catchBlock) {
+      return "Temp catch part " + (catchBlock.exceptionTypes == null? "<any>": String.join(", ", catchBlock.exceptionTypes));
     } else if (st instanceof DomTryCatchBlock) {
       return "Try Catch";
+    } else if (st instanceof RawDomTryCatchBlock) {
+      return "Try Catch (raw)";
+    } else if (st instanceof DomSwitchBlock) {
+      return "Switch";
+    } else if (st instanceof RawDomSwitchBlock) {
+      return "Switch (raw)";
     } else {
       return "Unknown";
     }

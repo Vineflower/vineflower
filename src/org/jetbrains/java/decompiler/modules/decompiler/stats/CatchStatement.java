@@ -41,16 +41,21 @@ public final class CatchStatement extends Statement {
       Statement stat = entry.getValue();
 
       stats.addWithKey(stat, stat.id);
-      exctstrings.add(new ArrayList<>(entry.getKey()));
+      if (entry.getKey() == null) {
+        exctstrings.add(new ArrayList<>());
+      } else {
+        exctstrings.add(new ArrayList<>(entry.getKey()));
+      }
 
       vars.add(
         new VarExprent(
           DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.VAR_COUNTER),
-          new VarType(
+          entry.getKey() == null || entry.getKey().isEmpty()? VarType.VARTYPE_OBJECT: new VarType(
             CodeType.OBJECT,
             0,
           // FIXME: for now simply the first type. Should get the first common superclass when possible.
-            entry.getKey().get(0)),
+             entry.getKey().get(0)
+          ),
           DecompilerContext.getVarProcessor()
         )
       );

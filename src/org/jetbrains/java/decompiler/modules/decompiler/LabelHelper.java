@@ -318,6 +318,9 @@ public final class LabelHelper {
         for (int i = 0; i < last; i++) {
           Statement stt = swst.getCaseStatements().get(i);
           Statement stnext = swst.getCaseStatements().get(i + 1);
+          if (stt == null || stnext == null) {
+            continue;
+          }
 
           if (stnext.getExprents() != null && stnext.getExprents().isEmpty() && stnext.hasAnySuccessor() && !isPatternSwitch) {
             stnext = stnext.getAllSuccessorEdges().get(0).getDestination();
@@ -327,12 +330,14 @@ public final class LabelHelper {
 
         if (last >= 0) { // empty switch possible
           Statement stlast = swst.getCaseStatements().get(last);
-          if (stlast.getExprents() != null && stlast.getExprents().isEmpty() && stlast.hasAnySuccessor()) {
-            StatEdge edge = stlast.getAllSuccessorEdges().get(0);
-            mapEdges.put(edge.getDestination(), new ArrayList<>(Collections.singletonList(edge)));
-          } else {
-            mapEdges = setExplicitEdges(stlast);
-            processEdgesWithNext(stlast, mapEdges, null);
+          if (stlast != null) {
+            if (stlast.getExprents() != null && stlast.getExprents().isEmpty() && stlast.hasAnySuccessor()) {
+              StatEdge edge = stlast.getAllSuccessorEdges().get(0);
+              mapEdges.put(edge.getDestination(), new ArrayList<>(Collections.singletonList(edge)));
+            } else {
+              mapEdges = setExplicitEdges(stlast);
+              processEdgesWithNext(stlast, mapEdges, null);
+            }
           }
         }
 
@@ -467,7 +472,7 @@ public final class LabelHelper {
       SwitchStatement swst = (SwitchStatement)stat;
 
       int last = swst.getCaseStatements().size() - 1;
-      if (last >= 0) { // empty switch possible
+      if (last >= 0 && swst.getCaseStatements().get(last) != null) { // empty switch possible
         Statement stlast = swst.getCaseStatements().get(last);
 
         if (stlast.getExprents() != null && stlast.getExprents().isEmpty()) {

@@ -46,7 +46,6 @@ public final class InlineSingleBlockHelper {
   }
 
   private static void inlineBlock(SequenceStatement seq, int index) {
-
     Statement first = seq.getStats().get(index);
     Statement pre = seq.getStats().get(index - 1);
     pre.removeSuccessor(pre.getFirstSuccessor());   // single regular edge
@@ -75,8 +74,14 @@ public final class InlineSingleBlockHelper {
 
       ifparent.getStats().addWithKey(block, block.id);
       block.setParent(ifparent);
-    }
-    else {
+    } else if (parent instanceof SwitchStatement switchParent && source == switchParent.getFirst()) {
+      SequenceStatement block = new SequenceStatement(lst);
+      block.setAllParent();
+
+      StatEdge newEdge = new StatEdge(StatEdge.TYPE_REGULAR, source, block);
+      source.addSuccessor(newEdge);
+      switchParent.replaceCaseEdge(edge, newEdge, block);
+    } else {
       lst.add(0, source);
 
       SequenceStatement block = new SequenceStatement(lst);
@@ -143,38 +148,40 @@ public final class InlineSingleBlockHelper {
     if (lst.size() == 1) {
       StatEdge edge = lst.get(0);
 
-      if (sameCatchRanges(edge)) {
-        if (!edge.canInline) {
-          return false; //Dirty hack, but lets do it!
-        }
+      if (!sameCatchRanges(edge)) {
+        return false;
+      }
 
-        if (!edge.explicit) {
-          for (int i = index; i < seq.getStats().size(); i++) {
-            if (!noExitLabels(seq.getStats().get(i), seq)) {
-              return false;
-            }
-          }
-        }
+      if (!edge.canInline) {
+        return false; //Dirty hack, but lets do it!
+      }
 
-        if (edge.getSource().getParent() instanceof SwitchStatement) {
-          SwitchStatement swst = (SwitchStatement) edge.getSource().getParent();
-
-          // Can't inline into an empty switch statement!
-          if (swst.getCaseStatements().isEmpty()) {
+      if (!edge.explicit) {
+        for (int i = index; i < seq.getStats().size(); i++) {
+          if (!noExitLabels(seq.getStats().get(i), seq)) {
             return false;
           }
         }
+      }
 
-        boolean noPreSuccessors = !pre.hasAnySuccessor();
+      if (edge.getSource().getParent() instanceof SwitchStatement) {
+        SwitchStatement swst = (SwitchStatement) edge.getSource().getParent();
 
-        if (noPreSuccessors) {
-          // No successors so we can't inline (as we don't know where to go!) [TestInlineNoSuccessor]
+        // Can't inline into an empty switch statement!
+        if (swst.getCaseStatements().isEmpty()) {
           return false;
         }
-
-        // Has at least 1 successor so we can inline
-        return true;
       }
+
+      boolean noPreSuccessors = !pre.hasAnySuccessor();
+
+      if (noPreSuccessors) {
+        // No successors so we can't inline (as we don't know where to go!) [TestInlineNoSuccessor]
+        return false;
+      }
+
+      // Has at least 1 successor so we can inline
+      return true;
       // FIXME: count labels properly
     }
 

@@ -2,6 +2,7 @@
 package org.jetbrains.java.decompiler.modules.decompiler.decompose;
 
 import org.jetbrains.java.decompiler.api.plugin.GraphParser;
+import org.jetbrains.java.decompiler.code.SwitchInstruction;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
 import org.jetbrains.java.decompiler.main.rels.MethodProcessor;
@@ -10,6 +11,8 @@ import org.jetbrains.java.decompiler.modules.decompiler.SequenceHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.DomBlocks.*;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.ConstExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement.EdgeDirection;
 import org.jetbrains.java.decompiler.struct.StructMethod;
@@ -86,53 +89,36 @@ public final class DomHelper2 implements GraphParser {
           predEdge.changeDestination(ifBlock);
         }
       } else if (block.getLastBasicType() == Statement.LastBasicType.SWITCH) {
-        // TODO: handle switches
-        throw new RuntimeException("Switch statement not handled yet!");
+        var successors = domBlock.getSuccessors();
+        var instruction = block.getLastInstruction();
+        if (!(instruction instanceof SwitchInstruction switchIns)) {
+          throw new RuntimeException("Switch statement without switch instruction!");
+        }
+        var values = switchIns.getValues();
+        if (values.length + 1 != successors.size()) {
+          throw new RuntimeException("Switch statement with wrong number of successors!");
+        }
+
+        var successorIterator = successors.iterator();
+        List<DomEdge> normalEdges = new ArrayList<>();
+        var defaultSuccessor = successorIterator.next();
+
+        while (successorIterator.hasNext()) {
+          normalEdges.add(successorIterator.next());
+        }
+
+        RawDomSwitchBlock switchBlock = new RawDomSwitchBlock((DomBasicBlock) domBlock, defaultSuccessor, normalEdges, values);
+        defaultSuccessor.changeClosure(switchBlock);
+        for (DomEdge edge : normalEdges) {
+          edge.changeClosure(switchBlock);
+        }
+        entry.setValue(switchBlock);
+
+        for (var predEdge : new ArrayList<>(domBlock.getPredecessors())) {
+          predEdge.changeDestination(switchBlock);
+        }
       }
     }
-//
-//    // multiple basic blocks or an infinite loop of one block
-//    general = new GeneralStatement(firstStat, simpleToDom.values(), null);
-//
-//    for (BasicBlock block : blocks) {
-//      Statement stat = simpleToDom.get(block);
-//
-//      for (BasicBlock succ : block.getSuccs()) {
-//        Statement succStat = simpleToDom.get(succ);
-//
-//        int type;
-//        /* if (succStat == firstStat) {
-//          type = StatEdge.TYPE_CONTINUE;
-//          succStat = general;
-//        } else */
-//        if (graph.getFinallyExits().contains(block)) {
-//          type = StatEdge.TYPE_FINALLYEXIT;
-//          succStat = dummyExit;
-//        } else if (succ.id == graph.getLast().id) {
-//          type = StatEdge.TYPE_BREAK;
-//          succStat = dummyExit;
-//        } else {
-//          type = StatEdge.TYPE_REGULAR;
-//        }
-//
-//        stat.addSuccessor(new StatEdge(type, stat, succStat,
-//          (type == StatEdge.TYPE_REGULAR) ? null : general));
-//      }
-//
-//      // exceptions edges
-//      for (BasicBlock succEx : block.getSuccExceptions()) {
-//        Statement succExStat = simpleToDom.get(succEx);
-//
-//        ExceptionRangeCFG range = graph.getExceptionRange(succEx, block);
-//        if (!range.isCircular()) {
-//          stat.addSuccessor(new StatEdge(stat, succExStat, range.getExceptionTypes()));
-//        }
-//      }
-//    }
-//
-//    general.buildContinueSet();
-//    general.buildMonitorFlags();
-//    return new RootStatement(general, dummyExit, mt);
 
     // Create final list, and return
     List<DomBlock> lstDomBlocks = new ArrayList<>(simpleToDom.values());
@@ -193,6 +179,37 @@ public final class DomHelper2 implements GraphParser {
       }
     }
 
+    Set<DomBlock> unseenBlocks = new HashSet<>(blockList);
+    unseenBlocks.remove(startBlock);
+    DomBlock runningBlock = solveDAGPart(blockList, startBlock, tracer, mapIncomingEdgesCount, mapIncomingEdges, mapOutgoingEdges, unseenBlocks);
+
+    if (!mapIncomingEdgesCount.isEmpty()) {
+      tracer.error(blockList, "Not all blocks have been processed!", mapIncomingEdgesCount.keySet());
+      throw new RuntimeException("Not all blocks have been processed!");
+    }
+
+    // Update escaping edges
+    for (DomBlock block : blockList) {
+      for (var edge : new ArrayList<>(block.getEnclosed())) {
+        if (edge.getType().isUnknown()) {
+          edge.changeClosure(runningBlock);
+        }
+      }
+    }
+
+    tracer.successCreated(blockList, "dagSolved", runningBlock);
+    return runningBlock;
+  }
+
+  private static DomBlock solveDAGPart(
+    List<DomBlock> blockList,
+    DomBlock startBlock,
+    DomTracer2 tracer,
+    Map<DomBlock, Integer> mapIncomingEdgesCount,
+    HashMap<DomBlock, List<DomEdge>> mapIncomingEdges,
+    HashMap<DomBlock, List<DomEdge>> mapOutgoingEdges,
+    Set<DomBlock> unseenBlocks
+  ) {
     DomBlock runningBlock = null;
 
     List<DomBlock> nextBlockStack = new ArrayList<>();
@@ -216,7 +233,52 @@ public final class DomHelper2 implements GraphParser {
 
         List<DomBlock> lst = new ArrayList<>(props.keySet());
         lst.addAll(blockList);
-        tracer.add(lst, "nextBlockStack", null, props);
+        tracer.add(lst, "part-nextBlockStack", null, props);
+      }
+
+      List<DomEdge> outgoingEdges = mapOutgoingEdges.getOrDefault(block, List.of());
+
+      if (block instanceof RawDomBlock rawBlock) {
+        // resolve edges
+        Map<DomEdge, DomBlock> mapEdges = new HashMap<>();
+        for (DomEdge inlineEdge : rawBlock.inlinableEdges()) {
+          DomBlock target = inlineEdge.getDestination();
+          if (!unseenBlocks.contains(target) || mapIncomingEdges.get(target).size() > 1) {
+            continue;
+          }
+          unseenBlocks.remove(target);
+          outgoingEdges.remove(inlineEdge);
+
+          DomBlock simplified = solveDAGPart(blockList, target, tracer, mapIncomingEdgesCount, mapIncomingEdges, mapOutgoingEdges, unseenBlocks);
+          mapEdges.put(inlineEdge, simplified);
+          List<DomBlock> lst = new ArrayList<>();
+          simplified.getRecursive(lst);
+        }
+
+        block = rawBlock.resolve(mapEdges);
+        mapIncomingEdges.put(block, mapIncomingEdges.getOrDefault(rawBlock, List.of()));
+
+        List<DomBlock> lst = new ArrayList<>();
+        lst.add(block);
+        tracer.add(lst, "raw-resolved", null, new HashMap<>());
+
+
+        if (tracer.isDotOn()) {
+          Map<DomBlock, String> props = new HashMap<>();
+          if (runningBlock != null) {
+            props.put(runningBlock, "fillcolor=orange,style=filled,xlabel=\"runningBlock\"");
+          }
+          int i = 0;
+          for (DomBlock others : nextBlockStack) {
+            props.put(others, "fillcolor=pink,style=filled,xlabel=\"nextBlockStack[" + (i - nextBlockStack.size()) + "]\"");
+            i++;
+          }
+          props.put(block, "fillcolor=lightblue,style=filled,xlabel=\"block\"");
+
+          List<DomBlock> lst2 = new ArrayList<>(props.keySet());
+          lst2.addAll(blockList);
+          tracer.add(lst2, "part-nextBlockStack-resolved", null, props);
+        }
       }
 
       List<DomBlock> currentSequence = new ArrayList<>();
@@ -224,23 +286,24 @@ public final class DomHelper2 implements GraphParser {
         // First block
         currentSequence.add(block);
       } else {
-        currentSequence.add(runningBlock);
-        currentSequence.add(block);
+        if (!(runningBlock instanceof DomBasicBlock) && !(runningBlock instanceof DomSequenceBlock)) {
+          runningBlock = new DomSequenceBlock(List.of(runningBlock));
+        }
 
+        currentSequence.add(runningBlock);
         // Mark all back edges as break edges from the runningBlock
         for (DomEdge backEdge : mapIncomingEdges.getOrDefault(block, List.of())) {
           backEdge.changeType(DomEdgeType.BREAK).changeClosure(runningBlock);
         }
+        currentSequence.add(block);
       }
-
-      List<DomEdge> outgoingEdges = mapOutgoingEdges.getOrDefault(block, List.of());
 
       while (outgoingEdges.size() == 1 && block.getAllSuccessors().size() == 1) {
         // We might be able to add the next block to the current sequence
         DomEdge outEdge = outgoingEdges.get(0);
         DomBlock nextBlock = outEdge.getDestination();
         List<DomEdge> incomingNextEdges = mapIncomingEdges.getOrDefault(nextBlock, List.of());
-        if (incomingNextEdges.size() != 1) {
+        if (incomingNextEdges.size() != 1 || nextBlock instanceof RawDomBlock) {
           break;
         }
 
@@ -262,7 +325,7 @@ public final class DomHelper2 implements GraphParser {
 
           List<DomBlock> lst = new ArrayList<>(props.keySet());
           lst.addAll(blockList);
-          tracer.add(lst, "nextBlockStackExtended", null, props);
+          tracer.add(lst, "part-nextBlockStackExtended", null, props);
         }
 
         // Add the next block and mark the edge as regular
@@ -299,22 +362,6 @@ public final class DomHelper2 implements GraphParser {
         }
       }
     }
-
-    if (!mapIncomingEdgesCount.isEmpty()) {
-      tracer.error(blockList, "Not all blocks have been processed!", mapIncomingEdgesCount.keySet());
-      throw new RuntimeException("Not all blocks have been processed!");
-    }
-
-    // Update escaping edges
-    for (DomBlock block : blockList) {
-      for (var edge : new ArrayList<>(block.getEnclosed())) {
-        if (edge.getType().isUnknown()) {
-          edge.changeClosure(runningBlock);
-        }
-      }
-    }
-
-    tracer.successCreated(blockList, "dagSolved", runningBlock);
     return runningBlock;
   }
 
@@ -474,7 +521,7 @@ public final class DomHelper2 implements GraphParser {
     // TODO: currently assumes that the exceptions are not obfuscated.
     DomBlock startBlock = conversionResult.startBlock;
 
-    Map<BasicBlock, DomTryCatchBlock> tryCatchBlocks = new HashMap<>();
+    Map<BasicBlock, RawDomTryCatchBlock> tryCatchBlocks = new HashMap<>();
 
     for (var cfgRange : graph.getExceptions()) {
       Set<DomBlock> set = new LinkedHashSet<>();
@@ -489,7 +536,7 @@ public final class DomHelper2 implements GraphParser {
       DomBlock handler = conversionResult.simpleToDom.get(cfgRange.getHandler());
 
       // check if we can extend an existing try catch block
-      if (set.size() == 1 && set.iterator().next() instanceof DomTryCatchBlock catchBlock) {
+      if (set.size() == 1 && set.iterator().next() instanceof RawDomTryCatchBlock catchBlock) {
         if (catchBlock.protectedRange.size() != cfgRange.getProtectedRange().size()) {
           // TODO: Depending on inheritance, this may be a no-op or could be just normal as if the order were reversed
           throw new RuntimeException("A later try catch only covers a small sub-range of a previous range");
@@ -501,7 +548,7 @@ public final class DomHelper2 implements GraphParser {
           throw new RuntimeException("An earlier try catch already has a handler for this exception type");
         }
 
-        var dummy = new DomCatchBlock(cfgRange.getExceptionTypes());
+        var dummy = new RawDomCatchBlock(cfgRange.getExceptionTypes());
         DomEdge.create(catchBlock.tryBlock, dummy, null, DomEdgeType.EXCEPTION);
 
         catchBlock.handlers.put(
@@ -518,7 +565,7 @@ public final class DomHelper2 implements GraphParser {
 
       DomBlock entryPoint = findEntryPoint(set, startBlock);
       var tryBlock = processStatement(new ArrayList<>(set), entryPoint, tracer);
-      DomTryCatchBlock tryCatchBlock = new DomTryCatchBlock(cfgRange.getProtectedRange(), tryBlock);
+      RawDomTryCatchBlock tryCatchBlock = new RawDomTryCatchBlock(cfgRange.getProtectedRange(), tryBlock);
 
       for (var edge : new ArrayList<>(entryPoint.getPredecessors())) {
         if (edge.getType().isUnknown()) {
@@ -534,7 +581,7 @@ public final class DomHelper2 implements GraphParser {
       }
 
       // Add handler edge
-      var dummy = new DomCatchBlock(cfgRange.getExceptionTypes());
+      var dummy = new RawDomCatchBlock(cfgRange.getExceptionTypes());
       DomEdge.create(tryBlock, dummy, null, DomEdgeType.EXCEPTION);
       tryCatchBlock.handlers.put(
         cfgRange.getExceptionTypes(),
@@ -616,8 +663,15 @@ public final class DomHelper2 implements GraphParser {
     Map<DomBlock, Statement> blockToStatement = new HashMap<>();
 
     for (DomBlock domBlock : doms) {
-      if (domBlock instanceof DomBasicBlock basicBlock) {
+      if (domBlock instanceof DomBasicBlock basicBlock && basicBlock.block != null) {
         blockToStatement.put(domBlock, new BasicBlockStatement(basicBlock.block));
+      }
+    }
+
+    for (DomBlock domBlock : doms) {
+      if (domBlock instanceof DomBasicBlock basicBlock && basicBlock.block == null) {
+        BasicBlock fakeBlock = new BasicBlock(blockToStatement.size() + 1);
+        blockToStatement.put(domBlock, new BasicBlockStatement(fakeBlock));
       }
     }
 
@@ -695,6 +749,36 @@ public final class DomHelper2 implements GraphParser {
         elseEdge.changeType(StatEdge.TYPE_REGULAR);
       }
       ifStatement.setNegated(true);
+    } else if (block instanceof DomSwitchBlock switchBlock) {
+      SwitchStatement switchStat = (SwitchStatement) blockToStatement.get(block);
+      List<StatEdge> edges = switchStat.getFirst().getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL);
+      if (edges.size() != 1 + switchBlock.getValues().length) {
+        throw new RuntimeException("Switch statement has " + edges.size() + " edges!");
+      }
+      switchStat.setDefaultEdge(edges.get(0));
+
+      var caseEdges = switchStat.getCaseEdges();
+      var caseValues = switchStat.getCaseValues();
+      var caseStatements = switchStat.getCaseStatements();
+      for (int i = 0; i < switchBlock.getValues().length; i++) {
+        StatEdge edge = edges.get(i + 1);
+        var wrapped = new ArrayList<StatEdge>();
+        wrapped.add(edge);
+        caseEdges.add(wrapped);
+        var caseValue = switchBlock.getValues()[i];
+
+        var caseWrapper = new ArrayList<Exprent>();
+        caseWrapper.add(new ConstExprent(caseValue, false, null));
+        caseValues.add(caseWrapper);
+        caseStatements.add(null);
+      }
+      var wrapped = new ArrayList<StatEdge>();
+      wrapped.add(edges.get(0));
+      caseEdges.add(wrapped);
+      var caseWrapped = new ArrayList<Exprent>();
+      caseWrapped.add(null);
+      caseValues.add(caseWrapped);
+      caseStatements.add(null);
     } else if (block instanceof DomLoopBlock || block instanceof DomSequenceBlock) {
       Statement stat = blockToStatement.get(block);
       for (var edge : stat.getLabelEdges()) {
@@ -703,14 +787,24 @@ public final class DomHelper2 implements GraphParser {
           break; // only add regular out edge
         }
       }
-    } else if (block instanceof DomTryCatchBlock tryCatchBlock) {
-      CatchStatement tryCatch = (CatchStatement) blockToStatement.get(block);
-
-      for (var edge : tryCatch.getLabelEdges()) {
-        if (edge.getType() == StatEdge.TYPE_BREAK) {
-          tryCatch.addSuccessor(new StatEdge(StatEdge.TYPE_REGULAR, tryCatch, edge.getDestination()));
-          break; // only add regular out edge
+    } else if (block instanceof DomTryCatchBlock) {
+      Statement stat = blockToStatement.get(block);
+      if (stat instanceof CatchAllStatement catchAll) {
+        for (var edge : catchAll.getLabelEdges()) {
+          if (edge.getType() == StatEdge.TYPE_BREAK) {
+            catchAll.addSuccessor(new StatEdge(StatEdge.TYPE_REGULAR, catchAll, edge.getDestination()));
+            break; // only add regular out edge
+          }
         }
+      } else if (stat instanceof CatchStatement tryCatch) {
+        for (var edge : tryCatch.getLabelEdges()) {
+          if (edge.getType() == StatEdge.TYPE_BREAK) {
+            tryCatch.addSuccessor(new StatEdge(StatEdge.TYPE_REGULAR, tryCatch, edge.getDestination()));
+            break; // only add regular out edge
+          }
+        }
+      } else {
+        throw new RuntimeException("Unexpected statement type");
       }
     }
   }
@@ -726,6 +820,19 @@ public final class DomHelper2 implements GraphParser {
       IfStatement ifStat = new IfStatement(head);
       blockToStatement.put(block, ifStat);
       return ifStat;
+    } else if (block instanceof DomSwitchBlock switchBlock) {
+      Statement head = convertToStatement(switchBlock.head, blockToStatement);
+      Statement defaultBlock = convertToStatement(switchBlock.defaultBlock, blockToStatement);
+      SwitchStatement switchStat = new SwitchStatement(head);
+      for (DomBlock subBlock : switchBlock.blocks) {
+        Statement child = convertToStatement(subBlock, blockToStatement);
+        switchStat.getCaseStatements().add(child);
+        switchStat.getStats().addWithKey(child, child.id);
+      }
+      switchStat.getCaseStatements().add(defaultBlock);
+      switchStat.getStats().addWithKey(defaultBlock, defaultBlock.id);
+      blockToStatement.put(block, switchStat);
+      return switchStat;
     } else if (block instanceof DomLoopBlock loopBlock) {
       Statement body = convertToStatement(loopBlock.body, blockToStatement);
       Statement loop = new DoStatement(body);
@@ -743,19 +850,25 @@ public final class DomHelper2 implements GraphParser {
     } else if (block instanceof DomTryCatchBlock tryCatchBlock) {
       Statement head = convertToStatement(tryCatchBlock.tryBlock, blockToStatement);
       Map<List<String>, Statement> handlers = new LinkedHashMap<>();
+      if (tryCatchBlock.handlerBlocks.size() == 1) {
+        var h = tryCatchBlock.handlerBlocks.keySet().iterator().next();
+        if (h.size() == 1 && h.get(0).equals("Ljava/lang/Throwable")) {
+          // FINALLY (TEMP)
+          Statement handler = convertToStatement(tryCatchBlock.handlerBlocks.get(h), blockToStatement);
+          CatchAllStatement tryCatch = new CatchAllStatement(head, handler);
+          blockToStatement.put(block, tryCatch);
+          return tryCatch;
+        }
+      }
       for (var entry : tryCatchBlock.handlerBlocks.entrySet()) {
         var handler = convertToStatement(entry.getValue(), blockToStatement);
-        handlers.put(entry.getValue().exceptionTypes, handler);
+        handlers.put(entry.getKey(), handler);
       }
       CatchStatement tryCatch = new CatchStatement(head, handlers);
       blockToStatement.put(block, tryCatch);
       return tryCatch;
-    } else if (block instanceof DomCatchBlock) {
-      Statement stat = BasicBlockStatement.create();
-      blockToStatement.put(block, stat);
-      return stat;
     } else {
-      throw new RuntimeException("Unknown block type");
+      throw new RuntimeException("Unknown block type: " + block.getClass());
     }
   }
 
@@ -1009,123 +1122,4 @@ public final class DomHelper2 implements GraphParser {
 
     return true;
   }
-
-  // Try to collapse all nodes in the given general statement to a single node.
-  // When this transformation is done, the general statement will be marked as placeholder.
-  private static boolean findSimpleStatements(
-    Statement stat,
-    HashMap<Integer, Set<Integer>> mapExtPost,
-    DomTracer tracer
-  ) {
-
-    boolean found, success = false;
-
-    do {
-      found = false;
-
-      // Orders the statement in reverse post order with respect to post dominance,
-      // to ensure that the statement is built from the inside out
-      List<Statement> lstStats = stat.getPostReversePostOrderList();
-      for (Statement st : lstStats) {
-
-        Statement result = detectStatement(st);
-
-        if (result == null) {
-          continue;
-        }
-
-        // tracer.successCreated(stat, "Detected " + st + " to " + result + " (" + result.getStats() + ")", st);
-
-        // If the statement we created contains the first statement of the general statement as it's first,
-        // we know that we've completed iteration to the point where every statement in the subgraph
-        // has been explored at least once, due to how the post order is created.
-        // More iteration still happens to discover higher level structures
-        // (such as the case where basicblock -> if -> loop)
-        if (stat instanceof GeneralStatement genStat
-          && !genStat.isPlaceholder()
-          && result.getFirst() == stat.getFirst()
-          && stat.getStats().size() == result.getStats().size()) {
-          // mark general statement
-          ((GeneralStatement) stat).setPlaceholder(true);
-        }
-
-        stat.collapseNodesToStatement(result);
-
-        tracer.successCreated(stat, "Transformed " + st + " to " + result + " (" + result.getStats() + ")", result);
-
-        // update the postdominator map
-        if (!mapExtPost.isEmpty()) {
-          HashSet<Integer> setOldNodes = new HashSet<>();
-          for (Statement old : result.getStats()) {
-            setOldNodes.add(old.id);
-          }
-
-          Integer newid = result.id;
-
-          for (int key : new ArrayList<>(mapExtPost.keySet())) {
-            Set<Integer> set = mapExtPost.get(key);
-
-            int oldsize = set.size();
-            set.removeAll(setOldNodes);
-
-            if (setOldNodes.contains(key)) {
-              mapExtPost.computeIfAbsent(newid, k -> new LinkedHashSet<>()).addAll(set);
-              mapExtPost.remove(key);
-            } else {
-              if (set.size() < oldsize) {
-                set.add(newid);
-              }
-            }
-          }
-        }
-
-
-        found = true;
-        break;
-      }
-
-      if (found) {
-        success = true;
-      }
-    }
-    while (found);
-
-    return success;
-  }
-
-
-  private static Statement detectStatement(Statement head) {
-
-    Statement res;
-
-    if ((res = DoStatement.isHead(head)) != null) {
-      return res;
-    }
-
-    if ((res = SwitchStatement.isHead(head)) != null) {
-      return res;
-    }
-
-    if ((res = IfStatement.isHead(head)) != null) {
-      return res;
-    }
-
-    // synchronized statements will be identified later
-    // right now they are recognized as catchall
-
-    if ((res = SequenceStatement.isHead2Block(head)) != null) {
-      return res;
-    }
-
-    if ((res = CatchStatement.isHead(head)) != null) {
-      return res;
-    }
-
-    if ((res = CatchAllStatement.isHead(head)) != null) {
-      return res;
-    }
-
-    return null;
-  }
-
 }

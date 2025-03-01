@@ -49,12 +49,16 @@ public final class SwitchStatement extends Statement {
     headexprent.add(null);
   }
 
-  private SwitchStatement(Statement head, Statement poststat) {
-
+  public SwitchStatement(Statement head) {
     this();
 
     first = head;
     stats.addWithKey(head, head.id);
+  }
+
+
+  private SwitchStatement(Statement head, Statement poststat) {
+    this(head);
 
     // find post node
     Set<Statement> lstNodes = new HashSet<>(head.getNeighbours(StatEdge.TYPE_REGULAR, EdgeDirection.FORWARD));
@@ -125,13 +129,17 @@ public final class SwitchStatement extends Statement {
       buf.append("/*");
     }
 
-    buf.append(headexprent.get(0).toJava(indent)).append(" {").appendLineSeparator();
+    VarType switch_type = VarType.VARTYPE_INT;
+    if (headexprent.get(0) == null) {
+      buf.append("switch(...)").append(" {").appendLineSeparator();
+    } else {
+      buf.append(headexprent.get(0).toJava(indent)).append(" {").appendLineSeparator();
+      switch_type = headexprent.get(0).getExprType();
+    }
 
-    VarType switch_type = headexprent.get(0).getExprType();
+    for (int i = 0; i < caseEdges.size(); i++) {
 
-    for (int i = 0; i < caseStatements.size(); i++) {
-
-      Statement stat = caseStatements.get(i);
+      Statement stat =  caseStatements.size() <= i ? null : caseStatements.get(i);
       List<StatEdge> edges = caseEdges.get(i);
       List<Exprent> values = caseValues.get(i);
       Exprent guard = caseGuards.size() > i ? caseGuards.get(i) : null;
@@ -182,7 +190,11 @@ public final class SwitchStatement extends Statement {
         }
       }
 
-      buf.append(ExprProcessor.jmpWrapper(stat, indent + 2, false));
+      if (stat == null) {
+        ExprProcessor.jmpWrapperEdge(null, indent, edges.get(0), buf);
+      } else {
+        buf.append(ExprProcessor.jmpWrapper(stat, indent + 2, false));
+      }
 
       if (this.scopedCaseStatements.contains(stat)) {
         buf.appendIndent(indent + 1);
@@ -517,6 +529,10 @@ public final class SwitchStatement extends Statement {
     return defaultEdge;
   }
 
+  public void setDefaultEdge(StatEdge defaultEdge) {
+    this.defaultEdge = defaultEdge;
+  }
+
   public List<List<Exprent>> getCaseValues() {
     return caseValues;
   }
@@ -531,5 +547,22 @@ public final class SwitchStatement extends Statement {
     }
 
     this.scopedCaseStatements.add(stat);
+  }
+
+  public void replaceCaseEdge(StatEdge edge, StatEdge newEdge, SequenceStatement block) {
+    for (int i = 0; i < caseEdges.size(); i++) {
+      var edges = caseEdges.get(i);
+      if (edges.size() == 1 && edges.get(0) == edge) {
+        edges.set(0, newEdge);
+        if (caseStatements.get(i) != null) {
+          stats.removeWithKey(caseStatements.get(i).id);
+        }
+        caseStatements.set(i, block);
+        block.setParent(this);
+        stats.addWithKey(block, block.id);
+        return;
+      }
+    }
+    throw new IllegalStateException("Could not find edge to replace");
   }
 }

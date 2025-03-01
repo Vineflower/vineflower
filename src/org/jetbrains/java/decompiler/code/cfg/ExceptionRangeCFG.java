@@ -1,6 +1,7 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.code.cfg;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 
 import java.util.ArrayList;
@@ -8,26 +9,25 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ExceptionRangeCFG {
-  private final List<BasicBlock> protectedRange; // FIXME: replace with set
+  private final @NotNull List<BasicBlock> protectedRange; // FIXME: replace with set
   private BasicBlock handler;
-  private List<String> exceptionTypes;
+  private @NotNull List<String> exceptionTypes;
 
-  public ExceptionRangeCFG(List<BasicBlock> protectedRange, BasicBlock handler, List<String> exceptionType) {
+  public ExceptionRangeCFG(@NotNull List<BasicBlock> protectedRange, BasicBlock handler, @NotNull List<String> exceptionType) {
     this.protectedRange = protectedRange;
     this.handler = handler;
-
-    if (exceptionType != null) {
-      this.exceptionTypes = new ArrayList<>(exceptionType);
-    }
+    this.exceptionTypes = new ArrayList<>(exceptionType);
   }
 
-  public ExceptionRangeCFG(List<BasicBlock> protectedRange, BasicBlock handler, String exceptionType) {
+  public ExceptionRangeCFG(@NotNull List<BasicBlock> protectedRange, BasicBlock handler, String exceptionType) {
     this.protectedRange = protectedRange;
     this.handler = handler;
+    this.exceptionTypes = new ArrayList<>();
 
     if (exceptionType != null) {
-      this.exceptionTypes = new ArrayList<>();
       this.exceptionTypes.add(exceptionType);
+    } else {
+      this.exceptionTypes.add("Ljava/lang/Throwable");
     }
   }
 
@@ -71,11 +71,11 @@ public class ExceptionRangeCFG {
     this.handler = handler;
   }
 
-  public List<BasicBlock> getProtectedRange() {
+  public @NotNull List<BasicBlock> getProtectedRange() {
     return protectedRange;
   }
 
-  public List<String> getExceptionTypes() {
+  public @NotNull List<String> getExceptionTypes() {
     return this.exceptionTypes;
   }
 
