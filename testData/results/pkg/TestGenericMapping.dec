@@ -1,0 +1,36 @@
+package pkg;
+
+public class TestGenericMapping {
+   class EntityA<Q extends TestGenericMapping.EntityA<Q, R>, R extends TestGenericMapping.EntityB<Q, R>> {
+      public void doSomething(Q q) {
+      }// 6
+   }
+
+   public class EntityB<S extends TestGenericMapping.EntityA<S, T>, T extends TestGenericMapping.EntityB<S, T>> {
+      public void doSomething(S t) {
+         t.doSomething(t);// 11
+      }// 12
+   }
+}
+
+class 'pkg/TestGenericMapping$EntityA' {
+   method 'doSomething (Lpkg/TestGenericMapping$EntityA;)V' {
+      0      5
+   }
+}
+
+class 'pkg/TestGenericMapping$EntityB' {
+   method 'doSomething (Lpkg/TestGenericMapping$EntityA;)V' {
+      0      10
+      1      10
+      2      10
+      3      10
+      4      10
+      5      11
+   }
+}
+
+Lines mapping:
+6 <-> 6
+11 <-> 11
+12 <-> 12

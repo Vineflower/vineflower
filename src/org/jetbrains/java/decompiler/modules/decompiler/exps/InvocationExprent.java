@@ -307,7 +307,7 @@ public class InvocationExprent extends Exprent {
                     }
                   }
 
-                  if (ok && isMappingInBounds(from, to, named, bounds)) {
+                  if (ok && isMappingInBounds(from, to, named, bounds, new HashSet<>())) {
                     upperBoundsMap.put(from, to);
                   }
                 }
@@ -1570,12 +1570,12 @@ public class InvocationExprent extends Exprent {
   }
 
   private void putGenericMapping(VarType from, VarType to, Map<VarType, List<VarType>> named, Map<VarType, List<VarType>> bounds) {
-    if (isMappingInBounds(from, to, named, bounds)) {
+    if (isMappingInBounds(from, to, named, bounds, new HashSet<>())) {
       genericsMap.put(from, to);
     }
   }
 
-  private boolean isMappingInBounds(VarType from, VarType to, Map<VarType, List<VarType>> named, Map<VarType, List<VarType>> bounds) {
+  private boolean isMappingInBounds(VarType from, VarType to, Map<VarType, List<VarType>> named, Map<VarType, List<VarType>> bounds, Set<Pair<VarType, VarType>> recursivelySeen) {
     if (!bounds.containsKey(from)) {
       return false;
     }
@@ -1612,7 +1612,11 @@ public class InvocationExprent extends Exprent {
           }
         }
 
-        return isMappingInBounds(bound, newTo, named, bounds);
+        Pair<VarType, VarType> pair = Pair.of(bound, newTo);
+        if (!recursivelySeen.contains(pair)) {
+          recursivelySeen.add(pair);
+          return isMappingInBounds(bound, newTo, named, bounds, recursivelySeen);
+        }
       }
 
       if (newTo.type.ordinal() < CodeType.OBJECT.ordinal()) {
@@ -1654,9 +1658,15 @@ public class InvocationExprent extends Exprent {
             }
 
             // T extends Comparable<S>, S extends Object
-            if (bounds.containsKey(boundArg) && isMappingInBounds(boundArg, newArg, named, bounds)) {
-              toAdd.put(boundArg, newArg);
-              continue;
+            if (bounds.containsKey(boundArg)) {
+              Pair<VarType, VarType> pair = Pair.of(bound, newTo);
+              if (!recursivelySeen.contains(pair)) {
+                recursivelySeen.add(pair);
+                if (isMappingInBounds(boundArg, newArg, named, bounds, recursivelySeen)) {
+                  toAdd.put(boundArg, newArg);
+                  continue;
+                }
+              }
             }
             return false;
           }
