@@ -1452,10 +1452,14 @@ public class VarDefinitionHelper {
       start += (md.params[i].stackSize - 1);
     }
 
-    iterateClashingNames(root, mt, varDefinitions, liveVarDefs, nameMap);
+    Set<String> seenMethods = new HashSet<>();
+    seenMethods.add(InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor()));
+
+    iterateClashingNames(root, mt, varDefinitions, liveVarDefs, nameMap, seenMethods);
   }
 
-  private void iterateClashingNames(Statement stat, StructMethod mt, Map<Statement, Set<VarInMethod>> varDefinitions, Set<VarInMethod> liveVarDefs, Map<VarInMethod, String> nameMap) {
+  private void iterateClashingNames(Statement stat, StructMethod mt, Map<Statement, Set<VarInMethod>> varDefinitions,
+                                    Set<VarInMethod> liveVarDefs, Map<VarInMethod, String> nameMap, Set<String> seenMethods) {
     Set<VarInMethod> curVarDefs = new HashSet<>();
 
     boolean shouldRemoveAtEnd = false;
@@ -1463,7 +1467,7 @@ public class VarDefinitionHelper {
     // Process var definitions as owned by the parent- they come before the statement, and so their scope extends past the actual statement.
     for (Exprent exprent : stat.getVarDefinitions()) {
       Set<VarInMethod> upDefs = new HashSet<>();
-      iterateClashingExprent(stat, mt, varDefinitions, exprent, liveVarDefs, upDefs, nameMap);
+      iterateClashingExprent(stat, mt, varDefinitions, exprent, liveVarDefs, upDefs, nameMap, seenMethods);
       liveVarDefs.addAll(upDefs);
       varDefinitions.put(stat.getParent(), upDefs);
     }
@@ -1474,7 +1478,7 @@ public class VarDefinitionHelper {
       BasicBlockStatement basic = stat.getBasichead();
       for (Exprent exprent : basic.getExprents()) {
         for (Exprent ex : exprent.getAllExprents(true, true)) {
-          iterateClashingExprent(basic, mt, varDefinitions, ex, liveVarDefs, upDefs, nameMap);
+          iterateClashingExprent(basic, mt, varDefinitions, ex, liveVarDefs, upDefs, nameMap, seenMethods);
         }
       }
 
@@ -1489,7 +1493,7 @@ public class VarDefinitionHelper {
           // Sort order from getAllExprents here is crucial!
           // Say, for example, "MyType t = method(t -> ....);"
           // It is imperative that the lhs of the assign comes first, so that any defs in the rhs can be properly seen.
-          iterateClashingExprent(stat, mt, varDefinitions, ex, liveVarDefs, curVarDefs, nameMap);
+          iterateClashingExprent(stat, mt, varDefinitions, ex, liveVarDefs, curVarDefs, nameMap, seenMethods);
         }
       }
     } else {
@@ -1499,7 +1503,7 @@ public class VarDefinitionHelper {
           List<Exprent> exprents = ((Exprent) obj).getAllExprents(true, true);
 
           for (Exprent exprent : exprents) {
-            iterateClashingExprent(stat, mt, varDefinitions, exprent, liveVarDefs, curVarDefs, nameMap);
+            iterateClashingExprent(stat, mt, varDefinitions, exprent, liveVarDefs, curVarDefs, nameMap, seenMethods);
           }
         }
       }
@@ -1538,7 +1542,7 @@ public class VarDefinitionHelper {
           }
         }
 
-        iterateClashingNames(st, mt, varDefinitions, liveVarDefs, nameMap);
+        iterateClashingNames(st, mt, varDefinitions, liveVarDefs, nameMap, seenMethods);
       }
     }
 
@@ -1555,7 +1559,7 @@ public class VarDefinitionHelper {
     // Process deferred statements
     if (iterate) {
       for (Statement st : deferred) {
-        iterateClashingNames(st, mt, varDefinitions, liveVarDefs, nameMap);
+        iterateClashingNames(st, mt, varDefinitions, liveVarDefs, nameMap, seenMethods);
       }
     }
 
@@ -1575,7 +1579,8 @@ public class VarDefinitionHelper {
     }
   }
 
-  private void iterateClashingExprent(Statement stat, StructMethod mt, Map<Statement, Set<VarInMethod>> varDefinitions, Exprent exprent, Set<VarInMethod> liveVarDefs, Set<VarInMethod> curVarDefs, Map<VarInMethod, String> nameMap) {
+  private void iterateClashingExprent(Statement stat, StructMethod mt, Map<Statement, Set<VarInMethod>> varDefinitions, Exprent exprent,
+                                      Set<VarInMethod> liveVarDefs, Set<VarInMethod> curVarDefs, Map<VarInMethod, String> nameMap, Set<String> seenMethods) {
     if (exprent instanceof NewExprent) {
       NewExprent newExprent = (NewExprent) exprent;
       // Check if this is a lambda with a body
@@ -1584,7 +1589,8 @@ public class VarDefinitionHelper {
         if (node != null && node.getWrapper() != null) {
           MethodWrapper mw = node.getWrapper().getMethods().getWithKey(node.lambdaInformation.content_method_key);
           StructMethod mt2 = node.getWrapper().getClassStruct().getMethod(node.lambdaInformation.content_method_key);
-          if (mt2 != null && mw != null) {
+          if (mt2 != null && mw != null && !seenMethods.contains(InterpreterUtil.makeUniqueKey(mt2.getName(), mt2.getDescriptor()))) {
+            seenMethods.add(InterpreterUtil.makeUniqueKey(mt2.getName(), mt2.getDescriptor()));
             // Propagate current data through to lambda
             VarDefinitionHelper vardef = new VarDefinitionHelper(mw.root, mt2, mw.varproc, false);
 
@@ -1616,7 +1622,7 @@ public class VarDefinitionHelper {
             }
 
             // Iterate clashing names with the lambda's body, with the context of the outer method
-            vardef.iterateClashingNames(mw.root, mt2, varDefinitions, liveVarDefs, nameMap);
+            vardef.iterateClashingNames(mw.root, mt2, varDefinitions, liveVarDefs, nameMap, seenMethods);
 
             for (Entry<VarVersionPair, String> e : vardef.getClashingNames().entrySet()) {
               mw.varproc.setClashingName(e.getKey(), e.getValue());
@@ -1636,7 +1642,8 @@ public class VarDefinitionHelper {
           for (String mthKey : node.getWrapper().getMethods().getLstKeys()) {
             MethodWrapper mw = node.getWrapper().getMethods().getWithKey(mthKey);
             StructMethod mt2 = node.getWrapper().getClassStruct().getMethod(mthKey);
-            if (mt2 != null && mw != null && !mt2.hasModifier(CodeConstants.ACC_SYNTHETIC)) {
+            if (mt2 != null && mw != null && !mt2.hasModifier(CodeConstants.ACC_SYNTHETIC) && !seenMethods.contains(InterpreterUtil.makeUniqueKey(mt2.getName(), mt2.getDescriptor()))) {
+              seenMethods.add(InterpreterUtil.makeUniqueKey(mt2.getName(), mt2.getDescriptor()));
               // Propagate current data through to method
               VarDefinitionHelper vardef = new VarDefinitionHelper(mw.root, mt2, mw.varproc, false);
 
@@ -1669,7 +1676,7 @@ public class VarDefinitionHelper {
               }
 
               // Iterate clashing names with the lambda's body, with the context of the outer method
-              vardef.iterateClashingNames(mw.root, mt2, varDefinitions, liveVarDefs, nameMap);
+              vardef.iterateClashingNames(mw.root, mt2, varDefinitions, liveVarDefs, nameMap, seenMethods);
 
               for (Entry<VarVersionPair, String> e : vardef.getClashingNames().entrySet()) {
                 mw.varproc.setClashingName(e.getKey(), e.getValue());
