@@ -187,7 +187,7 @@ public final class SwitchPatternMatchProcessor {
             if (assign.getLeft() instanceof VarExprent) {
               VarExprent var = (VarExprent) assign.getLeft();
 
-              if (assign.getRight() instanceof FunctionExprent && ((FunctionExprent) assign.getRight()).getFuncType() == FunctionExprent.FunctionType.CAST) {
+              if (isPatternMatchingCastAssignment(head, assign)) {
                 FunctionExprent cast = (FunctionExprent) assign.getRight();
 
                 List<Exprent> operands = new ArrayList<>();
@@ -546,5 +546,20 @@ public final class SwitchPatternMatchProcessor {
 
   public static boolean hasPatternMatch(RootStatement root) {
     return root.mt.getBytecodeVersion().hasSwitchPatternMatch() && DecompilerContext.getOption(IFernflowerPreferences.PATTERN_MATCHING);
+  }
+
+  private static boolean isPatternMatchingCastAssignment(final SwitchHeadExprent switchHead, final AssignmentExprent assignment) {
+    if (!(assignment.getRight() instanceof final FunctionExprent functionExprent)) return false;
+    if (functionExprent.getFuncType() != FunctionType.CAST) return false;
+
+    final List<Exprent> lstOperands = functionExprent.getLstOperands();
+    // We expect the assignment to be a literal `n = (Type) m`.
+    // Any other operands are not allowed in simple pattern matching.
+    if (lstOperands.size() < 2) return false;
+    if (!(lstOperands.get(0) instanceof final VarExprent switchHeadRef)) return false;
+    if (!(lstOperands.get(1) instanceof final ConstExprent castTypeRef)) return false;
+    if (!switchHead.containsVar(switchHeadRef.getVarVersionPair())) return false; // Not the switch head var ref
+
+    return true;
   }
 }

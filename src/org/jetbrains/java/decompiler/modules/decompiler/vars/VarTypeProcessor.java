@@ -182,6 +182,8 @@ public class VarTypeProcessor {
 
       case FUNCTION:
         return changeFunctionExprentType(newType, minMax, (FunctionExprent)exprent);
+      case SWITCH:
+        return changeSwitchExprentType(newType, minMax, (SwitchExprent) exprent);
     }
 
     return true;
@@ -233,6 +235,16 @@ public class VarTypeProcessor {
       case XOR:
         return changeExprentType(func.getLstOperands().get(offset), newType, minMax) &
                changeExprentType(func.getLstOperands().get(offset + 1), newType, minMax);
+    }
+    return true;
+  }
+
+  private boolean changeSwitchExprentType(VarType newType, int minMax, SwitchExprent switchExpr) {
+    if (minMax == 1) { // max
+      VarType type = switchExpr.getExprType();
+      if (newType.typeFamily == TypeFamily.INTEGER && type.typeFamily == newType.typeFamily) {
+        switchExpr.setType(newType);
+      }
     }
     return true;
   }

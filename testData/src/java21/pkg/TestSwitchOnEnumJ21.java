@@ -100,6 +100,15 @@ public class TestSwitchOnEnumJ21 {
     }
   }
 
+  public <T> T testEnumSwitchWithCastYields(TestEnum a, java.util.function.Function<Object, T> wrapper) {
+    return switch (a) {
+      case A -> wrapper.apply("A");
+      case B -> wrapper.apply(10);
+      case null -> wrapper.apply("null");
+      default -> null;
+    };
+  }
+
   interface A {
 
   }

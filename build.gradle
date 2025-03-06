@@ -58,7 +58,7 @@ allprojects {
 group = 'org.vineflower'
 base.archivesName = 'vineflower'
 
-version = '1.11.0'
+version = '1.11.1'
 
 def ENV = System.getenv()
 version = version + (ENV.GITHUB_ACTIONS ? "" : "+local")

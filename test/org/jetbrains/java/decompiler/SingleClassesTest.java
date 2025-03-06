@@ -715,6 +715,9 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestCatchVariable");
     register(JAVA_8, "TestExtraneousImports");
     register(JAVA_17, "TestSwitchOnEnumFake");
+    register(JAVA_16, "TestSwitchExpressionReturnType");
+    register(JAVA_8, "TestGenericMapping");
+
   }
 
   private void registerEntireClassPath() {
