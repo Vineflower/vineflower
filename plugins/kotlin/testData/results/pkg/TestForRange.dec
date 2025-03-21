@@ -22,7 +22,7 @@ public class TestForRange {
          while (true) {
             System.out.println(i);// 18
             if (i == var2) {// 17
-               break;
+               break
             }
 
             i += 2;
@@ -40,7 +40,7 @@ public class TestForRange {
             while (true) {
                System.out.println(i);// 24
                if (i == var3) {// 23
-                  break;
+                  break
                }
 
                i += x;
@@ -62,7 +62,7 @@ public class TestForRange {
          while (true) {
             System.out.println(i);// 36
             if (i == var2) {// 35
-               break;
+               break
             }
 
             i -= 2;
@@ -81,7 +81,7 @@ public class TestForRange {
             while (true) {
                System.out.println(i);// 42
                if (i == var4) {// 41
-                  break;
+                  break
                }
 
                i += var2;
@@ -105,7 +105,7 @@ public class TestForRange {
          while (true) {
             System.out.println(i);// 54
             if (i == var3) {// 53
-               break;
+               break
             }
 
             i += var4;
@@ -122,7 +122,7 @@ public class TestForRange {
          while (true) {
             System.out.println(i);// 60
             if (i == var4) {// 59
-               break;
+               break
             }
 
             i += var5;
@@ -136,7 +136,7 @@ public class TestForRange {
          while (true) {
             System.out.println(i);// 66
             if (i == y) {// 65
-               break;
+               break
             }
 
             i++;
@@ -151,7 +151,7 @@ public class TestForRange {
          while (true) {
             System.out.println(i);// 72
             if (i == var4) {// 71
-               break;
+               break
             }
 
             i += 2;
@@ -169,7 +169,7 @@ public class TestForRange {
             while (true) {
                System.out.println(i);// 78
                if (i == var5) {// 77
-                  break;
+                  break
                }
 
                i += z;

@@ -2,10 +2,10 @@ package pkg
 
 public class TestLabeledJumps {
    public fun testContinue(tester: (Int) -> Boolean) {
-      label35@ for (i: Int in 1..100) {// 5
+      label36@ for (i: Int in 1..100) {// 5
          for (j: Int in 1..100) {// 6
             if (tester.invoke(j) as java.lang.Boolean) {// 7
-               continue label24;
+               continue@label36
             }
 
             System.out.println("$j $i");// 11
@@ -16,10 +16,10 @@ public class TestLabeledJumps {
    }// 16
 
    public fun testBreak(tester: (Int) -> Boolean) {
-      label32@ for (i: Int in 1..100) {// 19
-         for (var j: Int = 1; j < 101; j++) {// 20
+      label33@ for (i: Int in 1..100) {// 19
+         for (j: Int in 1..100) {// 20
             if (tester.invoke(j) as java.lang.Boolean) {// 21
-               break label22;
+               break@label33
             }
 
             System.out.println("$j $i");// 25
@@ -90,12 +90,8 @@ class 'pkg/TestLabeledJumps' {
       a      18
       e      19
       f      19
-      10      19
       11      19
       12      19
-      13      19
-      14      19
-      15      19
       16      20
       17      20
       18      20
@@ -128,9 +124,6 @@ class 'pkg/TestLabeledJumps' {
       37      24
       38      24
       39      24
-      3a      19
-      3b      19
-      3c      19
       46      28
       47      28
       48      28

@@ -6,7 +6,7 @@ import kotlin.jvm.internal.SourceDebugExtension
 @SourceDebugExtension(["SMAP\nTestTryFinallyExpressions.kt\nKotlin\n*S Kotlin\n*F\n+ 1 TestTryFinallyExpressions.kt\npkg/TestTryFinallyExpressions\n+ 2 fake.kt\nkotlin/jvm/internal/FakeKt\n*L\n1#1,52:1\n1#2:53\n*E\n"])
 public class TestTryFinallyExpressions {
    public fun test0(s: String) {
-      label15: {
+      run label23@{
          try {
             val var2: java.lang.String = StringsKt.repeat(s as java.lang.CharSequence, 5);// 8
          } catch (var4: java.lang.Throwable) {
@@ -18,7 +18,7 @@ public class TestTryFinallyExpressions {
    }
 
    public fun test1(a: String, b: String) {
-      label24: {
+      run label45@{
          var x: java.lang.String = a;// 15
 
          try {
@@ -40,21 +40,21 @@ public class TestTryFinallyExpressions {
    }
 
    public fun test2(a: String, b: String) {
-      label68: {
+      run label140@{
          var var19: java.lang.String = a;// 28
 
-         run label138@{
-            run label137@{
-               run label136@{
+         run label139@{
+            run label138@{
+               run label137@{
                   try {
                      try {
                         if (a == b) {// 30
-                           break label69;
+                           return@label139
                         }
 
                         var19 = b;// 33
                         this.test0(b);// 34
-                        break label71;
+                        return@label137
                      } catch (var11: IOException) {// 36
                         var19 = a;// 37
                         this.test1(a, a);// 38
@@ -65,7 +65,7 @@ public class TestTryFinallyExpressions {
                   }
 
                   var19 = if (var19 == a) b else a;
-                  break label70;// 46
+                  return@label138// 46
                }
 
                var19 = if (var19 == a) b else a;
