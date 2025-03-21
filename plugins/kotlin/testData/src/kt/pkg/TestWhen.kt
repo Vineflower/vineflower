@@ -23,6 +23,17 @@ class TestWhen {
     }
   }
 
+  fun testStatement3(obj: Any?) {
+    when (obj) {
+      1 -> {}
+      is Double -> println("Double")
+      null -> println("null")
+      is String -> {}
+      is Int -> println(obj + 1)
+      else -> {}
+    }
+  }
+
   fun testExpression(obj: Any): Int {
     return when (obj) {
       1 -> 1
@@ -68,6 +79,21 @@ class TestWhen {
       9 -> println("The cat's meow")
       42 -> println("The answer")
       else -> println("Number")
+    }
+  }
+
+  fun testSwitchWithEmptyCases(a: Int) {
+    when (a) {
+      1 -> {}
+      2, 3 -> println(a + 4)
+      4, 8, 1000 -> println("even")
+      else -> {}
+    }
+  }
+  
+  fun testNoBranches(a: Any): Int {
+    return when (a) {
+      else -> 0
     }
   }
 

@@ -33,63 +33,86 @@ public class TestWhen {
       }
    }// 24
 
+   public fun testStatement3(obj: Any?) {
+      if (!(obj == 1)) {// 27 28
+         if (obj is java.lang.Double) {// 29
+            System.out.println("Double");
+         } else if (obj == null) {// 30
+            System.out.println("null");
+         } else if (obj !is java.lang.String && obj is Int) {// 31 32
+            System.out.println((obj as java.lang.Number).intValue() + 1);
+         }
+      }
+   }// 35
+
    public fun testExpression(obj: Any): Int {
-      return if (obj == 1) 1 else (if (obj is java.lang.Double) 2 else (if (obj == "4") 4 else (if (obj !is java.lang.Long) 3 else 5)));// 27 28 29 30 31 32
+      return if (obj == 1) 1 else (if (obj is java.lang.Double) 2 else (if (obj == "4") 4 else (if (obj !is java.lang.Long) 3 else 5)));// 38 39 40 41 42 43
    }
 
    public fun testExpression2(obj: Any): Int {
-      val text: java.lang.String = if (obj == 1)// 37 38
+      val text: java.lang.String = if (obj == 1)// 48 49
          "one"
          else
-         (if (obj is java.lang.Double) "double" else (if (obj == "4") "four" else (if (obj !is java.lang.Long) "not long" else "something")));// 39 40 41 42
-      System.out.println(text);// 44
-      return text.length();// 45
+         (if (obj is java.lang.Double) "double" else (if (obj == "4") "four" else (if (obj !is java.lang.Long) "not long" else "something")));// 50 51 52 53
+      System.out.println(text);// 55
+      return text.length();// 56
    }
 
    public fun testSwitchExpression(a: Int) {
       var var10000: java.lang.String;
-      when (a) {// 49
-         1 -> var10000 = "one";// 50
-         2, 3, 5 -> var10000 = "prime";// 51
-         4 -> var10000 = "something";// 52
+      when (a) {// 60
+         1 -> var10000 = "one";// 61
+         2, 3, 5 -> var10000 = "prime";// 62
+         4 -> var10000 = "something";// 63
          else -> something";
       }
 
-      System.out.println(var10000);// 54
-   }// 55
+      System.out.println(var10000);// 65
+   }// 66
 
    public fun testCompilesToTableSwitch(a: Int) {
-      when (a) {// 58
-         1 -> System.out.println("The loneliest number");// 59
-         2, 3 -> System.out.println("Small prime");// 60
-         else -> System.out.println("Number");// 61
+      when (a) {// 69
+         1 -> System.out.println("The loneliest number");// 70
+         2, 3 -> System.out.println("Small prime");// 71
+         else -> System.out.println("Number");// 72
       }
-   }// 63
+   }// 74
 
    public fun testCompilesToLookupSwitch(a: Int) {
-      when (a) {// 66
-         1 -> System.out.println("Go for gold");// 67
-         9 -> System.out.println("The cat's meow");// 68
-         42 -> System.out.println("The answer");// 69
-         else -> System.out.println("Number");// 70
-      }
-   }// 72
-
-   public fun booleanNightmares(a: Boolean, b: Boolean, c: Boolean, d: Boolean, e: Boolean, f: Boolean, g: Boolean) {
-      if (a == (b != c)) {// 75 76
-         System.out.println("-_-");
-      } else if (a == (b && !e)) {// 77
-         System.out.println("xxx");
-      } else if (a == (!a || d)) {// 78
-         System.out.println("ohno");
-      } else if (!a) {// 79
-         System.out.println("NIGHTMARE");
-      } else if (a == (g || e && f != c)) {// 80
-         System.out.println("hello");
-      } else {
-         System.out.println("else");// 81
+      when (a) {// 77
+         1 -> System.out.println("Go for gold");// 78
+         9 -> System.out.println("The cat's meow");// 79
+         42 -> System.out.println("The answer");// 80
+         else -> System.out.println("Number");// 81
       }
    }// 83
+
+   public fun testSwitchWithEmptyCases(a: Int) {
+      when (a) {// 86
+         1 ->          else ->          2, 3 -> System.out.println(a + 4);// 88
+         4, 8, 1000 -> System.out.println("even");// 89
+      }
+   }// 92
+
+   public fun testNoBranches(a: Any): Int {
+      return 0;// 95 96
+   }
+
+   public fun booleanNightmares(a: Boolean, b: Boolean, c: Boolean, d: Boolean, e: Boolean, f: Boolean, g: Boolean) {
+      if (a == (b != c)) {// 101 102
+         System.out.println("-_-");
+      } else if (a == (b && !e)) {// 103
+         System.out.println("xxx");
+      } else if (a == (!a || d)) {// 104
+         System.out.println("ohno");
+      } else if (!a) {// 105
+         System.out.println("NIGHTMARE");
+      } else if (a == (g || e && f != c)) {// 106
+         System.out.println("hello");
+      } else {
+         System.out.println("else");// 107
+      }
+   }// 109
 }
 
 class 'pkg/TestWhen' {
@@ -266,396 +289,551 @@ class 'pkg/TestWhen' {
       8f      33
    }
 
-   method 'testExpression (Ljava/lang/Object;)I' {
+   method 'testStatement3 (Ljava/lang/Object;)V' {
+      0      36
+      2      36
+      3      36
+      4      36
+      5      36
       6      36
-      8      36
-      9      36
       a      36
       b      36
       c      36
-      10      36
-      11      36
-      12      36
-      13      36
-      17      36
-      18      36
-      19      36
-      1a      36
-      1b      36
-      1c      36
-      1d      36
-      1e      36
-      22      36
-      23      36
-      24      36
-      28      36
-      29      36
-      2a      36
-      2b      36
-      2f      36
-      33      36
-      34      36
-      35      36
-      36      36
-      3a      36
-      3b      36
+      d      37
+      e      37
+      f      37
+      10      37
+      11      37
+      12      37
+      13      37
+      14      38
+      15      38
+      16      38
+      17      38
+      18      38
+      1a      38
+      1b      38
+      1c      38
+      20      39
+      21      39
+      22      39
+      23      39
+      24      40
+      25      40
+      26      40
+      27      40
+      28      40
+      2a      40
+      2b      40
+      2c      40
+      30      41
+      34      41
+      35      41
+      36      41
+      37      41
+      38      41
+      39      41
+      3a      41
+      3b      41
+      3c      41
+      3d      41
+      3e      42
+      3f      42
+      40      42
+      41      42
+      42      42
+      43      42
+      44      42
+      45      42
+      46      42
+      48      42
+      49      42
+      4a      42
+      4b      42
+      4c      42
+      4d      42
+      4e      42
+      4f      45
+   }
+
+   method 'testExpression (Ljava/lang/Object;)I' {
+      6      48
+      8      48
+      9      48
+      a      48
+      b      48
+      c      48
+      10      48
+      11      48
+      12      48
+      13      48
+      17      48
+      18      48
+      19      48
+      1a      48
+      1b      48
+      1c      48
+      1d      48
+      1e      48
+      22      48
+      23      48
+      24      48
+      28      48
+      29      48
+      2a      48
+      2b      48
+      2f      48
+      33      48
+      34      48
+      35      48
+      36      48
+      3a      48
+      3b      48
    }
 
    method 'testExpression2 (Ljava/lang/Object;)I' {
-      6      40
-      8      40
-      9      40
-      a      40
-      b      40
-      c      40
-      10      40
-      11      40
-      12      40
-      13      41
-      14      41
-      18      43
-      19      43
-      1a      43
-      1b      43
-      1c      43
-      1d      43
-      1e      43
-      1f      43
-      20      43
-      24      43
-      25      43
-      26      43
-      2a      43
-      2b      43
-      2c      43
-      2d      43
-      2e      43
-      32      43
-      36      43
-      37      43
-      38      43
-      39      43
-      3a      43
-      3e      43
-      3f      43
-      40      40
-      41      44
-      42      44
-      43      44
-      44      44
-      45      44
-      46      44
-      47      44
-      48      45
-      49      45
-      4a      45
-      4b      45
-      4c      45
+      6      52
+      8      52
+      9      52
+      a      52
+      b      52
+      c      52
+      10      52
+      11      52
+      12      52
+      13      53
+      14      53
+      18      55
+      19      55
+      1a      55
+      1b      55
+      1c      55
+      1d      55
+      1e      55
+      1f      55
+      20      55
+      24      55
+      25      55
+      26      55
+      2a      55
+      2b      55
+      2c      55
+      2d      55
+      2e      55
+      32      55
+      36      55
+      37      55
+      38      55
+      39      55
+      3a      55
+      3e      55
+      3f      55
+      40      52
+      41      56
+      42      56
+      43      56
+      44      56
+      45      56
+      46      56
+      47      56
+      48      57
+      49      57
+      4a      57
+      4b      57
+      4c      57
    }
 
    method 'testSwitchExpression (I)V' {
-      0      50
-      1      50
-      2      50
-      3      50
-      4      50
-      5      50
-      6      50
-      7      50
-      8      50
-      9      50
-      a      50
-      b      50
-      c      50
-      d      50
-      e      50
-      f      50
-      10      50
-      11      50
-      12      50
-      13      50
-      14      50
-      15      50
-      16      50
-      17      50
-      18      50
-      19      50
-      1a      50
-      1b      50
-      1c      50
-      1d      50
-      1e      50
-      1f      50
-      20      50
-      21      50
-      22      50
-      23      50
-      24      51
-      25      51
-      26      52
-      29      52
-      2a      52
-      2b      53
-      2e      53
-      2f      53
-      31      57
-      32      57
-      33      57
-      34      57
-      35      57
-      36      57
-      37      57
-      38      58
-   }
-
-   method 'testCompilesToTableSwitch (I)V' {
-      0      61
-      1      61
-      2      61
-      3      61
-      4      61
-      5      61
-      6      61
-      7      61
-      8      61
-      9      61
-      a      61
-      b      61
-      c      61
-      d      61
-      e      61
-      f      61
-      10      61
-      11      61
-      12      61
-      13      61
-      14      61
-      15      61
-      16      61
-      17      61
-      18      61
-      19      61
-      1a      61
-      1b      61
+      0      62
+      1      62
+      2      62
+      3      62
+      4      62
+      5      62
+      6      62
+      7      62
+      8      62
+      9      62
+      a      62
+      b      62
+      c      62
+      d      62
+      e      62
+      f      62
+      10      62
+      11      62
+      12      62
+      13      62
+      14      62
+      15      62
+      16      62
+      17      62
+      18      62
+      19      62
+      1a      62
+      1b      62
       1c      62
       1d      62
       1e      62
       1f      62
       20      62
+      21      62
       22      62
       23      62
-      24      62
+      24      63
       25      63
-      28      63
-      29      63
-      2a      63
-      2b      63
-      2c      63
-      2e      63
-      2f      63
-      30      63
-      31      64
-      34      64
-      35      64
-      36      64
-      37      64
-      38      64
-      3a      64
-      3b      64
-      3c      64
-      3d      66
+      26      64
+      29      64
+      2a      64
+      2b      65
+      2e      65
+      2f      65
+      31      69
+      32      69
+      33      69
+      34      69
+      35      69
+      36      69
+      37      69
+      38      70
+   }
+
+   method 'testCompilesToTableSwitch (I)V' {
+      0      73
+      1      73
+      2      73
+      3      73
+      4      73
+      5      73
+      6      73
+      7      73
+      8      73
+      9      73
+      a      73
+      b      73
+      c      73
+      d      73
+      e      73
+      f      73
+      10      73
+      11      73
+      12      73
+      13      73
+      14      73
+      15      73
+      16      73
+      17      73
+      18      73
+      19      73
+      1a      73
+      1b      73
+      1c      74
+      1d      74
+      1e      74
+      1f      74
+      20      74
+      22      74
+      23      74
+      24      74
+      25      75
+      28      75
+      29      75
+      2a      75
+      2b      75
+      2c      75
+      2e      75
+      2f      75
+      30      75
+      31      76
+      34      76
+      35      76
+      36      76
+      37      76
+      38      76
+      3a      76
+      3b      76
+      3c      76
+      3d      78
    }
 
    method 'testCompilesToLookupSwitch (I)V' {
-      0      69
-      1      69
-      2      69
-      3      69
-      4      69
-      5      69
-      6      69
-      7      69
-      8      69
-      9      69
-      a      69
-      b      69
-      c      69
-      d      69
-      e      69
-      f      69
-      10      69
-      11      69
-      12      69
-      13      69
-      14      69
-      15      69
-      16      69
-      17      69
-      18      69
-      19      69
-      1a      69
-      1b      69
-      1c      69
-      1d      69
-      1e      69
-      1f      69
-      20      69
-      21      69
-      22      69
-      23      69
-      24      70
-      25      70
-      26      70
-      27      70
-      28      70
-      2a      70
-      2b      70
-      2c      70
-      2d      71
-      30      71
-      31      71
-      32      71
-      33      71
-      34      71
-      36      71
-      37      71
-      38      71
-      39      72
-      3c      72
-      3d      72
-      3e      72
-      3f      72
-      40      72
-      42      72
-      43      72
-      44      72
-      45      73
-      48      73
-      49      73
-      4a      73
-      4b      73
-      4c      73
-      4e      73
-      4f      73
-      50      73
-      51      75
+      0      81
+      1      81
+      2      81
+      3      81
+      4      81
+      5      81
+      6      81
+      7      81
+      8      81
+      9      81
+      a      81
+      b      81
+      c      81
+      d      81
+      e      81
+      f      81
+      10      81
+      11      81
+      12      81
+      13      81
+      14      81
+      15      81
+      16      81
+      17      81
+      18      81
+      19      81
+      1a      81
+      1b      81
+      1c      81
+      1d      81
+      1e      81
+      1f      81
+      20      81
+      21      81
+      22      81
+      23      81
+      24      82
+      25      82
+      26      82
+      27      82
+      28      82
+      2a      82
+      2b      82
+      2c      82
+      2d      83
+      30      83
+      31      83
+      32      83
+      33      83
+      34      83
+      36      83
+      37      83
+      38      83
+      39      84
+      3c      84
+      3d      84
+      3e      84
+      3f      84
+      40      84
+      42      84
+      43      84
+      44      84
+      45      85
+      48      85
+      49      85
+      4a      85
+      4b      85
+      4c      85
+      4e      85
+      4f      85
+      50      85
+      51      87
+   }
+
+   method 'testSwitchWithEmptyCases (I)V' {
+      0      90
+      1      90
+      2      90
+      3      90
+      4      90
+      5      90
+      6      90
+      7      90
+      8      90
+      9      90
+      a      90
+      b      90
+      c      90
+      d      90
+      e      90
+      f      90
+      10      90
+      11      90
+      12      90
+      13      90
+      14      90
+      15      90
+      16      90
+      17      90
+      18      90
+      19      90
+      1a      90
+      1b      90
+      1c      90
+      1d      90
+      1e      90
+      1f      90
+      20      90
+      21      90
+      22      90
+      23      90
+      24      90
+      25      90
+      26      90
+      27      90
+      28      90
+      29      90
+      2a      90
+      2b      90
+      2c      90
+      2d      90
+      2e      90
+      2f      90
+      30      90
+      31      90
+      32      90
+      33      90
+      34      90
+      35      90
+      36      90
+      37      90
+      38      90
+      39      90
+      3a      90
+      3b      90
+      3f      91
+      40      91
+      41      91
+      43      91
+      44      91
+      45      91
+      46      91
+      47      91
+      48      91
+      49      91
+      4a      92
+      4d      92
+      4e      92
+      4f      92
+      50      92
+      51      92
+      53      92
+      54      92
+      55      92
+      56      94
+   }
+
+   method 'testNoBranches (Ljava/lang/Object;)I' {
+      7      97
+      8      97
    }
 
    method 'booleanNightmares (ZZZZZZZ)V' {
-      0      78
-      3      78
-      4      78
-      5      78
-      6      78
-      7      78
-      8      78
-      9      78
-      f      78
-      10      78
-      11      78
-      12      79
-      13      79
-      14      79
-      15      79
-      16      79
-      18      79
-      19      79
-      1a      79
-      1e      80
-      1f      80
-      20      80
-      21      80
-      22      80
-      23      80
-      24      80
-      25      80
-      26      80
-      27      80
-      28      80
-      2e      80
-      2f      80
-      30      80
-      31      81
-      32      81
-      33      81
-      34      81
-      35      81
-      37      81
-      38      81
-      39      81
-      3d      82
-      3e      82
-      3f      82
-      40      82
-      41      82
-      42      82
-      43      82
-      44      82
-      45      82
-      46      82
-      47      82
-      4d      82
-      4e      82
-      4f      82
-      50      83
-      51      83
-      52      83
-      53      83
-      54      83
-      56      83
-      57      83
-      58      83
-      5c      84
-      5d      84
-      5e      84
-      5f      84
-      60      84
-      61      85
-      62      85
-      63      85
-      64      85
-      65      85
-      67      85
-      68      85
-      69      85
-      6d      86
-      6e      86
-      6f      86
-      70      86
-      71      86
-      72      86
-      73      86
-      74      86
-      75      86
-      76      86
-      77      86
-      78      86
-      79      86
-      7a      86
-      7b      86
-      7c      86
-      7d      86
-      7e      86
-      84      86
-      85      86
-      86      86
-      87      87
-      88      87
-      89      87
-      8a      87
-      8b      87
-      8d      87
-      8e      87
-      8f      87
-      93      89
-      94      89
-      95      89
-      96      89
-      97      89
-      99      89
-      9a      89
-      9b      89
-      9c      91
+      0      101
+      3      101
+      4      101
+      5      101
+      6      101
+      7      101
+      8      101
+      9      101
+      f      101
+      10      101
+      11      101
+      12      102
+      13      102
+      14      102
+      15      102
+      16      102
+      18      102
+      19      102
+      1a      102
+      1e      103
+      1f      103
+      20      103
+      21      103
+      22      103
+      23      103
+      24      103
+      25      103
+      26      103
+      27      103
+      28      103
+      2e      103
+      2f      103
+      30      103
+      31      104
+      32      104
+      33      104
+      34      104
+      35      104
+      37      104
+      38      104
+      39      104
+      3d      105
+      3e      105
+      3f      105
+      40      105
+      41      105
+      42      105
+      43      105
+      44      105
+      45      105
+      46      105
+      47      105
+      4d      105
+      4e      105
+      4f      105
+      50      106
+      51      106
+      52      106
+      53      106
+      54      106
+      56      106
+      57      106
+      58      106
+      5c      107
+      5d      107
+      5e      107
+      5f      107
+      60      107
+      61      108
+      62      108
+      63      108
+      64      108
+      65      108
+      67      108
+      68      108
+      69      108
+      6d      109
+      6e      109
+      6f      109
+      70      109
+      71      109
+      72      109
+      73      109
+      74      109
+      75      109
+      76      109
+      77      109
+      78      109
+      79      109
+      7a      109
+      7b      109
+      7c      109
+      7d      109
+      7e      109
+      84      109
+      85      109
+      86      109
+      87      110
+      88      110
+      89      110
+      8a      110
+      8b      110
+      8d      110
+      8e      110
+      8f      110
+      93      112
+      94      112
+      95      112
+      96      112
+      97      112
+      99      112
+      9a      112
+      9b      112
+      9c      114
    }
 }
 
@@ -677,42 +855,55 @@ Lines mapping:
 24 <-> 34
 27 <-> 37
 28 <-> 37
-29 <-> 37
-30 <-> 37
-31 <-> 37
-32 <-> 37
-37 <-> 41
-38 <-> 41
-39 <-> 44
-40 <-> 44
-41 <-> 44
-42 <-> 44
-44 <-> 45
-45 <-> 46
-49 <-> 51
-50 <-> 52
-51 <-> 53
-52 <-> 54
-54 <-> 58
-55 <-> 59
-58 <-> 62
-59 <-> 63
-60 <-> 64
-61 <-> 65
-63 <-> 67
-66 <-> 70
-67 <-> 71
-68 <-> 72
-69 <-> 73
-70 <-> 74
-72 <-> 76
-75 <-> 79
-76 <-> 79
-77 <-> 81
+29 <-> 38
+30 <-> 40
+31 <-> 42
+32 <-> 42
+35 <-> 46
+38 <-> 49
+39 <-> 49
+40 <-> 49
+41 <-> 49
+42 <-> 49
+43 <-> 49
+48 <-> 53
+49 <-> 53
+50 <-> 56
+51 <-> 56
+52 <-> 56
+53 <-> 56
+55 <-> 57
+56 <-> 58
+60 <-> 63
+61 <-> 64
+62 <-> 65
+63 <-> 66
+65 <-> 70
+66 <-> 71
+69 <-> 74
+70 <-> 75
+71 <-> 76
+72 <-> 77
+74 <-> 79
+77 <-> 82
 78 <-> 83
-79 <-> 85
-80 <-> 87
-81 <-> 90
-83 <-> 92
+79 <-> 84
+80 <-> 85
+81 <-> 86
+83 <-> 88
+86 <-> 91
+88 <-> 92
+89 <-> 93
+92 <-> 95
+95 <-> 98
+96 <-> 98
+101 <-> 102
+102 <-> 102
+103 <-> 104
+104 <-> 106
+105 <-> 108
+106 <-> 110
+107 <-> 113
+109 <-> 115
 Not mapped:
 15
