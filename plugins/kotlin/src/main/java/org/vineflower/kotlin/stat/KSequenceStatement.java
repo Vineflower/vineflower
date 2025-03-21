@@ -4,6 +4,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.SequenceStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.util.TextBuffer;
+import org.vineflower.kotlin.util.KExprProcessor;
 
 public class KSequenceStatement extends SequenceStatement {
   public KSequenceStatement(SequenceStatement statement) {
@@ -44,7 +45,7 @@ public class KSequenceStatement extends SequenceStatement {
     boolean notEmpty = false;
     for (int i = 0; i < stats.size(); i++) {
       Statement st = stats.get(i);
-      TextBuffer str = ExprProcessor.jmpWrapper(st, indent, false);
+      TextBuffer str = KExprProcessor.jmpWrapper(st, indent, false);
 
       if (i > 0 && !str.containsOnlyWhitespaces() && notEmpty) {
         buf.appendLineSeparator();

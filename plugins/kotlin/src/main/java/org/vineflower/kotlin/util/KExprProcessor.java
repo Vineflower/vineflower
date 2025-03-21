@@ -5,6 +5,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.DummyExitStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.util.TextBuffer;
+import org.vineflower.kotlin.stat.KSequenceStatement;
 
 import java.util.List;
 
@@ -23,7 +24,11 @@ public class KExprProcessor {
           case StatEdge.TYPE_BREAK -> {
             ExprProcessor.addDeletedGotoInstructionMapping(stat, buf);
             if (!isSwitch || edge.labeled) {
-              innerBuf.append("break");
+              if (edge.closure instanceof KSequenceStatement) {
+                innerBuf.append("return");
+              } else {
+                innerBuf.append("break");
+              }
             }
           }
           case StatEdge.TYPE_CONTINUE -> {
@@ -34,6 +39,8 @@ public class KExprProcessor {
 
         if (edge.labeled) {
           innerBuf.append("@label").append(edge.closure.id);
+        } else if (edge.closure instanceof KSequenceStatement) {
+          innerBuf.append("@run");
         }
 
         if (!innerBuf.containsOnlyWhitespaces()) {

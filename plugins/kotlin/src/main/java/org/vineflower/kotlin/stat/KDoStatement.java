@@ -7,6 +7,7 @@ import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.vineflower.kotlin.expr.KConstExprent;
 import org.vineflower.kotlin.expr.KVarExprent;
+import org.vineflower.kotlin.util.KExprProcessor;
 import org.vineflower.kotlin.util.KUtils;
 
 public class KDoStatement extends DoStatement {
@@ -62,7 +63,7 @@ public class KDoStatement extends DoStatement {
     switch (getLooptype()) {
       case INFINITE -> {
         buf.append("while (true) {").appendLineSeparator();
-        buf.append(ExprProcessor.jmpWrapper(first, indent + 1, false));
+        buf.append(KExprProcessor.jmpWrapper(first, indent + 1, false));
         buf.appendIndent(indent).append("}").appendLineSeparator();
       }
       case DO_WHILE -> {
@@ -72,7 +73,7 @@ public class KDoStatement extends DoStatement {
         }
 
         buf.append("do {").appendLineSeparator();
-        buf.append(ExprProcessor.jmpWrapper(first, indent + 1, false));
+        buf.append(KExprProcessor.jmpWrapper(first, indent + 1, false));
         buf.appendIndent(indent).append("} while (");
         buf.pushNewlineGroup(indent, 1);
         buf.appendPossibleNewline();
@@ -94,7 +95,7 @@ public class KDoStatement extends DoStatement {
         buf.appendPossibleNewline("", true);
         buf.popNewlineGroup();
         buf.append(") {").appendLineSeparator();
-        buf.append(ExprProcessor.jmpWrapper(first, indent + 1, false));
+        buf.append(KExprProcessor.jmpWrapper(first, indent + 1, false));
         buf.appendIndent(indent).append("}").appendLineSeparator();
       }
       case FOR_EACH -> {
@@ -109,7 +110,7 @@ public class KDoStatement extends DoStatement {
         buf.append("for (").append(init.toJava(indent));
         inc.getInferredExprType(null); //TODO: see DoStatement
         buf.append(" in ").append(inc.toJava(indent)).append(") {").appendLineSeparator();
-        buf.append(ExprProcessor.jmpWrapper(first, indent + 1, false));
+        buf.append(KExprProcessor.jmpWrapper(first, indent + 1, false));
         buf.appendIndent(indent).append("}").appendLineSeparator();
       }
       case FOR -> {
@@ -195,7 +196,7 @@ public class KDoStatement extends DoStatement {
               .appendLineSeparator();
           }
 
-          buf.append(ExprProcessor.jmpWrapper(first, indent + 1, false));
+          buf.append(KExprProcessor.jmpWrapper(first, indent + 1, false));
           buf.appendIndent(indent).append("}").appendLineSeparator();
         } else {
           //TODO other cases
@@ -240,7 +241,7 @@ public class KDoStatement extends DoStatement {
           buf.append("if (");
           buf.append(condition.toJava(indent + 1));
           buf.append(") break").appendLineSeparator();
-          buf.append(ExprProcessor.jmpWrapper(first, indent + 1, false));
+          buf.append(KExprProcessor.jmpWrapper(first, indent + 1, false));
           buf.appendLineSeparator();
           buf.appendIndent(indent + 1).append(inc.toJava(indent + 1)).appendLineSeparator();
           buf.appendIndent(indent).append("}").appendLineSeparator();
