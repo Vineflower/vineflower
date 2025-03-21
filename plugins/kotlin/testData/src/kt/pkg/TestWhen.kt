@@ -11,16 +11,6 @@ class TestWhen {
     }
   }
 
-  fun testExpression(obj: Any): Int {
-    return when (obj) {
-      1 -> 1
-      is Double -> 2
-      "4" -> 4
-      !is Long -> 3
-      else -> 5
-    }
-  }
-
   fun testStatement2(a: Any, b: Any): Unit {
     when {
       a == 15 -> println("a == 15")
@@ -31,6 +21,37 @@ class TestWhen {
       a is Unit -> println("a is Unit")
       else -> println("else")
     }
+  }
+
+  fun testExpression(obj: Any): Int {
+    return when (obj) {
+      1 -> 1
+      is Double -> 2
+      "4" -> 4
+      !is Long -> 3
+      else -> 5
+    }
+  }
+
+  fun testExpression2(obj: Any): Int {
+    val text = when (obj) {
+      1 -> "one"
+      is Double -> "double"
+      "4" -> "four"
+      !is Long -> "not long"
+      else -> "something"
+    }
+    println(text)
+    return text.length
+  }
+
+  fun testSwitchExpression(a: Int) {
+    val text = when (a) {
+      1 -> "one"
+      2, 3, 5 -> "prime"
+      else -> "something"
+    }
+    println(text)
   }
 
   fun testCompilesToTableSwitch(a: Int) {
