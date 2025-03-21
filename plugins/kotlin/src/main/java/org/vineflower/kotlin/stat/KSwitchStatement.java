@@ -62,7 +62,8 @@ public class KSwitchStatement extends SwitchStatement {
         .appendLineSeparator();
     }
 
-    buf.appendIndent(indent).append(first.toJava());
+    TextBuffer firstBuf = first.toJava();
+    buf.appendIndent(indent).append(firstBuf);
 
     boolean showIfHidden = DecompilerContext.getOption(IFernflowerPreferences.SHOW_HIDDEN_STATEMENTS);
 
@@ -74,6 +75,10 @@ public class KSwitchStatement extends SwitchStatement {
           .append("/*")
           .appendLineSeparator();
       }
+    }
+
+    if (firstBuf.length() > 0) {
+      buf.appendIndent(indent);
     }
 
     buf.append(getHeadexprent().toJava(indent))
