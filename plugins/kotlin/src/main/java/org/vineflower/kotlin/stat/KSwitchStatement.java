@@ -124,41 +124,17 @@ public class KSwitchStatement extends SwitchStatement {
         }
       }
 
-      TextBuffer body = KExprProcessor.jmpWrapper(stat, indent + 2, true);
-
       if (anyNonDefault) {
         buf.append(" -> ");
-        if (body.countLines() > 1) {
-          buf.append("{")
-            .appendLineSeparator()
-            .append(body)
-            .appendIndent(indent + 1)
-            .append("}")
-            .appendLineSeparator();
-        } else {
-          int indentSize = ((String) DecompilerContext.getProperty(IFernflowerPreferences.INDENT_STRING)).length();
-          body.setStart(indentSize * (indent + 2));
-          buf.append(body);
-        }
+        writeCase(indent + 1, buf, stat);
       }
+    }
 
-      if (edges.contains(getDefaultEdge())) {
-        buf.appendIndent(indent + 1)
-          .append("else -> ");
+    if (getDefaultEdge() != null) {
+      buf.appendIndent(indent + 1)
+        .append("else -> ");
 
-        if (body.countLines() > 1) {
-          buf.append("{")
-            .appendLineSeparator()
-            .append(body)
-            .appendIndent(indent + 1)
-            .append("}")
-            .appendLineSeparator();
-        } else {
-          int indentSize = ((String) DecompilerContext.getProperty(IFernflowerPreferences.INDENT_STRING)).length();
-          body.setStart(indentSize * (indent + 2));
-          buf.append(body);
-        }
-      }
+      writeCase(indent + 1, buf, getDefaultEdge().getDestination());
     }
 
     buf.appendIndent(indent)
@@ -178,5 +154,23 @@ public class KSwitchStatement extends SwitchStatement {
     }
 
     return buf;
+  }
+
+  private void writeCase(int indent, TextBuffer buf, Statement stat) {
+    TextBuffer body = KExprProcessor.jmpWrapper(stat, indent + 1, true);
+    if (body.countLines() > 1) {
+      buf.append("{")
+        .appendLineSeparator()
+        .append(body)
+        .appendIndent(indent)
+        .append("}")
+        .appendLineSeparator();
+    } else if (!body.containsOnlyWhitespaces()) {
+      int indentSize = ((String) DecompilerContext.getProperty(IFernflowerPreferences.INDENT_STRING)).length();
+      body.setStart(indentSize * (indent + 1));
+      buf.append(body);
+    } else {
+      buf.append("{}").appendLineSeparator();
+    }
   }
 }
