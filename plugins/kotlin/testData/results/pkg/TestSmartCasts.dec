@@ -3,89 +3,89 @@ package pkg
 public class TestSmartCasts {
    public fun testWhen(o: Any?): String {
       if (o is java.lang.String) {// 19 20
-         return o as java.lang.String;// 21
+         return o as java.lang.String// 21
       } else {
          if (o is TestSmartCasts.A.B) {// 24
-            System.out.println("B: $o");
+            System.out.println("B: $o")
          } else {
             if (o !is TestSmartCasts.A.C) {// 25
                if (o is Pair) {// 26
-                  return "<${this.testWhen((o as Pair).getFirst())}, ${this.testWhen((o as Pair).getSecond())}>";
+                  return "<${this.testWhen((o as Pair).getFirst())}, ${this.testWhen((o as Pair).getSecond())}>"
                }
 
                if (o == null) {// 27
-                  return "null";
+                  return "null"
                }
 
-               return "else: $o";// 28
+               return "else: $o"// 28
             }
 
-            System.out.println("C: $o");
+            System.out.println("C: $o")
          }
 
-         return (o as TestSmartCasts.A).test();// 31
+         return (o as TestSmartCasts.A).test()// 31
       }
    }
 
    public fun testIf(a: Any?): String {
-      return if (a !is TestSmartCasts.A.B && a !is TestSmartCasts.A.C) "else: $a" else (a as TestSmartCasts.A).test();// 35 36 39
+      return if (a !is TestSmartCasts.A.B && a !is TestSmartCasts.A.C) "else: $a" else (a as TestSmartCasts.A).test()// 35 36 39
    }
 
    public fun testIf2(a: Any?): String {
       if (a is TestSmartCasts.A) {// 43
          if (a is TestSmartCasts.A.B || a is TestSmartCasts.A.C) {// 44
-            System.out.println((a as TestSmartCasts.A).test());// 45
+            System.out.println((a as TestSmartCasts.A).test())// 45
          }
 
          if (a is TestSmartCasts.A.B) {// 48
             if (a is TestSmartCasts.A.C) {// 49
-               System.out.println((a as TestSmartCasts.A.B).testB());// 50
-               System.out.println((a as TestSmartCasts.A.C).testC());// 51
+               System.out.println((a as TestSmartCasts.A.B).testB())// 50
+               System.out.println((a as TestSmartCasts.A.C).testC())// 51
             }
 
             if (a is TestSmartCasts.A.C && (a as TestSmartCasts.A.C).testC() == "C" || a is TestSmartCasts.A.B) {// 54
-               System.out.println((a as TestSmartCasts.A.B).testB());// 55
+               System.out.println((a as TestSmartCasts.A.B).testB())// 55
             }
          }
       }
 
-      return "else: $a";// 60
+      return "else: $a"// 60
    }
 
    public fun testCast(a: Any?) {
-      System.out.println(a);// 64
-      System.out.println("hello");// 66
-      System.out.println(a);// 67
-      (a as java.lang.String).charAt(0);// 68
-      System.out.println((a as java.lang.String).charAt(0));// 69
+      System.out.println(a)// 64
+      System.out.println("hello")// 66
+      System.out.println(a)// 67
+      (a as java.lang.String).charAt(0)// 68
+      System.out.println((a as java.lang.String).charAt(0))// 69
    }// 70
 
    public fun testSealedIf(a: pkg.TestSmartCasts.A): String {
       if (a is TestSmartCasts.A.B) {// 73
-         return (a as TestSmartCasts.A.B).testB();// 74
+         return (a as TestSmartCasts.A.B).testB()// 74
       } else {
-         return if (a is TestSmartCasts.A.C) (a as TestSmartCasts.A.C).testC() else a.test();// 75 76 78
+         return if (a is TestSmartCasts.A.C) (a as TestSmartCasts.A.C).testC() else a.test()// 75 76 78
       }
    }
 
    public fun testDoubleType(t: List<String>): String {
-      return if (t is TestSmartCasts.X) (t as TestSmartCasts.X).woo(t as MutableIterable<*>) else t.get(0) as java.lang.String;// 83 84 87
+      return if (t is TestSmartCasts.X) (t as TestSmartCasts.X).woo(t as MutableIterable<*>) else t.get(0) as java.lang.String// 83 84 87
    }
 
    public sealed class A protected constructor() {
       public fun test(): String {
-         return "";// 15
+         return ""// 15
       }
 
       public class B : TestSmartCasts.A() {// 8
          public fun testB(): String {
-            return "B";// 9
+            return "B"// 9
          }
       }
 
       public class C : TestSmartCasts.A() {// 11
          public fun testC(): String {
-            return "C";// 12
+            return "C"// 12
          }
       }
    }
@@ -98,7 +98,7 @@ public class TestSmartCasts {
       internal class DefaultImpls {
          @JvmStatic
          fun woo(`$this`: TestSmartCasts.X, `$receiver`: MutableIterable<*>): java.lang.String {
-            return "A";// 5
+            return "A"// 5
          }
       }
    }

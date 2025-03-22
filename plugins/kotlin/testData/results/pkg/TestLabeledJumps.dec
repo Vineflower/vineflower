@@ -8,10 +8,10 @@ public class TestLabeledJumps {
                continue@label36
             }
 
-            System.out.println("$j $i");// 11
+            System.out.println("$j $i")// 11
          }
 
-         System.out.println("loop");// 14
+         System.out.println("loop")// 14
       }
    }// 16
 
@@ -22,11 +22,11 @@ public class TestLabeledJumps {
                break@label33
             }
 
-            System.out.println("$j $i");// 25
+            System.out.println("$j $i")// 25
          }
       }
 
-      System.out.println("end");// 29
+      System.out.println("end")// 29
    }// 30
 }
 

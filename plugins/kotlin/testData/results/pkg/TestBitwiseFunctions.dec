@@ -2,27 +2,27 @@ package pkg
 
 public class TestBitwiseFunctions {
    public fun and(a: Int, b: Int): Int {
-      return a and b;// 5
+      return a and b// 5
    }
 
    public fun or(a: Int, b: Int): Int {
-      return a or b;// 9
+      return a or b// 9
    }
 
    public fun xor(a: Int, b: Int): Int {
-      return a xor b;// 13
+      return a xor b// 13
    }
 
    public fun shl(a: Int, b: Int): Int {
-      return a shl b;// 17
+      return a shl b// 17
    }
 
    public fun shr(a: Int, b: Int): Int {
-      return a shr b;// 21
+      return a shr b// 21
    }
 
    public fun ushr(a: Int, b: Int): Int {
-      return a ushr b;// 25
+      return a ushr b// 25
    }
 }
 

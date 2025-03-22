@@ -2,29 +2,29 @@ package pkg
 
 public class TestInfixFun {
    public fun test() {
-      System.out.println(test$times(2, "Bye "));// 7
+      System.out.println(test$times(2, "Bye "))// 7
    }// 8
 
    public infix fun Int.mult(str: String): String {
-      return StringsKt.repeat(str as java.lang.CharSequence, `$this$mult`);// 10
+      return StringsKt.repeat(str as java.lang.CharSequence, `$this$mult`)// 10
    }
 
    public fun testOuter() {
-      System.out.println(this.mult(2, "Bye "));// 14
+      System.out.println(this.mult(2, "Bye "))// 14
    }// 15
 
    public fun testDuplicate() {
-      System.out.println(testDuplicate$mult(2, "Bye "));// 20
+      System.out.println(testDuplicate$mult(2, "Bye "))// 20
    }// 21
 
    @JvmStatic
    fun Int.`test$times`(str: java.lang.String): java.lang.String {
-      return StringsKt.repeat(str as java.lang.CharSequence, `$this$test_u24times`);// 5
+      return StringsKt.repeat(str as java.lang.CharSequence, `$this$test_u24times`)// 5
    }
 
    @JvmStatic
    fun Int.`testDuplicate$mult`(str: java.lang.String): java.lang.String {
-      return StringsKt.repeat(str as java.lang.CharSequence, `$this$testDuplicate_u24mult` + 1);// 18
+      return StringsKt.repeat(str as java.lang.CharSequence, `$this$testDuplicate_u24mult` + 1)// 18
    }
 }
 

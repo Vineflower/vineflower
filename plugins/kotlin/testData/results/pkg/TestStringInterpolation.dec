@@ -4,23 +4,23 @@ public class TestStringInterpolation {
    public final val x: Int = 5// 16
 
    public fun stringInterpolation(x: Int, y: String) {
-      System.out.println("$x $y");// 5
+      System.out.println("$x $y")// 5
    }// 6
 
    public fun testConstant(x: Int) {
-      System.out.println("$x 5");// 9
+      System.out.println("$x 5")// 9
    }// 10
 
    public fun testExpression(x: Int) {
-      System.out.println("$x ${x + 1}");// 13
+      System.out.println("$x ${x + 1}")// 13
    }// 14
 
    public fun testProperty() {
-      System.out.println("${this.x}!");// 18
+      System.out.println("${this.x}!")// 18
    }// 19
 
    public fun testLiteralClass() {
-      System.out.println("${TestStringInterpolation::class.java}!");// 22
+      System.out.println("${TestStringInterpolation::class.java}!")// 22
    }// 23
 }
 

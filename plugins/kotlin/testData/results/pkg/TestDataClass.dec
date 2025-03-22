@@ -7,26 +7,26 @@ public data class TestDataClass(dataClassVal: Regex, variableWithVeryLongName: I
    public final val nullability: String?
 
    init {
-      this.dataClassVal = dataClassVal;// 4
-      this.variableWithVeryLongName = variableWithVeryLongName;// 5
-      this.requestLineWrapsIfTheParamListIsTooLong = requestLineWrapsIfTheParamListIsTooLong;// 6
-      this.nullability = nullability;// 7
+      this.dataClassVal = dataClassVal// 4
+      this.variableWithVeryLongName = variableWithVeryLongName// 5
+      this.requestLineWrapsIfTheParamListIsTooLong = requestLineWrapsIfTheParamListIsTooLong// 6
+      this.nullability = nullability// 7
    }// 3
 
    public operator fun component1(): Regex {
-      return this.dataClassVal;
+      return this.dataClassVal
    }
 
    public operator fun component2(): Int {
-      return this.variableWithVeryLongName;
+      return this.variableWithVeryLongName
    }
 
    public operator fun component3(): List<String> {
-      return this.requestLineWrapsIfTheParamListIsTooLong;
+      return this.requestLineWrapsIfTheParamListIsTooLong
    }
 
    public operator fun component4(): String? {
-      return this.nullability;
+      return this.nullability
    }
 
    public fun copy(
@@ -35,11 +35,11 @@ public data class TestDataClass(dataClassVal: Regex, variableWithVeryLongName: I
       requestLineWrapsIfTheParamListIsTooLong: List<String> = this.requestLineWrapsIfTheParamListIsTooLong,
       nullability: String? = this.nullability
    ): TestDataClass {
-      return new TestDataClass(dataClassVal, variableWithVeryLongName, requestLineWrapsIfTheParamListIsTooLong, nullability);
+      return new TestDataClass(dataClassVal, variableWithVeryLongName, requestLineWrapsIfTheParamListIsTooLong, nullability)
    }
 
    public open fun toString(): String {
-      return "TestDataClass(dataClassVal=${this.dataClassVal}, variableWithVeryLongName=${this.variableWithVeryLongName}, requestLineWrapsIfTheParamListIsTooLong=${this.requestLineWrapsIfTheParamListIsTooLong}, nullability=${this.nullability})";
+      return "TestDataClass(dataClassVal=${this.dataClassVal}, variableWithVeryLongName=${this.variableWithVeryLongName}, requestLineWrapsIfTheParamListIsTooLong=${this.requestLineWrapsIfTheParamListIsTooLong}, nullability=${this.nullability})"
    }
 
    public open fun hashCode(): Int {
@@ -48,24 +48,24 @@ public data class TestDataClass(dataClassVal: Regex, variableWithVeryLongName: I
                   + this.requestLineWrapsIfTheParamListIsTooLong.hashCode()
             )
             * 31
-         + (if (this.nullability == null) 0 else this.nullability.hashCode());
-   }
+         + (if (this.nullability == null) 0 else this.nullability.hashCode())
+      }
 
    public open operator fun equals(other: Any?): Boolean {
       if (this === other) {
-         return true;
+         return true
       } else if (other !is TestDataClass) {
-         return false;
+         return false
       } else {
-         val var2: TestDataClass = other as TestDataClass;
+         val var2: TestDataClass = other as TestDataClass
          if (!(this.dataClassVal == (other as TestDataClass).dataClassVal)) {
-            return false;
+            return false
          } else if (this.variableWithVeryLongName != var2.variableWithVeryLongName) {
-            return false;
+            return false
          } else if (!(this.requestLineWrapsIfTheParamListIsTooLong == var2.requestLineWrapsIfTheParamListIsTooLong)) {
-            return false;
+            return false
          } else {
-            return this.nullability == var2.nullability;
+            return this.nullability == var2.nullability
          }
       }
    }

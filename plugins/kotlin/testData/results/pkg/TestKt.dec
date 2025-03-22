@@ -2,7 +2,7 @@ package pkg
 
 public class TestKt {
    public fun test() {
-      System.out.println("Hello, world!");// 5
+      System.out.println("Hello, world!")// 5
    }// 6
 }
 

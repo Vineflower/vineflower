@@ -6,112 +6,112 @@ import kotlin.jvm.internal.SourceDebugExtension
 @SourceDebugExtension(["SMAP\nTestTryCatchExpressions.kt\nKotlin\n*S Kotlin\n*F\n+ 1 TestTryCatchExpressions.kt\npkg/TestTryCatchExpressions\n+ 2 fake.kt\nkotlin/jvm/internal/FakeKt\n*L\n1#1,59:1\n1#2:60\n*E\n"])
 public class TestTryCatchExpressions {
    public fun test0(s: String) {
-      var var2: java.lang.String;
+      var var2: java.lang.String
       try {
-         var2 = StringsKt.repeat(s as java.lang.CharSequence, 5);// 9
+         var2 = StringsKt.repeat(s as java.lang.CharSequence, 5)// 9
       } catch (var4: RuntimeException) {// 10
-         var var10000: java.lang.String = var4.getMessage();// 11
+         var var10000: java.lang.String = var4.getMessage()// 11
          if (var10000 == null) {
-            var10000 = "ERROR";
+            var10000 = "ERROR"
          }
 
-         var2 = var10000;
+         var2 = var10000
       }
 
-      System.out.print(var2);// 7
+      System.out.print(var2)// 7
    }// 14
 
    public fun test1(a: String, b: String) {
-      var x: java.lang.String = a;// 17
-      var var6: TestTryCatchExpressions = this;// 19
+      var x: java.lang.String = a// 17
+      var var6: TestTryCatchExpressions = this// 19
 
-      var var4: java.lang.String;
-      var var10000: TestTryCatchExpressions;
+      var var4: java.lang.String
+      var var10000: TestTryCatchExpressions
       try {
-         var10000 = var6;
-         var4 = StringsKt.repeat(x as java.lang.CharSequence, 5);// 20
+         var10000 = var6
+         var4 = StringsKt.repeat(x as java.lang.CharSequence, 5)// 20
       } catch (var9: RuntimeException) {// 21
-         var10000 = this;
-         x = b;// 22
-         var var10001: java.lang.String = var9.getMessage();// 23
+         var10000 = this
+         x = b// 22
+         var var10001: java.lang.String = var9.getMessage()// 23
          if (var10001 == null) {
-            var10001 = "ERROR";
+            var10001 = "ERROR"
          }
 
-         var4 = var10001;
+         var4 = var10001
       }
 
-      val var7: java.lang.String = var4;// 24
-      var6 = var10000;
+      val var7: java.lang.String = var4// 24
+      var6 = var10000
 
-      var var13: java.lang.String;
+      var var13: java.lang.String
       try {
-         var10000 = var6;
-         var13 = var7;
-         var4 = StringsKt.repeat(x as java.lang.CharSequence, 5);// 25
+         var10000 = var6
+         var13 = var7
+         var4 = StringsKt.repeat(x as java.lang.CharSequence, 5)// 25
       } catch (var8: RuntimeException) {// 26
-         var10000 = var10000;
-         var13 = var4;
-         var var10002: java.lang.String = var8.getMessage();// 27
+         var10000 = var10000
+         var13 = var4
+         var var10002: java.lang.String = var8.getMessage()// 27
          if (var10002 == null) {
-            var10002 = "ERROR";
+            var10002 = "ERROR"
          }
 
-         var4 = var10002;
+         var4 = var10002
       }
 
-      var10000.test0("$var13$var4");// 18
+      var10000.test0("$var13$var4")// 18
    }// 30
 
    public fun test2(a: String, b: String) {
-      var var15: java.lang.String = a;// 33
-      var var7: TestTryCatchExpressions = this;
+      var var15: java.lang.String = a// 33
+      var var7: TestTryCatchExpressions = this
 
-      var var4: java.lang.String;
-      var var10000: TestTryCatchExpressions;
+      var var4: java.lang.String
+      var var10000: TestTryCatchExpressions
       try {
-         var10000 = var7;
+         var10000 = var7
          if (a.length() != b.length()) {// 35
-            return;// 36
+            return// 36
          }
 
-         var15 = b;// 38
-         this.test0(b);// 39
-         var4 = b;// 40
+         var15 = b// 38
+         this.test0(b)// 39
+         var4 = b// 40
       } catch (var13: IOException) {// 41
-         var10000 = this;
-         var15 = a;// 42
-         this.test1(a, a);// 43
-         var4 = a;// 44
+         var10000 = this
+         var15 = a// 42
+         this.test1(a, a)// 43
+         var4 = a// 44
       } catch (var14: RuntimeException) {// 46
-         var10000 = this;// 45
-         var15 = if (var15 == a) b else a;// 47 49
-         var4 = var15;// 51
+         var10000 = this// 45
+         var15 = if (var15 == a) b else a// 47 49
+         var4 = var15// 51
       }
 
-      val var8: java.lang.String = var4;// 52
-      var7 = var10000;
+      val var8: java.lang.String = var4// 52
+      var7 = var10000
 
-      var var10001: java.lang.String;
+      var var10001: java.lang.String
       try {
-         var4 = StringsKt.repeat(var15 as java.lang.CharSequence, 5);
-         var15 = var4;
-         var10000 = var7;
-         var10001 = var8;
-         var4 = var4;// 53
+         var4 = StringsKt.repeat(var15 as java.lang.CharSequence, 5)
+         var15 = var4
+         var10000 = var7
+         var10001 = var8
+         var4 = var4// 53
       } catch (var12: RuntimeException) {// 54
-         var10000 = var10000;
-         var10001 = var4;
-         System.out.println(var15);// 55
-         var var10003: java.lang.String = var12.getMessage();
+         var10000 = var10000
+         var10001 = var4
+         System.out.println(var15)// 55
+         var var10003: java.lang.String = var12.getMessage()
          if (var10003 == null) {
-            var10003 = "";
+            var10003 = ""
          }
 
-         var4 = "$var15!!$var10003";// 56
+         var4 = "$var15!!$var10003"// 56
       }
 
-      var10000.test1(var10001, var4);// 34
+      var10000.test1(var10001, var4)// 34
    }// 58
 }
 

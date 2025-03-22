@@ -5,7 +5,7 @@ public sealed class TestSealedHierarchy protected constructor() {
       public final val x: Int
 
       init {
-         this.x = x;
+         this.x = x
       }
    }
 

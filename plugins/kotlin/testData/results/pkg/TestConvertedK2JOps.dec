@@ -7,7 +7,7 @@ public class TestConvertedK2JOps {
    public final val any: Any = new Object()
 
    public fun codeConstructs() {
-      System.out.println("Hello, world!");// 10
+      System.out.println("Hello, world!")// 10
    }// 12
 }
 

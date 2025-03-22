@@ -2,15 +2,15 @@ package pkg
 
 public class TestClassDec {
    public fun pkg.TestClassDec.Vec2iVal.dot(v: pkg.TestClassDec.Vec2iVal): Int {
-      return `$this$dot`.getX() * v.getX() + `$this$dot`.getY() * v.getY();// 11
+      return `$this$dot`.getX() * v.getX() + `$this$dot`.getY() * v.getY()// 11
    }
 
    public fun test() {
-      new TestClassDec.EmptyDec();
-      val vec: TestClassDec.Vec2iVal = new TestClassDec.Vec2iVal(1, 2);// 16
-      val vec1: TestClassDec.Vec2iVal = new TestClassDec.Vec2iVal(2, 4);// 17
-      System.out.println(vec.getX());// 19
-      System.out.println(this.dot(vec, vec1));// 20
+      new TestClassDec.EmptyDec()
+      val vec: TestClassDec.Vec2iVal = new TestClassDec.Vec2iVal(1, 2)// 16
+      val vec1: TestClassDec.Vec2iVal = new TestClassDec.Vec2iVal(2, 4)// 17
+      System.out.println(vec.getX())// 19
+      System.out.println(this.dot(vec, vec1))// 20
    }// 21
 
    public class EmptyDec
@@ -22,8 +22,8 @@ public class TestClassDec {
       public final val y: Int
 
       init {
-         this.x = x;// 7
-         this.y = y;
+         this.x = x// 7
+         this.y = y
       }
    }
 
@@ -35,8 +35,8 @@ public class TestClassDec {
          internal set
 
       init {
-         this.x = x;// 6
-         this.y = y;
+         this.x = x// 6
+         this.y = y
       }
    }
 }

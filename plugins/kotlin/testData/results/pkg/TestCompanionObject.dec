@@ -2,19 +2,19 @@ package pkg
 
 public class TestCompanionObject {
    public fun notInCompanion() {
-      System.out.println("notInCompanion");// 5
+      System.out.println("notInCompanion")// 5
    }// 6
 
    @JvmStatic
    @JvmSynthetic
    fun `access$getCompanionVal$cp`(): java.lang.String {
-      return companionVal;
+      return companionVal
    }
 
    @JvmStatic
    @JvmSynthetic
    fun `access$getCompanionValJvmStatic$cp`(): java.lang.String {
-      return companionValJvmStatic;// 3
+      return companionValJvmStatic// 3
    }
 
    public companion object {
@@ -24,11 +24,11 @@ public class TestCompanionObject {
       public final val companionValJvmStatic: String
 
       public fun inCompanion() {
-         System.out.println("inCompanion");// 15
+         System.out.println("inCompanion")// 15
       }// 16
 
       public fun inCompanionJvmStatic() {
-         System.out.println("inCompanionJvmStatic");// 20
+         System.out.println("inCompanionJvmStatic")// 20
       }// 21
    }
 }
