@@ -43,7 +43,7 @@ public class KotlinChooser implements LanguageChooser {
         StructAnnotationAttribute attr = cl.getAttribute((Key<StructAnnotationAttribute>) key);
         for (AnnotationExprent anno : attr.getAnnotations()) {
           if (anno.getClassName().equals("kotlin/Metadata")) {
-            setContextVariables(cl);
+//            setContextVariables(cl);
             return true;
           }
         }
