@@ -2,8 +2,8 @@ package pkg
 
 public class TestLabeledJumps {
    public fun testContinue(tester: (Int) -> Boolean) {
-      label36@ for (i: Int in 1..100) {// 5
-         for (j: Int in 1..100) {// 6
+      label36@ for (i in 1..100) {// 5
+         for (j in 1..100) {// 6
             if (tester.invoke(j) as java.lang.Boolean) {// 7
                continue@label36
             }
@@ -16,8 +16,8 @@ public class TestLabeledJumps {
    }// 16
 
    public fun testBreak(tester: (Int) -> Boolean) {
-      label33@ for (i: Int in 1..100) {// 19
-         for (j: Int in 1..100) {// 20
+      label33@ for (i in 1..100) {// 19
+         for (j in 1..100) {// 20
             if (tester.invoke(j) as java.lang.Boolean) {// 21
                break@label33
             }

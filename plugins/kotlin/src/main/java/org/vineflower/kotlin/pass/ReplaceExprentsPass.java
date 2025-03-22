@@ -34,7 +34,7 @@ public class ReplaceExprentsPass implements Pass {
       for (int i = 0; i < vars.size(); i++) {
         VarExprent expr = vars.get(i);
         KVarExprent map = new KVarExprent(expr);
-        map.setExceptionType(true);
+        map.setDeclarationType(KVarExprent.DeclarationType.EXCEPTION_TYPE);
         vars.set(i, map);
       }
 
@@ -55,6 +55,14 @@ public class ReplaceExprentsPass implements Pass {
       exprLists.add(switchStat.getHeadexprentList());
     } else if (stat instanceof SynchronizedStatement syncStat) {
       exprLists.add(syncStat.getHeadexprentList());
+    } else if (stat instanceof CatchAllStatement || stat instanceof CatchStatement) {
+      List<VarExprent> vars = stat instanceof CatchAllStatement ? ((CatchAllStatement)stat).getVars() : ((CatchStatement)stat).getVars();
+      for (int i = 0; i < vars.size(); i++) {
+        VarExprent expr = vars.get(i);
+        KVarExprent map = new KVarExprent(expr);
+        map.setDeclarationType(KVarExprent.DeclarationType.EXCEPTION_TYPE);
+        vars.set(i, map);
+      }
     }
 
     for (List<Exprent> exprs : exprLists) {

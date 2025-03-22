@@ -3,10 +3,7 @@ package org.vineflower.kotlin.pass;
 import org.jetbrains.java.decompiler.api.plugin.pass.Pass;
 import org.jetbrains.java.decompiler.api.plugin.pass.PassContext;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
-import org.vineflower.kotlin.stat.KDoStatement;
-import org.vineflower.kotlin.stat.KIfStatement;
-import org.vineflower.kotlin.stat.KSequenceStatement;
-import org.vineflower.kotlin.stat.KSwitchStatement;
+import org.vineflower.kotlin.stat.*;
 
 public class ReplaceStatsPass implements Pass {
   @Override

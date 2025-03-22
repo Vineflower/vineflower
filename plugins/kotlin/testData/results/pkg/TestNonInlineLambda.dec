@@ -30,7 +30,7 @@ public open class TestNonInlineLambda {
    }// 26
 
    public fun testCaptureObjectIterationValue(x: Iterable<String>) {
-      for (i: java.lang.String in x) {// 29
+      for (i in x) {// 29
          this.execute(TestNonInlineLambda::testCaptureObjectIterationValue$lambda$3);// 30
       }
    }// 34

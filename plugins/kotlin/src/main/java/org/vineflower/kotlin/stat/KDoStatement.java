@@ -100,7 +100,7 @@ public class KDoStatement extends DoStatement {
       }
       case FOR_EACH -> {
         KVarExprent init = new KVarExprent((VarExprent) getInitExprent());
-        init.setExceptionType(true);
+        init.setDeclarationType(KVarExprent.DeclarationType.FOR_LOOP_VARIABLE);
 
         Exprent inc = KUtils.replaceExprent(getIncExprent());
         if (inc == null) {
@@ -131,7 +131,7 @@ public class KDoStatement extends DoStatement {
         ) {
           // Turn for loop into range
           varExpr = new KVarExprent(varExpr);
-          ((KVarExprent) varExpr).setExceptionType(true);
+          ((KVarExprent) varExpr).setDeclarationType(KVarExprent.DeclarationType.FOR_LOOP_VARIABLE);
 
           Exprent conditionExpr;
           if (condition.getLstOperands().get(1) instanceof ConstExprent c) {
