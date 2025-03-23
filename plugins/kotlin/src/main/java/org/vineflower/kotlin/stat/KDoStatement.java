@@ -121,7 +121,7 @@ public class KDoStatement extends DoStatement {
           getInitExprent() instanceof AssignmentExprent init &&
           init.getLeft() instanceof VarExprent varExpr &&
           isIntegerType(varExpr.getExprType()) &&
-          init.getRight() instanceof ConstExprent constExpr &&
+//          init.getRight() instanceof ConstExprent constExpr &&
 
           getIncExprent() instanceof FunctionExprent inc &&
           inc.getFuncType().isPPMM() &&
@@ -158,9 +158,17 @@ public class KDoStatement extends DoStatement {
             }
           }
 
-          constExpr.setConstType(varExpr.getExprType());
+//          constExpr.setConstType(varExpr.getExprType());
+          if (init.getRight() instanceof ConstExprent constExpr) {
+            constExpr.setConstType(varExpr.getExprType());
+          }
 
-          if (constExpr.getValue() instanceof Integer i && i == 0) {
+          if (
+            inc.getFuncType().isPP() &&
+            init.getRight() instanceof ConstExprent constExpr &&
+            constExpr.getValue() instanceof Integer i
+            && i == 0
+          ) {
             buf.append("repeat(")
               .append(conditionExpr.toJava())
               .append(") ");
@@ -189,7 +197,7 @@ public class KDoStatement extends DoStatement {
             buf.append("for (")
               .append(varExpr.toJava(indent))
               .append(" in ")
-              .append(constExpr.toJava())
+              .append(init.getRight().toJava())
               .append(inc.getFuncType().isPP() ? ".." : " downTo ")
               .append(conditionExpr.toJava())
               .append(") {")
