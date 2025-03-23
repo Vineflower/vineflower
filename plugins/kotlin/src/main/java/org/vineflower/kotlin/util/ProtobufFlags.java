@@ -1,7 +1,7 @@
 package org.vineflower.kotlin.util;
 
-import kotlinx.metadata.internal.metadata.ProtoBuf;
-import kotlinx.metadata.internal.metadata.deserialization.Flags;
+import kotlin.metadata.internal.metadata.ProtoBuf;
+import kotlin.metadata.internal.metadata.deserialization.Flags;
 
 public interface ProtobufFlags {
   //TODO: hasNonStableParameterNames

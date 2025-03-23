@@ -1,7 +1,7 @@
 package org.vineflower.kotlin.struct;
 
-import kotlinx.metadata.internal.metadata.ProtoBuf;
-import kotlinx.metadata.internal.metadata.jvm.JvmProtoBuf;
+import kotlin.metadata.internal.metadata.ProtoBuf;
+import kotlin.metadata.internal.metadata.jvm.JvmProtoBuf;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.code.CodeConstants;
