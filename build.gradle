@@ -233,6 +233,7 @@ tasks.withType(Jar) {
 }
 
 def allJar = tasks.register('allJar', Jar) {allJar ->
+  group = 'build'
   archiveClassifier.set('')
   from sourceSets.main.output
 
@@ -253,6 +254,13 @@ def allJar = tasks.register('allJar', Jar) {allJar ->
     allJar.from(buildTask.outputs) {
       into 'META-INF/plugins/'
     }
+  }
+}
+
+subprojects {
+  Jar buildTask = it.tasks.named("true".equals(it.does_shadow) ? 'shadowJar' : 'jar').get() as Jar
+  buildTask.configure {
+    entryCompression = ZipEntryCompression.STORED
   }
 }
 
