@@ -1,18 +1,18 @@
 package org.vineflower.kotlin.struct;
 
 import kotlin.metadata.internal.metadata.ProtoBuf;
+import kotlin.metadata.internal.metadata.deserialization.Flags;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.vineflower.kotlin.KotlinWriter;
 import org.vineflower.kotlin.metadata.MetadataNameResolver;
-import org.vineflower.kotlin.util.ProtobufFlags;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class KContract {
+public class KContract implements Flags {
   private static final String INVOCATION_KIND = "kotlin.contracts.InvocationKind";
   @NotNull
   public final List<KEffect> effects;
@@ -110,7 +110,7 @@ public class KContract {
   }
 
   public record KExpression(
-    @NotNull ProtobufFlags.Expression flags,
+    int flags,
     @Nullable KParameter valueParameterReference,
     @Nullable ProtoBuf.Expression.ConstantValue constantValue,
     @Nullable KType instanceofType,
@@ -118,10 +118,10 @@ public class KContract {
     @NotNull List<KExpression> orArguments
   ) {
     // Placeholder type for receiver type
-    private static final KParameter THIS_TYPE = new KParameter(new ProtobufFlags.ValueParameter(0), "this", KType.NOTHING, null, 0);
+    private static final KParameter THIS_TYPE = new KParameter(0, "this", KType.NOTHING, null, 0);
 
     static KExpression from(ProtoBuf.Expression proto, List<KParameter> params, MetadataNameResolver nameResolver) {
-      ProtobufFlags.Expression flags = new ProtobufFlags.Expression(proto.getFlags());
+      int flags = proto.getFlags();
       KParameter valueParameterReference = null;
       if (proto.hasValueParameterReference()) {
         int index = proto.getValueParameterReference();
@@ -158,20 +158,20 @@ public class KContract {
       if (instanceofType != null) {
         buf.append(paramName)
           .append(' ')
-          .append(flags.isNegated ? "!is" : "is")
+          .append(IS_NEGATED.get(flags) ? "!is" : "is")
           .append(' ')
           .append(instanceofType.stringify(indent));
-      } else if (flags.isNullPredicate) {
+      } else if (IS_NULL_CHECK_PREDICATE.get(flags)) {
         buf.append(paramName)
           .append(' ')
-          .append(flags.isNegated ? "!=" : "==")
+          .append(IS_NEGATED.get(flags) ? "!=" : "==")
           .append(' ')
           .append("null");
       } else if (constantValue != null) {
         if (valueParameterReference != null && valueParameterReference.type().isNullable) {
           buf.append(paramName)
             .append(' ')
-            .append(flags.isNegated ? "!=" : "==")
+            .append(IS_NEGATED.get(flags) ? "!=" : "==")
             .append(' ')
             .append(constantValue.name().toLowerCase());
         } else {
@@ -179,7 +179,7 @@ public class KContract {
             ? paramName
             : constantValue.name().toLowerCase();
 
-          if (flags.isNegated) {
+          if (IS_NEGATED.get(flags)) {
             buf.append('!');
           }
 
@@ -189,7 +189,7 @@ public class KContract {
         if (!valueParameterReference.type().kotlinType.equals("kotlin/Boolean")) {
           //TODO figure out why this happens
         }
-        if (flags.isNegated) {
+        if (IS_NEGATED.get(flags)) {
           buf.append('!');
         }
         buf.append(paramName);

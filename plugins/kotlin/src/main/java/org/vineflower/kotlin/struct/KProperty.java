@@ -1,6 +1,7 @@
 package org.vineflower.kotlin.struct;
 
 import kotlin.metadata.internal.metadata.ProtoBuf;
+import kotlin.metadata.internal.metadata.deserialization.Flags;
 import kotlin.metadata.internal.metadata.jvm.JvmProtoBuf;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -29,14 +30,16 @@ import org.vineflower.kotlin.KotlinWriter;
 import org.vineflower.kotlin.metadata.MetadataNameResolver;
 import org.vineflower.kotlin.util.KTypes;
 import org.vineflower.kotlin.util.KUtils;
-import org.vineflower.kotlin.util.ProtobufFlags;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public record KProperty(
   String name,
   KType type,
-  ProtobufFlags.Property flags,
+  int flags,
   @Nullable KPropertyAccessor getter,
   @Nullable KPropertyAccessor setter,
   @Nullable String setterParamName,
@@ -44,7 +47,7 @@ public record KProperty(
   @Nullable Exprent initializer,
   @Nullable List<AnnotationExprent> annotations,
   ClassesProcessor.ClassNode node
-) {
+) implements Flags {
   private static final AnnotationExprent DEPRECATED_ANNOTATION = new AnnotationExprent(
     new VarType("kotlin/Deprecated").value,
     List.of("message"),
@@ -54,7 +57,7 @@ public record KProperty(
   public TextBuffer stringify(int indent) {
     TextBuffer buf = new TextBuffer();
 
-    if (flags.hasAnnotations) {
+    if (HAS_ANNOTATIONS.get(flags)) {
       if (annotations != null) {
         for (AnnotationExprent anno : annotations) {
           buf.appendIndent(indent)
@@ -71,28 +74,28 @@ public record KProperty(
     buf.appendIndent(indent);
 
     // Modifiers in the order that Kotlin's coding conventions specify
-    KUtils.appendVisibility(buf, flags.visibility);
+    KUtils.appendVisibility(buf, VISIBILITY.get(flags));
 
-    if (flags.isExpect) {
+    if (IS_EXPECT_PROPERTY.get(flags)) {
       buf.append("expect ");
     }
 
-    if (Objects.requireNonNull(flags.modality) == ProtoBuf.Modality.FINAL) {
-      buf.append(flags.isConst ? "const " : "final ");
-    } else if (!node.classStruct.hasModifier(CodeConstants.ACC_INTERFACE) || flags.modality != ProtoBuf.Modality.ABSTRACT) {
-      buf.append(flags.modality.name().toLowerCase())
+    if (MODALITY.get(flags) == ProtoBuf.Modality.FINAL) {
+      buf.append(IS_CONST.get(flags) ? "const " : "final ");
+    } else if (!node.classStruct.hasModifier(CodeConstants.ACC_INTERFACE) || MODALITY.get(flags) != ProtoBuf.Modality.ABSTRACT) {
+      buf.append(MODALITY.get(flags).name().toLowerCase())
         .append(' ');
     }
 
-    if (flags.isExternal) {
+    if (IS_EXTERNAL_PROPERTY.get(flags)) {
       buf.append("external ");
     }
 
-    if (flags.isLateinit) {
+    if (IS_LATEINIT.get(flags)) {
       buf.append("lateinit ");
     }
 
-    buf.append(flags.isVar ? "var " : "val ")
+    buf.append(IS_VAR.get(flags) ? "var " : "val ")
       .append(KotlinWriter.toValidKotlinIdentifier(name))
       .append(": ")
       .append(type.stringify(indent)); 
@@ -100,7 +103,7 @@ public record KProperty(
     if (initializer != null) {
       TextBuffer initializerBuf = initializer.toJava(indent);
 //      initializerBuf.clearUnassignedBytecodeMappingData();
-      if (flags.isDelegated) {
+      if (IS_DELEGATED.get(flags)) {
         buf.append(" by ")
           .append(initializerBuf);
       } else {
@@ -113,21 +116,21 @@ public record KProperty(
     }
 
     // Custom getters and setters, and possible modifier differences
-    if (getter != null && getter.flags().isNotDefault) {
+    if (getter != null && IS_NOT_DEFAULT.get(getter.flags())) {
       buf.pushNewlineGroup(indent, 1)
           .appendLineSeparator()
           .appendIndent(indent + 1);
 
-      KUtils.appendVisibility(buf, getter.flags().visibility);
+      KUtils.appendVisibility(buf, VISIBILITY.get(getter.flags()));
 
-      buf.append(getter.flags().modality.name().toLowerCase())
+      buf.append(MODALITY.get(getter.flags()).name().toLowerCase())
         .append(' ');
 
-      if (getter.flags().isExternal) {
+      if (IS_EXTERNAL_ACCESSOR.get(getter.flags())) {
         buf.append("external ");
       }
 
-      if (getter.flags().isInline) {
+      if (IS_INLINE.get(getter.flags())) {
         buf.append("inline ");
       }
 
@@ -136,27 +139,27 @@ public record KProperty(
       KotlinWriter.writeMethodBody(node, getter.underlyingMethod(), buf, indent + 1, false);
 
       buf.popNewlineGroup();
-    } else if (getter != null && getter.flags().isExternal) {
+    } else if (getter != null && IS_EXTERNAL_ACCESSOR.get(getter.flags())) {
       buf.appendLineSeparator()
         .appendIndent(indent + 1)
         .append("external get");
     }
 
-    if (setter != null && setter.flags().isNotDefault) {
+    if (setter != null && IS_NOT_DEFAULT.get(setter.flags())) {
       buf.pushNewlineGroup(indent, 1)
         .appendLineSeparator()
         .appendIndent(indent + 1);
 
-      KUtils.appendVisibility(buf, getter.flags().visibility);
+      KUtils.appendVisibility(buf, VISIBILITY.get(setter.flags()));
 
-      buf.append(setter.flags().modality.name().toLowerCase())
+      buf.append(MODALITY.get(setter.flags()).name().toLowerCase())
         .append(' ');
 
-      if (setter.flags().isExternal) {
+      if (IS_EXTERNAL_ACCESSOR.get(setter.flags())) {
         buf.append("external ");
       }
 
-      if (setter.flags().isInline) {
+      if (IS_INLINE_ACCESSOR.get(setter.flags())) {
         buf.append("inline ");
       }
 
@@ -167,24 +170,24 @@ public record KProperty(
       KotlinWriter.writeMethodBody(node, setter.underlyingMethod(), buf, indent + 1, false);
 
       buf.popNewlineGroup();
-    } else if (setter != null && (setter.flags().isExternal || setter.flags().visibility != flags.visibility || setter.flags().modality != flags.modality)) {
+    } else if (setter != null && (IS_EXTERNAL_ACCESSOR.get(setter.flags()) || VISIBILITY.get(setter.flags()) != VISIBILITY.get(flags) || MODALITY.get(setter.flags()) != MODALITY.get(flags))) {
       buf.appendLineSeparator().appendIndent(indent + 1);
 
-      if (setter.flags().visibility != flags.visibility) {
-        KUtils.appendVisibility(buf, setter.flags().visibility);
+      if (VISIBILITY.get(setter.flags()) != VISIBILITY.get(flags)) {
+        KUtils.appendVisibility(buf, VISIBILITY.get(setter.flags()));
       }
 
-      if (setter.flags().modality != flags.modality) {
-        buf.append(setter.flags().modality.name().toLowerCase())
+      if (MODALITY.get(setter.flags()) != MODALITY.get(flags)) {
+        buf.append(MODALITY.get(setter.flags()).name().toLowerCase())
           .append(' ');
       }
 
-      if (setter.flags().isExternal) {
+      if (IS_EXTERNAL_ACCESSOR.get(setter.flags())) {
         buf.append("external ");
       }
 
       buf.append("set");
-    } else if (setter == null && flags.isVar && flags.visibility != ProtoBuf.Visibility.PRIVATE) { // Special case: no setter is generated if it's a var with a private setter
+    } else if (setter == null && IS_VAR.get(flags) && VISIBILITY.get(flags) != ProtoBuf.Visibility.PRIVATE) { // Special case: no setter is generated if it's a var with a private setter
       buf.appendLineSeparator()
         .appendIndent(indent + 1)
         .append("private set");
@@ -230,7 +233,7 @@ public record KProperty(
     Set<StructMethod> associatedMethods = new HashSet<>();
 
     for (ProtoBuf.Property property : protoProperties) {
-      ProtobufFlags.Property flags = new ProtobufFlags.Property(property.getFlags());
+      int flags = property.getFlags();
 
       JvmProtoBuf.JvmPropertySignature jvmProp = property.getExtension(JvmProtoBuf.propertySignature);
 
@@ -266,7 +269,7 @@ public record KProperty(
 
       // Delegates create a hidden field containing the created delegate, so reference that instead
       Exprent delegateExprent = null;
-      if (flags.isDelegated) {
+      if (IS_DELEGATED.get(flags)) {
         String delegateFieldName = nameResolver.resolve(jvmProp.getField().getName());
         String delegateDesc = nameResolver.resolve(jvmProp.getField().getDesc());
         StructField delegateField = structClass.getField(delegateFieldName, delegateDesc);
@@ -282,13 +285,13 @@ public record KProperty(
       }
 
       KPropertyAccessor getter = null;
-      if (flags.hasGetter) {
+      if (HAS_GETTER.get(flags)) {
         String methodName = nameResolver.resolve(jvmProp.getGetter().getName());
         String desc = nameResolver.resolve(jvmProp.getGetter().getDesc());
         StructMethod method = structClass.getMethod(methodName, desc);
         if (method != null) {
           MethodWrapper methodWrapper = wrapper.getMethodWrapper(methodName, desc);
-          getter = new KPropertyAccessor(new ProtobufFlags.PropertyAccessor(property.getGetterFlags()), methodWrapper);
+          getter = new KPropertyAccessor(property.getGetterFlags(), methodWrapper);
           associatedMethods.add(method);
 
           if (propDesc == null) {
@@ -299,13 +302,13 @@ public record KProperty(
 
       KPropertyAccessor setter = null;
       String setterParamName = null;
-      if (flags.hasSetter) {
+      if (HAS_SETTER.get(flags)) {
         String methodName = nameResolver.resolve(jvmProp.getSetter().getName());
         String desc = nameResolver.resolve(jvmProp.getSetter().getDesc());
         StructMethod method = structClass.getMethod(methodName, desc);
         if (method != null) {
           MethodWrapper methodWrapper = wrapper.getMethodWrapper(methodName, desc);
-          setter = new KPropertyAccessor(new ProtobufFlags.PropertyAccessor(property.getSetterFlags()), methodWrapper);
+          setter = new KPropertyAccessor(property.getSetterFlags(), methodWrapper);
           associatedMethods.add(method);
           setterParamName = nameResolver.resolve(property.getSetterValueParameter().getName());
         }
@@ -329,7 +332,7 @@ public record KProperty(
         }
       }
 
-      if (flags.hasAnnotations && annotations == null && field != null) {
+      if (HAS_ANNOTATIONS.get(flags) && annotations == null && field != null) {
         annotations = new ArrayList<>();
 
         if (field.hasAttribute(StructGeneralAttribute.ATTRIBUTE_RUNTIME_VISIBLE_ANNOTATIONS)) {

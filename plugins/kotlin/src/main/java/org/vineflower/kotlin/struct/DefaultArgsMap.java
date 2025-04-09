@@ -1,5 +1,6 @@
 package org.vineflower.kotlin.struct;
 
+import kotlin.metadata.internal.metadata.deserialization.Flags;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
@@ -120,7 +121,7 @@ public class DefaultArgsMap {
 
     if (KUtils.assertionsEnabled()) {
       for (KParameter param : params) {
-        assert map.containsKey(param) == param.flags().declaresDefault : "Parameter " + param.name() + " has default value but no default value was found";
+        assert map.containsKey(param) == Flags.DECLARES_DEFAULT_VALUE.get(param.flags()) : "Parameter " + param.name() + " has default value but no default value was found";
       }
     }
 

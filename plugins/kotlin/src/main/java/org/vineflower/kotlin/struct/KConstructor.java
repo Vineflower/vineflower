@@ -1,6 +1,7 @@
 package org.vineflower.kotlin.struct;
 
 import kotlin.metadata.internal.metadata.ProtoBuf;
+import kotlin.metadata.internal.metadata.deserialization.Flags;
 import kotlin.metadata.internal.metadata.jvm.JvmProtoBuf;
 import org.jetbrains.java.decompiler.main.ClassesProcessor;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
@@ -22,7 +23,6 @@ import org.vineflower.kotlin.KotlinOptions;
 import org.vineflower.kotlin.KotlinWriter;
 import org.vineflower.kotlin.metadata.MetadataNameResolver;
 import org.vineflower.kotlin.util.KUtils;
-import org.vineflower.kotlin.util.ProtobufFlags;
 
 import java.util.HashMap;
 import java.util.List;
@@ -30,13 +30,13 @@ import java.util.Map;
 
 public record KConstructor(
   KParameter[] parameters,
-  ProtobufFlags.Constructor flags,
+  int flags,
   MethodWrapper method,
   boolean isPrimary,
   DefaultArgsMap defaultArgs,
   ClassesProcessor.ClassNode node,
-  ProtobufFlags.Class classFlags
-) {
+  int classFlags
+) implements Flags {
   private static final VarType DEFAULT_CONSTRUCTOR_MARKER = new VarType("kotlin/jvm/internal/DefaultConstructorMarker", true);
 
   public static Data parse(ClassesProcessor.ClassNode node) {
@@ -47,8 +47,8 @@ public record KConstructor(
     KotlinDecompilationContext.KotlinType type = KotlinDecompilationContext.getCurrentType();
     if (type != KotlinDecompilationContext.KotlinType.CLASS) return null;
 
-    ProtobufFlags.Class classFlags = new ProtobufFlags.Class(KotlinDecompilationContext.getCurrentClass().getFlags());
-    if (classFlags.modality == ProtoBuf.Modality.ABSTRACT) return null;
+    int classFlags = KotlinDecompilationContext.getCurrentClass().getFlags();
+    if (MODALITY.get(classFlags) == ProtoBuf.Modality.ABSTRACT) return null;
 
     List<ProtoBuf.Constructor> protoConstructors = KotlinDecompilationContext.getCurrentClass().getConstructorList();
     if (protoConstructors.isEmpty()) return null;
@@ -61,7 +61,7 @@ public record KConstructor(
       for (int i = 0; i < parameters.length; i++) {
         ProtoBuf.ValueParameter protoParameter = constructor.getValueParameter(i);
         parameters[i] = new KParameter(
-          new ProtobufFlags.ValueParameter(protoParameter.getFlags()),
+          protoParameter.getFlags(),
           resolver.resolve(protoParameter.getName()),
           KType.from(protoParameter.getType(), resolver),
           KType.from(protoParameter.getVarargElementType(), resolver),
@@ -69,13 +69,13 @@ public record KConstructor(
         );
       }
 
-      ProtobufFlags.Constructor flags = new ProtobufFlags.Constructor(constructor.getFlags());
+      int flags = constructor.getFlags();
 
       JvmProtoBuf.JvmMethodSignature signature = constructor.getExtension(JvmProtoBuf.constructorSignature);
       String desc = resolver.resolve(signature.getDesc());
       MethodWrapper method = wrapper.getMethodWrapper("<init>", desc);
       if (method == null) {
-        if (classFlags.kind == ProtoBuf.Class.Kind.ANNOTATION_CLASS) {
+        if (CLASS_KIND.get(classFlags) == ProtoBuf.Class.Kind.ANNOTATION_CLASS) {
           // Annotation classes are very odd and don't actually have a constructor under the hood
           KConstructor kConstructor = new KConstructor(parameters, flags, null, false, null, node, classFlags);
           return new Data(null, kConstructor);
@@ -85,10 +85,10 @@ public record KConstructor(
         continue;
       }
 
-      boolean isPrimary = !flags.isSecondary;
+      boolean isPrimary = !IS_SECONDARY.get(flags);
 
       StringBuilder defaultArgsDesc = new StringBuilder("(");
-      if (classFlags.kind == ProtoBuf.Class.Kind.ENUM_CLASS) {
+      if (CLASS_KIND.get(classFlags) == ProtoBuf.Class.Kind.ENUM_CLASS) {
         // Kotlin drops hidden name/ordinal parameters for enum constructors in its metadata
         defaultArgsDesc.append("Ljava/lang/String;").append("I");
       }
@@ -124,15 +124,15 @@ public record KConstructor(
     String methodKey = InterpreterUtil.makeUniqueKey(method.methodStruct.getName(), method.methodStruct.getDescriptor());
 
     if (!isPrimary) {
-      if (flags.hasAnnotations) {
+      if (HAS_ANNOTATIONS.get(flags)) {
         KotlinWriter.appendAnnotations(buf, indent, method.methodStruct, TypeAnnotation.METHOD_RETURN_TYPE);
         KotlinWriter.appendJvmAnnotations(buf, indent, method.methodStruct, false, method.classStruct.getPool(), TypeAnnotation.METHOD_RETURN_TYPE);
       }
 
       buf.appendIndent(indent);
 
-      if (flags.visibility != ProtoBuf.Visibility.PUBLIC || DecompilerContext.getOption(KotlinOptions.SHOW_PUBLIC_VISIBILITY)) {
-        KUtils.appendVisibility(buf, flags.visibility);
+      if (VISIBILITY.get(flags) != ProtoBuf.Visibility.PUBLIC || DecompilerContext.getOption(KotlinOptions.SHOW_PUBLIC_VISIBILITY)) {
+        KUtils.appendVisibility(buf, VISIBILITY.get(flags));
       }
 
       buf.append("constructor");
@@ -149,7 +149,7 @@ public record KConstructor(
 
         parameter.stringify(indent + 1, buf);
 
-        if (parameter.flags().declaresDefault) {
+        if (DECLARES_DEFAULT_VALUE.get(parameter.flags())) {
           buf.append(defaultArgs.toJava(parameter, indent + 1), node.classStruct.qualifiedName, methodKey);
         }
       }
@@ -213,8 +213,8 @@ public record KConstructor(
 
     String methodKey = InterpreterUtil.makeUniqueKey(method.methodStruct.getName(), method.methodStruct.getDescriptor());
 
-    if (classFlags.kind != ProtoBuf.Class.Kind.OBJECT && classFlags.kind != ProtoBuf.Class.Kind.COMPANION_OBJECT) {
-      if (flags.hasAnnotations) {
+    if (CLASS_KIND.get(classFlags) != ProtoBuf.Class.Kind.OBJECT && CLASS_KIND.get(classFlags) != ProtoBuf.Class.Kind.COMPANION_OBJECT) {
+      if (HAS_ANNOTATIONS.get(flags)) {
         buf.append(" ");
         // -1 for indent indicates inline
         KotlinWriter.appendAnnotations(buf, -1, method.methodStruct, TypeAnnotation.METHOD_RETURN_TYPE);
@@ -223,11 +223,11 @@ public record KConstructor(
       }
 
       // For cleanliness, public primary constructors are not forced public by the config option
-      if ((flags.visibility != ProtoBuf.Visibility.PUBLIC || (appended && DecompilerContext.getOption(KotlinOptions.SHOW_PUBLIC_VISIBILITY))) &&
-        classFlags.kind != ProtoBuf.Class.Kind.ENUM_CLASS // Enum constructors are always private implicitly
+      if ((VISIBILITY.get(flags) != ProtoBuf.Visibility.PUBLIC || (appended && DecompilerContext.getOption(KotlinOptions.SHOW_PUBLIC_VISIBILITY))) &&
+        CLASS_KIND.get(classFlags) != ProtoBuf.Class.Kind.ENUM_CLASS // Enum constructors are always private implicitly
       ) {
         buf.append(" ");
-        KUtils.appendVisibility(buf, flags.visibility);
+        KUtils.appendVisibility(buf, VISIBILITY.get(flags));
         appended = true;
       }
 
@@ -248,7 +248,7 @@ public record KConstructor(
 
           parameter.stringify(indent + 1, buf);
 
-          if (parameter.flags().declaresDefault) {
+          if (DECLARES_DEFAULT_VALUE.get(parameter.flags())) {
             buf.append(defaultArgs.toJava(parameter, indent + 1), node.classStruct.qualifiedName, methodKey);
           }
         }
@@ -271,7 +271,7 @@ public record KConstructor(
 //      throw new IllegalStateException("First expression of constructor is not InvocationExprent");
     }
 
-    if (invocation.getClassname().equals("java/lang/Object") || classFlags.kind == ProtoBuf.Class.Kind.ENUM_CLASS) {
+    if (invocation.getClassname().equals("java/lang/Object") || CLASS_KIND.get(classFlags) == ProtoBuf.Class.Kind.ENUM_CLASS) {
       // No need to declare super constructor call
       buffer.append(buf);
       return false;
