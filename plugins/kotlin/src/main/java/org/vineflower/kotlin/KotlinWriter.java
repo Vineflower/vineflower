@@ -754,8 +754,8 @@ public class KotlinWriter implements StatementWriter, Flags {
     if (IS_FUN_INTERFACE.get(kotlinFlags)) {
       buffer.append("fun ");
     }
-    if (IS_INLINE.get(kotlinFlags)) {
-      buffer.append("inline ");
+    if (IS_VALUE_CLASS.get(kotlinFlags)) {
+      buffer.append("value ");
     }
     if (IS_DATA.get(kotlinFlags)) {
       buffer.append("data ");

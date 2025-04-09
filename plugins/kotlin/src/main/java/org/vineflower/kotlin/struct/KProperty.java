@@ -130,7 +130,7 @@ public record KProperty(
         buf.append("external ");
       }
 
-      if (IS_INLINE.get(getter.flags())) {
+      if (IS_INLINE_ACCESSOR.get(getter.flags())) {
         buf.append("inline ");
       }
 
