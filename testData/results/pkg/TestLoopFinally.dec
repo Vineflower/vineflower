@@ -152,7 +152,7 @@ public class TestLoopFinally {
                return;// 171
             } else {
                <unknown> var3;
-               throw var3_1;// 164
+               throw var3;// 164
             }
          }
       }

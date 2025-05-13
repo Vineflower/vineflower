@@ -20,7 +20,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
       IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "0",
       IFernflowerPreferences.TERNARY_CONDITIONS, "1",
-      IFernflowerPreferences.FORCE_JSR_INLINE, "1"
+      IFernflowerPreferences.FORCE_JSR_INLINE, "1",
+      IFernflowerPreferences.VERIFY_PRE_POST_VARIABLE_MERGES, "1"
     );
     registerSet("Entire Classpath", this::registerEntireClassPath,
       IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
@@ -28,7 +29,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
       IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
       IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
-      IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "1"
+      IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "1",
+      IFernflowerPreferences.VERIFY_PRE_POST_VARIABLE_MERGES, "1"
     );
     registerSet("Java Runtime", this::registerJavaRuntime,
       IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
@@ -36,7 +38,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
       IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
       IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
-      IFernflowerPreferences.INCLUDE_JAVA_RUNTIME, "1"
+      IFernflowerPreferences.INCLUDE_JAVA_RUNTIME, "1",
+      IFernflowerPreferences.VERIFY_PRE_POST_VARIABLE_MERGES, "1"
     );
     registerSet("Literals", this::registerLiterals,
       IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
@@ -44,7 +47,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
       IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
       IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
-      IFernflowerPreferences.LITERALS_AS_IS, "0"
+      IFernflowerPreferences.LITERALS_AS_IS, "0",
+      IFernflowerPreferences.VERIFY_PRE_POST_VARIABLE_MERGES, "1"
     );
     registerSet("Pattern Matching", this::registerPatternMatching,
       IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
@@ -53,7 +57,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
       IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
       IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "0",
-      IFernflowerPreferences.PATTERN_MATCHING, "1"
+      IFernflowerPreferences.PATTERN_MATCHING, "1",
+      IFernflowerPreferences.VERIFY_PRE_POST_VARIABLE_MERGES, "1"
     );
     registerSet("Ternary Constant Simplification", this::registerTernaryConstantSimplification,
       IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
@@ -62,7 +67,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
       IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
       IFernflowerPreferences.LITERALS_AS_IS, "0",
-      IFernflowerPreferences.TERNARY_CONSTANT_SIMPLIFICATION, "1"
+      IFernflowerPreferences.TERNARY_CONSTANT_SIMPLIFICATION, "1",
+      IFernflowerPreferences.VERIFY_PRE_POST_VARIABLE_MERGES, "1"
     );
     registerSet("LVT", this::registerLVT,
       IFernflowerPreferences.DECOMPILE_INNER, "1",
@@ -71,7 +77,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.ASCII_STRING_CHARACTERS, "1",
       IFernflowerPreferences.REMOVE_SYNTHETIC, "1",
       IFernflowerPreferences.REMOVE_BRIDGE, "1",
-      IFernflowerPreferences.USE_DEBUG_VAR_NAMES, "1"
+      IFernflowerPreferences.USE_DEBUG_VAR_NAMES, "1",
+      IFernflowerPreferences.VERIFY_PRE_POST_VARIABLE_MERGES, "1"
     );
     registerSet("Try Loop", this::registerTryLoop,
       IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
@@ -80,7 +87,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
       IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
       IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "0",
-      IFernflowerPreferences.TRY_LOOP_FIX, "1"
+      IFernflowerPreferences.TRY_LOOP_FIX, "1",
+      IFernflowerPreferences.VERIFY_PRE_POST_VARIABLE_MERGES, "1"
     );
     registerSet("Javadoc", () -> {
       register(JAVA_8, "TestJavadoc");
@@ -108,7 +116,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
       IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
       IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "0",
-      IFernflowerPreferences.RENAME_ENTITIES, "1"
+      IFernflowerPreferences.RENAME_ENTITIES, "1",
+      IFernflowerPreferences.VERIFY_PRE_POST_VARIABLE_MERGES, "1"
     );
     registerSet("Complex Condys", () -> register(JASM, "TestComplexCondy"),
       IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
@@ -118,7 +127,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
       IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "0",
       IFernflowerPreferences.DECOMPILE_COMPLEX_CONDYS, "1",
-      IFernflowerPreferences.PREFERRED_LINE_LENGTH, "250"
+      IFernflowerPreferences.PREFERRED_LINE_LENGTH, "250",
+      IFernflowerPreferences.VERIFY_PRE_POST_VARIABLE_MERGES, "1"
     );
     registerSet("Text Tokens", this::registerTextTokens,
       IFernflowerPreferences.DUMP_TEXT_TOKENS, "1",
@@ -130,7 +140,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "0",
       IFernflowerPreferences.TERNARY_CONDITIONS, "1",
       IFernflowerPreferences.FORCE_JSR_INLINE, "1",
-      IFernflowerPreferences.PREFERRED_LINE_LENGTH, "120"
+      IFernflowerPreferences.PREFERRED_LINE_LENGTH, "120",
+      IFernflowerPreferences.VERIFY_PRE_POST_VARIABLE_MERGES, "1"
     );
     registerSet("Synthetics Marking", this::registerSyntheticsMarking,
       IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
@@ -138,7 +149,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
       IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
       IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
-      IFernflowerPreferences.MARK_CORRESPONDING_SYNTHETICS, "1"
+      IFernflowerPreferences.MARK_CORRESPONDING_SYNTHETICS, "1",
+      IFernflowerPreferences.VERIFY_PRE_POST_VARIABLE_MERGES, "1"
       );
     registerSet("Lambda to Anonymous Class", this::registerLambdaToAnonymousClass,
       IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
@@ -149,7 +161,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "0",
       IFernflowerPreferences.TERNARY_CONDITIONS, "1",
       IFernflowerPreferences.FORCE_JSR_INLINE, "1",
-      IFernflowerPreferences.LAMBDA_TO_ANONYMOUS_CLASS, "1"
+      IFernflowerPreferences.LAMBDA_TO_ANONYMOUS_CLASS, "1",
+      IFernflowerPreferences.VERIFY_PRE_POST_VARIABLE_MERGES, "1"
     );
     // TODO: user renamer class test
   }
