@@ -391,38 +391,39 @@ public class ClassWriter implements StatementWriter {
         hasContent.set(true);
       };
 
-      boolean enumFields = false;
-
+      // fields
       List<StructRecordComponent> components = cl.getRecordComponents();
 
-      // FIXME: fields don't have line mappings
-      // fields
-
-      // Find the last field marked as an enum
-      int maxEnumIdx = 0;
-      for (int i = 0; i < cl.getFields().size(); i++) {
-        StructField fd = cl.getFields().get(i);
-        boolean isEnum = fd.hasModifier(CodeConstants.ACC_ENUM) && DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM);
-        if (isEnum) {
-          maxEnumIdx = i;
-        }
-      }
-
-      List<StructField> deferredEnumFields = new ArrayList<>();
-
-      // Find any regular fields mixed in with the enum fields
-      // This is invalid but allowed in bytecode.
-      for (int i = 0; i < cl.getFields().size(); i++) {
-        StructField fd = cl.getFields().get(i);
-        boolean isEnum = fd.hasModifier(CodeConstants.ACC_ENUM) && DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM);
-        if (i < maxEnumIdx && !isEnum) {
-          deferredEnumFields.add(fd);
-        }
-      }
+      List<StructField> enumFields = new ArrayList<>();
+      List<StructField> nonEnumFields = new ArrayList<>();
 
       for (StructField fd : cl.getFields()) {
+        boolean isEnum = fd.hasModifier(CodeConstants.ACC_ENUM) && DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM);
+        if (isEnum) {
+          enumFields.add(fd);
+        } else {
+          nonEnumFields.add(fd);
+        }
+      }
+
+      boolean enums = false;
+      for (StructField fd : enumFields) {
+        if (enums) {
+          buffer.append(',').appendLineSeparator();
+        }
+        enums = true;
+
+        haveContent.run();
+        writeField(buffer, indent, fd, wrapper);
+      }
+
+      if (enums) {
+        buffer.append(';').appendLineSeparator();
+      }
+
+      for (StructField fd : nonEnumFields) {
         boolean hide = fd.isSynthetic() && DecompilerContext.getOption(IFernflowerPreferences.REMOVE_SYNTHETIC) ||
-                       wrapper.getHiddenMembers().contains(InterpreterUtil.makeUniqueKey(fd.getName(), fd.getDescriptor())) || deferredEnumFields.contains(fd);
+                       wrapper.getHiddenMembers().contains(InterpreterUtil.makeUniqueKey(fd.getName(), fd.getDescriptor()));
         if (hide) continue;
 
         if (components != null && fd.getAccessFlags() == (CodeConstants.ACC_FINAL | CodeConstants.ACC_PRIVATE) &&
@@ -431,45 +432,14 @@ public class ClassWriter implements StatementWriter {
           continue;
         }
 
-        boolean isEnum = fd.hasModifier(CodeConstants.ACC_ENUM) && DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM);
-        if (isEnum) {
-          if (enumFields) {
-            buffer.append(',').appendLineSeparator();
-          }
-          enumFields = true;
-        }
-        else if (enumFields) {
-          buffer.append(';');
+        if (enums) {
+          // Add an extra line break between enums and non-enum fields
           buffer.appendLineSeparator();
-          buffer.appendLineSeparator();
-          enumFields = false;
-
-          // If the fields after are non enum, readd the fields found scattered throughout the enum
-          for (StructField fd2 : deferredEnumFields) {
-            TextBuffer fieldBuffer = new TextBuffer();
-            writeField(wrapper, cl, fd2, fieldBuffer, indent + 1);
-            fieldBuffer.clearUnassignedBytecodeMappingData();
-            buffer.append(fieldBuffer);
-          }
+          enums = false;
         }
 
-        TextBuffer fieldBuffer = new TextBuffer();
-        writeField(wrapper, cl, fd, fieldBuffer, indent + 1);
-        fieldBuffer.clearUnassignedBytecodeMappingData();
         haveContent.run();
-        buffer.append(fieldBuffer);
-      }
-
-      if (enumFields) {
-        buffer.append(';').appendLineSeparator();
-
-        // If we end with enum fields, readd the fields found mixed in
-        for (StructField fd2 : deferredEnumFields) {
-          TextBuffer fieldBuffer = new TextBuffer();
-          writeField(wrapper, cl, fd2, fieldBuffer, indent + 1);
-          fieldBuffer.clearUnassignedBytecodeMappingData();
-          buffer.append(fieldBuffer);
-        }
+        writeField(buffer, indent, fd, wrapper);
       }
 
       // methods
@@ -808,6 +778,13 @@ public class ClassWriter implements StatementWriter {
       }
     }
     return false;
+  }
+
+  private void writeField(TextBuffer buffer, int indent, StructField fd, ClassWrapper wrapper) {
+    TextBuffer fieldBuffer = new TextBuffer();
+    writeField(wrapper, wrapper.getClassStruct(), fd, fieldBuffer, indent + 1);
+    fieldBuffer.clearUnassignedBytecodeMappingData();
+    buffer.append(fieldBuffer);
   }
 
   public void writeField(ClassWrapper wrapper, StructClass cl, StructField fd, TextBuffer buffer, int indent) {
