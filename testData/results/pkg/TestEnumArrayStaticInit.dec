@@ -1,7 +1,7 @@
 package pkg;
 
 public enum TestEnumArrayStaticInit {
-   A(0),
+   A(0),// 4
    B(1),
    C(2);
 
@@ -23,16 +23,10 @@ public enum TestEnumArrayStaticInit {
 }
 
 class 'pkg/TestEnumArrayStaticInit' {
-   method '<init> (Ljava/lang/String;II)V' {
-      6      11
-      7      11
-      8      11
-      9      11
-      a      11
-      b      12
-   }
-
    method '<clinit> ()V' {
+      7      3
+      15      4
+      23      5
       43      15
       44      15
       45      15
@@ -71,9 +65,19 @@ class 'pkg/TestEnumArrayStaticInit' {
       73      18
       77      21
    }
+
+   method '<init> (Ljava/lang/String;II)V' {
+      6      11
+      7      11
+      8      11
+      9      11
+      a      11
+      b      12
+   }
 }
 
 Lines mapping:
+4 <-> 4
 11 <-> 12
 12 <-> 13
 15 <-> 16
@@ -83,5 +87,4 @@ Lines mapping:
 22 <-> 22
 Not mapped:
 3
-4
 10

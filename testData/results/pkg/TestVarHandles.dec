@@ -5,7 +5,7 @@ import java.lang.invoke.VarHandle;
 import java.lang.invoke.MethodHandles.Lookup;
 
 public class TestVarHandles {
-   private static final Lookup LOOKUP = MethodHandles.lookup();
+   private static final Lookup LOOKUP = MethodHandles.lookup();// 6
 
    public void test1() throws ReflectiveOperationException {
       VarHandle lookupHandle = LOOKUP.findStaticVarHandle(TestVarHandles.class, "LOOKUP", Lookup.class);// 9
@@ -21,6 +21,12 @@ public class TestVarHandles {
 }
 
 class 'pkg/TestVarHandles' {
+   method '<clinit> ()V' {
+      0      7
+      1      7
+      2      7
+   }
+
    method 'test1 ()V' {
       0      10
       1      10
@@ -76,6 +82,7 @@ class 'pkg/TestVarHandles' {
 }
 
 Lines mapping:
+6 <-> 8
 9 <-> 11
 10 <-> 12
 11 <-> 13

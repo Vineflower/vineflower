@@ -783,8 +783,8 @@ public class ClassWriter implements StatementWriter {
   private void writeField(TextBuffer buffer, int indent, StructField fd, ClassWrapper wrapper) {
     TextBuffer fieldBuffer = new TextBuffer();
     writeField(wrapper, wrapper.getClassStruct(), fd, fieldBuffer, indent + 1);
-    fieldBuffer.clearUnassignedBytecodeMappingData();
-    buffer.append(fieldBuffer);
+    String initializer = fd.hasModifier(CodeConstants.ACC_STATIC) ? "<clinit> ()V" : "<init> ()V";
+    buffer.append(fieldBuffer, wrapper.getClassStruct().qualifiedName, initializer);
   }
 
   public void writeField(ClassWrapper wrapper, StructClass cl, StructField fd, TextBuffer buffer, int indent) {

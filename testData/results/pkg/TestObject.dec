@@ -85,6 +85,12 @@ public final class TestObject$ implements Serializable {
 }
 
 class 'pkg/TestObject$' {
+   method '<clinit> ()V' {
+      a      6
+      b      6
+      f      7
+   }
+
    method '<init> ()V' {
       4      11
    }

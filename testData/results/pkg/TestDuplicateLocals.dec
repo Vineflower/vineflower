@@ -79,6 +79,11 @@ class 'pkg/TestDuplicateLocals' {
       1      10
    }
 
+   method '<init> ()V' {
+      5      11
+      6      11
+   }
+
    method 'test1 (Ljava/util/List;)V' {
       0      14
       1      14

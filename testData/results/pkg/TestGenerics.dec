@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.Map;
 
 public class TestGenerics<A, B extends TestGenerics.Maps & List> {
-   static Map<String, Boolean> field = TestGenerics.Maps.newHashMap();
+   static Map<String, Boolean> field = TestGenerics.Maps.newHashMap();// 24
    static List<List<String>> llstring = new ArrayList<>();
    static List<Byte> bytes = new ArrayList<>();
-   A[] aArray = (A[])(new Object[10]);
+   A[] aArray = (A[])(new Object[10]);// 27
 
    public void genericAllocation() {
       this.aArray = (A[])(new Object[20]);// 30
@@ -61,6 +61,20 @@ public class TestGenerics<A, B extends TestGenerics.Maps & List> {
 }
 
 class 'pkg/TestGenerics' {
+   method '<clinit> ()V' {
+      0      8
+      1      8
+      2      8
+   }
+
+   method '<init> ()V' {
+      5      11
+      6      11
+      a      11
+      b      11
+      c      11
+   }
+
    method 'genericAllocation ()V' {
       0      14
       1      14
@@ -258,6 +272,8 @@ class 'pkg/TestGenerics$Maps' {
 }
 
 Lines mapping:
+24 <-> 9
+27 <-> 12
 30 <-> 15
 31 <-> 16
 34 <-> 19
@@ -281,6 +297,9 @@ Lines mapping:
 67 <-> 53
 72 <-> 58
 Not mapped:
+23
+25
+26
 50
 56
 63

@@ -1,8 +1,8 @@
 package pkg;
 
 public class TestConstType {
-   private char lineBreak = '\n';
-   private char zero = 0;
+   private char lineBreak = '\n';// 4
+   private char zero = 0;// 5
 
    public void setLineBreak(char os) {
       switch (os) {// 8
@@ -98,6 +98,12 @@ public class TestConstType {
 }
 
 class 'pkg/TestConstType' {
+   method '<init> ()V' {
+      5      3
+      6      3
+      b      4
+   }
+
    method 'setLineBreak (C)V' {
       0      7
       1      7
@@ -572,6 +578,8 @@ class 'pkg/TestConstType' {
 }
 
 Lines mapping:
+4 <-> 4
+5 <-> 5
 8 <-> 8
 10 <-> 10
 11 <-> 11
@@ -635,3 +643,5 @@ Lines mapping:
 100 <-> 82
 102 <-> 93
 104 <-> 96
+Not mapped:
+3

@@ -7,7 +7,7 @@ import java.lang.invoke.MethodType;
 import java.lang.invoke.MethodHandles.Lookup;
 
 public class TestMethodHandles {
-   private static final Lookup LOOKUP = MethodHandles.lookup();
+   private static final Lookup LOOKUP = MethodHandles.lookup();// 7
 
    public void test1() throws Throwable {
       MethodHandle abs = LOOKUP.findStatic(Math.class, "abs", MethodType.methodType(long.class, long.class));// 10
@@ -43,6 +43,12 @@ public class TestMethodHandles {
 }
 
 class 'pkg/TestMethodHandles' {
+   method '<clinit> ()V' {
+      0      9
+      1      9
+      2      9
+   }
+
    method 'test1 ()V' {
       0      12
       1      12
@@ -201,6 +207,7 @@ class 'pkg/TestMethodHandles' {
 }
 
 Lines mapping:
+7 <-> 10
 10 <-> 13
 11 <-> 14
 12 <-> 15
