@@ -6,8 +6,7 @@ public enum class TestEnumClass(number: Int = 4) {
    A(0, 1, null),
    B(0, 1, null),
    C(3),
-   D(5);
-
+   D(5);// 4
 
    public final val number: Int
 
@@ -33,47 +32,59 @@ public enum class TestEnumClass(number: Int = 4) {
 
 class 'pkg/TestEnumClass' {
    method '<init> (Ljava/lang/String;II)V' {
-      6      14
+      6      13
       7      4
-      8      14
-      9      14
-      a      14
-      b      15
+      8      13
+      9      13
+      a      13
+      b      14
+   }
+
+   method '<clinit> ()V' {
+      7      5
+      8      5
+      9      5
+      17      6
+      18      6
+      19      6
+      27      7
+      35      8
    }
 
    method 'foo ()I' {
-      0      18
-      1      18
-      2      18
-      3      18
-      4      18
+      0      17
+      1      17
+      2      17
+      3      17
+      4      17
    }
 
    method 'getEntries ()Lkotlin/enums/EnumEntries;' {
-      0      23
-      1      23
-      2      23
-      3      23
+      0      22
+      1      22
+      2      22
+      3      22
    }
 
    method '$values ()[Lpkg/TestEnumClass;' {
-      7      29
-      8      29
-      9      29
-      d      29
-      e      29
-      f      29
-      13      29
-      14      29
-      15      29
-      19      29
-      1a      29
-      1b      29
-      1e      29
+      7      28
+      8      28
+      9      28
+      d      28
+      e      28
+      f      28
+      13      28
+      14      28
+      15      28
+      19      28
+      1a      28
+      1b      28
+      1e      28
    }
 }
 
 Lines mapping:
-3 <-> 15
-7 <-> 19
-8 <-> 24
+3 <-> 14
+4 <-> 9
+7 <-> 18
+8 <-> 23

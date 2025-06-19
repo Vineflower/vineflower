@@ -274,9 +274,6 @@ public class KotlinWriter implements StatementWriter {
       TextBuffer innerBuffer = new TextBuffer();
 
       boolean hasContent = false;
-      boolean enumFields = false;
-
-      List<StructRecordComponent> components = cl.getRecordComponents();
 
       Set<StructField> fieldsToIgnore = new HashSet<>();
       Set<StructMethod> methodsToIgnore = new HashSet<>();
@@ -315,71 +312,37 @@ public class KotlinWriter implements StatementWriter {
         methodsToIgnore.addAll(companionFunctions.keySet());
       }
 
-      // FIXME: fields don't have line mappings
       // fields
+      List<StructRecordComponent> components = cl.getRecordComponents();
 
-      // Find the last field marked as an enum
-      int maxEnumIdx = 0;
-      for (int i = 0; i < cl.getFields().size(); i++) {
-        StructField fd = cl.getFields().get(i);
-        boolean isEnum = fd.hasModifier(CodeConstants.ACC_ENUM) && DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM);
-        if (isEnum) {
-          maxEnumIdx = i;
-        }
-      }
-
-      List<StructField> deferredEnumFields = new ArrayList<>();
-
-      // Find any regular fields mixed in with the enum fields
-      // This is invalid but allowed in bytecode.
-      for (int i = 0; i < cl.getFields().size(); i++) {
-        StructField fd = cl.getFields().get(i);
-        boolean isEnum = fd.hasModifier(CodeConstants.ACC_ENUM) && DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM);
-        if (i < maxEnumIdx && !isEnum) {
-          deferredEnumFields.add(fd);
-        }
-      }
+      List<StructField> enumFields = new ArrayList<>();
+      List<StructField> nonEnumFields = new ArrayList<>();
 
       for (StructField fd : cl.getFields()) {
-        boolean hide = fd.isSynthetic() && DecompilerContext.getOption(IFernflowerPreferences.REMOVE_SYNTHETIC) ||
-          wrapper.getHiddenMembers().contains(InterpreterUtil.makeUniqueKey(fd.getName(), fd.getDescriptor())) ||
-          deferredEnumFields.contains(fd) ||
-          fieldsToIgnore.contains(fd);
-        if (hide) continue;
-
-        if (components != null && fd.getAccessFlags() == (CodeConstants.ACC_FINAL | CodeConstants.ACC_PRIVATE) &&
-          components.stream().anyMatch(c -> c.getName().equals(fd.getName()) && c.getDescriptor().equals(fd.getDescriptor()))) {
-          // Record component field: skip it
-          continue;
-        }
-
         boolean isEnum = fd.hasModifier(CodeConstants.ACC_ENUM) && DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM);
         if (isEnum) {
-          if (enumFields) {
-            innerBuffer.append(',').appendLineSeparator();
-          }
-          enumFields = true;
-        } else if (enumFields) {
-          innerBuffer.append(';');
-          innerBuffer.appendLineSeparator();
-          innerBuffer.appendLineSeparator();
-          enumFields = false;
+          enumFields.add(fd);
+        } else if (!fieldsToIgnore.contains(fd)) {
+          nonEnumFields.add(fd);
         }
+      }
 
-        if (propertyData == null || enumFields) { // Enum fields are not considered Kotlin properties
-          TextBuffer fieldBuffer = new TextBuffer();
-          writeField(wrapper, cl, fd, fieldBuffer, indent + 1);
-          fieldBuffer.clearUnassignedBytecodeMappingData();
-          innerBuffer.append(fieldBuffer);
-
-          hasContent = true;
+      boolean enums = false;
+      for (StructField fd : enumFields) {
+        if (enums) {
+          innerBuffer.append(',').appendLineSeparator();
         }
+        enums = true;
+
+        writeField(innerBuffer, indent, fd, wrapper);
+        hasContent = true;
+      }
+
+      if (enums) {
+        innerBuffer.append(';').appendLineSeparator();
       }
 
       if (propertyData != null) {
-        // Any deferred fields that are property fields should be removed to prevent duplication
-        deferredEnumFields.removeAll(propertyData.associatedFields());
-
         boolean addedLineAtEnd = false;
         for (KProperty prop : propertyData.properties()) {
           if (hasContent) {
@@ -394,7 +357,14 @@ public class KotlinWriter implements StatementWriter {
             innerBuffer.appendLineSeparator();
           }
 
-          innerBuffer.append(propBuffer);
+          StructField fd = prop.underlyingField();
+          if (fd != null) {
+            nonEnumFields.remove(fd);
+            String initializer = fd.hasModifier(CodeConstants.ACC_STATIC) ? "<clinit> ()V" : "<init> ()V";
+            innerBuffer.append(propBuffer, cl.qualifiedName, initializer);
+          } else {
+            innerBuffer.append(propBuffer);
+          }
 
           if (isMultiline) {
             innerBuffer.appendLineSeparator();
@@ -407,14 +377,25 @@ public class KotlinWriter implements StatementWriter {
         if (!addedLineAtEnd && !propertyData.properties().isEmpty()) {
           innerBuffer.appendLineSeparator();
         }
-      }
+      } else {
+        for (StructField fd : nonEnumFields) {
+          boolean hide = fd.isSynthetic() && DecompilerContext.getOption(IFernflowerPreferences.REMOVE_SYNTHETIC) ||
+            wrapper.getHiddenMembers().contains(InterpreterUtil.makeUniqueKey(fd.getName(), fd.getDescriptor()));
+          if (hide) continue;
 
-      // If any fields remaining were deferred but not enum fields, re-add them
-      for (StructField fd2 : deferredEnumFields) {
-        TextBuffer fieldBuffer = new TextBuffer();
-        writeField(wrapper, cl, fd2, fieldBuffer, indent + 1);
-        fieldBuffer.clearUnassignedBytecodeMappingData();
-        innerBuffer.append(fieldBuffer);
+          if (components != null && fd.getAccessFlags() == (CodeConstants.ACC_FINAL | CodeConstants.ACC_PRIVATE) &&
+            components.stream().anyMatch(c -> c.getName().equals(fd.getName()) && c.getDescriptor().equals(fd.getDescriptor()))) {
+            // Record component field: skip it
+            continue;
+          }
+
+          DecompilerContext.getLogger().writeMessage("Non-enum field " + fd.getName() + " is not associated with Kotlin property", IFernflowerLogger.Severity.WARN);
+
+          TextBuffer fieldBuffer = new TextBuffer();
+          writeField(wrapper, wrapper.getClassStruct(), fd, fieldBuffer, indent + 1);
+          String initializer = fd.hasModifier(CodeConstants.ACC_STATIC) ? "<clinit> ()V" : "<init> ()V";
+          innerBuffer.append(fieldBuffer, wrapper.getClassStruct().qualifiedName, initializer);
+        }
       }
 
       // methods
@@ -526,7 +507,13 @@ public class KotlinWriter implements StatementWriter {
           buffer.appendLineSeparator();
         }
 
-        buffer.append(propBuffer);
+        StructField fd = prop.underlyingField();
+        if (fd != null) {
+          String initializer = fd.hasModifier(CodeConstants.ACC_STATIC) ? "<clinit> ()V" : "<init> ()V";
+          buffer.append(propBuffer, cl.qualifiedName, initializer);
+        } else {
+          buffer.append(propBuffer);
+        }
 
         if (isMultiline) {
           buffer.appendLineSeparator();
@@ -543,11 +530,7 @@ public class KotlinWriter implements StatementWriter {
 
     for (StructField fd : cl.getFields()) {
       if (propertyData.associatedFields().contains(fd)) continue;
-
-      TextBuffer fieldBuffer = new TextBuffer();
-      writeField(wrapper, cl, fd, fieldBuffer, indent);
-      fieldBuffer.clearUnassignedBytecodeMappingData();
-      buffer.append(fieldBuffer);
+      writeField(buffer, indent, fd, wrapper);
     }
 
     for (int i = 0; i < cl.getMethods().size(); i++) {
@@ -825,6 +808,13 @@ public class KotlinWriter implements StatementWriter {
     }
 
     buffer.popNewlineGroup();
+  }
+
+  private void writeField(TextBuffer buffer, int indent, StructField fd, ClassWrapper wrapper) {
+    TextBuffer fieldBuffer = new TextBuffer();
+    writeField(wrapper, wrapper.getClassStruct(), fd, fieldBuffer, indent + 1);
+    String initializer = fd.hasModifier(CodeConstants.ACC_STATIC) ? "<clinit> ()V" : "<init> ()V";
+    buffer.append(fieldBuffer, wrapper.getClassStruct().qualifiedName, initializer);
   }
 
   public void writeField(ClassWrapper wrapper, StructClass cl, StructField fd, TextBuffer buffer, int indent) {

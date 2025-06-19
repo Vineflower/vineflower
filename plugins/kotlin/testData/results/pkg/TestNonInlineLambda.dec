@@ -7,11 +7,11 @@ public open class TestNonInlineLambda {
    public final var intField: Int
       internal set
 
-   public final var stringField: String = ""
+   public final var stringField: String = ""// 120
       internal set
 
    private final var privateIntField: Int
-   private final var privateStringField: String = ""
+   private final var privateStringField: String = ""// 132
 
    public fun testCaptureInt(x: Int) {
       this.execute(TestNonInlineLambda::testCaptureInt$lambda$0);// 8
@@ -247,6 +247,13 @@ public open class TestNonInlineLambda {
 }
 
 class 'pkg/TestNonInlineLambda' {
+   method '<init> ()V' {
+      5      9
+      6      9
+      b      13
+      c      13
+   }
+
    method 'testCaptureInt (I)V' {
       2      16
       9      16
@@ -1064,13 +1071,16 @@ Lines mapping:
 112 <-> 79
 117 <-> 226
 118 <-> 83
+120 <-> 10
 123 <-> 232
 124 <-> 87
 129 <-> 238
 130 <-> 91
+132 <-> 14
 135 <-> 244
 136 <-> 95
 141 <-> 98
 Not mapped:
+3
 7
 14

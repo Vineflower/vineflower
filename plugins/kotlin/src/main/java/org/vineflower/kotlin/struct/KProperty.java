@@ -99,7 +99,7 @@ public record KProperty(
 
     if (initializer != null) {
       TextBuffer initializerBuf = initializer.toJava(indent);
-      initializerBuf.clearUnassignedBytecodeMappingData();
+//      initializerBuf.clearUnassignedBytecodeMappingData();
       if (flags.isDelegated) {
         buf.append(" by ")
           .append(initializerBuf);
