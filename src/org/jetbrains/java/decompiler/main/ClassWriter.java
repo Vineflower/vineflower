@@ -1543,7 +1543,8 @@ public class ClassWriter implements StatementWriter {
     boolean isRecord = cl.getRecordComponents() != null;
 
     // default constructor requires same accessibility flags. Exception: enum constructor which is always private
-    if(!isEnum && ((classAccessFlags & ACCESSIBILITY_FLAGS) != (methodAccessFlags & ACCESSIBILITY_FLAGS))) {
+    // Another exception: record classes can sometimes be generated with a private constructor
+    if(!isEnum && !isRecord && ((classAccessFlags & ACCESSIBILITY_FLAGS) != (methodAccessFlags & ACCESSIBILITY_FLAGS))) {
       return false;
     }
 
