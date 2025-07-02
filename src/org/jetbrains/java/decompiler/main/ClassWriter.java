@@ -1548,13 +1548,13 @@ public class ClassWriter implements StatementWriter {
       return false;
     }
 
-    // Method inside of a constructor with an annotation, we dont want to hide this.
+    // Constructor with an annotation, we dont want to hide this.
     if (isRecord && RecordHelper.hasAnnotations(structMethod)) {
       return false;
     }
 
     // We should not run this check in records
-    if (node.classStruct.getRecordComponents() == null) {
+    if (!isRecord) {
       int count = 0;
       for (StructMethod mt : cl.getMethods()) {
         if (CodeConstants.INIT_NAME.equals(mt.getName())) {
