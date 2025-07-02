@@ -240,7 +240,7 @@ public final class RecordHelper {
       varidx += md.params[i].stackSize;
     }
 
-    // Prune all field assignments from the canonical constructor;
+    // Prune all field assignments from the canonical constructor
     if (isCompactCanonicalConstructor(mw)) {
       mw.getOrBuildGraph().iterateExprents(exprent -> {
         if (exprent instanceof AssignmentExprent assignmentExprent && assignmentExprent.getLeft() instanceof FieldExprent) {
@@ -253,6 +253,9 @@ public final class RecordHelper {
     }
   }
 
+  // Ideally this is iterated backwards.
+  // However, what we do is check that the last exprents are field invocations to local variables.
+  // (And that the name of the lvt matches the field)
   private static boolean isCompactCanonicalConstructor(MethodWrapper mw) {
     DirectGraph graph = mw.getOrBuildGraph();
     boolean[] valid = new boolean[1];
@@ -267,8 +270,5 @@ public final class RecordHelper {
     });
     return valid[0];
   }
-
-
-
 
 }
