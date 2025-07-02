@@ -1177,6 +1177,9 @@ public class InvocationExprent extends Exprent {
     StructClass cl = DecompilerContext.getStructContext().getClass(classname);
     if (cl != null) {
       StructMethod mt = cl.getMethod(InterpreterUtil.makeUniqueKey(name, stringDescriptor));
+      if (mt == null) {
+        mt = cl.getMethodRecursive(name, stringDescriptor);
+      }
       if (mt != null) {
         return mt.hasModifier(CodeConstants.ACC_VARARGS);
       }

@@ -26,4 +26,23 @@ public class TestVarArgCalls {
   public void printComplex(String fmt, String[]... params) {
     System.out.println(String.format(fmt, (Object[]) params));
   }
+
+  public class Parent {
+    protected void test(Test... test) {
+
+    }
+
+    class Child extends Parent {
+
+      public void vararg() {
+        test(Test.A, Test.B);
+      }
+
+    }
+  }
+
+  public enum Test {
+    A,
+    B
+  }
 }
