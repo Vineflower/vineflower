@@ -212,7 +212,7 @@ public final class RecordHelper {
     buffer.appendField(cd.getName(), true, cl.qualifiedName, cd.getName(), cd.getDescriptor());
   }
 
-  private static boolean hasAnnotations(StructMethod mt) {
+  public static boolean hasAnnotations(StructMethod mt) {
     return mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_RUNTIME_INVISIBLE_ANNOTATIONS) != null ||
       mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_RUNTIME_VISIBLE_ANNOTATIONS) != null;
   }
@@ -239,5 +239,36 @@ public final class RecordHelper {
 
       varidx += md.params[i].stackSize;
     }
+
+    // Prune all field assignments from the canonical constructor;
+    if (isCompactCanonicalConstructor(mw)) {
+      mw.getOrBuildGraph().iterateExprents(exprent -> {
+        if (exprent instanceof AssignmentExprent assignmentExprent && assignmentExprent.getLeft() instanceof FieldExprent) {
+          return 2;
+        }
+
+        return 0;
+      });
+      mw.isCompactRecordConstructor = true;
+    }
   }
+
+  private static boolean isCompactCanonicalConstructor(MethodWrapper mw) {
+    DirectGraph graph = mw.getOrBuildGraph();
+    boolean[] valid = new boolean[1];
+    graph.iterateExprents(exprent -> {
+      if (exprent instanceof AssignmentExprent assignmentExprent && assignmentExprent.getLeft() instanceof FieldExprent fieldExprent && assignmentExprent.getRight() instanceof VarExprent varExprent) {
+        valid[0] = varExprent.getLVT() != null && fieldExprent.getName().equals(varExprent.getName());
+      } else {
+        valid[0] = false;
+      }
+
+      return 0;
+    });
+    return valid[0];
+  }
+
+
+
+
 }
