@@ -25,7 +25,7 @@ public class TestDoWhileMerge {
             if (++i == 30) {// 28 30
                return;// 31
             }
-         } while (!b || i >= 40);// 33
+         } while (b && i < 40);// 33
       }
 
       System.out.println("after");// 36
@@ -49,6 +49,25 @@ public class TestDoWhileMerge {
          }
       }
    }// 57
+
+   public void test3() {
+      while (1.0 < Math.random()) {// 60
+         System.out.println();// 61
+
+         do {
+            System.out.println();// 63
+         } while (1.0 < Math.random());// 64
+      }
+   }// 66
+
+   public void test4() {
+      while (1.0 > Math.random()) {// 69
+         System.out.println();// 71
+         System.out.println();// 72
+         if (!(1.0 < Math.random())) {// 73
+         }
+      }
+   }// 75
 }
 
 class 'pkg/TestDoWhileMerge' {
@@ -139,9 +158,6 @@ class 'pkg/TestDoWhileMerge' {
       1d      24
       1e      25
       1f      27
-      20      27
-      21      27
-      22      27
       23      27
       24      27
       25      27
@@ -216,6 +232,67 @@ class 'pkg/TestDoWhileMerge' {
       38      34
       3c      50
    }
+
+   method 'test3 ()V' {
+      0      53
+      1      53
+      2      53
+      3      53
+      4      53
+      5      53
+      6      53
+      7      53
+      8      54
+      9      54
+      a      54
+      b      54
+      c      54
+      d      54
+      e      57
+      f      57
+      10      57
+      11      57
+      12      57
+      13      57
+      14      58
+      15      58
+      16      58
+      17      58
+      18      58
+      1f      60
+   }
+
+   method 'test4 ()V' {
+      0      63
+      1      63
+      2      63
+      3      63
+      4      63
+      5      63
+      6      63
+      7      63
+      8      64
+      9      64
+      a      64
+      b      64
+      c      64
+      d      64
+      e      65
+      f      65
+      10      65
+      11      65
+      12      65
+      13      65
+      14      66
+      15      66
+      16      66
+      17      66
+      18      66
+      19      66
+      1a      66
+      1b      66
+      1f      69
+   }
 }
 
 Lines mapping:
@@ -245,5 +322,15 @@ Lines mapping:
 50 <-> 44
 54 <-> 48
 57 <-> 51
+60 <-> 54
+61 <-> 55
+63 <-> 58
+64 <-> 59
+66 <-> 61
+69 <-> 64
+71 <-> 65
+72 <-> 66
+73 <-> 67
+75 <-> 70
 Not mapped:
 51

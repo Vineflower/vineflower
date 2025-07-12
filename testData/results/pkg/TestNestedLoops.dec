@@ -16,7 +16,7 @@ public class TestNestedLoops {
             for (int j = 0; j < 20; j++) {// 13
                do {
                   s.substring(j);// 15
-               } while (s.length() >= j);// 16
+               } while (s.length() < j);// 16
             }
          }
 
@@ -34,7 +34,7 @@ public class TestNestedLoops {
                for (int j = 0; j < 20; j++) {// 33
                   do {
                      s.substring(j);// 35
-                  } while (s.length() >= j);// 36
+                  } while (s.length() < j);// 36
                }
             }
 
