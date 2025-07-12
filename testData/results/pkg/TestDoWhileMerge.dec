@@ -62,10 +62,10 @@ public class TestDoWhileMerge {
 
    public void test4() {
       while (1.0 > Math.random()) {// 69
-         System.out.println();// 71
-         System.out.println();// 72
-         if (!(1.0 < Math.random())) {// 73
-         }
+         do {
+            System.out.println();// 71
+            System.out.println();// 72
+         } while (1.0 < Math.random());// 73
       }
    }// 75
 }
@@ -271,26 +271,23 @@ class 'pkg/TestDoWhileMerge' {
       5      63
       6      63
       7      63
-      8      64
-      9      64
-      a      64
-      b      64
-      c      64
-      d      64
-      e      65
-      f      65
-      10      65
-      11      65
-      12      65
-      13      65
-      14      66
-      15      66
-      16      66
-      17      66
-      18      66
-      19      66
-      1a      66
-      1b      66
+      8      65
+      9      65
+      a      65
+      b      65
+      c      65
+      d      65
+      e      66
+      f      66
+      10      66
+      11      66
+      12      66
+      13      66
+      14      67
+      15      67
+      16      67
+      17      67
+      18      67
       1f      69
    }
 }
@@ -328,9 +325,9 @@ Lines mapping:
 64 <-> 59
 66 <-> 61
 69 <-> 64
-71 <-> 65
-72 <-> 66
-73 <-> 67
+71 <-> 66
+72 <-> 67
+73 <-> 68
 75 <-> 70
 Not mapped:
 51
