@@ -100,7 +100,7 @@ public class MergeHelper {
           stat.setLooptype(DoStatement.Type.DO_WHILE);
 
           IfExprent ifexpr = (IfExprent)lastif.getHeadexprent().copy();
-          if (ifedge.getType() == StatEdge.TYPE_BREAK) {
+          if (elseedge.getType() == StatEdge.TYPE_CONTINUE && elseedge.closure == stat) {
             ifexpr.negateIf();
           }
 
