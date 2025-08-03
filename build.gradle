@@ -7,7 +7,7 @@ import java.time.Duration
 
 plugins {
   id 'jacoco'
-  id 'com.gradleup.shadow' version '8.3.0'
+  id 'com.gradleup.shadow' version '8.3.8'
   id 'org.jetbrains.kotlin.jvm' version '2.0.0'
   id 'io.github.gradle-nexus.publish-plugin' version '2.0.0'
 }
@@ -208,12 +208,7 @@ testFixturesJar {
   destinationDirectory = file("$rootDir/build/extralibs")
 }
 
-task sourceJar(type:Jar) {
-  archiveClassifier = "sources"
-  from sourceSets.main.allSource
-}
-
-tasks.withType(Javadoc) {
+tasks.withType(Javadoc).configureEach {
   failOnError false
   include 'org/jetbrains/java/decompiler/api/**'
   include 'org/jetbrains/java/decompiler/main/extern/**'
@@ -227,7 +222,7 @@ java {
   withJavadocJar()
 }
 
-tasks.withType(Jar) {
+tasks.withType(Jar).configureEach {
   reproducibleFileOrder = true
   preserveFileTimestamps = false
 }
