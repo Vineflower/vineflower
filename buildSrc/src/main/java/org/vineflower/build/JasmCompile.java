@@ -14,7 +14,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class JasmCompile extends SourceTask {
+public abstract class JasmCompile extends SourceTask {
   private final DirectoryProperty destinationDirectory = this.getProject().getObjects().directoryProperty();
   private final JasmCompileOptions compileOptions = this.getProject().getObjects().newInstance(JasmCompileOptions.class);
 
