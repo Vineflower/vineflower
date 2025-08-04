@@ -8,5 +8,6 @@ repositories {
 }
 
 dependencies {
+  implementation gradleApi()
   implementation 'org.openjdk.asmtools:asmtools-core:7.0.b10-ea'
 }

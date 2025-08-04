@@ -209,7 +209,7 @@ testFixturesJar {
 }
 
 tasks.withType(Javadoc).configureEach {
-  failOnError false
+  failOnError = false
   include 'org/jetbrains/java/decompiler/api/**'
   include 'org/jetbrains/java/decompiler/main/extern/**'
   options.addStringOption('Xdoclint:none', '-quiet')
