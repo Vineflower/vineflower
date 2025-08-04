@@ -1,12 +1,12 @@
 package org.vineflower.build;
 
+import java.io.Serializable;
 import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.compile.AbstractOptions;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class JasmCompileOptions extends AbstractOptions {
+public class JasmCompileOptions implements Serializable {
   private List<String> compilerArgs = new ArrayList<>();
 
   @Input
