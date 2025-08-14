@@ -1,9 +1,9 @@
 package pkg
 
 public class TestConvertedK2JOps {
-   public final val list: List<String> = CollectionsKt.listOf(new java.lang.String[]{"a", "b", "c"})
-   public final val set: Set<String> = SetsKt.setOf(new java.lang.String[]{"a", "b", "c"})
-   public final val map: Map<String, String> = MapsKt.mapOf(new Pair[]{TuplesKt.to("a", "b"), TuplesKt.to("c", "d")})
+   public final val list: List<String> = CollectionsKt.listOf(new java.lang.String[]{"a", "b", "c"})// 4
+   public final val set: Set<String> = SetsKt.setOf(new java.lang.String[]{"a", "b", "c"})// 5
+   public final val map: Map<String, String> = MapsKt.mapOf(new Pair[]{TuplesKt.to("a", "b"), TuplesKt.to("c", "d")})// 6
    public final val any: Any = new Object()
 
    public fun codeConstructs() {
@@ -12,6 +12,44 @@ public class TestConvertedK2JOps {
 }
 
 class 'pkg/TestConvertedK2JOps' {
+   method '<init> ()V' {
+      c      3
+      d      3
+      11      3
+      12      3
+      16      3
+      17      3
+      1a      3
+      1b      3
+      1c      3
+      28      4
+      29      4
+      2d      4
+      2e      4
+      32      4
+      33      4
+      36      4
+      37      4
+      38      4
+      44      5
+      45      5
+      46      5
+      47      5
+      48      5
+      49      5
+      4a      5
+      4e      5
+      4f      5
+      50      5
+      51      5
+      52      5
+      53      5
+      54      5
+      57      5
+      58      5
+      59      5
+   }
+
    method 'codeConstructs ()V' {
       0      9
       1      9
@@ -26,7 +64,12 @@ class 'pkg/TestConvertedK2JOps' {
 }
 
 Lines mapping:
+4 <-> 4
+5 <-> 5
+6 <-> 6
 10 <-> 10
 12 <-> 11
 Not mapped:
+3
+7
 11

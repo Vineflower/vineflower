@@ -7,8 +7,8 @@ public enum TestEnum {
       public void m() {
       }// 22
    },
-   E3("-", TestEnum.Type.ODD),
-   E4("+", TestEnum.Type.EVEN) {
+   E3("-", TestEnum.Type.ODD),// 24
+   E4("+", TestEnum.Type.EVEN) {// 25
       @Override
       public void m() {
       }// 27
@@ -60,13 +60,20 @@ class 'pkg/TestEnum$1' {
    }
 }
 
-class 'pkg/TestEnum$2' {
-   method 'm ()V' {
-      0      13
-   }
-}
-
 class 'pkg/TestEnum' {
+   method '<clinit> ()V' {
+      21      9
+      22      9
+      23      9
+      24      9
+      25      9
+      33      10
+      34      10
+      35      10
+      36      10
+      37      10
+   }
+
    method 'm ()V' {
       0      19
    }
@@ -193,8 +200,16 @@ class 'pkg/TestEnum' {
    }
 }
 
+class 'pkg/TestEnum$2' {
+   method 'm ()V' {
+      0      13
+   }
+}
+
 Lines mapping:
 22 <-> 8
+24 <-> 10
+25 <-> 11
 27 <-> 14
 32 <-> 20
 36 <-> 23
@@ -210,3 +225,7 @@ Lines mapping:
 55 <-> 45
 57 <-> 47
 59 <-> 49
+Not mapped:
+18
+19
+20

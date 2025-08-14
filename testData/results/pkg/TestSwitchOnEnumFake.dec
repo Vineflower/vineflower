@@ -1,7 +1,7 @@
 package pkg;
 
 public class TestSwitchOnEnumFake {
-   public byte[] values = new byte[TestSwitchOnEnumFake.Values.values().length];
+   public byte[] values = new byte[TestSwitchOnEnumFake.Values.values().length];// 11
 
    public int test(TestSwitchOnEnumFake.Values v) {
       int a = 0;// 14
@@ -38,6 +38,13 @@ public class TestSwitchOnEnumFake {
 }
 
 class 'pkg/TestSwitchOnEnumFake' {
+   method '<init> ()V' {
+      5      3
+      6      3
+      7      3
+      8      3
+   }
+
    method 'test (Lpkg/TestSwitchOnEnumFake$Values;)I' {
       0      6
       1      6
@@ -107,6 +114,7 @@ class 'pkg/TestSwitchOnEnumFake' {
 }
 
 Lines mapping:
+11 <-> 4
 14 <-> 7
 15 <-> 8
 16 <-> 11
@@ -122,3 +130,5 @@ Lines mapping:
 30 <-> 25
 31 <-> 26
 35 <-> 29
+Not mapped:
+3

@@ -1,8 +1,8 @@
 package pkg;
 
 public class TestClassVar {
-   private boolean field_boolean = Math.random() > 0.0;
-   public int field_int = 0;
+   private boolean field_boolean = Math.random() > 0.0;// 21
+   public int field_int = 0;// 22
 
    public void testFieldSSAU() {
       for (int i = 0; i < 10; i++) {// 26
@@ -38,6 +38,18 @@ public class TestClassVar {
 }
 
 class 'pkg/TestClassVar' {
+   method '<init> ()V' {
+      5      3
+      6      3
+      7      3
+      8      3
+      9      3
+      a      3
+      b      3
+      c      3
+      16      4
+   }
+
    method 'testFieldSSAU ()V' {
       0      7
       1      7
@@ -122,6 +134,8 @@ class 'pkg/TestClassVar' {
 }
 
 Lines mapping:
+21 <-> 4
+22 <-> 5
 26 <-> 8
 29 <-> 10
 32 <-> 12
@@ -136,5 +150,6 @@ Lines mapping:
 55 <-> 34
 58 <-> 37
 Not mapped:
+19
 35
 57

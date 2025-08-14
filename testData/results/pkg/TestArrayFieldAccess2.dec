@@ -1,8 +1,8 @@
 package pkg;
 
 public class TestArrayFieldAccess2 {
-   private int[] array = new int[10];
-   private int index = 1;
+   private int[] array = new int[10];// 4
+   private int index = 1;// 5
    private int value;
 
    public void test() {
@@ -63,6 +63,12 @@ public class TestArrayFieldAccess2 {
 }
 
 class 'pkg/TestArrayFieldAccess2' {
+   method '<init> ()V' {
+      5      3
+      6      3
+      d      4
+   }
+
    method 'test ()V' {
       0      8
       1      8
@@ -336,6 +342,8 @@ class 'pkg/TestArrayFieldAccess2' {
 }
 
 Lines mapping:
+4 <-> 4
+5 <-> 5
 9 <-> 9
 10 <-> 10
 13 <-> 13
@@ -364,3 +372,5 @@ Lines mapping:
 58 <-> 58
 61 <-> 61
 62 <-> 62
+Not mapped:
+3

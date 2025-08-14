@@ -1,8 +1,8 @@
 package pkg;
 
 public class TestNextGaussian {
-   private boolean haveNextNextGaussian = false;
-   private double nextNextGaussian = 0.0;
+   private boolean haveNextNextGaussian = false;// 4
+   private double nextNextGaussian = 0.0;// 5
 
    public synchronized double nextGaussian() {
       if (this.haveNextNextGaussian) {// 9
@@ -31,6 +31,11 @@ public class TestNextGaussian {
 }
 
 class 'pkg/TestNextGaussian' {
+   method '<init> ()V' {
+      5      3
+      a      4
+   }
+
    method 'nextGaussian ()D' {
       0      7
       1      7
@@ -135,6 +140,8 @@ class 'pkg/TestNextGaussian' {
 }
 
 Lines mapping:
+4 <-> 4
+5 <-> 5
 9 <-> 8
 10 <-> 9
 11 <-> 10
@@ -147,3 +154,5 @@ Lines mapping:
 21 <-> 23
 22 <-> 24
 27 <-> 29
+Not mapped:
+3

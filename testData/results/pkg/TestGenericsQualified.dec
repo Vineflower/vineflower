@@ -9,9 +9,9 @@ public class TestGenericsQualified {
    public Comparator<String> field = Comparator.<String, Integer>comparing(s -> s.length()).thenComparing(i -> i.toString());// 10
    public CompletableFuture<String> field2 = CompletableFuture.<String>supplyAsync(() -> "").thenCompose(s -> CompletableFuture.supplyAsync(() -> s + "2"));// 11
    public Optional<String> field3 = Optional.of("").map(s -> s + "3");// 12
-   public Stream<String> field4 = Stream.of("1", "2").sorted(Comparator.<String, Integer>comparing(s -> s.length()).thenComparing(i -> i.toString()));// 14
+   public Stream<String> field4 = Stream.of("1", "2").sorted(Comparator.<String, Integer>comparing(s -> s.length()).thenComparing(i -> i.toString()));// 13 14
    public Comparator<String> field5 = Comparator.comparing(String::length).thenComparing(i -> i.toString());// 15
-   public Comparator<TestGenericsQualified> field6 = Comparator.<TestGenericsQualified, Integer>comparing(TestGenericsQualified::get).reversed();
+   public Comparator<TestGenericsQualified> field6 = Comparator.<TestGenericsQualified, Integer>comparing(TestGenericsQualified::get).reversed();// 16
 
    public int get() {
       return 0;// 19
@@ -27,6 +27,67 @@ public class TestGenericsQualified {
 }
 
 class 'pkg/TestGenericsQualified' {
+   method '<init> ()V' {
+      a      8
+      b      8
+      c      8
+      12      8
+      13      8
+      14      8
+      15      8
+      16      8
+      20      9
+      21      9
+      22      9
+      28      9
+      29      9
+      2a      9
+      2f      10
+      30      10
+      31      10
+      32      10
+      33      10
+      39      10
+      3a      10
+      3b      10
+      46      11
+      47      11
+      4b      11
+      4c      11
+      4e      11
+      4f      11
+      50      11
+      56      11
+      57      11
+      58      11
+      5e      11
+      5f      11
+      60      11
+      61      11
+      62      11
+      63      11
+      64      11
+      65      11
+      66      11
+      67      11
+      71      12
+      72      12
+      73      12
+      79      12
+      7a      12
+      7b      12
+      7c      12
+      7d      12
+      87      13
+      88      13
+      89      13
+      8a      13
+      8b      13
+      8c      13
+      8d      13
+      8e      13
+   }
+
    method 'lambda$new$0 (Ljava/lang/String;)Ljava/lang/Integer;' {
       0      8
       1      8
@@ -152,8 +213,12 @@ Lines mapping:
 10 <-> 9
 11 <-> 10
 12 <-> 11
+13 <-> 12
 14 <-> 12
 15 <-> 13
+16 <-> 14
 19 <-> 17
 23 <-> 21
 27 <-> 25
+Not mapped:
+9

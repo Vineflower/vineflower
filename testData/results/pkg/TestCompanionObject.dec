@@ -88,6 +88,11 @@ public final class TestCompanionObject$ implements Serializable {
 }
 
 class 'pkg/TestCompanionObject$' {
+   method '<clinit> ()V' {
+      a      7
+      b      7
+   }
+
    method '<init> ()V' {
       4      11
    }

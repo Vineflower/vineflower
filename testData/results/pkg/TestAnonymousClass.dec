@@ -24,7 +24,7 @@ public abstract class TestAnonymousClass {
          int b = 5;// 65
       }// 66
    };
-   private final TestAnonymousClass.InnerRecursive y = new TestAnonymousClass.InnerRecursive(new TestAnonymousClass.InnerRecursive(null) {
+   private final TestAnonymousClass.InnerRecursive y = new TestAnonymousClass.InnerRecursive(new TestAnonymousClass.InnerRecursive(null) {// 83
       @Override
       void foo() {
          int a = 5;// 86
@@ -37,7 +37,7 @@ public abstract class TestAnonymousClass {
       int j = 5;
       int o = 5;
    };
-   private final TestAnonymousClass.InnerRecursive x = new TestAnonymousClass.InnerRecursive(new TestAnonymousClass.InnerRecursive(null) {
+   private final TestAnonymousClass.InnerRecursive x = new TestAnonymousClass.InnerRecursive(new TestAnonymousClass.InnerRecursive(null) {// 98
       @Override
       void foo() {
          int a = 5;// 101
@@ -85,7 +85,7 @@ public abstract class TestAnonymousClass {
 
    public static Iterable<Integer> innerInAnon() {
       return new Iterable<Integer>() {// 125
-         public int field = 1491401;
+         public int field = 1491401;// 126
 
          @Override
          public Iterator<Integer> iterator() {
@@ -107,7 +107,7 @@ public abstract class TestAnonymousClass {
 
    public static Iterable<Integer> innerInAnon2() {
       return new Iterable<Integer>() {// 149
-         public int field = 1491401;
+         public int field = 1491401;// 150
 
          @Override
          public Iterator<Integer> iterator() {
@@ -185,31 +185,12 @@ class 'pkg/TestAnonymousClass$5' {
    }
 }
 
-class 'pkg/TestAnonymousClass$6' {
-   method 'foo ()V' {
-      0      29
-      1      29
-      2      30
-      3      30
-      4      31
-      5      31
-      6      32
-   }
-}
-
-class 'pkg/TestAnonymousClass$8' {
-   method 'foo ()V' {
-      0      42
-      1      42
-      2      43
-      3      43
-      4      44
-      5      44
-      6      45
-   }
-}
-
 class 'pkg/TestAnonymousClass' {
+   method '<init> ()V' {
+      f      26
+      24      39
+   }
+
    method 'foo (I)V' {
       0      54
       1      54
@@ -264,6 +245,30 @@ class 'pkg/TestAnonymousClass' {
    }
 }
 
+class 'pkg/TestAnonymousClass$6' {
+   method 'foo ()V' {
+      0      29
+      1      29
+      2      30
+      3      30
+      4      31
+      5      31
+      6      32
+   }
+}
+
+class 'pkg/TestAnonymousClass$8' {
+   method 'foo ()V' {
+      0      42
+      1      42
+      2      43
+      3      43
+      4      44
+      5      44
+      6      45
+   }
+}
+
 class 'pkg/TestAnonymousClass$1' {
    method 'foo ()V' {
       0      58
@@ -288,6 +293,11 @@ class 'pkg/TestAnonymousClass$2' {
 }
 
 class 'pkg/TestAnonymousClass$10' {
+   method '<init> ()V' {
+      5      87
+      6      87
+   }
+
    method 'iterator ()Ljava/util/Iterator;' {
       8      91
    }
@@ -316,6 +326,11 @@ class 'pkg/TestAnonymousClass$10$Inner' {
 }
 
 class 'pkg/TestAnonymousClass$11' {
+   method '<init> ()V' {
+      5      109
+      6      109
+   }
+
    method 'iterator ()Ljava/util/Iterator;' {
       14      113
    }
@@ -399,10 +414,12 @@ Lines mapping:
 77 <-> 140
 78 <-> 141
 79 <-> 142
+83 <-> 27
 86 <-> 30
 87 <-> 31
 88 <-> 32
 89 <-> 33
+98 <-> 40
 101 <-> 43
 102 <-> 44
 103 <-> 45
@@ -411,13 +428,16 @@ Lines mapping:
 117 <-> 151
 121 <-> 154
 125 <-> 87
+126 <-> 88
 132 <-> 98
 137 <-> 102
 143 <-> 92
 149 <-> 109
+150 <-> 110
 157 <-> 121
 162 <-> 125
 169 <-> 114
 Not mapped:
+10
 21
 115
