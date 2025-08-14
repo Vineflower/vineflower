@@ -1,6 +1,7 @@
 package pkg;
 
 public class TestLVTReassignment {
+   // $VF: Variable merging failed for merge VarExprent[1,0]: {var1}. Code has semantic differences!
    public void test() {
       double one = 1.0;// 5
       one = 0.0;// 7
@@ -16,35 +17,35 @@ public class TestLVTReassignment {
 
 class 'pkg/TestLVTReassignment' {
    method 'test ()V' {
-      0      4
-      1      4
-      2      9
-      4      5
-      5      5
-      6      6
-      7      6
-      8      6
-      9      6
-      a      6
-      b      6
-      c      9
-      d      9
-      e      9
-      f      9
-      10      9
-      11      10
+      0      5
+      1      5
+      2      10
+      4      6
+      5      6
+      6      7
+      7      7
+      8      7
+      9      7
+      a      7
+      b      7
+      c      10
+      d      10
+      e      10
+      f      10
+      10      10
+      11      11
    }
 
    method 'blackhole (D)V' {
-      0      13
+      0      14
    }
 }
 
 Lines mapping:
-5 <-> 5
-6 <-> 10
-7 <-> 6
-8 <-> 7
-11 <-> 10
-12 <-> 11
-16 <-> 14
+5 <-> 6
+6 <-> 11
+7 <-> 7
+8 <-> 8
+11 <-> 11
+12 <-> 12
+16 <-> 15

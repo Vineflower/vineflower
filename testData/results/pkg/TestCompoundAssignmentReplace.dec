@@ -7,6 +7,7 @@ public class TestCompoundAssignmentReplace {
    private int i_4;
    private int i_5;
 
+   // $VF: Variable merging failed for merge VarExprent[1,0]: {var1}. Code has semantic differences!
    public void test(int var1, int var2) {
       var1 += var2;
       var1 += var2;
@@ -24,44 +25,44 @@ public class TestCompoundAssignmentReplace {
 
 class 'pkg/TestCompoundAssignmentReplace' {
    method 'test (II)V' {
-      0      18
-      3      10
-      5      10
-      6      19
-      a      11
-      c      11
-      d      12
-      e      12
-      f      12
-      10      13
-      11      13
-      12      13
-      13      13
-      15      14
-      17      14
-      18      17
-      19      17
-      1a      17
-      1b      17
-      1c      17
-      1d      18
-      1e      18
-      1f      18
-      20      18
-      21      18
-      22      19
-      23      19
-      24      19
-      25      19
-      26      19
-      27      19
-      28      20
-      29      20
-      2a      20
-      2b      20
-      2c      20
-      2d      20
-      2e      21
+      0      19
+      3      11
+      5      11
+      6      20
+      a      12
+      c      12
+      d      13
+      e      13
+      f      13
+      10      14
+      11      14
+      12      14
+      13      14
+      15      15
+      17      15
+      18      18
+      19      18
+      1a      18
+      1b      18
+      1c      18
+      1d      19
+      1e      19
+      1f      19
+      20      19
+      21      19
+      22      20
+      23      20
+      24      20
+      25      20
+      26      20
+      27      20
+      28      21
+      29      21
+      2a      21
+      2b      21
+      2c      21
+      2d      21
+      2e      22
    }
 }
 

@@ -9,7 +9,7 @@ public class TestPatternMatchingLoops {
       System.out.println(i);// 20
       if (i != null) {// 22
          <unknown> var10000;
-         for (TestPatternMatchingLoops l : var10000_1) {// 28
+         for (TestPatternMatchingLoops l : var10000) {// 28
             if (l != null) {// 29
                System.out.println(l);// 33
             }

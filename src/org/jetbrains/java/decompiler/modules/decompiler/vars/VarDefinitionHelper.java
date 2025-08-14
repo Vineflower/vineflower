@@ -9,10 +9,12 @@ import org.jetbrains.java.decompiler.main.collectors.VarNamesCollector;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
+import org.jetbrains.java.decompiler.modules.decompiler.StackVarsProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.SSAUConstructorSparseEx;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarTypeProcessor.FinalType;
 import org.jetbrains.java.decompiler.struct.StructClass;
@@ -44,7 +46,7 @@ public class VarDefinitionHelper {
 
   private final VarProcessor varproc;
 
-  private final Statement root;
+  private final RootStatement root;
   private final StructMethod mt;
   private final Map<VarVersionPair, String> clashingNames = new HashMap<>();
 
@@ -519,7 +521,118 @@ public class VarDefinitionHelper {
     }
   }
 
-  private VPPEntry mergeVars(Statement stat) {
+  static class VarID {
+    final VarExprent var;
+
+    VarID(VarExprent var) {
+      this.var = var;
+    }
+
+    @Override
+    public int hashCode() {
+      return System.identityHashCode(var);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      return obj instanceof VarID varID && var == varID.var;
+    }
+  }
+
+  private Map<VarID, Set<VarID>> getVarExprentSources() {
+    // Do an ssau analysis to find the sources of variables
+    SSAUConstructorSparseEx ssau = new SSAUConstructorSparseEx();
+    try {
+      ssau.splitVariables(root, mt);
+    } catch (NullPointerException t) {
+      // Can happen when something is wrong with variables ...
+
+      StackVarsProcessor.setVersionsToNull(root);
+      return null;
+    }
+
+    Map<VarVersionPair, VarID> lookup = new HashMap<>();
+    findAllVarExprents(root, lookup);
+
+    Map<VarID, Set<VarID>> sources = new HashMap<>();
+    for (VarVersionNode node : ssau.getSsuVersions().nodes) {
+      VarID target = lookup.get(node.asPair());
+      if (target == null) {
+        continue;
+      }
+
+      Set<VarID> sourceVars = new HashSet<>();
+
+      for (VarVersionNode predecessor : node.getPredecessors()) {
+        VarID source = lookup.get(predecessor.asPair());
+        if (source != null) {
+          sourceVars.add(source);
+        }
+      }
+
+      if (node.phantomNode != null) {
+        VarID source = lookup.get(node.phantomNode.asPair());
+        if (source != null) {
+          sourceVars.add(source);
+        }
+      }
+
+      if (!sourceVars.isEmpty()) {
+        sources.put(target, sourceVars);
+      }
+    }
+
+    StackVarsProcessor.setVersionsToNull(root);
+
+    return sources;
+  }
+
+  private static void findAllVarExprents(Statement stat, Map<VarVersionPair, VarID> lookup) {
+    for (Exprent exprent : stat.getVarDefinitions()) {
+      if (exprent instanceof VarExprent varExprent) {
+        lookup.put(new VarVersionPair(varExprent), new VarID(varExprent));
+      }
+    }
+    List<Exprent> lst = stat.getExprents();
+    if (lst != null) {
+      for (Exprent exprent : lst) {
+        for (Exprent exp : exprent.getAllExprents(true, true)) {
+          if (exp instanceof VarExprent varExprent) {
+            lookup.put(new VarVersionPair(varExprent), new VarID(varExprent));
+          }
+        }
+      }
+    }
+
+    for (Statement subStat : stat.getStats()) {
+      findAllVarExprents(subStat, lookup);
+    }
+  }
+
+  private void compareVarExprentSources(
+    Map<VarID, Set<VarID>> oldSources,
+    Map<VarID, Set<VarID>> newSources
+  ) {
+    if (newSources == null) return;
+
+    for (var oldEntry : oldSources.entrySet()) {
+      Set<VarID> oldSet = oldEntry.getValue();
+      Set<VarID> newSet = newSources.get(oldEntry.getKey());
+
+      // Check if sets match
+      if (!Objects.equals(oldSet, newSet)) {
+        root.addComment("$VF: Variable merging failed for merge " + oldEntry.getKey().var + ". Code has semantic differences!");
+      }
+    }
+
+    for (var newVar : newSources.keySet()) {
+      if (!oldSources.containsKey(newVar)) {
+        root.addComment("$VF: Variable merging added a var? " + newVar.var);
+      }
+    }
+  }
+
+  private VPPEntry mergeVars(RootStatement stat) {
     Map<Integer, VarVersionPair> parent = new HashMap<>(); // Always empty dua!
     MethodDescriptor md = MethodDescriptor.parseDescriptor(mt.getDescriptor());
 
@@ -536,6 +649,12 @@ public class VarDefinitionHelper {
 
     populateTypeBounds(varproc, stat);
 
+
+    Map<VarID, Set<VarID>> sources = null;
+    if (DecompilerContext.getOption(IFernflowerPreferences.VERIFY_PRE_POST_VARIABLE_MERGES)) {
+      sources = getVarExprentSources();
+    }
+
     Map<VarVersionPair, VarVersionPair> denylist = new HashMap<>();
     VPPEntry remap = mergeVars(stat, parent, new HashMap<>(), denylist);
     while (remap != null) {
@@ -545,6 +664,11 @@ public class VarDefinitionHelper {
       }
 
       remap = mergeVars(stat, parent, new HashMap<>(), denylist);
+    }
+
+    if (sources != null) {
+      Map<VarID, Set<VarID>> newSources = getVarExprentSources();
+      compareVarExprentSources(sources, newSources);
     }
     return null;
   }
