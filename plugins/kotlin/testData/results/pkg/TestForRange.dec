@@ -4,13 +4,13 @@ import kotlin.internal.ProgressionUtilKt
 
 public class TestForRange {
    public fun testInt() {
-      for (int i = 1; i < 11; i++) {// 5
+      for (i in 1..10) {// 5
          System.out.println(i);// 6
       }
    }// 8
 
    public fun testChar() {
-      for (char c = 'a'; c < '{'; c++) {// 11
+      for (c in 'a'..'z') {// 11
          System.out.println(c);// 12
       }
    }// 14
@@ -22,7 +22,7 @@ public class TestForRange {
          while (true) {
             System.out.println(i);// 18
             if (i == var2) {// 17
-               break;
+               break
             }
 
             i += 2;
@@ -40,7 +40,7 @@ public class TestForRange {
             while (true) {
                System.out.println(i);// 24
                if (i == var3) {// 23
-                  break;
+                  break
                }
 
                i += x;
@@ -50,7 +50,7 @@ public class TestForRange {
    }// 26
 
    public fun testIntDownTo() {
-      for (int i = 10; 0 < i; i--) {// 29
+      for (i in 10 downTo 1) {// 29
          System.out.println(i);// 30
       }
    }// 32
@@ -62,7 +62,7 @@ public class TestForRange {
          while (true) {
             System.out.println(i);// 36
             if (i == var2) {// 35
-               break;
+               break
             }
 
             i -= 2;
@@ -81,7 +81,7 @@ public class TestForRange {
             while (true) {
                System.out.println(i);// 42
                if (i == var4) {// 41
-                  break;
+                  break
                }
 
                i += var2;
@@ -91,7 +91,7 @@ public class TestForRange {
    }// 44
 
    public fun testUntil() {
-      for (int i = 1; i < 10; i++) {// 47
+      for (i in 1..9) {// 47
          System.out.println(i);// 48
       }
    }// 50
@@ -105,7 +105,7 @@ public class TestForRange {
          while (true) {
             System.out.println(i);// 54
             if (i == var3) {// 53
-               break;
+               break
             }
 
             i += var4;
@@ -122,7 +122,7 @@ public class TestForRange {
          while (true) {
             System.out.println(i);// 60
             if (i == var4) {// 59
-               break;
+               break
             }
 
             i += var5;
@@ -136,7 +136,7 @@ public class TestForRange {
          while (true) {
             System.out.println(i);// 66
             if (i == y) {// 65
-               break;
+               break
             }
 
             i++;
@@ -151,7 +151,7 @@ public class TestForRange {
          while (true) {
             System.out.println(i);// 72
             if (i == var4) {// 71
-               break;
+               break
             }
 
             i += 2;
@@ -169,7 +169,7 @@ public class TestForRange {
             while (true) {
                System.out.println(i);// 78
                if (i == var5) {// 77
-                  break;
+                  break
                }
 
                i += z;
@@ -183,12 +183,8 @@ class 'pkg/TestForRange' {
    method 'testInt ()V' {
       0      6
       1      6
-      2      6
       3      6
       4      6
-      5      6
-      6      6
-      7      6
       8      7
       9      7
       a      7
@@ -196,9 +192,6 @@ class 'pkg/TestForRange' {
       c      7
       d      7
       e      7
-      f      6
-      10      6
-      11      6
       15      9
    }
 
@@ -206,12 +199,8 @@ class 'pkg/TestForRange' {
       0      12
       1      12
       2      12
-      3      12
       4      12
       5      12
-      6      12
-      7      12
-      8      12
       9      13
       a      13
       b      13
@@ -219,8 +208,6 @@ class 'pkg/TestForRange' {
       d      13
       e      13
       f      13
-      10      12
-      12      12
       18      15
    }
 
@@ -307,10 +294,6 @@ class 'pkg/TestForRange' {
       1      52
       2      52
       3      52
-      4      52
-      5      52
-      6      52
-      7      52
       8      53
       9      53
       a      53
@@ -318,9 +301,6 @@ class 'pkg/TestForRange' {
       c      53
       d      53
       e      53
-      f      52
-      10      52
-      11      52
       15      55
    }
 
@@ -414,12 +394,8 @@ class 'pkg/TestForRange' {
    method 'testUntil ()V' {
       0      93
       1      93
-      2      93
       3      93
       4      93
-      5      93
-      6      93
-      7      93
       8      94
       9      94
       a      94
@@ -427,9 +403,6 @@ class 'pkg/TestForRange' {
       c      94
       d      94
       e      94
-      f      93
-      10      93
-      11      93
       15      96
    }
 

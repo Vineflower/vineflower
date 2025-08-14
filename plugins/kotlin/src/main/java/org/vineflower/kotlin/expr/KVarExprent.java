@@ -12,7 +12,14 @@ import org.vineflower.kotlin.util.KTypes;
 import java.util.BitSet;
 
 public class KVarExprent extends VarExprent implements KExprent {
-  private boolean isExceptionType;
+  public enum DeclarationType {
+    DEFINITION,
+    USAGE,
+    FOR_LOOP_VARIABLE,
+    EXCEPTION_TYPE,
+  }
+
+  private DeclarationType declarationType;
 
   public KVarExprent(int index, VarType varType, VarProcessor processor, BitSet bytecode) {
     super(index, varType, processor, bytecode);
@@ -27,6 +34,11 @@ public class KVarExprent extends VarExprent implements KExprent {
 //    this.setLVT(ex.getLVT());
     this.setEffectivelyFinal(ex.isEffectivelyFinal());
     this.setDefinition(ex.isDefinition());
+    if (ex instanceof KVarExprent kVarExprent) {
+      declarationType = kVarExprent.declarationType;
+    } else {
+      declarationType = ex.isDefinition() ? DeclarationType.DEFINITION : DeclarationType.USAGE;
+    }
   }
 
   @Override
@@ -46,8 +58,7 @@ public class KVarExprent extends VarExprent implements KExprent {
 
     buffer.addBytecodeMapping(bytecode);
 
-    boolean definition = isDefinition();
-    if (definition && !isExceptionType) {
+    if (declarationType == DeclarationType.DEFINITION) {
       VarProcessor processor = getProcessor();
 
       boolean isFinal = isEffectivelyFinal() ||
@@ -58,7 +69,7 @@ public class KVarExprent extends VarExprent implements KExprent {
 
     buffer.append(getName());
 
-    if (definition || isExceptionType) {
+    if (declarationType == DeclarationType.DEFINITION || declarationType == DeclarationType.EXCEPTION_TYPE) {
       buffer.append(": ");
       buffer.append(KTypes.getKotlinType(getDefinitionVarType()));
     }
@@ -66,8 +77,8 @@ public class KVarExprent extends VarExprent implements KExprent {
     return buffer;
   }
 
-  public void setExceptionType(boolean isExceptionType) {
-    this.isExceptionType = isExceptionType;
+  public void setDeclarationType(DeclarationType declarationType) {
+    this.declarationType = declarationType;
   }
 
   @Override

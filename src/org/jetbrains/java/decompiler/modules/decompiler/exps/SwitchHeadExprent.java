@@ -142,6 +142,10 @@ public class SwitchHeadExprent extends Exprent {
     this.value = value;
   }
 
+  public List<List<Exprent>> getCaseValues() {
+    return caseValues;
+  }
+
   public void setCaseValues(List<List<Exprent>> caseValues) {
     this.caseValues = caseValues;
   }

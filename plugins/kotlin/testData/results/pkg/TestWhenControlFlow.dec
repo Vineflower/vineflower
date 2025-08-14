@@ -6,7 +6,7 @@ public class TestWhenControlFlow {
 
       while (xx > 0) {// 7
          if (--xx == 10) {// 8 9 10
-            break;
+            break
          }
 
          if (xx != 5) {// 11

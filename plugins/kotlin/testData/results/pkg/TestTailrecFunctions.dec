@@ -16,7 +16,7 @@ public class TestTailrecFunctions {
    }
 
    public tailrec fun testFinally() {
-      label12: {
+      run label18@{
          try {
             ;
          } catch (var2: java.lang.Throwable) {
@@ -45,12 +45,12 @@ public class TestTailrecFunctions {
    }// 31
 
    public tailrec fun testTryCatchFinally() {
-      label31: {
-         label32: {
+      run label34@{
+         run label33@{
             try {
                try {
                   this.testTryCatchFinally();// 35
-                  break label32;
+                  break label33;
                } catch (var2: Exception) {// 36
                   this.testTryCatchFinally();// 37
                }
@@ -97,12 +97,12 @@ public class TestTailrecFunctions {
       while (true) {
          if (n == 0L) {// 50
             var10000 = 1L;
-            break;
+            break
          }
 
          if (n % 2 != 0L) {// 51
             var10000 = x * var5.fastPow(x, n - 1L);// 52
-            break;
+            break
          }
 
          val var7: Long = x * x;

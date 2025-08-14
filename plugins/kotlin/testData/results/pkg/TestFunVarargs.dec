@@ -4,13 +4,13 @@ import java.util.Arrays
 
 public class TestFunVarargs {
    public fun printAll(vararg messages: String) {
-      for (java.lang.String m : messages) {// 5
+      for (m in messages) {// 5
          System.out.println(m);
       }
    }// 6
 
    public fun printAllArray(messages: Array<out String>) {
-      for (java.lang.String m : messages) {// 9
+      for (m in messages) {// 9
          System.out.println(m);
       }
    }// 10
