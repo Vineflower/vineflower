@@ -37,6 +37,7 @@ import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericClassDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericFieldDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericMethodDescriptor;
+import org.jetbrains.java.decompiler.struct.gen.generics.GenericsChecker;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.Key;
 import org.jetbrains.java.decompiler.util.TextBuffer;
@@ -704,6 +705,15 @@ public class ClassWriter implements StatementWriter {
     buffer.appendClass(node.simpleName, true, cl.qualifiedName);
 
     GenericClassDescriptor descriptor = cl.getSignature();
+    if (descriptor != null) {
+      VarType superclass = new VarType(cl.superClass.getString(), true);
+      List<VarType> interfaces = Arrays.stream(cl.getInterfaceNames())
+        .map(s -> new VarType(s, true))
+        .toList();
+
+      descriptor.verifyTypes(superclass, interfaces);
+    }
+
     if (descriptor != null && !descriptor.fparameters.isEmpty()) {
       appendTypeParameters(buffer, descriptor.fparameters, descriptor.fbounds);
     }
@@ -834,6 +844,9 @@ public class ClassWriter implements StatementWriter {
     Map.Entry<VarType, GenericFieldDescriptor> fieldTypeData = getFieldTypeData(fd);
     VarType fieldType = fieldTypeData.getKey();
     GenericFieldDescriptor descriptor = fieldTypeData.getValue();
+    if (descriptor != null) {
+      descriptor.verifyType(cl.getSignature(), fieldType);
+    }
 
     if (!isEnum) {
       buffer.appendCastTypeName(descriptor == null ? fieldType : descriptor.type);
@@ -1120,6 +1133,48 @@ public class ClassWriter implements StatementWriter {
       }
 
       GenericMethodDescriptor descriptor = mt.getSignature();
+      if (descriptor != null) {
+        List<VarType> params = new ArrayList<>(Arrays.asList(mt.methodDescriptor().params));
+
+        if (init && node.classStruct.hasModifier(CodeConstants.ACC_ENUM)) {
+          // Enum name and ordinal parameters need to be explicitly excluded
+          params.remove(0);
+          params.remove(0);
+        }
+
+        // Exclude any parameters that the signature itself won't contain
+        List<VarVersionPair> mask = methodWrapper.synthParameters;
+        if (mask != null) {
+          for (int i = 0, j = 0; i < mask.size(); i++, j++) {
+            if (mask.get(i) != null) {
+              params.remove(j--);
+            }
+          }
+        }
+
+        StructExceptionsAttribute attr = mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_EXCEPTIONS);
+        List<VarType> exceptions = new ArrayList<>();
+        if (attr != null) {
+          for (int i = 0; i < attr.getThrowsExceptions().size(); i++) {
+            exceptions.add(new VarType(attr.getExcClassname(i, node.classStruct.getPool()), true));
+          }
+        }
+
+        GenericsChecker checker = new GenericsChecker();
+
+        ClassNode currentNode = node;
+        while (currentNode != null) {
+          GenericClassDescriptor parentSignature = currentNode.classStruct.getSignature();
+          if (parentSignature != null) {
+            checker = checker.copy(parentSignature.getChecker());
+          }
+
+          currentNode = currentNode.parent;
+        }
+
+        descriptor.verifyTypes(checker, params, mt.methodDescriptor().ret, exceptions);
+      }
+
       boolean throwsExceptions = false;
       int paramCount = 0;
 
