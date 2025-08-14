@@ -14,84 +14,84 @@ public open class TestNonInlineLambda {
    private final var privateStringField: String = ""// 132
 
    public fun testCaptureInt(x: Int) {
-      this.execute(TestNonInlineLambda::testCaptureInt$lambda$0);// 8
+      this.execute(TestNonInlineLambda::testCaptureInt$lambda$0)// 8
    }// 11
 
    public fun testCaptureObject(x: String) {
-      this.execute(TestNonInlineLambda::testCaptureObject$lambda$1);// 15
+      this.execute(TestNonInlineLambda::testCaptureObject$lambda$1)// 15
    }// 18
 
    public fun testCaptureIntIterationValue(x: Iterable<Int>) {
-      val var2: java.util.Iterator = x.iterator();// 21
+      val var2: java.util.Iterator = x.iterator()// 21
 
       while (var2.hasNext()) {
-         this.execute(TestNonInlineLambda::testCaptureIntIterationValue$lambda$2);// 22
+         this.execute(TestNonInlineLambda::testCaptureIntIterationValue$lambda$2)// 22
       }
    }// 26
 
    public fun testCaptureObjectIterationValue(x: Iterable<String>) {
       for (i in x) {// 29
-         this.execute(TestNonInlineLambda::testCaptureObjectIterationValue$lambda$3);// 30
+         this.execute(TestNonInlineLambda::testCaptureObjectIterationValue$lambda$3)// 30
       }
    }// 34
 
    public fun testCaptureMutableInt(x: Int) {
-      val y: IntRef = new IntRef();// 37
-      y.element = x;
-      this.execute(TestNonInlineLambda::testCaptureMutableInt$lambda$4);// 38
-      val var3: Int = y.element++;// 41
-      this.execute(TestNonInlineLambda::testCaptureMutableInt$lambda$5);// 42
-      y.element *= 500;// 45
-      this.execute(TestNonInlineLambda::testCaptureMutableInt$lambda$6);// 46
-      y.element = 100;// 49
-      this.execute(TestNonInlineLambda::testCaptureMutableInt$lambda$7);// 50
-      y.element += x;// 53
-      this.execute(TestNonInlineLambda::testCaptureMutableInt$lambda$8);// 54
+      val y: IntRef = new IntRef()// 37
+      y.element = x
+      this.execute(TestNonInlineLambda::testCaptureMutableInt$lambda$4)// 38
+      val var3: Int = y.element++// 41
+      this.execute(TestNonInlineLambda::testCaptureMutableInt$lambda$5)// 42
+      y.element *= 500// 45
+      this.execute(TestNonInlineLambda::testCaptureMutableInt$lambda$6)// 46
+      y.element = 100// 49
+      this.execute(TestNonInlineLambda::testCaptureMutableInt$lambda$7)// 50
+      y.element += x// 53
+      this.execute(TestNonInlineLambda::testCaptureMutableInt$lambda$8)// 54
    }// 57
 
    public fun testCaptureMutableObject(x: String) {
-      val y: ObjectRef = new ObjectRef();// 60
-      y.element = x;
-      this.execute(TestNonInlineLambda::testCaptureMutableObject$lambda$9);// 61
-      y.element = "${y.element}!!";// 64
-      this.execute(TestNonInlineLambda::testCaptureMutableObject$lambda$10);// 65
-      y.element = "${y.element}${y.element}${y.element}";// 68
-      this.execute(TestNonInlineLambda::testCaptureMutableObject$lambda$11);// 69
-      y.element = "Hello: ";// 72
-      this.execute(TestNonInlineLambda::testCaptureMutableObject$lambda$12);// 73
-      y.element = "${y.element}$x";// 76
-      this.execute(TestNonInlineLambda::testCaptureMutableObject$lambda$13);// 77
+      val y: ObjectRef = new ObjectRef()// 60
+      y.element = x
+      this.execute(TestNonInlineLambda::testCaptureMutableObject$lambda$9)// 61
+      y.element = "${y.element}!!"// 64
+      this.execute(TestNonInlineLambda::testCaptureMutableObject$lambda$10)// 65
+      y.element = "${y.element}${y.element}${y.element}"// 68
+      this.execute(TestNonInlineLambda::testCaptureMutableObject$lambda$11)// 69
+      y.element = "Hello: "// 72
+      this.execute(TestNonInlineLambda::testCaptureMutableObject$lambda$12)// 73
+      y.element = "${y.element}$x"// 76
+      this.execute(TestNonInlineLambda::testCaptureMutableObject$lambda$13)// 77
    }// 80
 
    public fun testCaptureAndMutateInt(x: Int) {
-      val y: IntRef = new IntRef();// 83
-      this.execute(TestNonInlineLambda::testCaptureAndMutateInt$lambda$14);// 84
-      y.element = 5 + x;// 89
-      this.execute(TestNonInlineLambda::testCaptureAndMutateInt$lambda$15);// 90
+      val y: IntRef = new IntRef()// 83
+      this.execute(TestNonInlineLambda::testCaptureAndMutateInt$lambda$14)// 84
+      y.element = 5 + x// 89
+      this.execute(TestNonInlineLambda::testCaptureAndMutateInt$lambda$15)// 90
    }// 95
 
    public fun testCaptureAndMutateString(x: String) {
-      val y: ObjectRef = new ObjectRef();// 98
-      y.element = "";
-      this.execute(TestNonInlineLambda::testCaptureAndMutateString$lambda$16);// 99
-      y.element = "Hello: $x";// 105
-      this.execute(TestNonInlineLambda::testCaptureAndMutateString$lambda$17);// 106
+      val y: ObjectRef = new ObjectRef()// 98
+      y.element = ""
+      this.execute(TestNonInlineLambda::testCaptureAndMutateString$lambda$16)// 99
+      y.element = "Hello: $x"// 105
+      this.execute(TestNonInlineLambda::testCaptureAndMutateString$lambda$17)// 106
    }// 112
 
    public fun testCapturePublicMutableIntField() {
-      this.execute(TestNonInlineLambda::testCapturePublicMutableIntField$lambda$18);
+      this.execute(TestNonInlineLambda::testCapturePublicMutableIntField$lambda$18)
    }// 118
 
    public fun testCapturePublicMutableStringField() {
-      this.execute(TestNonInlineLambda::testCapturePublicMutableStringField$lambda$19);
+      this.execute(TestNonInlineLambda::testCapturePublicMutableStringField$lambda$19)
    }// 124
 
    public fun testCapturePrivateMutableIntField() {
-      this.execute(TestNonInlineLambda::testCapturePrivateMutableIntField$lambda$20);
+      this.execute(TestNonInlineLambda::testCapturePrivateMutableIntField$lambda$20)
    }// 130
 
    public fun testCapturePrivateMutableStringField() {
-      this.execute(TestNonInlineLambda::testCapturePrivateMutableStringField$lambda$21);
+      this.execute(TestNonInlineLambda::testCapturePrivateMutableStringField$lambda$21)
    }// 136
 
    public open fun execute(block: () -> Unit) {
@@ -99,150 +99,150 @@ public open class TestNonInlineLambda {
 
    @JvmStatic
    fun `testCaptureInt$lambda$0`(`$y`: Int): Unit {
-      System.out.println(`$y`);// 9
-      return Unit.INSTANCE;// 10
+      System.out.println(`$y`)// 9
+      return Unit.INSTANCE// 10
    }
 
    @JvmStatic
    fun `testCaptureObject$lambda$1`(`$y`: java.lang.String): Unit {
-      System.out.println(`$y`);// 16
-      return Unit.INSTANCE;// 17
+      System.out.println(`$y`)// 16
+      return Unit.INSTANCE// 17
    }
 
    @JvmStatic
    fun `testCaptureIntIterationValue$lambda$2`(`$i`: Int): Unit {
-      System.out.println(`$i`);// 23
-      return Unit.INSTANCE;// 24
+      System.out.println(`$i`)// 23
+      return Unit.INSTANCE// 24
    }
 
    @JvmStatic
    fun `testCaptureObjectIterationValue$lambda$3`(`$i`: java.lang.String): Unit {
-      System.out.println(`$i`);// 31
-      return Unit.INSTANCE;// 32
+      System.out.println(`$i`)// 31
+      return Unit.INSTANCE// 32
    }
 
    @JvmStatic
    fun `testCaptureMutableInt$lambda$4`(`$y`: IntRef): Unit {
-      System.out.println(`$y`.element);// 39
-      return Unit.INSTANCE;// 40
+      System.out.println(`$y`.element)// 39
+      return Unit.INSTANCE// 40
    }
 
    @JvmStatic
    fun `testCaptureMutableInt$lambda$5`(`$y`: IntRef): Unit {
-      System.out.println(`$y`.element);// 43
-      return Unit.INSTANCE;// 44
+      System.out.println(`$y`.element)// 43
+      return Unit.INSTANCE// 44
    }
 
    @JvmStatic
    fun `testCaptureMutableInt$lambda$6`(`$y`: IntRef): Unit {
-      System.out.println(`$y`.element);// 47
-      return Unit.INSTANCE;// 48
+      System.out.println(`$y`.element)// 47
+      return Unit.INSTANCE// 48
    }
 
    @JvmStatic
    fun `testCaptureMutableInt$lambda$7`(`$y`: IntRef): Unit {
-      System.out.println(`$y`.element);// 51
-      return Unit.INSTANCE;// 52
+      System.out.println(`$y`.element)// 51
+      return Unit.INSTANCE// 52
    }
 
    @JvmStatic
    fun `testCaptureMutableInt$lambda$8`(`$y`: IntRef): Unit {
-      System.out.println(`$y`.element);// 55
-      return Unit.INSTANCE;// 56
+      System.out.println(`$y`.element)// 55
+      return Unit.INSTANCE// 56
    }
 
    @JvmStatic
    fun `testCaptureMutableObject$lambda$9`(`$y`: ObjectRef): Unit {
-      System.out.println(`$y`.element);// 62
-      return Unit.INSTANCE;// 63
+      System.out.println(`$y`.element)// 62
+      return Unit.INSTANCE// 63
    }
 
    @JvmStatic
    fun `testCaptureMutableObject$lambda$10`(`$y`: ObjectRef): Unit {
-      System.out.println(`$y`.element);// 66
-      return Unit.INSTANCE;// 67
+      System.out.println(`$y`.element)// 66
+      return Unit.INSTANCE// 67
    }
 
    @JvmStatic
    fun `testCaptureMutableObject$lambda$11`(`$y`: ObjectRef): Unit {
-      System.out.println(`$y`.element);// 70
-      return Unit.INSTANCE;// 71
+      System.out.println(`$y`.element)// 70
+      return Unit.INSTANCE// 71
    }
 
    @JvmStatic
    fun `testCaptureMutableObject$lambda$12`(`$y`: ObjectRef): Unit {
-      System.out.println(`$y`.element);// 74
-      return Unit.INSTANCE;// 75
+      System.out.println(`$y`.element)// 74
+      return Unit.INSTANCE// 75
    }
 
    @JvmStatic
    fun `testCaptureMutableObject$lambda$13`(`$y`: ObjectRef): Unit {
-      System.out.println(`$y`.element);// 78
-      return Unit.INSTANCE;// 79
+      System.out.println(`$y`.element)// 78
+      return Unit.INSTANCE// 79
    }
 
    @JvmStatic
    fun `testCaptureAndMutateInt$lambda$14`(`$y`: IntRef): Unit {
       while (`$y`.element < 10) {// 85
-         System.out.println(`$y`.element++);// 86
+         System.out.println(`$y`.element++)// 86
       }
 
-      return Unit.INSTANCE;// 88
+      return Unit.INSTANCE// 88
    }
 
    @JvmStatic
    fun `testCaptureAndMutateInt$lambda$15`(`$y`: IntRef): Unit {
       while (`$y`.element > 0) {// 91
-         val var1: Int = `$y`.element;// 92
-         `$y`.element += -1;
-         System.out.println(var1);
+         val var1: Int = `$y`.element// 92
+         `$y`.element += -1
+         System.out.println(var1)
       }
 
-      return Unit.INSTANCE;// 94
+      return Unit.INSTANCE// 94
    }
 
    @JvmStatic
    fun `testCaptureAndMutateString$lambda$16`(`$y`: ObjectRef): Unit {
       while ((`$y`.element as java.lang.String).length() < 10) {// 100
-         `$y`.element = " ${`$y`.element}";// 101
-         System.out.println(`$y`.element);// 102
+         `$y`.element = " ${`$y`.element}"// 101
+         System.out.println(`$y`.element)// 102
       }
 
-      return Unit.INSTANCE;// 104
+      return Unit.INSTANCE// 104
    }
 
    @JvmStatic
    fun `testCaptureAndMutateString$lambda$17`(`$y`: ObjectRef): Unit {
       while (!StringsKt.isBlank(`$y`.element as java.lang.CharSequence)) {// 107
-         System.out.println();// 108
-         `$y`.element = StringsKt.drop(`$y`.element as java.lang.String, 1);// 109
+         System.out.println()// 108
+         `$y`.element = StringsKt.drop(`$y`.element as java.lang.String, 1)// 109
       }
 
-      return Unit.INSTANCE;// 111
+      return Unit.INSTANCE// 111
    }
 
    @JvmStatic
    fun `testCapturePublicMutableIntField$lambda$18`(`this$0`: TestNonInlineLambda): Unit {
-      val var1: Int = `this$0`.intField++;// 117
-      return Unit.INSTANCE;
+      val var1: Int = `this$0`.intField++// 117
+      return Unit.INSTANCE
    }
 
    @JvmStatic
    fun `testCapturePublicMutableStringField$lambda$19`(`this$0`: TestNonInlineLambda): Unit {
-      `this$0`.stringField = "${`this$0`.stringField}!";// 123
-      return Unit.INSTANCE;
+      `this$0`.stringField = "${`this$0`.stringField}!"// 123
+      return Unit.INSTANCE
    }
 
    @JvmStatic
    fun `testCapturePrivateMutableIntField$lambda$20`(`this$0`: TestNonInlineLambda): Unit {
-      val var1: Int = `this$0`.privateIntField++;// 129
-      return Unit.INSTANCE;
+      val var1: Int = `this$0`.privateIntField++// 129
+      return Unit.INSTANCE
    }
 
    @JvmStatic
    fun `testCapturePrivateMutableStringField$lambda$21`(`this$0`: TestNonInlineLambda): Unit {
-      `this$0`.privateStringField = "${`this$0`.privateStringField}!";// 135
-      return Unit.INSTANCE;
+      `this$0`.privateStringField = "${`this$0`.privateStringField}!"// 135
+      return Unit.INSTANCE
    }
 }
 

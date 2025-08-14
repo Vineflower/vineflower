@@ -1,12 +1,16 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler;
 
+import org.jetbrains.java.decompiler.api.Decompiler;
+import org.jetbrains.java.decompiler.api.plugin.LanguageSpec;
+import org.jetbrains.java.decompiler.api.plugin.StatementWriter;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.Instruction;
 import org.jetbrains.java.decompiler.code.InstructionSequence;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.ImportCollector;
+import org.jetbrains.java.decompiler.main.plugins.PluginContext;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectEdgeType;
 import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.util.collections.ListStack;
@@ -877,6 +881,9 @@ public class ExprProcessor implements CodeConstants {
       return new TextBuffer();
     }
 
+    StructClass cl = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS);
+    LanguageSpec spec = PluginContext.getCurrentContext().getLanguageSpec(cl);
+
     TextBuffer buf = new TextBuffer();
     lst = Exprent.sortIndexed(lst);
 
@@ -898,8 +905,14 @@ public class ExprProcessor implements CodeConstants {
         if (expr instanceof MonitorExprent && ((MonitorExprent)expr).getMonType() == MonitorExprent.Type.ENTER) {
           buf.append("{} // $VF: monitorenter "); // empty synchronized block
         }
-        if (endsWithSemicolon(expr)) {
-          buf.append(";");
+        if (spec != null) {
+          if (spec.writer.endsWithSemicolon(expr)) {
+            buf.append(';');
+          }
+        } else {
+          if (endsWithSemicolon(expr)) {
+            buf.append(';');
+          }
         }
         buf.appendLineSeparator();
       }

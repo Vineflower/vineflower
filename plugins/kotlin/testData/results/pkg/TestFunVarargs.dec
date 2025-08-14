@@ -5,23 +5,23 @@ import java.util.Arrays
 public class TestFunVarargs {
    public fun printAll(vararg messages: String) {
       for (m in messages) {// 5
-         System.out.println(m);
+         System.out.println(m)
       }
    }// 6
 
    public fun printAllArray(messages: Array<out String>) {
       for (m in messages) {// 9
-         System.out.println(m);
+         System.out.println(m)
       }
    }// 10
 
    public fun log(vararg entries: String) {
-      this.printAll(Arrays.copyOf(entries, entries.length) as Array<java.lang.String>);// 13
-      this.printAllArray(entries);// 14
+      this.printAll(Arrays.copyOf(entries, entries.length) as Array<java.lang.String>)// 13
+      this.printAllArray(entries)// 14
    }// 15
 
    public fun test() {
-      this.log("a", "b", "c");// 18
+      this.log("a", "b", "c")// 18
    }// 19
 
    public fun nestedArrays(e0: Array<String>, e1: Array<in String>, e2: Array<Array<Array<String>>>) {

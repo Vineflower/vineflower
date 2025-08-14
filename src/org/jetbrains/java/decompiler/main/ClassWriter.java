@@ -64,6 +64,13 @@ public class ClassWriter implements StatementWriter {
     javadocProvider = (IFabricJavadocProvider) DecompilerContext.getProperty(IFabricJavadocProvider.PROPERTY_NAME);
   }
 
+  public boolean endsWithSemicolon(Exprent expr) {
+    return !(expr instanceof SwitchHeadExprent ||
+      expr instanceof MonitorExprent ||
+      expr instanceof IfExprent ||
+      (expr instanceof VarExprent && ((VarExprent)expr).isClassDef()));
+  }
+
   private static boolean invokeProcessors(TextBuffer buffer, ClassNode node) {
     ClassWrapper wrapper = node.getWrapper();
     if (wrapper == null) {

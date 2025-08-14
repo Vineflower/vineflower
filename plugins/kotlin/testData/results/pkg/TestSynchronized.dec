@@ -3,7 +3,7 @@ package pkg
 public class TestSynchronized {
    public fun test() {
       synchronized (this) {// 5
-         System.out.println("Hello");// 6
+         System.out.println("Hello")// 6
       }
    }
 }

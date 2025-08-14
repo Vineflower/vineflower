@@ -9,7 +9,7 @@ public class TestWhenBoolean {
                a > b// 9
                   || (a > c || c > b) && (if (d == 7) b == 100 - a else a != -100 || b == 0 || c != 55 && (if (d == 66) 25 <= c && c < 34 else c < d && a < b))// 10 11 12 13 14 15 16
             )) {
-         System.out.println("hello");// 21
+         System.out.println("hello")// 21
       }
    }// 23
 }

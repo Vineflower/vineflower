@@ -2,27 +2,27 @@ package pkg
 
 public class TestComparison {
    public fun test2(a: Any, b: Any): Boolean {
-      return a == b;// 5
+      return a == b// 5
    }
 
    public fun test3(a: Any, b: Any): Boolean {
-      return a === b;// 9
+      return a === b// 9
    }
 
    public fun testNull2(a: Any?): Boolean {
-      return a == null;// 13
+      return a == null// 13
    }
 
    public fun testNull3(a: Any?): Boolean {
-      return a == null;// 17
+      return a == null// 17
    }
 
    public fun testNullDouble2(a: Any?, b: Any?): Boolean {
-      return a == b;// 21
+      return a == b// 21
    }
 
    public fun testNullDouble3(a: Any?, b: Any?): Boolean {
-      return a === b;// 25
+      return a === b// 25
    }
 }
 

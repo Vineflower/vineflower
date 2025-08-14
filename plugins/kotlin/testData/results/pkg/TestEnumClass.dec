@@ -11,22 +11,22 @@ public enum class TestEnumClass(number: Int = 4) {
    public final val number: Int
 
    init {
-      this.number = number;// 3
+      this.number = number// 3
    }
 
    public fun foo(): Int {
-      return this.number;// 7
+      return this.number// 7
    }
 
    @JvmStatic
    fun getEntries(): EnumEntries<TestEnumClass> {
-      return $ENTRIES;// 8
+      return $ENTRIES// 8
    }
 
    @JvmStatic
    @JvmSynthetic
    fun `$values`(): Array<TestEnumClass> {
-      return new TestEnumClass[]{A, B, C, D};
+      return new TestEnumClass[]{A, B, C, D}
    }
 }
 

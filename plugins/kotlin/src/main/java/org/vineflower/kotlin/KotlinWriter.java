@@ -93,6 +93,11 @@ public class KotlinWriter implements StatementWriter {
     javadocProvider = (IFabricJavadocProvider) DecompilerContext.getProperty(IFabricJavadocProvider.PROPERTY_NAME);
   }
 
+  @Override
+  public boolean endsWithSemicolon(Exprent expr) {
+    return false;
+  }
+
   private boolean invokeProcessors(TextBuffer buffer, ClassNode node) {
     ClassWrapper wrapper = node.getWrapper();
     if (wrapper == null) {

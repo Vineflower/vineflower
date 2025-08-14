@@ -2,17 +2,17 @@ package pkg
 
 public class TestTailrecFunctions {
    public tailrec fun sum(x: Long, sum: Long): Long {
-      var var5: TestTailrecFunctions = this;// 4
+      var var5: TestTailrecFunctions = this// 4
 
       while (x != 0L) {// 5
-         val var7: Long = x - 1L;
-         val var9: Long = sum + x;
-         var5 = var5;// 6
-         x = var7;
-         sum = var9;
+         val var7: Long = x - 1L
+         val var9: Long = sum + x
+         var5 = var5// 6
+         x = var7
+         sum = var9
       }
 
-      return sum;
+      return sum
    }
 
    public tailrec fun testFinally() {
@@ -20,10 +20,10 @@ public class TestTailrecFunctions {
          try {
             ;
          } catch (var2: java.lang.Throwable) {
-            this.testFinally();
+            this.testFinally()
          }
 
-         this.testFinally();// 13
+         this.testFinally()// 13
       }
    }
 
@@ -31,15 +31,15 @@ public class TestTailrecFunctions {
       try {
          ;
       } catch (var2: java.lang.Throwable) {
-         return this.testFinallyReturn();
+         return this.testFinallyReturn()
       }
 
-      return this.testFinallyReturn();// 21
+      return this.testFinallyReturn()// 21
    }
 
    public tailrec fun fooTry() {
       try {
-         this.fooTry();// 27
+         this.fooTry()// 27
       } catch (var2: java.lang.Throwable) {// 29
       }
    }// 31
@@ -49,70 +49,70 @@ public class TestTailrecFunctions {
          run label33@{
             try {
                try {
-                  this.testTryCatchFinally();// 35
+                  this.testTryCatchFinally()// 35
                   break label33;
                } catch (var2: Exception) {// 36
-                  this.testTryCatchFinally();// 37
+                  this.testTryCatchFinally()// 37
                }
             } catch (var3: java.lang.Throwable) {
-               this.testTryCatchFinally();
+               this.testTryCatchFinally()
             }
 
-            this.testTryCatchFinally();// 39
-            return;// 41
+            this.testTryCatchFinally()// 39
+            return// 41
          }
 
-         this.testTryCatchFinally();
+         this.testTryCatchFinally()
       }
    }
 
    public tailrec fun fastPow(x: Long, n: Long, acc: Long = 1L): Long {
-      var var7: TestTailrecFunctions = this;// 43
+      var var7: TestTailrecFunctions = this// 43
 
       while (n != 0L) {// 44
          if (n % 2 == 0L) {// 45
-            val var9: Long = x * x;
-            val var11: Long = n / 2;
-            var7 = var7;
-            x = var9;
-            n = var11;
-            acc = acc;
+            val var9: Long = x * x
+            val var11: Long = n / 2
+            var7 = var7
+            x = var9
+            n = var11
+            acc = acc
          } else {
-            val var15: Long = n - 1L;
-            val var13: Long = acc * x;
-            var7 = var7;// 46
-            x = x;
-            n = var15;
-            acc = var13;
+            val var15: Long = n - 1L
+            val var13: Long = acc * x
+            var7 = var7// 46
+            x = x
+            n = var15
+            acc = var13
          }
       }
 
-      return acc;
+      return acc
    }
 
    public tailrec fun fastPow(x: Long, n: Long): Long {
-      var var5: TestTailrecFunctions = this;// 49
+      var var5: TestTailrecFunctions = this// 49
 
-      var var10000: Long;
+      var var10000: Long
       while (true) {
          if (n == 0L) {// 50
-            var10000 = 1L;
+            var10000 = 1L
             break
          }
 
          if (n % 2 != 0L) {// 51
-            var10000 = x * var5.fastPow(x, n - 1L);// 52
+            var10000 = x * var5.fastPow(x, n - 1L)// 52
             break
          }
 
-         val var7: Long = x * x;
-         val var9: Long = n / 2;
-         var5 = var5;
-         x = var7;
-         n = var9;
+         val var7: Long = x * x
+         val var9: Long = n / 2
+         var5 = var5
+         x = var7
+         n = var9
       }
 
-      return var10000;// 53
+      return var10000// 53
    }
 }
 

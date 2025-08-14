@@ -17,9 +17,9 @@ public class TestPoorNames {
    }// 17
 
    public fun test() {
-      new TestPoorNames.Class with spaces();
-      this.Dangerous function name?!();// 23
-      this.functionWithParameters(42, "test");// 24
+      new TestPoorNames.Class with spaces()
+      this.Dangerous function name?!()// 23
+      this.functionWithParameters(42, "test")// 24
    }// 25
 
    public class `Class with spaces`

@@ -3,46 +3,46 @@ package pkg
 public class TestNothingReturns {
    public fun loop(): Nothing {
       while (true) {
-         System.out.println("loop");// 6
+         System.out.println("loop")// 6
       }
    }
 
    public fun test1(): Nothing {
-      this.loop();// 11
-      throw new KotlinNothingValueException();
+      this.loop()// 11
+      throw new KotlinNothingValueException()
    }
 
    public fun test2(): Long {
-      this.test1();// 15
-      throw new KotlinNothingValueException();
+      this.test1()// 15
+      throw new KotlinNothingValueException()
    }
 
    public fun test3(i: Int): Int {
       if (i == 0) {// 19
-         this.loop();// 20
-         throw new KotlinNothingValueException();
+         this.loop()// 20
+         throw new KotlinNothingValueException()
       } else {
-         return this.test3(i - 1) + 1;// 23
+         return this.test3(i - 1) + 1// 23
       }
    }
 
    public fun test4() {
-      this.loop();// 27
-      throw new KotlinNothingValueException();
+      this.loop()// 27
+      throw new KotlinNothingValueException()
    }
 
    public fun test5(s: String): String {
-      StringsKt.repeat(s as java.lang.CharSequence, 5);// 32
-      this.loop();
-      throw new KotlinNothingValueException();
+      StringsKt.repeat(s as java.lang.CharSequence, 5)// 32
+      this.loop()
+      throw new KotlinNothingValueException()
    }
 
    public fun test6(s: String?): String {
       if (s == null) {// 36
-         this.loop();
-         throw new KotlinNothingValueException();
+         this.loop()
+         throw new KotlinNothingValueException()
       } else {
-         return s;
+         return s
       }
    }
 }

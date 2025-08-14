@@ -8,40 +8,40 @@ public class TestTryFinallyExpressions {
    public fun test0(s: String) {
       run label23@{
          try {
-            val var2: java.lang.String = StringsKt.repeat(s as java.lang.CharSequence, 5);// 8
+            val var2: java.lang.String = StringsKt.repeat(s as java.lang.CharSequence, 5)// 8
          } catch (var4: java.lang.Throwable) {
-            System.out.println("bye");
+            System.out.println("bye")
          }
 
-         System.out.println("bye");// 10
+         System.out.println("bye")// 10
       }
    }
 
    public fun test1(a: String, b: String) {
       run label45@{
-         var x: java.lang.String = a;// 15
+         var x: java.lang.String = a// 15
 
          try {
-            val var4: java.lang.String = StringsKt.repeat(x as java.lang.CharSequence, 5);// 17
+            val var4: java.lang.String = StringsKt.repeat(x as java.lang.CharSequence, 5)// 17
          } catch (var9: java.lang.Throwable) {
             ;
          }
 
-         x = b;// 19
+         x = b// 19
 
          try {
-            val var15: java.lang.String = StringsKt.repeat(x as java.lang.CharSequence, 5);// 21
+            val var15: java.lang.String = StringsKt.repeat(x as java.lang.CharSequence, 5)// 21
          } catch (var8: java.lang.Throwable) {
-            System.out.println(a);
+            System.out.println(a)
          }
 
-         System.out.println(a);// 23
+         System.out.println(a)// 23
       }
    }
 
    public fun test2(a: String, b: String) {
       run label140@{
-         var var19: java.lang.String = a;// 28
+         var var19: java.lang.String = a// 28
 
          run label139@{
             run label138@{
@@ -52,35 +52,35 @@ public class TestTryFinallyExpressions {
                            return@label139
                         }
 
-                        var19 = b;// 33
-                        this.test0(b);// 34
+                        var19 = b// 33
+                        this.test0(b)// 34
                         return@label137
                      } catch (var11: IOException) {// 36
-                        var19 = a;// 37
-                        this.test1(a, a);// 38
-                        val var4: java.lang.String = a;// 39
+                        var19 = a// 37
+                        this.test1(a, a)// 38
+                        val var4: java.lang.String = a// 39
                      }
                   } catch (var12: java.lang.Throwable) {
-                     var19 = if (var19 == a) b else a;// 41 42 44
+                     var19 = if (var19 == a) b else a// 41 42 44
                   }
 
-                  var19 = if (var19 == a) b else a;
+                  var19 = if (var19 == a) b else a
                   return@label138// 46
                }
 
-               var19 = if (var19 == a) b else a;
+               var19 = if (var19 == a) b else a
             }
 
             try {
-               var19 = StringsKt.repeat(var19 as java.lang.CharSequence, 5);// 47
+               var19 = StringsKt.repeat(var19 as java.lang.CharSequence, 5)// 47
             } catch (var10: java.lang.Throwable) {
-               System.out.println(var19);
+               System.out.println(var19)
             }
 
-            System.out.println(var19);// 49
+            System.out.println(var19)// 49
          }
 
-         var19 = if (a == a) b else a;
+         var19 = if (a == a) b else a
       }
    }
 }

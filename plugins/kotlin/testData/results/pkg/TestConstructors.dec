@@ -2,11 +2,11 @@ package pkg
 
 public class TestConstructors private constructor() {
    public constructor(a: Int) : this() {// 4
-      System.out.println("a = $a");// 5
+      System.out.println("a = $a")// 5
    }// 6
 
    public constructor(a: Int, b: Int) : this(a) {// 8
-      System.out.println("b = $b");// 9
+      System.out.println("b = $b")// 9
    }// 10
 }
 

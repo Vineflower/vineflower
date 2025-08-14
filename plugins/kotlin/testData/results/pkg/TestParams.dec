@@ -2,28 +2,28 @@ package pkg
 
 public class TestParams {
    public fun printMessageUnit(message: String) {
-      System.out.println(message);// 5
+      System.out.println(message)// 5
    }// 6
 
    public fun printMessageVoid(message: String) {
-      System.out.println(message);// 9
+      System.out.println(message)// 9
    }// 10
 
    public fun multiply(x: Int, y: Int): Int {
-      return x * y;// 12
+      return x * y// 12
    }
 
    public fun multiplyBraces(x: Int, y: Int): Int {
-      return x * y;// 15
+      return x * y// 15
    }
 
    public fun printMessageWithPrefix(message: String, prefix: String = "Info") {
-      System.out.println("[$prefix] $message");// 19
+      System.out.println("[$prefix] $message")// 19
    }// 20
 
    public fun callPrintMessage() {
-      printMessageWithPrefix$default(this, "Test", null, 2, null);// 23
-      this.printMessageWithPrefix("Test", "Debug");// 24
+      printMessageWithPrefix$default(this, "Test", null, 2, null)// 23
+      this.printMessageWithPrefix("Test", "Debug")// 24
    }// 25
 }
 

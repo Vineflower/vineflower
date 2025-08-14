@@ -2,7 +2,7 @@ package pkg
 
 public class TestCompileTimeErrors {
    public fun <I, O> test(i: I): O where O : I, O : pkg.TestCompileTimeErrors.Test {
-      throw new NotImplementedError(null, 1, null);// 10
+      throw new NotImplementedError(null, 1, null)// 10
    }
 
    public fun test2(i: Int?): pkg.TestCompileTimeErrors.Test? {
@@ -10,18 +10,18 @@ public class TestCompileTimeErrors {
          private final Integer testValue;
 
          {
-            this.testValue = `$i`;// 16
+            this.testValue = `$i`// 16
          }// 14
 
          public Integer getTestValue() {
-            return this.testValue;// 15
+            return this.testValue// 15
          }
 
          /** @deprecated */
          // $VF: synthetic method
          public static void getTestValue$annotations() {
          }
-      };
+      }
    }
 
    public interface Test {
