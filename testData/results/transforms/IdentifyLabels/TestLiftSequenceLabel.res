@@ -20,10 +20,10 @@
 4  < [Invoke println java/io/PrintStream (Ljava/lang/Object;)V VIRTUAL [Field out java/lang/System Ljava/io/PrintStream;] [Var U 1]]
 5  < [Return RETURN V]
 =======================================
-while(true) {
+while (true) {
    label13:
    if (var1.hashCode() >= 0) {
-      if (var1 instanceof "null" var2 != false) {
+      if (var1 instanceof var2 != false) {
          System.out.println(var1);
       }
 

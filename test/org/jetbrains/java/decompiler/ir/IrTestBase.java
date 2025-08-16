@@ -70,7 +70,7 @@ public abstract class IrTestBase {
 
         Path outPath = outDir.resolve(s + ".res");
         if (outPath.toFile().exists()) {
-          assertEquals(output, Files.readString(outPath).replaceAll("\r\n", "\n"));
+          assertEquals(Files.readString(outPath).replaceAll("\r\n", "\n"), output);
 
           String existing = Files.readString(inPath).replaceAll("\r\n", "\n");
           // Ensuring the input file has a rendered statement at the end

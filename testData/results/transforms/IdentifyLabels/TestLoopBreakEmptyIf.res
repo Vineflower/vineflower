@@ -13,7 +13,7 @@
 9  < [If [Func BOOL_NOT [Func EQ [Func PPI I [Var U 1]] [Const I 15]]]]
 5  < [Return RETURN V]
 =======================================
-while(var1 > 10) {
+while (var1 > 10) {
    if (!(++var1 == 15)) {
       continue;
    }

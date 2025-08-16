@@ -16,7 +16,7 @@
 4  < [Invoke println java/io/PrintStream (I)V VIRTUAL [Field out java/lang/System Ljava/io/PrintStream;] [Const I 0]]
 5  < [Return RETURN V]
 =======================================
-while(var1 > 10) {
+while (var1 > 10) {
    if (!(++var1 == 15)) {
       System.out.println(0);
       continue;

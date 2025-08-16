@@ -17,7 +17,7 @@
 5  < [Return RETURN V]
 =======================================
 label12:
-while(var1 > 10) {
+while (var1 > 10) {
    if (!(++var1 == 15)) {
       System.out.println(0);
       continue label12;

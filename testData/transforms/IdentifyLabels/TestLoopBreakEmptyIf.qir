@@ -14,7 +14,7 @@
 5  < [Return RETURN V]
 =======================================
 label12:
-while(var1 > 10) {
+while (var1 > 10) {
    if (!(++var1 == 15)) {
       continue label12;
    }
