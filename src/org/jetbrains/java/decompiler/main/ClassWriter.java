@@ -1162,7 +1162,7 @@ public class ClassWriter implements StatementWriter {
         buffer.appendMethod(toValidJavaIdentifier(name), true, cl.qualifiedName, mt.getName(), md);
 
         if (!methodWrapper.isCompactRecordConstructor) {
-          paramCount = getParamCount(mt, buffer, indent, methodWrapper, md, isEnum, init, thisVar, descriptor, paramCount, isInterface, flags, cl);
+          paramCount = writeMethodParameterHeader(mt, buffer, indent, methodWrapper, md, isEnum, init, thisVar, descriptor, paramCount, isInterface, flags, cl);
         }
 
         StructExceptionsAttribute attr = mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_EXCEPTIONS);
@@ -1242,7 +1242,7 @@ public class ClassWriter implements StatementWriter {
     return !hideMethod;
   }
 
-  private static int getParamCount(StructMethod mt, TextBuffer buffer, int indent, MethodWrapper methodWrapper, MethodDescriptor md, boolean isEnum, boolean init, boolean thisVar, GenericMethodDescriptor descriptor, int paramCount, boolean isInterface, int flags, StructClass cl) {
+  private static int writeMethodParameterHeader(StructMethod mt, TextBuffer buffer, int indent, MethodWrapper methodWrapper, MethodDescriptor md, boolean isEnum, boolean init, boolean thisVar, GenericMethodDescriptor descriptor, int paramCount, boolean isInterface, int flags, StructClass cl) {
     buffer.append('(');
 
     List<VarVersionPair> mask = methodWrapper.synthParameters;
