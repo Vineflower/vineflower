@@ -25,13 +25,13 @@ public class TestRecordPatterns6 {
    }
 
    sealed interface I permits TestRecordPatterns6.I.R1, TestRecordPatterns6.I.R2, TestRecordPatterns6.I.R3 {
-      public record R1(Object o) implements TestRecordPatterns6.I {
+      record R1(Object o) implements TestRecordPatterns6.I {
       }
 
-      public record R2(int i) implements TestRecordPatterns6.I {
+      record R2(int i) implements TestRecordPatterns6.I {
       }
 
-      public record R3(String s) implements TestRecordPatterns6.I {
+      record R3(String s) implements TestRecordPatterns6.I {
       }
    }
 }

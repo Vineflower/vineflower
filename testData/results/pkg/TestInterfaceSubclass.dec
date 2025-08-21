@@ -5,11 +5,11 @@ public interface TestInterfaceSubclass {
 
    int doOtherThing();
 
-   public abstract static class AbstractClass implements TestInterfaceSubclass {
+   abstract class AbstractClass implements TestInterfaceSubclass {
       public abstract double doDoubleThing();
    }
 
-   public static class Multiple extends TestInterfaceSubclass.AbstractClass implements TestInterfaceSubclass {
+   class Multiple extends TestInterfaceSubclass.AbstractClass implements TestInterfaceSubclass {
       @Override
       public void doThing() {
          System.out.println("Hello");// 29
@@ -26,7 +26,7 @@ public interface TestInterfaceSubclass {
       }
    }
 
-   public static class Subclass implements TestInterfaceSubclass {
+   class Subclass implements TestInterfaceSubclass {
       @Override
       public void doThing() {
          System.out.println("Hi");// 12

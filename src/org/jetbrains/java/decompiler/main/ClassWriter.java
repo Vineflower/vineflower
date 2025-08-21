@@ -641,6 +641,15 @@ public class ClassWriter implements StatementWriter {
       }
     }
 
+    // Classes defined inside of interfaces are implicitly public/static (JLS 9.5 Member Type Declarations)
+    if (
+      node.type == ClassNode.Type.MEMBER &&
+      (node.parent.getWrapper().getClassStruct().getAccessFlags() & CodeConstants.ACC_INTERFACE) != 0
+    ) {
+      flags &= ~CodeConstants.ACC_PUBLIC;
+      flags &= ~CodeConstants.ACC_STATIC;
+    }
+
     if (interceptor != null) {
       String oldName = interceptor.getOldName(cl.qualifiedName);
       appendRenameComment(buffer, oldName, MType.CLASS, indent);

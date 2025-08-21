@@ -95,11 +95,11 @@ public @interface MoreAnnotations {
 
    Class<? extends CharSequence>[] classArray() default {CharSequence.class, String.class, StringBuilder.class};
 
-   public @interface NestedAnnotation {
+   @interface NestedAnnotation {
       String value() default "MyString";
    }
 
-   public static enum TestEnum {
+   enum TestEnum {
       FirstValue,
       SecondValue;
    }
