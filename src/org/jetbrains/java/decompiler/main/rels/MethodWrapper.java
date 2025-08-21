@@ -26,6 +26,7 @@ public class MethodWrapper {
   public Throwable decompileError;
   public Set<String> commentLines = null;
   public boolean addErrorComment = false;
+  public boolean isCompactRecordConstructor = false;
 
   public MethodWrapper(RootStatement root, VarProcessor varproc, StructMethod methodStruct, StructClass classStruct, CounterContainer counter) {
     this.root = root;
