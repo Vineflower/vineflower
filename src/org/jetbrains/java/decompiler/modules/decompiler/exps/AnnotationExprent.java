@@ -59,17 +59,13 @@ public class AnnotationExprent extends Exprent {
 
     if (type != Type.MARKER) {
       buffer.append('(');
-
-      boolean oneLiner = type == Type.SINGLE_ELEMENT || indent < 0;
-
+      buffer.pushNewlineGroup(indent, 1);
+      buffer.appendPossibleNewline();
       for (int i = 0; i < parNames.size(); i++) {
-        if (!oneLiner) {
-          buffer.appendLineSeparator().appendIndent(indent + 1);
-        }
-
         if (type != Type.SINGLE_ELEMENT) {
           String name = parNames.get(i);
 
+          // make sure the attribute name ends up as a token
           StructClass structClass = DecompilerContext.getStructContext().getClass(className);
           if (structClass != null) {
             Optional<StructMethod> method = structClass.getMethods().stream().filter(m -> m.getName().equals(name)).findAny();
@@ -85,21 +81,30 @@ public class AnnotationExprent extends Exprent {
           buffer.append(" = ");
         }
 
-        buffer.append(parValues.get(i).toJava(indent + 1));
+        Exprent parValue = parValues.get(i);
+
+        if (isArrayValue(parValue) && ((NewExprent) parValue).getLstArrayElements().size() == 1 && !isArrayValue(((NewExprent) parValue).getLstArrayElements().get(0))) {
+          buffer.append(((NewExprent) parValue).getLstArrayElements().get(0).toJava(indent));
+        } else {
+          buffer.append(parValue.toJava(indent));
+        }
 
         if (i < parNames.size() - 1) {
-          buffer.append(',');
+          buffer.append(",");
+          buffer.appendPossibleNewline(" ");
+        } else {
+          buffer.appendPossibleNewline("", true);
         }
       }
-
-      if (!oneLiner) {
-        buffer.appendLineSeparator().appendIndent(indent);
-      }
-
       buffer.append(')');
+      buffer.popNewlineGroup();
     }
 
     return buffer;
+  }
+
+  private static boolean isArrayValue(Exprent parValue) {
+    return parValue instanceof NewExprent newExpr && newExpr.isDirectArrayInit();
   }
 
   public String getClassName() {

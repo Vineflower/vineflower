@@ -22,7 +22,7 @@ class TypeAnnotations {
       String value();
    }
 
-   @Target({ElementType.TYPE_USE})
+   @Target(ElementType.TYPE_USE)
    @interface TA {
       String value();
    }
