@@ -195,7 +195,7 @@ public final class RecordHelper {
   private static void recordComponentToJava(TextBuffer buffer, StructClass cl, StructRecordComponent cd, int param, boolean varArgComponent) {
     Set<TextBuffer> annotations = getRecordComponentAnnotations(cl, cd, param);
     for (TextBuffer annotation : annotations) {
-      buffer.appendText(annotation).append(' ');
+      buffer.append(annotation).append(' ');
     }
 
     VarType fieldType = new VarType(cd.getDescriptor(), false);

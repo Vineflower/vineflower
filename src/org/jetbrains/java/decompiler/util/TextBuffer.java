@@ -682,14 +682,6 @@ public class TextBuffer {
     return append(buffer, null, null);
   }
 
-  public TextBuffer appendText(TextBuffer buffer) {
-    NewlineGroup otherRoot = buffer.myRootGroup.copy();
-    otherRoot.shift(myStringBuilder.length());
-    myCurrentGroup.myTokens.addAll(otherRoot.myTokens);
-    myStringBuilder.append(buffer.myStringBuilder);
-    return this;
-  }
-
   private void shiftMapping(int shiftOffset) {
     if (myLineToOffsetMapping != null) {
       Map<Integer, Integer> newMap = new HashMap<>();

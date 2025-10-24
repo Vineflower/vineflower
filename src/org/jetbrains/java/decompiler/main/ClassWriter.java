@@ -1729,9 +1729,8 @@ public class ClassWriter implements StatementWriter {
       if (attribute != null) {
         for (AnnotationExprent annotation : attribute.getAnnotations()) {
           buffer.appendIndent(indent);
-          TextBuffer text = annotation.toJava(indent);
-          filter.add(text.convertToStringAndAllowDataDiscard());
-          buffer.appendText(text);
+          filter.add(annotation.toJava(-1).convertToStringAndAllowDataDiscard());
+          buffer.append(annotation.toJava(indent));
           if (indent < 0) {
             buffer.append(' ');
           }
@@ -1800,9 +1799,8 @@ public class ClassWriter implements StatementWriter {
         List<List<AnnotationExprent>> annotations = attribute.getParamAnnotations();
         if (param < annotations.size()) {
           for (AnnotationExprent annotation : annotations.get(param)) {
-            TextBuffer text = annotation.toJava(-1);
-            filter.add(text.convertToStringAndAllowDataDiscard());
-            buffer.appendText(text).append(' ');
+            filter.add(annotation.toJava(-1).convertToStringAndAllowDataDiscard());
+            buffer.append(annotation.toJava(-1)).append(' ');
           }
         }
       }
@@ -1817,10 +1815,9 @@ public class ClassWriter implements StatementWriter {
       if (attribute != null) {
         for (TypeAnnotation annotation : attribute.getAnnotations()) {
           if (annotation.isTopLevel() && annotation.getTargetType() == targetType && (index < 0 || annotation.getIndex() == index)) {
-            TextBuffer text = annotation.getAnnotation().toJava(indent);
-            if (!filter.contains(text.convertToStringAndAllowDataDiscard())) {
+            if (!filter.contains(annotation.getAnnotation().toJava(-1).convertToStringAndAllowDataDiscard())) {
               buffer.appendIndent(indent);
-              buffer.appendText(text);
+              buffer.append(annotation.getAnnotation().toJava(indent));
               if (indent < 0) {
                 buffer.append(' ');
               }
