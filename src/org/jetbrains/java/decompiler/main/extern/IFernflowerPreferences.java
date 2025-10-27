@@ -400,8 +400,13 @@ public interface IFernflowerPreferences {
 
   @Name("Validate inner classes names")
   @Description("Validates that the inner class name is correct (if it is separated using \"$\" for example BaseClass$InnerClass). If not then inner class won't be processed.")
-  @Type(DecompilerOption.Type.STRING)
+  @Type(DecompilerOption.Type.BOOLEAN)
   String VALIDATE_INNER_CLASSES_NAMES = "validate-inner-classes-names";
+
+  @Name("Prettify Ifs")
+  @Description("Use heuristics to restructure if statements to make them clearer to read.")
+  @Type(DecompilerOption.Type.BOOLEAN)
+  String PRETTIFY_IFS = "prettify-ifs";
 
   Map<String, Object> DEFAULTS = getDefaults();
 
@@ -477,6 +482,7 @@ public interface IFernflowerPreferences {
     defaults.put(MARK_CORRESPONDING_SYNTHETICS, "0");
     defaults.put(EXCLUDED_CLASSES, "");
     defaults.put(VALIDATE_INNER_CLASSES_NAMES, "1");
+    defaults.put(PRETTIFY_IFS, "1");
 
     return Collections.unmodifiableMap(defaults);
   }

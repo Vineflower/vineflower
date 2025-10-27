@@ -40,10 +40,10 @@ public class TestGroovyClass implements GroovyObject {
    public MetaClass getMetaClass() {
       if (this.metaClass != null) {
          return this.metaClass;
-      } else {
-         this.metaClass = this.$getStaticMetaClass();
-         return this.metaClass;
       }
+
+      this.metaClass = this.$getStaticMetaClass();
+      return this.metaClass;
    }
 
    @Generated
@@ -87,10 +87,10 @@ public class TestGroovyClass implements GroovyObject {
       public MetaClass getMetaClass() {
          if (this.metaClass != null) {
             return this.metaClass;
-         } else {
-            this.metaClass = this.$getStaticMetaClass();
-            return this.metaClass;
          }
+
+         this.metaClass = this.$getStaticMetaClass();
+         return this.metaClass;
       }
 
       @Generated
@@ -115,10 +115,10 @@ public class TestGroovyClass implements GroovyObject {
       public MetaClass getMetaClass() {
          if (this.metaClass != null) {
             return this.metaClass;
-         } else {
-            this.metaClass = this.$getStaticMetaClass();
-            return this.metaClass;
          }
+
+         this.metaClass = this.$getStaticMetaClass();
+         return this.metaClass;
       }
 
       @Generated
@@ -269,18 +269,18 @@ class 'pkg/TestGroovyClass' {
       6      40
       7      40
       8      41
-      a      43
-      c      43
-      d      43
-      e      43
-      f      43
-      10      43
-      11      43
-      12      44
-      13      44
-      14      44
-      15      44
-      16      44
+      a      44
+      c      44
+      d      44
+      e      44
+      f      44
+      10      44
+      11      44
+      12      45
+      13      45
+      14      45
+      15      45
+      16      45
    }
 
    method 'setMetaClass (Lgroovy/lang/MetaClass;)V' {
@@ -358,18 +358,18 @@ class 'pkg/TestGroovyClass$Inner' {
       6      87
       7      87
       8      88
-      a      90
-      c      90
-      d      90
-      e      90
-      f      90
-      10      90
-      11      90
-      12      91
-      13      91
-      14      91
-      15      91
-      16      91
+      a      91
+      c      91
+      d      91
+      e      91
+      f      91
+      10      91
+      11      91
+      12      92
+      13      92
+      14      92
+      15      92
+      16      92
    }
 
    method 'setMetaClass (Lgroovy/lang/MetaClass;)V' {
@@ -413,18 +413,18 @@ class 'pkg/TestGroovyClass$Nested' {
       6      115
       7      115
       8      116
-      a      118
-      c      118
-      d      118
-      e      118
-      f      118
-      10      118
-      11      118
-      12      119
-      13      119
-      14      119
-      15      119
-      16      119
+      a      119
+      c      119
+      d      119
+      e      119
+      f      119
+      10      119
+      11      119
+      12      120
+      13      120
+      14      120
+      15      120
+      16      120
    }
 
    method 'setMetaClass (Lgroovy/lang/MetaClass;)V' {

@@ -4,19 +4,19 @@ public class TestSwitchExprString1 {
    public TestSwitchExprString1.Type get(String s) {
       if (s == null) {// 9
          return TestSwitchExprString1.Type.B;// 10
-      } else {
-         byte var3 = -1;
-         switch (s.hashCode()) {
-            case 97:
-               if (s.equals("a")) {
-                  var3 = 0;
-               }
-            default:
-               return switch (var3) {// 13
-                  case 0 -> TestSwitchExprString1.Type.A;// 14
-                  default -> TestSwitchExprString1.Type.B;// 15
-               };
-         }
+      }
+
+      byte var3 = -1;
+      switch (s.hashCode()) {
+         case 97:
+            if (s.equals("a")) {
+               var3 = 0;
+            }
+         default:
+            return switch (var3) {// 13
+               case 0 -> TestSwitchExprString1.Type.A;// 14
+               default -> TestSwitchExprString1.Type.B;// 15
+            };
       }
    }
 
@@ -36,78 +36,78 @@ class 'pkg/TestSwitchExprString1' {
       5      5
       6      5
       7      5
-      8      8
-      a      7
-      b      7
-      c      8
-      d      8
-      e      8
-      f      8
-      10      8
-      11      8
-      12      8
-      13      8
-      14      8
-      15      8
-      16      8
-      17      8
-      18      8
-      19      8
-      1a      8
-      1b      8
-      1c      8
-      1d      8
-      1e      8
-      1f      8
-      20      8
-      21      8
-      22      8
-      23      8
-      24      10
-      25      10
-      26      10
-      27      10
-      28      10
-      29      10
-      2a      10
-      2b      10
-      2c      10
-      2d      11
-      2e      11
-      2f      14
-      30      14
-      31      14
-      32      14
-      33      14
-      34      14
-      35      14
-      36      14
-      37      14
-      38      14
-      39      14
-      3a      14
-      3b      14
-      3c      14
-      3d      14
-      3e      14
-      3f      14
-      40      14
-      41      14
-      42      14
-      43      14
-      44      15
-      45      15
-      46      15
-      4a      16
-      4b      16
-      4c      16
-      4d      14
+      8      9
+      a      8
+      b      8
+      c      9
+      d      9
+      e      9
+      f      9
+      10      9
+      11      9
+      12      9
+      13      9
+      14      9
+      15      9
+      16      9
+      17      9
+      18      9
+      19      9
+      1a      9
+      1b      9
+      1c      9
+      1d      9
+      1e      9
+      1f      9
+      20      9
+      21      9
+      22      9
+      23      9
+      24      11
+      25      11
+      26      11
+      27      11
+      28      11
+      29      11
+      2a      11
+      2b      11
+      2c      11
+      2d      12
+      2e      12
+      2f      15
+      30      15
+      31      15
+      32      15
+      33      15
+      34      15
+      35      15
+      36      15
+      37      15
+      38      15
+      39      15
+      3a      15
+      3b      15
+      3c      15
+      3d      15
+      3e      15
+      3f      15
+      40      15
+      41      15
+      42      15
+      43      15
+      44      16
+      45      16
+      46      16
+      4a      17
+      4b      17
+      4c      17
+      4d      15
    }
 }
 
 Lines mapping:
 9 <-> 5
 10 <-> 6
-13 <-> 15
-14 <-> 16
-15 <-> 17
+13 <-> 16
+14 <-> 17
+15 <-> 18

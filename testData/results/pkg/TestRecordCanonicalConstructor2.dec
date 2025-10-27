@@ -11,10 +11,10 @@ public record TestRecordCanonicalConstructor2(String name, Object meta) {
    public TestRecordCanonicalConstructor2(String name, Object meta) {
       if (name == null) {
          throw new NullPointerException("name");
-      } else {
-         this.name = name;
-         this.meta = meta;
       }
+
+      this.name = name;
+      this.meta = meta;
    }
 
    public TestRecordCanonicalConstructor2(String var1, String var2) {
@@ -50,16 +50,16 @@ class 'pkg/TestRecordCanonicalConstructor2' {
       c      12
       d      12
       11      12
-      12      14
-      13      14
-      14      14
-      15      14
-      16      14
-      17      15
-      18      15
-      19      15
-      1a      15
-      1b      15
+      12      15
+      13      15
+      14      15
+      15      15
+      16      15
+      17      16
+      18      16
+      19      16
+      1a      16
+      1b      16
       1c      17
    }
 

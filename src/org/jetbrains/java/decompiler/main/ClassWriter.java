@@ -13,8 +13,10 @@ import org.jetbrains.java.decompiler.main.decompiler.CancelationManager;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
+import org.jetbrains.java.decompiler.main.rels.DecompileRecord;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
+import org.jetbrains.java.decompiler.modules.decompiler.IfHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.SwitchHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
@@ -38,10 +40,7 @@ import org.jetbrains.java.decompiler.struct.gen.generics.GenericClassDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericFieldDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericMethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericsChecker;
-import org.jetbrains.java.decompiler.util.InterpreterUtil;
-import org.jetbrains.java.decompiler.util.Key;
-import org.jetbrains.java.decompiler.util.TextBuffer;
-import org.jetbrains.java.decompiler.util.TextUtil;
+import org.jetbrains.java.decompiler.util.*;
 import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
 
 import java.io.IOException;
@@ -86,11 +85,27 @@ public class ClassWriter implements StatementWriter {
     }
     StructClass cl = wrapper.getClassStruct();
 
+
+
     // Very late switch processing, needs entire class to be decompiled for eclipse switchmap style switch-on-enum
     for (MethodWrapper method : wrapper.getMethods()) {
+      DecompileRecord rec = new DecompileRecord(method.methodStruct);
+
       if (method.root != null) {
         try {
-          SwitchHelper.simplifySwitches(method.root, method.methodStruct, method.root);
+          if (SwitchHelper.simplifySwitches(method.root, method.methodStruct, method.root)) {
+            rec.add("FinalSimplifySwitches", method.root);
+          }
+
+          // This is awful and really doesn't belong here, but this breaks simplify switches (for some reason...) so it needs to go after
+          if (DecompilerContext.getOption(IFernflowerPreferences.PRETTIFY_IFS)) {
+            if (IfHelper.prettifyIfs(method.root)) {
+              rec.add("FinalPrettifyIfs", method.root);
+            }
+          }
+          if (!rec.getNames().isEmpty()) {
+            DotExporter.toDotFile(rec, method.methodStruct, "lateDecompileRecord", false);
+          }
         } catch (CancelationManager.CanceledException e) {
           throw e;
         } catch (Throwable e) {

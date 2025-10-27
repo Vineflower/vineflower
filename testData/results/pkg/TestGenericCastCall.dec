@@ -10,19 +10,19 @@ public class TestGenericCastCall {
    public boolean test(boolean b) {
       if (!((TestGenericCastCall.Inner2)this.inner).val() && b) {// 20
          return true;// 21
-      } else {
-         System.out.println(b);// 24
-         return false;// 26
       }
+
+      System.out.println(b);// 24
+      return false;// 26
    }
 
    public boolean test1(boolean b) {
       if (!((TestGenericCastCall.Inner2)this.get()).val() && b) {// 30
          return true;// 31
-      } else {
-         System.out.println(b);// 34
-         return false;// 36
       }
+
+      System.out.println(b);// 34
+      return false;// 36
    }
 
    public class Inner<T> {
@@ -67,15 +67,15 @@ class 'pkg/TestGenericCastCall' {
       16      10
       17      11
       18      11
-      19      13
-      1a      13
-      1b      13
-      1c      13
-      1d      13
-      1e      13
-      1f      13
-      20      14
-      21      14
+      19      14
+      1a      14
+      1b      14
+      1c      14
+      1d      14
+      1e      14
+      1f      14
+      20      15
+      21      15
    }
 
    method 'test1 (Z)Z' {
@@ -101,15 +101,15 @@ class 'pkg/TestGenericCastCall' {
       16      19
       17      20
       18      20
-      19      22
-      1a      22
-      1b      22
-      1c      22
-      1d      22
-      1e      22
-      1f      22
-      20      23
-      21      23
+      19      23
+      1a      23
+      1b      23
+      1c      23
+      1d      23
+      1e      23
+      1f      23
+      20      24
+      21      24
    }
 }
 
@@ -125,9 +125,9 @@ Lines mapping:
 16 <-> 7
 20 <-> 11
 21 <-> 12
-24 <-> 14
-26 <-> 15
+24 <-> 15
+26 <-> 16
 30 <-> 20
 31 <-> 21
-34 <-> 23
-36 <-> 24
+34 <-> 24
+36 <-> 25

@@ -13,10 +13,10 @@ public class TestPatternMatchingReturn {
    public String get(Object obj) {
       if (obj instanceof String) {// 15
          return (String)obj;// 16
-      } else {
-         System.out.println("filler");// 19
-         return null;// 21
       }
+
+      System.out.println("filler");// 19
+      return null;// 21
    }
 }
 
@@ -58,16 +58,16 @@ class 'pkg/TestPatternMatchingReturn' {
       9      14
       a      14
       b      14
-      c      16
-      d      16
-      e      16
-      f      16
-      10      16
-      11      16
-      12      16
-      13      16
-      14      17
-      15      17
+      c      17
+      d      17
+      e      17
+      f      17
+      10      17
+      11      17
+      12      17
+      13      17
+      14      18
+      15      18
    }
 }
 
@@ -78,5 +78,5 @@ Lines mapping:
 11 <-> 9
 15 <-> 14
 16 <-> 15
-19 <-> 17
-21 <-> 18
+19 <-> 18
+21 <-> 19
