@@ -732,6 +732,9 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestGenericMapping");
 
     registerRaw(CUSTOM, "TestCorruptedSignatures").setExpectedFileName("Signatures.java");
+
+    // TODO: for loop shouldn't be made here
+    register(JAVA_8, "TestWhileLoopPromotion");
   }
 
   private void registerEntireClassPath() {
