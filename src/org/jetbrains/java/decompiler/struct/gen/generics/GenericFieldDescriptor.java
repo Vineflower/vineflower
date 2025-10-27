@@ -15,7 +15,7 @@ public class GenericFieldDescriptor {
 
   public void verifyType(GenericClassDescriptor containingClassGenerics, VarType realType) {
     if (containingClassGenerics == null) {
-      DecompilerContext.getLogger().writeMessage("Class generics were not found, verifying type loosely", IFernflowerLogger.Severity.INFO);
+//      DecompilerContext.getLogger().writeMessage("Class generics were not found, verifying type loosely", IFernflowerLogger.Severity.INFO);
       verifyLoosely(realType);
       return;
     }

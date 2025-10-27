@@ -147,6 +147,7 @@ public class NestedClassProcessor {
     VarProcessor enclosingVarProc = enclosingMethod.varproc;
     Set<String> usedBefore = new HashSet<>(enclosingVarProc.getVarNamesCollector().getUsedNames());
     usedBefore.addAll(enclosingVarProc.getVarNames());
+    usedBefore.addAll(enclosingVarProc.clashingNames());
     for (VarVersionPair thisVar : enclosingVarProc.getThisVars().keySet()) {
       usedBefore.remove(enclosingVarProc.getVarName(thisVar));
     }

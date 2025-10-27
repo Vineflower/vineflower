@@ -158,6 +158,10 @@ public class VarProcessor {
     this.clashingNames.put(pair, name);
   }
 
+  public Collection<String> clashingNames() {
+    return clashingNames.values();
+  }
+
   public void setVarName(VarVersionPair pair, String name) {
     mapVarNames.put(pair, name);
   }
