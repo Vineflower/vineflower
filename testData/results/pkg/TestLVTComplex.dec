@@ -62,7 +62,7 @@ public class TestLVTComplex {
       System.out.println(a2);
    }
 
-   private static enum Bob {
+   private enum Bob {
       HI,
       LO;
 

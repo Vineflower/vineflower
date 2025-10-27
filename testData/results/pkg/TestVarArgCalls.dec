@@ -35,7 +35,7 @@ public class TestVarArgCalls {
       }
    }
 
-   public static enum Test {
+   public enum Test {
       A,
       B;
    }

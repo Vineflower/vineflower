@@ -8,7 +8,7 @@ public enum TestEnumArrayStaticInit {
    private static final TestEnumArrayStaticInit[] VALUES;
    private final int v;
 
-   private TestEnumArrayStaticInit(int v) {
+   TestEnumArrayStaticInit(int v) {
       this.v = v;// 11
    }// 12
 

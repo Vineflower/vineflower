@@ -19,11 +19,11 @@ public enum TestEnum {
    public void m() {
    }// 32
 
-   private TestEnum() {
+   TestEnum() {
       this("?", null);// 36
    }
 
-   private TestEnum(@Deprecated String s, TestEnum.Type t) {
+   TestEnum(@Deprecated String s, TestEnum.Type t) {
       this.s = s;// 37
    }
 
@@ -48,7 +48,7 @@ public enum TestEnum {
       }
    }// 59
 
-   private static enum Type {
+   private enum Type {
       ODD,
       EVEN;
    }
