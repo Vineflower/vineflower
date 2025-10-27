@@ -242,12 +242,35 @@ public final class SwitchHelper {
         caseMap.put(((ConstExprent)assign.getRight()).getIntValue(), new ConstExprent(VarType.VARTYPE_NULL, null, null));
       }
 
-      List<List<Exprent>> realCaseValues = following.getCaseValues().stream()
+      // If the 'following' switch is a tableswitch, it can have a synthetic value in the default branch to fill out the table,
+      // even if this value is unreachable from the preceding switch. Remove those values, as well as the edge that it corresponds to.
+      // See TestSwitchDefaultBefore for an example.
+
+      List<List<Pair<Exprent, Boolean>>> mappedCaseValues = following.getCaseValues().stream()
         .map(l -> l.stream()
           .map(e -> e instanceof ConstExprent ? ((ConstExprent)e).getIntValue() : null)
-          .map(caseMap::get)
+          .map(v -> {
+            return Pair.of(caseMap.get(v), v != null && caseMap.get(v) == null);
+          })
           .collect(Collectors.toList()))
         .collect(Collectors.toList());
+
+      // Use the case value data to remove the corresponding edges if necessary.
+      List<List<Exprent>> realCaseValues = new ArrayList<>();
+
+      for (int v = 0; v < mappedCaseValues.size(); v++) {
+        ArrayList<Exprent> exprs = new ArrayList<>();
+        realCaseValues.add(exprs);
+        for (int w = 0; w < mappedCaseValues.get(v).size(); w++) {
+          Pair<Exprent, Boolean> res = mappedCaseValues.get(v).get(w);
+          if (res.b) {
+            following.getCaseEdges().get(v).remove(w);
+            continue;
+          }
+
+          exprs.add(res.a);
+        }
+      }
 
       following.getCaseValues().clear();
       following.getCaseValues().addAll(realCaseValues);

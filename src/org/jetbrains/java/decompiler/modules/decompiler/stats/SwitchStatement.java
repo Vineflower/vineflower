@@ -146,9 +146,6 @@ public class SwitchStatement extends Statement {
           buf.appendLineSeparator();
         } else {
           Exprent value = values.get(j);
-          if (value == null) { // TODO: how can this be null? Is it trying to inject a synthetic case value in switch-on-string processing? [TestSwitchDefaultBefore]
-            continue;
-          }
 
           buf.appendIndent(indent + 1).append("case ");
 
