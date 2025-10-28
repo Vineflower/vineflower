@@ -1,0 +1,82 @@
+package pkg;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Target;
+
+public class TestTypeAnnotations {
+   @TestTypeAnnotations.Anno
+   public TestTypeAnnotations.Inner a;
+   public TestTypeAnnotations.Inner b;
+   @TestTypeAnnotations.Anno
+   public TestTypeAnnotations.InnerStatic c;
+   public TestTypeAnnotations[] d;
+   @TestTypeAnnotations.Anno
+   public TestTypeAnnotations[] e;
+
+   @TestTypeAnnotations.Anno
+   public TestTypeAnnotations.Inner a() {
+      return null;// 27
+   }
+
+   public TestTypeAnnotations.Inner b() {
+      return null;// 31
+   }
+
+   @TestTypeAnnotations.Anno
+   public TestTypeAnnotations.InnerStatic c() {
+      return null;// 35
+   }
+
+   public TestTypeAnnotations[] d() {
+      return null;// 39
+   }
+
+   @TestTypeAnnotations.Anno
+   public TestTypeAnnotations[] e() {
+      return null;// 43
+   }
+
+   @Target(ElementType.TYPE_USE)
+   public @interface Anno {
+   }
+
+   public class Inner {
+   }
+
+   public static class InnerStatic {
+   }
+}
+
+class 'pkg/TestTypeAnnotations' {
+   method 'a ()Lpkg/TestTypeAnnotations$Inner;' {
+      0      17
+      1      17
+   }
+
+   method 'b ()Lpkg/TestTypeAnnotations$Inner;' {
+      0      21
+      1      21
+   }
+
+   method 'c ()Lpkg/TestTypeAnnotations$InnerStatic;' {
+      0      26
+      1      26
+   }
+
+   method 'd ()[Lpkg/TestTypeAnnotations;' {
+      0      30
+      1      30
+   }
+
+   method 'e ()[Lpkg/TestTypeAnnotations;' {
+      0      35
+      1      35
+   }
+}
+
+Lines mapping:
+27 <-> 18
+31 <-> 22
+35 <-> 27
+39 <-> 31
+43 <-> 36
