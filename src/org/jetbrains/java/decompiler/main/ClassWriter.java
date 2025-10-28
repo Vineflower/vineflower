@@ -1180,6 +1180,13 @@ public class ClassWriter implements StatementWriter {
 
         ClassNode currentNode = node;
         while (currentNode != null) {
+          if (currentNode.enclosingMethod != null) {
+            StructMethod enclosingMethod = currentNode.parent.classStruct.getMethod(currentNode.enclosingMethod);
+            if (enclosingMethod != null && enclosingMethod.getSignature() != null) {
+              checker = checker.copy(enclosingMethod.getSignature().typeParameters, enclosingMethod.getSignature().typeParameterBounds);
+            }
+          }
+
           GenericClassDescriptor parentSignature = currentNode.classStruct.getSignature();
           if (parentSignature != null) {
             checker = checker.copy(parentSignature.getChecker());
