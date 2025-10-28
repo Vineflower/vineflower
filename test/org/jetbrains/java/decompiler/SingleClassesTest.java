@@ -730,6 +730,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_17, "TestSwitchOnEnumFake");
     register(JAVA_16, "TestSwitchExpressionReturnType");
     register(JAVA_8, "TestGenericMapping");
+    register(JAVA_8, "TestNestedGenerics1");
+    register(JAVA_11, "TestNestedGenerics2");
 
     registerRaw(CUSTOM, "TestCorruptedSignatures").setExpectedFileName("Signatures.java");
 
