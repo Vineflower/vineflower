@@ -187,6 +187,9 @@ test {
       provider.launchers.put(k, v)
   }
   jvmArgumentProviders << provider
+
+  // Always run tests
+  outputs.upToDateWhen { false }
 }
 
 jar {
