@@ -156,21 +156,6 @@ public final class RecordHelper {
           }
         }
       }
-
-      for (Key<?> key : ClassWriter.TYPE_ANNOTATION_ATTRIBUTES) {
-        StructTypeAnnotationAttribute attribute = member.getAttribute((Key<StructTypeAnnotationAttribute>) key);
-        if (attribute == null) continue;
-        for (TypeAnnotation annotation : attribute.getAnnotations()) {
-          if (!annotation.isTopLevel()) continue;
-          int type = annotation.getTargetType();
-          if (type == TypeAnnotation.FIELD || type == TypeAnnotation.METHOD_PARAMETER) {
-            TextBuffer text = annotation.getAnnotation().toJava(-1);
-            if (annotations.add(text.convertToStringAndAllowDataDiscard())) {
-              buffers.add(text);
-            }
-          }
-        }
-      }
     }
 
     StructMember constr = getCanonicalConstructor(cl);
@@ -194,7 +179,9 @@ public final class RecordHelper {
 
   private static void recordComponentToJava(TextBuffer buffer, StructClass cl, StructRecordComponent cd, int param, boolean varArgComponent) {
     Set<TextBuffer> annotations = getRecordComponentAnnotations(cl, cd, param);
+    Set<String> writtenAnnotations = new HashSet<>();
     for (TextBuffer annotation : annotations) {
+      writtenAnnotations.add(annotation.convertToStringAndAllowDataDiscard());
       buffer.append(annotation).append(' ');
     }
 
@@ -206,7 +193,13 @@ public final class RecordHelper {
       fieldType = descriptor.type;
     }
 
-    buffer.appendCastTypeName(varArgComponent ? fieldType.decreaseArrayDim() : fieldType);
+    var annos = ClassWriter.getTypeAnnotations(cd, TypeAnnotation.FIELD, -1);
+
+    if (!annos.isEmpty()) {
+      buffer.appendCastTypeName(varArgComponent ? fieldType.decreaseArrayDim() : fieldType, annos, writtenAnnotations);
+    } else {
+      buffer.appendCastTypeName(varArgComponent ? fieldType.decreaseArrayDim() : fieldType);
+    }
     if (varArgComponent) {
       buffer.append("...");
     }

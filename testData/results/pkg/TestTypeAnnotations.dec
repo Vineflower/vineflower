@@ -2,81 +2,182 @@ package pkg;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
+import java.lang.invoke.MethodHandle;
 
 public class TestTypeAnnotations {
-   @TestTypeAnnotations.Anno
-   public TestTypeAnnotations.Inner a;
-   public TestTypeAnnotations.Inner b;
-   @TestTypeAnnotations.Anno
-   public TestTypeAnnotations.InnerStatic c;
-   public TestTypeAnnotations[] d;
-   @TestTypeAnnotations.Anno
-   public TestTypeAnnotations[] e;
+   public @TestTypeAnnotations.Anno TestTypeAnnotations.Inner a;
+   public TestTypeAnnotations.@TestTypeAnnotations.Anno Inner b;
+   public TestTypeAnnotations.@TestTypeAnnotations.Anno InnerStatic c;
+   public @TestTypeAnnotations.Anno TestTypeAnnotations[] d;
+   public TestTypeAnnotations @TestTypeAnnotations.Anno [] e;
+   public TestTypeAnnotations.@TestTypeAnnotations.Anno InnerStatic.Inner2 f;
+   public TestTypeAnnotations.InnerStatic.@TestTypeAnnotations.Anno Inner2 g;
+   public TestTypeAnnotations.InnerStatic.@TestTypeAnnotations.Anno Inner2Static g_1;
+   public TestTypeAnnotations.@TestTypeAnnotations.Anno Inner[] h;
+   public TestTypeAnnotations.Inner @TestTypeAnnotations.Anno [] i;
+   public @TestTypeAnnotations.Anno TestTypeAnnotations[][] j;
+   public TestTypeAnnotations.Inner[] @TestTypeAnnotations.Anno [] k;
+   public TestTypeAnnotations.Inner @TestTypeAnnotations.Anno [][] k_1;
+   public TestTypeAnnotations.InnerStatic.Inner2 @TestTypeAnnotations.Anno [] l;
+   public TestTypeAnnotations.InnerStatic.@TestTypeAnnotations.Anno Inner2[] m;
+   public TestTypeAnnotations.@TestTypeAnnotations.Anno G1<TestTypeAnnotations> n;
+   public TestTypeAnnotations.G1<@TestTypeAnnotations.Anno TestTypeAnnotations> o;
+   public TestTypeAnnotations.@TestTypeAnnotations.Anno G1<TestTypeAnnotations>[] p;
+   public TestTypeAnnotations.G1<@TestTypeAnnotations.Anno TestTypeAnnotations[]> q;
+   public TestTypeAnnotations.G1<TestTypeAnnotations @TestTypeAnnotations.Anno []> r;
+   public TestTypeAnnotations.G1<@TestTypeAnnotations.Anno ? extends TestTypeAnnotations> s;
+   public TestTypeAnnotations.G1<? extends @TestTypeAnnotations.Anno TestTypeAnnotations> t;
+   public TestTypeAnnotations.G1<@TestTypeAnnotations.Anno ?> u;
+   public @TestTypeAnnotations.Anno MethodHandle v;
+   public TestTypeAnnotations.G2<@TestTypeAnnotations.Anno String, Integer> w;
+   public TestTypeAnnotations.G2<String, @TestTypeAnnotations.Anno Integer> x;
 
-   @TestTypeAnnotations.Anno
-   public TestTypeAnnotations.Inner a() {
-      return null;// 27
+   public @TestTypeAnnotations.Anno TestTypeAnnotations.Inner a() {
+      return null;// 93
    }
 
-   public TestTypeAnnotations.Inner b() {
-      return null;// 31
+   public TestTypeAnnotations.@TestTypeAnnotations.Anno Inner b() {
+      return null;// 97
    }
 
-   @TestTypeAnnotations.Anno
-   public TestTypeAnnotations.InnerStatic c() {
-      return null;// 35
+   public TestTypeAnnotations.@TestTypeAnnotations.Anno InnerStatic c() {
+      return null;// 101
    }
 
-   public TestTypeAnnotations[] d() {
-      return null;// 39
+   public @TestTypeAnnotations.Anno TestTypeAnnotations[] d() {
+      return null;// 105
    }
 
-   @TestTypeAnnotations.Anno
-   public TestTypeAnnotations[] e() {
-      return null;// 43
+   public TestTypeAnnotations @TestTypeAnnotations.Anno [] e() {
+      return null;// 109
    }
+
+   public void varargs(@TestTypeAnnotations.Anno Object... args) {
+   }// 114
+
+   public void varargs(int v, @TestTypeAnnotations.Anno Object... args) {
+   }// 118
+
+   public void varargs2(Object @TestTypeAnnotations.Anno ... args) {
+   }// 122
+
+   public void varargs2(int v, Object @TestTypeAnnotations.Anno ... args) {
+   }// 126
+
+   public void varargs3a(Object[] @TestTypeAnnotations.Anno ... args) {
+   }// 130
+
+   public void varargs3b(Object @TestTypeAnnotations.Anno []... args) {
+   }// 134
 
    @Target(ElementType.TYPE_USE)
    public @interface Anno {
    }
 
+   public static class G1<T> {
+   }
+
+   public static class G2<K, V> {
+   }
+
    public class Inner {
+      public TestTypeAnnotations.Inner.@TestTypeAnnotations.Anno InnerRec aa;
+      public TestTypeAnnotations.Inner.@TestTypeAnnotations.Anno InnerInnerStatic ab;
+      public @TestTypeAnnotations.Anno TestTypeAnnotations.Inner.InnerInner ac;
+      public TestTypeAnnotations.@TestTypeAnnotations.Anno Inner.InnerInner ad;
+      public TestTypeAnnotations.Inner.@TestTypeAnnotations.Anno InnerInner ae;
+
+      public class InnerInner {
+      }
+
+      public static class InnerInnerStatic {
+         public static TestTypeAnnotations.Inner.@TestTypeAnnotations.Anno InnerRec.A ca;
+         public static TestTypeAnnotations.Inner.InnerRec.@TestTypeAnnotations.Anno A cb;
+         public static TestTypeAnnotations.Inner.InnerInnerStatic.@TestTypeAnnotations.Anno B cc;
+         public static TestTypeAnnotations.Inner.@TestTypeAnnotations.Anno InnerInnerStatic.B cd;
+
+         public class B {
+         }
+      }
+
+      public record InnerRec() {
+         public static TestTypeAnnotations.Inner.@TestTypeAnnotations.Anno InnerRec.A ba;
+         public static TestTypeAnnotations.Inner.InnerRec.@TestTypeAnnotations.Anno A bb;
+
+         public class A {
+         }
+      }
    }
 
    public static class InnerStatic {
+      public class Inner2 {
+      }
+
+      public static class Inner2Static {
+      }
    }
 }
 
 class 'pkg/TestTypeAnnotations' {
    method 'a ()Lpkg/TestTypeAnnotations$Inner;' {
-      0      17
-      1      17
+      0      35
+      1      35
    }
 
    method 'b ()Lpkg/TestTypeAnnotations$Inner;' {
-      0      21
-      1      21
+      0      39
+      1      39
    }
 
    method 'c ()Lpkg/TestTypeAnnotations$InnerStatic;' {
-      0      26
-      1      26
+      0      43
+      1      43
    }
 
    method 'd ()[Lpkg/TestTypeAnnotations;' {
-      0      30
-      1      30
+      0      47
+      1      47
    }
 
    method 'e ()[Lpkg/TestTypeAnnotations;' {
-      0      35
-      1      35
+      0      51
+      1      51
+   }
+
+   method 'varargs ([Ljava/lang/Object;)V' {
+      0      55
+   }
+
+   method 'varargs (I[Ljava/lang/Object;)V' {
+      0      58
+   }
+
+   method 'varargs2 ([Ljava/lang/Object;)V' {
+      0      61
+   }
+
+   method 'varargs2 (I[Ljava/lang/Object;)V' {
+      0      64
+   }
+
+   method 'varargs3a ([[Ljava/lang/Object;)V' {
+      0      67
+   }
+
+   method 'varargs3b ([[Ljava/lang/Object;)V' {
+      0      70
    }
 }
 
 Lines mapping:
-27 <-> 18
-31 <-> 22
-35 <-> 27
-39 <-> 31
-43 <-> 36
+93 <-> 36
+97 <-> 40
+101 <-> 44
+105 <-> 48
+109 <-> 52
+114 <-> 56
+118 <-> 59
+122 <-> 62
+126 <-> 65
+130 <-> 68
+134 <-> 71

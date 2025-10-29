@@ -738,7 +738,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: for loop shouldn't be made here
     register(JAVA_8, "TestWhileLoopPromotion");
 
-    register(JAVA_8, "TestTypeAnnotations");
+    register(JAVA_21, "TestTypeAnnotations");
   }
 
   private void registerEntireClassPath() {
