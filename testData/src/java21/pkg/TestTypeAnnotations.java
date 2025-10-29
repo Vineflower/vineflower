@@ -109,6 +109,10 @@ public class TestTypeAnnotations {
     return null;
   }
 
+  public byte @Anno [] ary(byte @Anno [] ary) {
+    return ary;
+  }
+
   public void varargs(@Anno Object... args) {
 
   }
