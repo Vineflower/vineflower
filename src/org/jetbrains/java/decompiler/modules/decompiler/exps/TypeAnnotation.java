@@ -238,7 +238,8 @@ public class TypeAnnotation {
 
     stepwiseWriteAnnotations(buffer, typeAnnotations, filter, v -> false);
 
-    buffer.appendCastTypeName(ExprProcessor.getCastTypeName(type), type);
+    // Don't write with arrays, we're handling that separately
+    buffer.appendCastTypeName(ExprProcessor.getCastTypeName(type.resizeArrayDim(0)), type);
 
     // Append the array data
     buffer.append(appendBuffer);

@@ -52,23 +52,27 @@ public class TestTypeAnnotations {
       return null;// 109
    }
 
-   public void varargs(@TestTypeAnnotations.Anno Object... args) {
-   }// 114
+   public byte @TestTypeAnnotations.Anno [] ary(byte @TestTypeAnnotations.Anno [] ary) {
+      return ary;// 113
+   }
 
-   public void varargs(int v, @TestTypeAnnotations.Anno Object... args) {
+   public void varargs(@TestTypeAnnotations.Anno Object... args) {
    }// 118
 
-   public void varargs2(Object @TestTypeAnnotations.Anno ... args) {
+   public void varargs(int v, @TestTypeAnnotations.Anno Object... args) {
    }// 122
 
-   public void varargs2(int v, Object @TestTypeAnnotations.Anno ... args) {
+   public void varargs2(Object @TestTypeAnnotations.Anno ... args) {
    }// 126
 
-   public void varargs3a(Object[] @TestTypeAnnotations.Anno ... args) {
+   public void varargs2(int v, Object @TestTypeAnnotations.Anno ... args) {
    }// 130
 
-   public void varargs3b(Object @TestTypeAnnotations.Anno []... args) {
+   public void varargs3a(Object[] @TestTypeAnnotations.Anno ... args) {
    }// 134
+
+   public void varargs3b(Object @TestTypeAnnotations.Anno []... args) {
+   }// 138
 
    @Target(ElementType.TYPE_USE)
    public @interface Anno {
@@ -144,28 +148,33 @@ class 'pkg/TestTypeAnnotations' {
       1      51
    }
 
-   method 'varargs ([Ljava/lang/Object;)V' {
+   method 'ary ([B)[B' {
       0      55
+      1      55
+   }
+
+   method 'varargs ([Ljava/lang/Object;)V' {
+      0      59
    }
 
    method 'varargs (I[Ljava/lang/Object;)V' {
-      0      58
+      0      62
    }
 
    method 'varargs2 ([Ljava/lang/Object;)V' {
-      0      61
+      0      65
    }
 
    method 'varargs2 (I[Ljava/lang/Object;)V' {
-      0      64
+      0      68
    }
 
    method 'varargs3a ([[Ljava/lang/Object;)V' {
-      0      67
+      0      71
    }
 
    method 'varargs3b ([[Ljava/lang/Object;)V' {
-      0      70
+      0      74
    }
 }
 
@@ -175,9 +184,10 @@ Lines mapping:
 101 <-> 44
 105 <-> 48
 109 <-> 52
-114 <-> 56
-118 <-> 59
-122 <-> 62
-126 <-> 65
-130 <-> 68
-134 <-> 71
+113 <-> 56
+118 <-> 60
+122 <-> 63
+126 <-> 66
+130 <-> 69
+134 <-> 72
+138 <-> 75
