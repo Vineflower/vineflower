@@ -669,6 +669,10 @@ public class ClassesProcessor implements CodeConstants {
       }
     }
 
+    public boolean hasModifier(int modifier) {
+      return (access & modifier) == modifier;
+    }
+
     public ClassNode getClassNode(String qualifiedName) {
       for (ClassNode node : nested) {
         if (qualifiedName.equals(node.classStruct.qualifiedName)) {

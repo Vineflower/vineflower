@@ -76,10 +76,9 @@ public class StructTypeAnnotationAttribute extends StructGeneralAttribute {
     }
 
     int pathLength = data.readUnsignedByte();
-    byte[] path = null;
-    if (pathLength > 0) {
-      path = new byte[2 * pathLength];
-      data.readFully(path);
+    TypeAnnotation.PathValue[] path = new TypeAnnotation.PathValue[pathLength];
+    for (int i = 0; i < pathLength; i++) {
+      path[i] = new TypeAnnotation.PathValue(TypeAnnotation.PathKind.VALUES[data.readByte()], data.readByte());
     }
 
     AnnotationExprent annotation = StructAnnotationAttribute.parseAnnotation(data, pool);

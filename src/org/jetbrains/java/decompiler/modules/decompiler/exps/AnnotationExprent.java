@@ -23,6 +23,7 @@ public class AnnotationExprent extends Exprent {
   private final String className;
   private final List<String> parNames;
   private final List<? extends Exprent> parValues;
+  private boolean didWriteAlready;
 
   public AnnotationExprent(String className, List<String> parNames, List<? extends Exprent> parValues) {
     super(Exprent.Type.ANNOTATION);
@@ -140,6 +141,14 @@ public class AnnotationExprent extends Exprent {
 
   public List<? extends Exprent> getParValues() {
     return parValues;
+  }
+
+  public boolean didWriteAlready() {
+    return didWriteAlready;
+  }
+
+  public void setDidWriteAlready(boolean didWriteAlready) {
+    this.didWriteAlready = didWriteAlready;
   }
 
   @Override
