@@ -8,7 +8,7 @@ public class TestAmbiguousArraylen {
       if (myVector.firstElement() instanceof Stack) {// 8
          ((Stack)myVector.firstElement()).size();
       } else {
-         int var10000 = ((Object[])myVector.firstElement()).length;
+         int myInt = ((Object[])myVector.firstElement()).length;
       }
 
       Object[] myObjects = myVector.firstElement() instanceof Stack ? ((Stack)myVector.get(0)).toArray() : (Object[])myVector.get(0);// 9

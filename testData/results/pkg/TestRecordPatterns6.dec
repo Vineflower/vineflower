@@ -5,9 +5,9 @@ import java.util.Objects;
 public class TestRecordPatterns6 {
    public Object test1(TestRecordPatterns6.I in) {
       return switch (in) {// 11
-         case TestRecordPatterns6.I.R1(Object var14) -> var14;// 12
-         case TestRecordPatterns6.I.R2(int var15) -> var15;// 13
-         case TestRecordPatterns6.I.R3(String var10) -> var10;// 14
+         case TestRecordPatterns6.I.R1(Object o) -> o;// 12
+         case TestRecordPatterns6.I.R2(int i) -> i;// 13
+         case TestRecordPatterns6.I.R3(String s) -> s;// 14
          default -> throw new MatchException(null, null);
       };
    }
@@ -18,7 +18,7 @@ public class TestRecordPatterns6 {
       while (true) {
          return (String)(switch (in) {// 19
             case TestRecordPatterns6.I.R1(String s) -> s;// 20
-            case TestRecordPatterns6.I.R3(String var8) -> var8;// 21
+            case TestRecordPatterns6.I.R3(String sx) -> sx;// 21
             default -> throw new IllegalStateException();// 22
          });
       }

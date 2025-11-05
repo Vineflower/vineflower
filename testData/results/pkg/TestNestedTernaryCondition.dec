@@ -3,9 +3,9 @@ package pkg;
 public class TestNestedTernaryCondition {
    public void test(boolean bl, int a, int b) {
       if (bl ? a <= b : a >= b) {// 5
-         byte var5 = 16;
+         int i = 16;
       } else {
-         boolean var10000 = false;
+         int i = 0;
       }
    }// 6
 }

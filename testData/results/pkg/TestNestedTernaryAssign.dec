@@ -4,12 +4,12 @@ public class TestNestedTernaryAssign {
    public void test(boolean b1, boolean b2, boolean b3) {
       if (b1) {// 5
          if (b2) {
-            String var10000 = "3";
+            Object o = "3";
          } else {
             Integer.valueOf(3);
          }
       } else if (b3) {
-         String var5 = "4";
+         Object o = "4";
       } else {
          Integer.valueOf(4);
       }
@@ -17,9 +17,9 @@ public class TestNestedTernaryAssign {
 
    public void test2(boolean b1, boolean b2, boolean b3) {
       if (b1) {// 9
-         String var10000 = b2 ? "3" : "33";
+         String s = b2 ? "3" : "33";
       } else {
-         String var5 = b3 ? "4" : "44";
+         String s = b3 ? "4" : "44";
       }
    }// 10
 

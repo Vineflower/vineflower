@@ -23,6 +23,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionsGraph;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructMethod;
+import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute.LocalVariable;
 import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
@@ -132,6 +133,8 @@ public class StackVarsProcessor {
     stack.add(dgraph.first);
     stackMaps.add(new HashMap<>());
 
+    Map<VarVersionPair, LocalVariable> lvts = new HashMap<>();
+
     int[] ret = {0, 0};
     while (!stack.isEmpty()) {
       DirectNode nd = stack.removeFirst();
@@ -187,7 +190,7 @@ public class StackVarsProcessor {
             boolean simplifyAcrossStack = stackStage == 1;
 
             // {newIndex, changed}
-            iterateExprent(lst, nd.statement, index, next, mapVarValues, ssa, simplifyAcrossStack, ret, options);
+            iterateExprent(lst, nd.statement, lvts, index, next, mapVarValues, ssa, simplifyAcrossStack, ret, options);
 
             // If index is specified, set to that
             if (ret[0] >= 0) {
@@ -229,6 +232,24 @@ public class StackVarsProcessor {
               loop.getInitExprent() == null &&
               loop.getIncExprent() == null) { // "downgrade" loop to 'while'
             loop.setLooptype(DoStatement.Type.WHILE);
+          }
+        }
+      }
+    }
+
+    for (DirectNode nd : setVisited) {
+      for (Exprent expr : nd.exprents) {
+        if (expr == null) {
+          // TODO: how is this possible???
+          continue;
+        }
+
+        for (Exprent ex : expr.getAllExprents(true, true)) {
+          if (ex instanceof VarExprent var && lvts.containsKey(var.getVarVersionPair())) {
+            LocalVariable lvt = lvts.get(var.getVarVersionPair());
+            if (var.getLVT() == null) {
+              var.setLVT(lvt);
+            }
           }
         }
       }
@@ -290,6 +311,7 @@ public class StackVarsProcessor {
   // {nextIndex, (changed ? 1 : 0)}
   private static void iterateExprent(List<Exprent> lstExprents,
                                       Statement stat,
+                                     Map<VarVersionPair, LocalVariable> lvts,
                                       int index,
                                       Exprent next,
                                       Map<VarVersionPair, Exprent> mapVarValues,
@@ -372,7 +394,7 @@ public class StackVarsProcessor {
         setRet(ret, index + 1, 1);
         return;
       } else if (right instanceof VarExprent) {
-        onDeletedVar(stat, left, right);
+        onDeletedVar(stat, left, right, lvts, ssau);
 
         lstExprents.remove(index);
         setRet(ret, index, 1);
@@ -492,7 +514,7 @@ public class StackVarsProcessor {
     }
 
     if (!notdom && !vernotreplaced) {
-      onDeletedVar(stat, left, right);
+      onDeletedVar(stat, left, right, lvts, ssau);
       // remove assignment
       lstExprents.remove(index);
       setRet(ret, index, 1);
@@ -507,19 +529,45 @@ public class StackVarsProcessor {
   }
 
   // When variables are deleted, apply some post processing
-  private static void onDeletedVar(Statement stat,  VarExprent left, Exprent right) {
+  private static void onDeletedVar(Statement stat,  VarExprent left, Exprent right, Map<VarVersionPair, LocalVariable> lvts, SSAUConstructorSparseEx ssau) {
     if (right instanceof VarExprent rightVar) {
-
-      // In the pattern:
-      // catch (Exception var2) {
-      //   ex = var2; // ex -> var1
-      //   ...
-      //  }
-      // Try to propagate the lvt from the assignment being deleted to the catch. This is required because catch vars use
-      // synthetic variables, and won't get their lvt normally otherwise.
-
       if (rightVar.getLVT() == null && left.getLVT() != null) {
+
+        // Iterate through the variables up the assignment chain, and move the LVT. This is needed so that stack processing
+        // doesn't accidentally delete variables with lvts and replace them with synthetic versions.
+        // Going through the VarVersionsGraph is needed because at this stage unrelated variables can have the same var index.
+
+        VarVersionsGraph versions = ssau.getSsuVersions();
+        VarVersionNode node = versions.nodes.getWithKey(left.getVarVersionPair());
+
+        Deque<VarVersionNode> nodes = new ArrayDeque<>();
+        Set<VarVersionNode> seen = new HashSet<>();
+        nodes.add(node);
+
+        while (!nodes.isEmpty()) {
+          VarVersionNode nd = nodes.poll();
+          seen.add(nd);
+
+          if (nd.var == rightVar.getIndex()) {
+            lvts.put(nd.asPair(), left.getLVT());
+          }
+
+          for (VarVersionNode pred : predecessors(nd, versions, ssau.getVarAssignmentMap())) {
+            if (!seen.contains(pred)) {
+              nodes.add(pred);
+            }
+          }
+        }
+
         rightVar.setLVT(left.getLVT());
+
+        // In the pattern:
+        // catch (Exception var2) {
+        //   ex = var2; // ex -> var1
+        //   ...
+        //  }
+        // Try to propagate the lvt from the assignment being deleted to the catch. This is required because catch vars use
+        // synthetic variables, and won't get their lvt normally otherwise.
 
         CatchStatement catchSt = enclosingCatch(stat);
         if (catchSt != null) {
@@ -531,6 +579,18 @@ public class StackVarsProcessor {
         }
       }
     }
+  }
+
+  private static Set<VarVersionNode> predecessors(VarVersionNode node, VarVersionsGraph graph, Map<VarVersionPair, VarVersionPair> assignments) {
+    Set<VarVersionNode> res = new HashSet<>();
+    res.addAll(node.predecessors);
+
+    VarVersionPair assign = assignments.get(node.asPair());
+    if (assign != null) {
+      res.add(graph.nodes.getWithKey(assign));
+    }
+
+    return res;
   }
 
   private static CatchStatement enclosingCatch(Statement stat) {

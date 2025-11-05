@@ -16,7 +16,7 @@ public class TestUnnamedVar1 {
             throw new MatchException(var6.toString(), var6);
          }
 
-         int var4 = var7;
+         int x = var7;
          var10000 = var2;
 
          try {
@@ -25,13 +25,13 @@ public class TestUnnamedVar1 {
             throw new MatchException(var5.toString(), var5);
          }
 
-         System.out.println(var4);// 13
+         System.out.println(x);// 13
       }
    }// 15
 
    public void test1(Object o) {
-      if (o instanceof TestUnnamedVar1.Point(int var5, Object var8)) {// 18
-         System.out.println(var5);// 19
+      if (o instanceof TestUnnamedVar1.Point(int x, Object var8)) {// 18
+         System.out.println(x);// 19
       }
    }// 21
 

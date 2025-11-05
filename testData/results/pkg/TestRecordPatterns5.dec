@@ -2,28 +2,28 @@ package pkg;
 
 public class TestRecordPatterns5 {
    public void test1(TestRecordPatterns5.R r) {
-      if (r instanceof TestRecordPatterns5.R(Integer x, String var8)) {// 7
+      if (r instanceof TestRecordPatterns5.R(Integer x, String s)) {// 7
          System.out.println(x);// 8
-         System.out.println(var8);// 9
+         System.out.println(s);// 9
       }
    }// 11
 
    public void test2(TestRecordPatterns5.R r) {
       if (r instanceof TestRecordPatterns5.R(Integer x, String var11)) {// 14
-         String var8 = var11;
-         if (var8.length() > 10) {
+         String s = var11;
+         if (s.length() > 10) {
             System.out.println(x);// 15
-            System.out.println(var8);// 16
+            System.out.println(s);// 16
          }
       }
    }// 18
 
    public void test3(TestRecordPatterns5.R r) {
       if (r instanceof TestRecordPatterns5.R(Integer x, String var11)) {// 21
-         String var8 = var11;
-         if (var8.length() > 10 && x == 3) {
+         String s = var11;
+         if (s.length() > 10 && x == 3) {
             System.out.println(x);// 22
-            System.out.println(var8);// 23
+            System.out.println(s);// 23
          }
       }
    }// 25

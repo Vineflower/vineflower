@@ -1,0 +1,56 @@
+package pkg;
+
+public class TestCatchClashing {
+   public void test() {
+      try {
+         System.out.println("Hello");// 6
+      } catch (Error e) {// 7
+         e.printStackTrace();// 8
+      } catch (Exception ex) {// 9
+         ex.printStackTrace();// 10
+      } catch (Throwable exx) {// 11
+         exx.printStackTrace();// 12
+      }
+   }// 14
+}
+
+class 'pkg/TestCatchClashing' {
+   method 'test ()V' {
+      0      5
+      1      5
+      2      5
+      3      5
+      4      5
+      5      5
+      6      5
+      7      5
+      b      6
+      c      7
+      d      7
+      e      7
+      f      7
+      13      8
+      14      9
+      15      9
+      16      9
+      17      9
+      1b      10
+      1c      11
+      1d      11
+      1e      11
+      1f      11
+      20      13
+   }
+}
+
+Lines mapping:
+6 <-> 6
+7 <-> 7
+8 <-> 8
+9 <-> 9
+10 <-> 10
+11 <-> 11
+12 <-> 12
+14 <-> 14
+Not mapped:
+13

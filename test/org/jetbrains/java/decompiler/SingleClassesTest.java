@@ -461,10 +461,11 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching15");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching16");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching17");
+    // TODO: invalid switch set
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching18");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching19");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching20");
-    // TODO: <unknown> variable, wrong variables are being used.
+    // TODO: wrong variables are being used
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching21");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching22");
 
@@ -740,6 +741,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestWhileLoopPromotion");
 
     register(JAVA_21, "TestTypeAnnotations");
+    register(JAVA_8, "TestCatchClashing");
   }
 
   private void registerEntireClassPath() {

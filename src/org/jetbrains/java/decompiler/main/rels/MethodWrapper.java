@@ -1,6 +1,7 @@
 // Copyright 2000-2017 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.main.rels;
 
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
@@ -43,7 +44,7 @@ public class MethodWrapper {
     }
   }
 
-  public DirectGraph getOrBuildGraph() {
+  public @Nullable DirectGraph getOrBuildGraph() {
     if (graph == null && root != null) {
       graph = new FlattenStatementsHelper().buildDirectGraph(root);
     }

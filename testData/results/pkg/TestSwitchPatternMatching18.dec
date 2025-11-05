@@ -1,30 +1,60 @@
 package pkg;
 
-import java.util.Objects;
-
 public class TestSwitchPatternMatching18 {
-   // $VF: Could not properly define all variable types!
-   static void test(Integer o) {
-      Objects.requireNonNull(o);// 5
-      <unknown> var1;
-      switch (o) {
-         case 42:
-            System.out.println("42");// 6
-            break;
-         case Integer var5 when var1 < 50:// 8
-            System.out.println("small");
-            break;
-         case Integer var6 when var1.compareTo(17) > 0:// 9
-            System.out.println("comparable");// 10
-            break;
-         default:
-            System.out.println("default");// 11
-      }
-   }// 13
+   static void test(Integer param0) {
+      // $VF: Couldn't be decompiled
+      // Bytecode:
+      // 00: aload 0
+      // 01: dup
+      // 02: invokestatic java/util/Objects.requireNonNull (Ljava/lang/Object;)Ljava/lang/Object;
+      // 05: pop
+      // 06: astore 1
+      // 07: bipush 0
+      // 08: istore 2
+      // 09: aload 1
+      // 0a: iload 2
+      // 0b: invokedynamic typeSwitch (Ljava/lang/Object;I)I bsm=java/lang/runtime/SwitchBootstraps.typeSwitch (Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite; args=[ 42, java/lang/Integer, java/lang/Integer ]
+      // 10: tableswitch 100 0 2 28 39 66
+      // 2c: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 2f: ldc "42"
+      // 31: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // 34: goto 7f
+      // 37: aload 1
+      // 38: astore 3
+      // 39: aload 3
+      // 3a: invokevirtual java/lang/Integer.intValue ()I
+      // 3d: bipush 50
+      // 3f: if_icmplt 47
+      // 42: bipush 2
+      // 43: istore 2
+      // 44: goto 09
+      // 47: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 4a: ldc "small"
+      // 4c: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // 4f: goto 7f
+      // 52: aload 1
+      // 53: astore 4
+      // 55: aload 4
+      // 57: bipush 17
+      // 59: invokestatic java/lang/Integer.valueOf (I)Ljava/lang/Integer;
+      // 5c: invokeinterface java/lang/Comparable.compareTo (Ljava/lang/Object;)I 2
+      // 61: ifgt 69
+      // 64: bipush 3
+      // 65: istore 2
+      // 66: goto 09
+      // 69: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 6c: ldc "comparable"
+      // 6e: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // 71: goto 7f
+      // 74: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 77: ldc "default"
+      // 79: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // 7c: goto 7f
+      // 7f: return
+   }
 
-   // $VF: Could not properly define all variable types!
    static void test2(Integer o) {
-      <unknown> var1;
+      Integer i;
       switch (o) {// 16
          case 16:
          case null:
@@ -33,7 +63,7 @@ public class TestSwitchPatternMatching18 {
          case 42:
             System.out.println("42");// 17
             break;
-         case Integer var4 when var1 < 50:// 19
+         case Integer var4 when i < 50:// 19
             System.out.println("small");
             break;
          default:
@@ -41,9 +71,8 @@ public class TestSwitchPatternMatching18 {
       }
    }// 22
 
-   // $VF: Could not properly define all variable types!
    static void test3(Integer o) {
-      <unknown> var1;
+      Integer i;
       switch (o) {// 25
          case 16:
          case null:
@@ -52,7 +81,7 @@ public class TestSwitchPatternMatching18 {
          case 42:
             System.out.println("42");// 26
             break;
-         case Integer var4 when var1 < 50:// 27
+         case Integer var4 when i < 50:// 27
             System.out.println("small");
             break;
          default:
@@ -62,282 +91,177 @@ public class TestSwitchPatternMatching18 {
 }
 
 class 'pkg/TestSwitchPatternMatching18' {
-   method 'test (Ljava/lang/Integer;)V' {
-      0      7
-      2      7
-      3      7
-      4      7
-      9      9
-      10      9
-      11      9
-      12      9
-      13      9
-      14      9
-      15      9
-      16      9
-      17      9
-      18      9
-      19      9
-      1a      9
-      1b      9
-      1c      9
-      1d      9
-      1e      9
-      1f      9
-      20      9
-      21      9
-      22      9
-      23      9
-      24      9
-      25      9
-      26      9
-      27      9
-      28      9
-      29      9
-      2a      9
-      2b      9
-      2c      11
-      2d      11
-      2e      11
-      2f      11
-      30      11
-      31      11
-      32      11
-      33      11
-      34      12
-      37      13
-      39      13
-      3a      13
-      3b      13
-      3c      13
-      3d      13
-      3e      13
-      3f      13
-      40      13
-      41      13
-      47      14
-      48      14
-      49      14
-      4a      14
-      4b      14
-      4c      14
-      4d      14
-      4e      14
-      4f      15
-      52      16
-      55      16
-      56      16
-      57      16
-      58      16
-      59      16
-      5a      16
-      5b      16
-      5c      16
-      5d      16
-      5e      16
-      5f      16
-      60      16
-      61      16
-      62      16
-      63      16
-      69      17
-      6a      17
-      6b      17
-      6c      17
-      6d      17
-      6e      17
-      6f      17
-      70      17
-      71      18
-      74      20
-      75      20
-      76      20
-      77      20
-      78      20
-      79      20
-      7a      20
-      7b      20
-      7f      22
-   }
-
    method 'test2 (Ljava/lang/Integer;)V' {
-      0      27
-      4      27
-      b      27
-      c      27
-      d      27
-      e      27
-      f      27
-      10      27
-      11      27
-      12      27
-      13      27
-      14      27
-      15      27
-      16      27
-      17      27
-      18      27
-      19      27
-      1a      27
-      1b      27
-      1c      27
-      1d      27
-      1e      27
-      1f      27
-      20      27
-      21      27
-      22      27
-      23      27
-      24      27
-      25      27
-      26      27
-      27      27
-      28      33
-      29      33
-      2a      33
-      2b      33
-      2c      33
-      2d      33
-      2e      33
-      2f      33
-      30      34
-      33      30
-      34      30
-      35      30
-      36      30
-      37      30
-      38      30
-      39      30
-      3a      30
-      3b      31
-      3e      35
-      40      35
-      41      35
-      42      35
-      43      35
-      44      35
-      45      35
-      46      35
-      47      35
-      48      35
-      4e      36
-      4f      36
-      50      36
-      51      36
-      52      36
-      53      36
-      54      36
-      55      36
-      56      37
-      59      39
-      5a      39
-      5b      39
-      5c      39
-      5d      39
-      5e      39
-      5f      39
-      60      39
-      64      41
+      0      57
+      4      57
+      b      57
+      c      57
+      d      57
+      e      57
+      f      57
+      10      57
+      11      57
+      12      57
+      13      57
+      14      57
+      15      57
+      16      57
+      17      57
+      18      57
+      19      57
+      1a      57
+      1b      57
+      1c      57
+      1d      57
+      1e      57
+      1f      57
+      20      57
+      21      57
+      22      57
+      23      57
+      24      57
+      25      57
+      26      57
+      27      57
+      28      63
+      29      63
+      2a      63
+      2b      63
+      2c      63
+      2d      63
+      2e      63
+      2f      63
+      30      64
+      33      60
+      34      60
+      35      60
+      36      60
+      37      60
+      38      60
+      39      60
+      3a      60
+      3b      61
+      3e      65
+      40      65
+      41      65
+      42      65
+      43      65
+      44      65
+      45      65
+      46      65
+      47      65
+      48      65
+      4e      66
+      4f      66
+      50      66
+      51      66
+      52      66
+      53      66
+      54      66
+      55      66
+      56      67
+      59      69
+      5a      69
+      5b      69
+      5c      69
+      5d      69
+      5e      69
+      5f      69
+      60      69
+      64      71
    }
 
    method 'test3 (Ljava/lang/Integer;)V' {
-      0      46
-      4      46
-      b      46
-      c      46
-      d      46
-      e      46
-      f      46
-      10      46
-      11      46
-      12      46
-      13      46
-      14      46
-      15      46
-      16      46
-      17      46
-      18      46
-      19      46
-      1a      46
-      1b      46
-      1c      46
-      1d      46
-      1e      46
-      1f      46
-      20      46
-      21      46
-      22      46
-      23      46
-      24      46
-      25      46
-      26      46
-      27      46
-      28      52
-      29      52
-      2a      52
-      2b      52
-      2c      52
-      2d      52
-      2e      52
-      2f      52
-      30      53
-      33      54
-      35      54
-      36      54
-      37      54
-      38      54
-      39      54
-      3a      54
-      3b      54
-      3c      54
-      3d      54
-      43      55
-      44      55
-      45      55
-      46      55
-      47      55
-      48      55
-      49      55
-      4a      55
-      4b      56
-      4e      49
-      4f      49
-      50      49
-      51      49
-      52      49
-      53      49
-      54      49
-      55      49
-      56      50
-      59      58
-      5a      58
-      5b      58
-      5c      58
-      5d      58
-      5e      58
-      5f      58
-      60      58
-      64      60
+      0      75
+      4      75
+      b      75
+      c      75
+      d      75
+      e      75
+      f      75
+      10      75
+      11      75
+      12      75
+      13      75
+      14      75
+      15      75
+      16      75
+      17      75
+      18      75
+      19      75
+      1a      75
+      1b      75
+      1c      75
+      1d      75
+      1e      75
+      1f      75
+      20      75
+      21      75
+      22      75
+      23      75
+      24      75
+      25      75
+      26      75
+      27      75
+      28      81
+      29      81
+      2a      81
+      2b      81
+      2c      81
+      2d      81
+      2e      81
+      2f      81
+      30      82
+      33      83
+      35      83
+      36      83
+      37      83
+      38      83
+      39      83
+      3a      83
+      3b      83
+      3c      83
+      3d      83
+      43      84
+      44      84
+      45      84
+      46      84
+      47      84
+      48      84
+      49      84
+      4a      84
+      4b      85
+      4e      78
+      4f      78
+      50      78
+      51      78
+      52      78
+      53      78
+      54      78
+      55      78
+      56      79
+      59      87
+      5a      87
+      5b      87
+      5c      87
+      5d      87
+      5e      87
+      5f      87
+      60      87
+      64      89
    }
 }
 
 Lines mapping:
-5 <-> 8
-6 <-> 12
-8 <-> 14
-9 <-> 17
-10 <-> 18
-11 <-> 21
-13 <-> 23
-16 <-> 28
-17 <-> 34
-18 <-> 31
-19 <-> 36
-20 <-> 40
-22 <-> 42
-25 <-> 47
-26 <-> 53
-27 <-> 55
-29 <-> 50
-30 <-> 59
-32 <-> 61
+16 <-> 58
+17 <-> 64
+18 <-> 61
+19 <-> 66
+20 <-> 70
+22 <-> 72
+25 <-> 76
+26 <-> 82
+27 <-> 84
+29 <-> 79
+30 <-> 88
+32 <-> 90

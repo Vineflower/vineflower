@@ -4,10 +4,10 @@ import java.util.Objects;
 
 public class TestRecordPatterns7 {
    public void test(Object o) {
-      if (o instanceof TestRecordPatterns7.A(TestRecordPatterns7.C(TestRecordPatterns7.B(int var26, int var27), int var25), int var22, TestRecordPatterns7.B(int var28, int var29))// 5
+      if (o instanceof TestRecordPatterns7.A(TestRecordPatterns7.C(TestRecordPatterns7.B(int i1, int i2), int i3), int i4, TestRecordPatterns7.B(int i5, int i6))// 5
          )
        {
-         System.out.println(var26 + var27 + var25 + var22 + var28 + var29);// 6
+         System.out.println(i1 + i2 + i3 + i4 + i5 + i6);// 6
       }
    }// 8
 
@@ -17,12 +17,12 @@ public class TestRecordPatterns7 {
       System.out
          .println(// 11
             switch (o) {
-               case TestRecordPatterns7.A(TestRecordPatterns7.C(TestRecordPatterns7.B(int var28, int var29), int var27), int var24, TestRecordPatterns7.B(int var30, int var31)) -> var28// 12
-                  + var29
-                  + var27
-                  + var24
-                  + var30
-                  + var31;
+               case TestRecordPatterns7.A(TestRecordPatterns7.C(TestRecordPatterns7.B(int i1, int i2), int i3), int i4, TestRecordPatterns7.B(int i5, int i6)) -> i1// 12
+                  + i2
+                  + i3
+                  + i4
+                  + i5
+                  + i6;
                default -> 0;// 13
             }
          );

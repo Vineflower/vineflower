@@ -254,6 +254,10 @@ public final class RecordHelper {
   // (And that the name of the lvt matches the field)
   private static boolean isCompactCanonicalConstructor(MethodWrapper mw) {
     DirectGraph graph = mw.getOrBuildGraph();
+    if (graph == null) {
+      return false;
+    }
+
     boolean[] valid = new boolean[1];
     graph.iterateExprents(exprent -> {
       if (exprent instanceof AssignmentExprent assignmentExprent && assignmentExprent.getLeft() instanceof FieldExprent fieldExprent && assignmentExprent.getRight() instanceof VarExprent varExprent) {
