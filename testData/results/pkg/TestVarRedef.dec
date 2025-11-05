@@ -24,8 +24,8 @@ public class TestVarRedef {
 
          String string = null;// 17
          streamResult = string;
-      } catch (Exception var9) {// 25
-         throw new RuntimeException(var9);// 26
+      } catch (Exception e) {// 25
+         throw new RuntimeException(e);// 26
       } finally {
          if (source != null) {// 28
             System.out.println(".");// 29

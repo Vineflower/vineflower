@@ -14,6 +14,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNodeType;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.*;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.CatchStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.DoStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
@@ -186,7 +187,7 @@ public class StackVarsProcessor {
             boolean simplifyAcrossStack = stackStage == 1;
 
             // {newIndex, changed}
-            iterateExprent(lst, index, next, mapVarValues, ssa, simplifyAcrossStack, ret, options);
+            iterateExprent(lst, nd.statement, index, next, mapVarValues, ssa, simplifyAcrossStack, ret, options);
 
             // If index is specified, set to that
             if (ret[0] >= 0) {
@@ -288,6 +289,7 @@ public class StackVarsProcessor {
 
   // {nextIndex, (changed ? 1 : 0)}
   private static void iterateExprent(List<Exprent> lstExprents,
+                                      Statement stat,
                                       int index,
                                       Exprent next,
                                       Map<VarVersionPair, Exprent> mapVarValues,
@@ -370,6 +372,8 @@ public class StackVarsProcessor {
         setRet(ret, index + 1, 1);
         return;
       } else if (right instanceof VarExprent) {
+        onDeletedVar(stat, left, right);
+
         lstExprents.remove(index);
         setRet(ret, index, 1);
         return;
@@ -488,6 +492,7 @@ public class StackVarsProcessor {
     }
 
     if (!notdom && !vernotreplaced) {
+      onDeletedVar(stat, left, right);
       // remove assignment
       lstExprents.remove(index);
       setRet(ret, index, 1);
@@ -499,6 +504,45 @@ public class StackVarsProcessor {
       setRet(ret, -1, changed);
       return;
     }
+  }
+
+  // When variables are deleted, apply some post processing
+  private static void onDeletedVar(Statement stat,  VarExprent left, Exprent right) {
+    if (right instanceof VarExprent rightVar) {
+
+      // In the pattern:
+      // catch (Exception var2) {
+      //   ex = var2; // ex -> var1
+      //   ...
+      //  }
+      // Try to propagate the lvt from the assignment being deleted to the catch. This is required because catch vars use
+      // synthetic variables, and won't get their lvt normally otherwise.
+
+      if (rightVar.getLVT() == null && left.getLVT() != null) {
+        rightVar.setLVT(left.getLVT());
+
+        CatchStatement catchSt = enclosingCatch(stat);
+        if (catchSt != null) {
+          for (VarExprent var : catchSt.getVars()) {
+            if (var.getIndex() == rightVar.getIndex()) {
+              var.setLVT(left.getLVT());
+            }
+          }
+        }
+      }
+    }
+  }
+
+  private static CatchStatement enclosingCatch(Statement stat) {
+    while (stat.getParent() != null) {
+      if (stat.getParent() instanceof CatchStatement st) {
+        return st;
+      }
+
+      stat = stat.getParent();
+    }
+
+    return null;
   }
 
   private static Exprent simplifyAcrossStackExprent(List<Exprent> exprents, int index, Exprent next, Exprent right, VarExprent left) {

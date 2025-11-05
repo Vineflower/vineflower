@@ -23,7 +23,7 @@ public class TestGroovyTryCatch implements GroovyObject {
       try {
          try {
             var1[0].call(var1[1].callGetProperty(System.class), "Hello");// 5 6
-         } catch (Exception var6) {// 7
+         } catch (Exception e) {// 7
             var1[2].call(var1[3].callGetProperty(System.class), "Exception");// 8
          }
       } finally {
@@ -37,9 +37,9 @@ public class TestGroovyTryCatch implements GroovyObject {
       try {
          try {
             var1[4].call(var1[5].callGetProperty(System.class), "Hello");// 13 14
-         } catch (Exception var8) {// 15
+         } catch (Exception e) {// 15
             var1[6].call(var1[7].callGetProperty(System.class), "Exception");// 16
-         } catch (Throwable var9) {// 17
+         } catch (Throwable t) {// 17
             var1[8].call(var1[9].callGetProperty(System.class), "Throwable");// 18
          }
       } finally {

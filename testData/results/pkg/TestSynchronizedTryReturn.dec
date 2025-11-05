@@ -6,8 +6,8 @@ public class TestSynchronizedTryReturn {
          int var10000;
          try {
             var10000 = Integer.parseInt(s);// 7
-         } catch (Exception var5) {// 8
-            throw new RuntimeException(var5);// 9
+         } catch (Exception e) {// 8
+            throw new RuntimeException(e);// 9
          }
 
          return var10000;
@@ -17,8 +17,8 @@ public class TestSynchronizedTryReturn {
    public int test1(String s) {
       try {
          return Integer.parseInt(s);// 16
-      } catch (Exception var3) {// 17
-         throw new RuntimeException(var3);// 18
+      } catch (Exception e) {// 17
+         throw new RuntimeException(e);// 18
       }
    }
 }

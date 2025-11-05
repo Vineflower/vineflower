@@ -14,8 +14,8 @@ public class TestSynchronizedLoop {
                this.notifyAll();// 14
             }// 15
          }
-      } catch (Exception var7) {// 17
-         throw new RuntimeException(var7);// 18
+      } catch (Exception e) {// 17
+         throw new RuntimeException(e);// 18
       }
    }
 

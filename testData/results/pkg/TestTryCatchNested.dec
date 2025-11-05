@@ -8,7 +8,7 @@ public class TestTryCatchNested {
          System.out.println(var1);// 8
          return;// 9
       } catch (Exception var3) {// 10
-      } catch (Exception var4) {// 12
+      } catch (Exception var10) {// 12
          System.out.println(var1);// 13
       }
    }// 15

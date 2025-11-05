@@ -15,8 +15,8 @@ public class TestTryLoop2 {
             }
 
             new Scanner(file);// 14
-         } catch (FileNotFoundException var3) {// 20
-            var3.printStackTrace();// 21
+         } catch (FileNotFoundException e) {// 20
+            e.printStackTrace();// 21
          }
       }
    }

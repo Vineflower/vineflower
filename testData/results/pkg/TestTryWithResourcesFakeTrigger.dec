@@ -14,7 +14,7 @@ public class TestTryWithResourcesFakeTrigger {
             System.out.println("Hi");// 16
          } catch (Exception var6) {// 17
          }
-      } catch (Exception var7) {
+      } catch (Exception ex) {
          try {
             ;
          } catch (Exception var5) {// 23
@@ -28,7 +28,7 @@ public class TestTryWithResourcesFakeTrigger {
       while (var1 == null) {// 31
          try {
             System.out.println("Hi");// 33
-         } catch (Exception var3) {// 34
+         } catch (Exception var21) {// 34
             if (var1 != null) {// 35
                break;
             }
@@ -43,14 +43,14 @@ public class TestTryWithResourcesFakeTrigger {
 
       try {
          scanner.next();// 47
-      } catch (NoSuchElementException var6) {
+      } catch (NoSuchElementException e) {
          try {
             scanner.close();// 50
-         } catch (IllegalStateException var5) {// 51
-            var6.addSuppressed(var5);// 52
+         } catch (IllegalStateException e1) {// 51
+            e.addSuppressed(e1);// 52
          }
 
-         throw var6;// 55
+         throw e;// 55
       }
    }// 57
 
@@ -59,14 +59,14 @@ public class TestTryWithResourcesFakeTrigger {
 
       try {
          scanner.next();// 63
-      } catch (Throwable var6) {
+      } catch (Throwable e) {
          try {
             scanner.close();// 66
-         } catch (Throwable var5) {// 67
-            var6.addSuppressed(var5);// 68
+         } catch (Throwable e1) {// 67
+            e.addSuppressed(e1);// 68
          }
 
-         throw var6;// 71
+         throw e;// 71
       }
    }// 73
 }

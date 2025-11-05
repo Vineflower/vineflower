@@ -94,8 +94,8 @@ public class TestIfElseTernary1J17 {
       } else {
          try {
             short vvv11 = 209;// 122
-         } catch (Exception var15) {// 124
-            System.out.println(var15);// 126
+         } catch (Exception vvv6) {// 124
+            System.out.println(vvv6);// 126
             System.out.println(vvv3);// 127
             int vvv8 = 104;// 128
             int[][][][][] vvv9 = new int[0][][][][];

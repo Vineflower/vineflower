@@ -144,7 +144,7 @@ public class TestLoopFinally {
       if (a != 886) {// 152
          try {
             a -= 885;// 157
-         } catch (Exception var6) {// 158
+         } catch (Exception var17) {// 158
             System.out.println("hello");// 159
          } finally {
             if (a >= -228) {// 161

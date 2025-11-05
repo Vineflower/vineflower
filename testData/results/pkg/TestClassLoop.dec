@@ -29,7 +29,7 @@ public class TestClassLoop {
             if (!a) {// 49
                return;// 50
             }
-         } catch (Exception var2) {// 53
+         } catch (Exception e) {// 53
             System.out.println("1");// 54
          }
       }
@@ -96,7 +96,7 @@ public class TestClassLoop {
             }
 
             i = j++ / i;// 115
-         } catch (RuntimeException var4) {// 117
+         } catch (RuntimeException re) {// 117
             i = 10;// 118
          }
       }

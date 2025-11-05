@@ -14,8 +14,8 @@ public class TestTryLoopSimpleFinally {
          while (this.field) {// 15
             new Scanner(file);// 16
          }
-      } catch (FileNotFoundException var6) {// 18
-         var6.printStackTrace();// 19
+      } catch (FileNotFoundException e) {// 18
+         e.printStackTrace();// 19
       } finally {
          System.out.println("Finally");// 21
       }
