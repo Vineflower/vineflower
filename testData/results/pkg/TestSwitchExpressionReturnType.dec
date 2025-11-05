@@ -19,7 +19,7 @@ public class TestSwitchExpressionReturnType {
       };
    }
 
-   static enum Type {
+   enum Type {
       A,
       B,
       C,

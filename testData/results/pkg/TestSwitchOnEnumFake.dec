@@ -29,7 +29,7 @@ public class TestSwitchOnEnumFake {
       return var4 + var5;// 35
    }
 
-   static enum Values {
+   enum Values {
       A,
       B,
       C,

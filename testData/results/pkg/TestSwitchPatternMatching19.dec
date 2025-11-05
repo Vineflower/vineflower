@@ -60,7 +60,7 @@ public class TestSwitchPatternMatching19 {
    interface F {
    }
 
-   static enum XXX
+   enum XXX
       implements TestSwitchPatternMatching19.A,
       TestSwitchPatternMatching19.B,
       TestSwitchPatternMatching19.C,

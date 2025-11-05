@@ -688,7 +688,7 @@ public class ClassWriter implements StatementWriter {
       flags &= ~CodeConstants.ACC_FINAL;
 
       // remove implicit static flag for local enums (JLS 14.3 Local class and interface declarations)
-      if (node.type == ClassNode.Type.LOCAL) {
+      if (node.type == ClassNode.Type.MEMBER || node.type == ClassNode.Type.LOCAL) {
         flags &= ~CodeConstants.ACC_STATIC;
       }
     }
@@ -1148,6 +1148,11 @@ public class ClassWriter implements StatementWriter {
       buffer.appendIndent(indent);
 
       if (CodeConstants.INIT_NAME.equals(name)) {
+        // Enum constructors are implicitly private
+        if (isEnum) {
+          flags &= ~CodeConstants.ACC_PRIVATE;
+        }
+
         if (node.type == ClassNode.Type.ANONYMOUS) {
           name = "";
           dInit = true;

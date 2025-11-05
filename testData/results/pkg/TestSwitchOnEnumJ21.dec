@@ -152,7 +152,7 @@ public class TestSwitchOnEnumJ21 {
    public static class C implements TestSwitchOnEnumJ21.A {
    }
 
-   static enum TestEnum implements TestSwitchOnEnumJ21.A {
+   enum TestEnum implements TestSwitchOnEnumJ21.A {
       A,
       B,
       C;

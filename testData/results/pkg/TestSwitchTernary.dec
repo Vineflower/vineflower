@@ -38,7 +38,7 @@ public class TestSwitchTernary {
       }
    }// 38
 
-   public static enum TestEnum {
+   public enum TestEnum {
       A,
       B,
       C;

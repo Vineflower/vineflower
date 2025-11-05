@@ -15,7 +15,7 @@ public class TestTextTokens3 {
       }
    }
 
-   public static enum Entry {
+   public enum Entry {
       A,
       B,
       C,
@@ -99,7 +99,7 @@ Tokens:
 (12:13, 12:14) local [reference] pkg/TestTextTokens3#get(Lpkg/TestTextTokens3$Entry;)Ljava/lang/String;(1:s)
 (12:17, 12:18) local [reference] pkg/TestTextTokens3#get(Lpkg/TestTextTokens3$Entry;)Ljava/lang/String;(1:s)
 (14:20, 14:21) local [reference] pkg/TestTextTokens3#get(Lpkg/TestTextTokens3$Entry;)Ljava/lang/String;(1:s)
-(18:23, 18:28) class [declaration] pkg/TestTextTokens3$Entry
+(18:16, 18:21) class [declaration] pkg/TestTextTokens3$Entry
 (19:7, 19:8) field [declaration] pkg/TestTextTokens3$Entry#A:Lpkg/TestTextTokens3$Entry;
 (20:7, 20:8) field [declaration] pkg/TestTextTokens3$Entry#B:Lpkg/TestTextTokens3$Entry;
 (21:7, 21:8) field [declaration] pkg/TestTextTokens3$Entry#C:Lpkg/TestTextTokens3$Entry;
