@@ -4,13 +4,11 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
 
 class TypeAnnotations {
-   @TypeAnnotations.TA("field type")
-   private String f1;
+   private @TypeAnnotations.TA("field type") String f1;
    @TypeAnnotations.MixA("field and type")
    private String f2;
 
-   @TypeAnnotations.TA("return type")
-   int m1() {
+   @TypeAnnotations.TA("return type") int m1() {
       return 42;// 18
    }
 
@@ -22,7 +20,7 @@ class TypeAnnotations {
       String value();
    }
 
-   @Target({ElementType.TYPE_USE})
+   @Target(ElementType.TYPE_USE)
    @interface TA {
       String value();
    }
@@ -30,16 +28,16 @@ class TypeAnnotations {
 
 class 'pkg/TypeAnnotations' {
    method 'm1 ()I' {
-      0      13
-      1      13
-      2      13
+      0      11
+      1      11
+      2      11
    }
 
    method 'm2 (I)V' {
-      0      17
+      0      15
    }
 }
 
 Lines mapping:
-18 <-> 14
-21 <-> 18
+18 <-> 12
+21 <-> 16

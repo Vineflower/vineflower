@@ -37,10 +37,7 @@ import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericClassDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericFieldDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericMethodDescriptor;
-import org.jetbrains.java.decompiler.util.InterpreterUtil;
-import org.jetbrains.java.decompiler.util.Key;
-import org.jetbrains.java.decompiler.util.TextBuffer;
-import org.jetbrains.java.decompiler.util.TextUtil;
+import org.jetbrains.java.decompiler.util.*;
 import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
 
 import java.io.IOException;
@@ -846,7 +843,7 @@ public class ClassWriter implements StatementWriter {
     if (javadocProvider != null) {
       appendJavadoc(buffer, javadocProvider.getFieldDoc(cl, fd), indent);
     }
-    appendAnnotations(buffer, indent, fd, TypeAnnotation.FIELD);
+    Set<String> writtenAnnotations = appendAnnotations(buffer, indent, fd, TypeAnnotation.FIELD);
 
     buffer.appendIndent(indent);
 
@@ -859,7 +856,13 @@ public class ClassWriter implements StatementWriter {
     GenericFieldDescriptor descriptor = fieldTypeData.getValue();
 
     if (!isEnum) {
-      buffer.appendCastTypeName(descriptor == null ? fieldType : descriptor.type);
+      var annos = getTypeAnnotations(fd, TypeAnnotation.FIELD, -1);
+      if (!annos.isEmpty()) {
+        buffer.appendCastTypeName(descriptor == null ? fieldType : descriptor.type, annos, writtenAnnotations);
+      } else {
+        buffer.appendCastTypeName(descriptor == null ? fieldType : descriptor.type);
+      }
+
       buffer.append(' ');
     }
 
@@ -1092,7 +1095,7 @@ public class ClassWriter implements StatementWriter {
         appendJavadoc(buffer, javadocProvider.getMethodDoc(cl, mt), indent);
       }
 
-      appendAnnotations(buffer, indent, mt, TypeAnnotation.METHOD_RETURN_TYPE);
+      Set<String> writtenAnnotations = appendAnnotations(buffer, indent, mt, TypeAnnotation.METHOD_RETURN_TYPE);
 
       StructAnnotationAttribute annotationAttribute = mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_RUNTIME_VISIBLE_ANNOTATIONS);
       boolean shouldApplyOverride = DecompilerContext.getOption(IFernflowerPreferences.OVERRIDE_ANNOTATION)
@@ -1155,7 +1158,12 @@ public class ClassWriter implements StatementWriter {
         }
 
         if (!init) {
-          buffer.appendCastTypeName(descriptor == null ? md.ret : descriptor.returnType);
+          var annos = getTypeAnnotations(mt, TypeAnnotation.METHOD_RETURN_TYPE, -1);
+          if (!annos.isEmpty()) {
+            buffer.appendCastTypeName(descriptor == null ? md.ret : descriptor.returnType, annos, writtenAnnotations);
+          } else {
+            buffer.appendCastTypeName(descriptor == null ? md.ret : descriptor.returnType);
+          }
           buffer.append(' ');
         }
 
@@ -1200,7 +1208,7 @@ public class ClassWriter implements StatementWriter {
               buffer.appendPossibleNewline(" ");
             }
 
-            appendParameterAnnotations(buffer, mt, paramCount);
+            Set<String> writtenParamAnnotations = appendParameterAnnotations(buffer, mt, paramCount);
 
             if (methodParameters != null && i < methodParameters.size()) {
               appendModifiers(buffer, methodParameters.get(i).myAccessFlags, CodeConstants.ACC_FINAL, isInterface, 0);
@@ -1220,7 +1228,19 @@ public class ClassWriter implements StatementWriter {
                 DecompilerContext.getOption(IFernflowerPreferences.UNDEFINED_PARAM_TYPE_OBJECT)) {
               typeName = ExprProcessor.getCastTypeName(VarType.VARTYPE_OBJECT);
             }
-            buffer.appendCastTypeName(typeName, parameterType);
+            var annos = getTypeAnnotations(mt, TypeAnnotation.METHOD_PARAMETER, i);
+            if (!annos.isEmpty()) {
+              VarType tempParam = parameterType;
+              // Undo varargs change
+              if (isVarArg) {
+                tempParam = tempParam.resizeArrayDim(tempParam.arrayDim + 1);
+              }
+              // TODO: does this need typeName?
+              buffer.appendCastTypeName(tempParam, annos, writtenParamAnnotations, isVarArg, true);
+              isVarArg = false; // already handled
+            } else {
+              buffer.appendCastTypeName(typeName, parameterType);
+            }
             if (isVarArg) {
               buffer.append("...");
             }
@@ -1655,17 +1675,17 @@ public class ClassWriter implements StatementWriter {
   static final Key<?>[] TYPE_ANNOTATION_ATTRIBUTES = {
     StructGeneralAttribute.ATTRIBUTE_RUNTIME_VISIBLE_TYPE_ANNOTATIONS, StructGeneralAttribute.ATTRIBUTE_RUNTIME_INVISIBLE_TYPE_ANNOTATIONS};
 
-  static void appendAnnotations(TextBuffer buffer, int indent, StructMember mb, int targetType) {
+  static Set<String> appendAnnotations(TextBuffer buffer, int indent, StructMember mb, int targetType) {
     Set<String> filter = new HashSet<>();
 
     for (Key<?> key : ANNOTATION_ATTRIBUTES) {
       StructAnnotationAttribute attribute = mb.getAttribute((Key<StructAnnotationAttribute>)key);
       if (attribute != null) {
         for (AnnotationExprent annotation : attribute.getAnnotations()) {
+          annotation.setDidWriteAlready(true);
           buffer.appendIndent(indent);
-          TextBuffer text = annotation.toJava(indent);
-          filter.add(text.convertToStringAndAllowDataDiscard());
-          buffer.appendText(text);
+          filter.add(annotation.toJava(-1).convertToStringAndAllowDataDiscard());
+          buffer.append(annotation.toJava(indent));
           if (indent < 0) {
             buffer.append(' ');
           }
@@ -1676,7 +1696,14 @@ public class ClassWriter implements StatementWriter {
       }
     }
 
-    appendTypeAnnotations(buffer, indent, mb, targetType, -1, filter);
+    // Implemented already
+    if (targetType == TypeAnnotation.FIELD || targetType == TypeAnnotation.METHOD_RETURN_TYPE) {
+      return filter;
+    }
+    // Fallback case... must be removed eventually
+    appendTopLevelTypeAnnotations(buffer, indent, mb, targetType, -1, filter);
+
+    return filter;
   }
 
   // Returns true if a method with the given name and descriptor matches in the inheritance tree of the superclass.
@@ -1725,7 +1752,7 @@ public class ClassWriter implements StatementWriter {
     return false;
   }
 
-  private static void appendParameterAnnotations(TextBuffer buffer, StructMethod mt, int param) {
+  private static Set<String> appendParameterAnnotations(TextBuffer buffer, StructMethod mt, int param) {
     Set<String> filter = new HashSet<>();
 
     for (Key<?> key : PARAMETER_ANNOTATION_ATTRIBUTES) {
@@ -1734,27 +1761,25 @@ public class ClassWriter implements StatementWriter {
         List<List<AnnotationExprent>> annotations = attribute.getParamAnnotations();
         if (param < annotations.size()) {
           for (AnnotationExprent annotation : annotations.get(param)) {
-            TextBuffer text = annotation.toJava(-1);
-            filter.add(text.convertToStringAndAllowDataDiscard());
-            buffer.appendText(text).append(' ');
+            filter.add(annotation.toJava(-1).convertToStringAndAllowDataDiscard());
+            buffer.append(annotation.toJava(-1)).append(' ');
           }
         }
       }
     }
 
-    appendTypeAnnotations(buffer, -1, mt, TypeAnnotation.METHOD_PARAMETER, param, filter);
+    return filter;
   }
 
-  private static void appendTypeAnnotations(TextBuffer buffer, int indent, StructMember mb, int targetType, int index, Set<String> filter) {
+  private static void appendTopLevelTypeAnnotations(TextBuffer buffer, int indent, StructMember mb, int targetType, int index, Set<String> filter) {
     for (Key<?> key : TYPE_ANNOTATION_ATTRIBUTES) {
       StructTypeAnnotationAttribute attribute = mb.getAttribute((Key<StructTypeAnnotationAttribute>) key);
       if (attribute != null) {
         for (TypeAnnotation annotation : attribute.getAnnotations()) {
           if (annotation.isTopLevel() && annotation.getTargetType() == targetType && (index < 0 || annotation.getIndex() == index)) {
-            TextBuffer text = annotation.getAnnotation().toJava(indent);
-            if (!filter.contains(text.convertToStringAndAllowDataDiscard())) {
+            if (!filter.contains(annotation.getAnnotation().toJava(-1).convertToStringAndAllowDataDiscard())) {
               buffer.appendIndent(indent);
-              buffer.appendText(text);
+              buffer.append(annotation.getAnnotation().toJava(indent));
               if (indent < 0) {
                 buffer.append(' ');
               }
@@ -1766,6 +1791,23 @@ public class ClassWriter implements StatementWriter {
         }
       }
     }
+  }
+
+  public static List<Pair<Queue<TypeAnnotation.PathValue>, AnnotationExprent>> getTypeAnnotations(StructMember mb, int targetType, int index) {
+    List<Pair<Queue<TypeAnnotation.PathValue>, AnnotationExprent>> list = new ArrayList<>();
+    for (Key<?> key : TYPE_ANNOTATION_ATTRIBUTES) {
+      StructTypeAnnotationAttribute attribute = mb.getAttribute((Key<StructTypeAnnotationAttribute>) key);
+      if (attribute != null) {
+        for (TypeAnnotation annotation : attribute.getAnnotations()) {
+          if (annotation.getTargetType() == targetType && (index < 0 || annotation.getIndex() == index)) {
+            Queue<TypeAnnotation.PathValue> q = annotation.asQueue();
+            list.add(Pair.of(q, annotation.getAnnotation()));
+          }
+        }
+      }
+    }
+
+    return list;
   }
 
   private static final Map<Integer, String> MODIFIERS;

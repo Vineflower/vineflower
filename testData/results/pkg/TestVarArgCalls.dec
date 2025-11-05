@@ -23,6 +23,22 @@ public class TestVarArgCalls {
    public void printComplex(String fmt, String[]... params) {
       System.out.println(String.format(fmt, (Object[])params));// 27
    }// 28
+
+   public class Parent {
+      protected void test(TestVarArgCalls.Test... test) {
+      }// 33
+
+      class Child extends TestVarArgCalls.Parent {
+         public void vararg() {
+            this.test(TestVarArgCalls.Test.A, TestVarArgCalls.Test.B);// 38
+         }// 39
+      }
+   }
+
+   public static enum Test {
+      A,
+      B;
+   }
 }
 
 class 'pkg/TestVarArgCalls' {
@@ -160,6 +176,28 @@ class 'pkg/TestVarArgCalls' {
    }
 }
 
+class 'pkg/TestVarArgCalls$Parent' {
+   method 'test ([Lpkg/TestVarArgCalls$Test;)V' {
+      0      28
+   }
+}
+
+class 'pkg/TestVarArgCalls$Parent$Child' {
+   method 'vararg ()V' {
+      0      32
+      7      32
+      8      32
+      9      32
+      d      32
+      e      32
+      f      32
+      11      32
+      12      32
+      13      32
+      14      33
+   }
+}
+
 Lines mapping:
 5 <-> 5
 6 <-> 6
@@ -178,3 +216,6 @@ Lines mapping:
 24 <-> 21
 27 <-> 24
 28 <-> 25
+33 <-> 29
+38 <-> 33
+39 <-> 34

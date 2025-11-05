@@ -12,10 +12,12 @@ import kotlin.jvm.internal.SourceDebugExtension;
    mv = {2, 0, 0},
    k = 2,
    xi = 48,
-   d1 = {"\u0000\u0016\n\u0000\n\u0002\u0010 \n\u0002\u0018\u0002\n\u0000\n\u0002\u0010\u001e\n\u0002\u0010\u000e\n\u0000\u001a\u001e\u0010\u0000\u001a\b\u0012\u0004\u0012\u00020\u00020\u00012\u000e\u0010\u0003\u001a\n\u0012\u0006\u0012\u0004\u0018\u00010\u00050\u0004H\u0002¨\u0006\u0006"},
+   d1 = "\u0000\u0016\n\u0000\n\u0002\u0010 \n\u0002\u0018\u0002\n\u0000\n\u0002\u0010\u001e\n\u0002\u0010\u000e\n\u0000\u001a\u001e\u0010\u0000\u001a\b\u0012\u0004\u0012\u00020\u00020\u00012\u000e\u0010\u0003\u001a\n\u0012\u0006\u0012\u0004\u0018\u00010\u00050\u0004H\u0002¨\u0006\u0006",
    d2 = {"foo", "", "Lpkg/Mapping;", "list", "", "", "vineflower_testDataKotlin"}
 )
-@SourceDebugExtension({"SMAP\nTestKotlinConstructor.kt\nKotlin\n*S Kotlin\n*F\n+ 1 TestKotlinConstructor.kt\npkg/TestKotlinConstructorKt\n+ 2 _Collections.kt\nkotlin/collections/CollectionsKt___CollectionsKt\n*L\n1#1,11:1\n1557#2:12\n1628#2,3:13\n*S KotlinDebug\n*F\n+ 1 TestKotlinConstructor.kt\npkg/TestKotlinConstructorKt\n*L\n4#1:12\n4#1:13,3\n*E\n"})
+@SourceDebugExtension(
+   "SMAP\nTestKotlinConstructor.kt\nKotlin\n*S Kotlin\n*F\n+ 1 TestKotlinConstructor.kt\npkg/TestKotlinConstructorKt\n+ 2 _Collections.kt\nkotlin/collections/CollectionsKt___CollectionsKt\n*L\n1#1,11:1\n1557#2:12\n1628#2,3:13\n*S KotlinDebug\n*F\n+ 1 TestKotlinConstructor.kt\npkg/TestKotlinConstructorKt\n*L\n4#1:12\n4#1:13,3\n*E\n"
+)
 public final class TestKotlinConstructorKt {
    private static final List<Mapping> foo(Collection<String> list) {
       Iterable $this$map$iv = list;
@@ -36,90 +38,90 @@ public final class TestKotlinConstructorKt {
 
 class 'pkg/TestKotlinConstructorKt' {
    method 'foo (Ljava/util/Collection;)Ljava/util/List;' {
-      0      20
-      1      20
-      2      20
-      3      20
-      4      20
-      5      21
-      6      21
-      7      25
-      d      22
-      e      22
-      f      22
-      10      22
-      11      22
-      12      22
-      16      22
-      17      22
-      18      22
-      19      22
-      1a      22
-      1b      23
-      1c      23
-      1d      23
-      1e      25
-      1f      25
-      20      25
-      21      25
-      22      25
-      23      25
-      24      25
-      25      25
-      30      25
-      31      25
-      32      25
-      33      25
-      34      25
-      35      25
-      36      25
-      37      25
-      38      25
-      39      29
-      3a      29
-      3b      26
-      3c      26
-      3d      26
-      3e      26
-      3f      26
-      40      26
-      41      26
-      44      27
-      45      27
-      46      27
-      4b      28
-      4c      28
-      4d      28
-      4e      28
-      4f      28
-      50      28
-      51      28
-      52      29
-      53      29
-      57      29
-      58      29
-      5a      29
-      5b      29
-      5c      29
-      5d      29
-      5e      29
-      63      32
-      64      32
-      69      32
-      6a      32
-      6b      32
-      6c      32
-      6d      32
-      6e      32
-      6f      32
+      0      22
+      1      22
+      2      22
+      3      22
+      4      22
+      5      23
+      6      23
+      7      27
+      d      24
+      e      24
+      f      24
+      10      24
+      11      24
+      12      24
+      16      24
+      17      24
+      18      24
+      19      24
+      1a      24
+      1b      25
+      1c      25
+      1d      25
+      1e      27
+      1f      27
+      20      27
+      21      27
+      22      27
+      23      27
+      24      27
+      25      27
+      30      27
+      31      27
+      32      27
+      33      27
+      34      27
+      35      27
+      36      27
+      37      27
+      38      27
+      39      31
+      3a      31
+      3b      28
+      3c      28
+      3d      28
+      3e      28
+      3f      28
+      40      28
+      41      28
+      44      29
+      45      29
+      46      29
+      4b      30
+      4c      30
+      4d      30
+      4e      30
+      4f      30
+      50      30
+      51      30
+      52      31
+      53      31
+      57      31
+      58      31
+      5a      31
+      5b      31
+      5c      31
+      5d      31
+      5e      31
+      63      34
+      64      34
+      69      34
+      6a      34
+      6b      34
+      6c      34
+      6d      34
+      6e      34
+      6f      34
    }
 }
 
 Lines mapping:
-4 <-> 33
-5 <-> 29
-6 <-> 33
-12 <-> 26
-13 <-> 26
-14 <-> 30
-15 <-> 33
+4 <-> 35
+5 <-> 31
+6 <-> 35
+12 <-> 28
+13 <-> 28
+14 <-> 32
+15 <-> 35

@@ -19,7 +19,7 @@ public class StructInnerClassesAttribute extends StructGeneralAttribute {
     public final String enclosingName;
     public final String simpleName;
 
-    private Entry(int outerNameIdx, int simpleNameIdx, int accessFlags, String innerName, String enclosingName, String simpleName) {
+    public Entry(int outerNameIdx, int simpleNameIdx, int accessFlags, String innerName, String enclosingName, String simpleName) {
       this.outerNameIdx = outerNameIdx;
       this.simpleNameIdx = simpleNameIdx;
       this.accessFlags = accessFlags;
@@ -57,5 +57,9 @@ public class StructInnerClassesAttribute extends StructGeneralAttribute {
 
   public List<Entry> getEntries() {
     return entries;
+  }
+
+  public void setEntries(List<Entry> entries) {
+    this.entries = entries;
   }
 }

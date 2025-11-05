@@ -48,4 +48,8 @@ public class StructLineNumberTableAttribute extends StructGeneralAttribute {
   public int[] getRawData() {
     return myLineInfo;
   }
+
+  public void setLineInfo(int[] myLineInfo) {
+    this.myLineInfo = myLineInfo;
+  }
 }

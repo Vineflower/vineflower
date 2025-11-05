@@ -10,6 +10,8 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.extern.TextTokenVisitor;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.AnnotationExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.TypeAnnotation;
 import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.FieldDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
@@ -84,6 +86,15 @@ public class TextBuffer {
     while (length-- > 0) {
       append(myIndent);
     }
+    return this;
+  }
+
+  public TextBuffer appendCastTypeName(VarType type, List<Pair<Queue<TypeAnnotation.PathValue>, AnnotationExprent>> typeAnnotations, Set<String> filter) {
+    return appendCastTypeName(type, typeAnnotations, filter, false, true);
+  }
+
+  public TextBuffer appendCastTypeName(VarType type, List<Pair<Queue<TypeAnnotation.PathValue>, AnnotationExprent>> typeAnnotations, Set<String> filter, boolean vararg, boolean flush) {
+    TypeAnnotation.appendCastTypeName(this, type, typeAnnotations, filter, vararg, flush);
     return this;
   }
 
@@ -680,14 +691,6 @@ public class TextBuffer {
 
   public TextBuffer append(TextBuffer buffer) {
     return append(buffer, null, null);
-  }
-
-  public TextBuffer appendText(TextBuffer buffer) {
-    NewlineGroup otherRoot = buffer.myRootGroup.copy();
-    otherRoot.shift(myStringBuilder.length());
-    myCurrentGroup.myTokens.addAll(otherRoot.myTokens);
-    myStringBuilder.append(buffer.myStringBuilder);
-    return this;
   }
 
   private void shiftMapping(int shiftOffset) {
