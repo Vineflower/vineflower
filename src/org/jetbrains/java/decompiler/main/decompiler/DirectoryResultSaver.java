@@ -12,7 +12,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
-public final class DirectoryResultSaver implements IResultSaver {
+public class DirectoryResultSaver implements IResultSaver {
   private final Path root;
 
   public DirectoryResultSaver(File root) {

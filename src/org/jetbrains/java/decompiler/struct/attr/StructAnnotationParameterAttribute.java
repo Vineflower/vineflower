@@ -33,4 +33,8 @@ public class StructAnnotationParameterAttribute extends StructGeneralAttribute {
   public List<List<AnnotationExprent>> getParamAnnotations() {
     return paramAnnotations;
   }
+
+  public void setParamAnnotations(List<List<AnnotationExprent>> paramAnnotations) {
+    this.paramAnnotations = paramAnnotations;
+  }
 }

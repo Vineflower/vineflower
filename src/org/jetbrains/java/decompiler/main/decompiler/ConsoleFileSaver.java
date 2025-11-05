@@ -6,7 +6,7 @@ import java.io.File;
 import java.util.jar.Manifest;
 
 // "Saves" a file to the standard out console
-public final class ConsoleFileSaver implements IResultSaver {
+public class ConsoleFileSaver implements IResultSaver {
 
   public ConsoleFileSaver(File unused) {
 
