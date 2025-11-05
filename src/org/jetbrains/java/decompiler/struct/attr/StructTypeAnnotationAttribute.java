@@ -89,4 +89,8 @@ public class StructTypeAnnotationAttribute extends StructGeneralAttribute {
   public List<TypeAnnotation> getAnnotations() {
     return annotations;
   }
+
+  public void setAnnotations(List<TypeAnnotation> annotations) {
+    this.annotations = annotations;
+  }
 }

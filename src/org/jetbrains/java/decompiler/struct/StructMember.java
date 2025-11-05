@@ -39,6 +39,10 @@ public abstract class StructMember {
     return attributes.containsKey(attribute.name);
   }
 
+  public Map<String, StructGeneralAttribute> getAttributes() {
+    return attributes;
+  }
+
   public boolean hasModifier(int modifier) {
     return (accessFlags & modifier) == modifier;
   }

@@ -20,4 +20,8 @@ public class StructAnnDefaultAttribute extends StructGeneralAttribute {
   public Exprent getDefaultValue() {
     return defaultValue;
   }
+
+  public void setDefaultValue(Exprent defaultValue) {
+    this.defaultValue = defaultValue;
+  }
 }

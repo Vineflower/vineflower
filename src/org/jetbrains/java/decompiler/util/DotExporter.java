@@ -35,7 +35,7 @@ public class DotExporter {
   private static final boolean EXTENDED_MODE = false;
   private static final boolean STATEMENT_LR_MODE = false;
   private static final boolean SAME_RANK_MODE = false;
-  // http://graphs.grevian.org/graph is a nice visualizer for the outputed dots.
+  // https://dreampuf.github.io/GraphvizOnline/ is a nice visualizer for the outputed dots.
 
   // Outputs a statement and as much of its information as possible into a dot formatted string.
   // Nodes represent statements, their id, their type, and their code.
@@ -652,6 +652,9 @@ public class DotExporter {
   }
 
   private static File getFile(String folder, StructMethod mt, String subdirectory, String suffix) {
+    if (!folder.endsWith("/") && !folder.endsWith("\\")) {
+      folder += "/";
+    }
     File root = new File(folder + mt.getClassQualifiedName() + (subdirectory.isEmpty() ? "" : "/" + subdirectory));
     if (!root.isDirectory()) {
       root.mkdirs();
@@ -664,9 +667,14 @@ public class DotExporter {
   }
 
   private static File getFile(String folder, String name) {
+    if (!folder.endsWith("/") && !folder.endsWith("\\")) {
+      folder += "/";
+    }
+
     File root = new File(folder);
-    if (!root.isDirectory())
+    if (!root.isDirectory()) {
       root.mkdirs();
+    }
     return new File(root,name + ".dot");
   }
 
