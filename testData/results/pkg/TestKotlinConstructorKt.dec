@@ -27,7 +27,7 @@ public final class TestKotlinConstructorKt {
 
       for (Object item$iv$iv : $this$map$iv) {// 12 13
          String it = (String)item$iv$iv;
-         int $i$a$-map-TestKotlinConstructorKt$foo$1 = 0;
+         int var9/* $VF was: $i$a$-map-TestKotlinConstructorKt$foo$1 */ = 0;
          Intrinsics.checkNotNull(it, "null cannot be cast to non-null type kotlin.String");// 5
          destination$iv$iv.add(new Mapping(it));// 14
       }

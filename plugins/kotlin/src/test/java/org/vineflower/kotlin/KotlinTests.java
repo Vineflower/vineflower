@@ -82,6 +82,7 @@ public class KotlinTests extends SingleClassesTestBase {
     register(KOTLIN, "TestAnnotations");
     register(KOTLIN, "TestBitwiseFunctions");
     register(KOTLIN, "TestCompileTimeErrors");
+    // TODO: unneeded escaping of poor name
     register(KOTLIN, "TestPoorNames");
     register(KOTLIN, "TestSafeCasts");
     register(KOTLIN, "TestSynchronized");

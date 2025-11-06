@@ -3,6 +3,7 @@ package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.code.CodeConstants;
+import org.jetbrains.java.decompiler.main.ClassWriter;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
@@ -851,9 +852,15 @@ public class InvocationExprent extends Exprent {
 
         buf.addBytecodeMapping(bytecode);
 
+        String validName = ClassWriter.toValidJavaIdentifier(name);
+
         if (invocationType == InvocationType.DYNAMIC || invocationType == InvocationType.CONSTANT_DYNAMIC) {
           if (bootstrapMethod == null) {
-            buf.append("<").appendMethod(name, false, classname, name, descriptor);
+            buf.append("<").appendMethod(validName, false, classname, name, descriptor);
+            if (!validName.equals(name)) {
+              buf.append("/* $VF was: ").append(name).append(" */");
+            }
+
             if (invocationType == InvocationType.DYNAMIC) {
               buf.append(">invokedynamic");
             } else {
@@ -861,7 +868,14 @@ public class InvocationExprent extends Exprent {
             }
           } else {
             buf.append(bootstrapMethod.elementname);
-            buf.append("<\"").appendMethod(name, false, classname, name, descriptor).append('"');
+            buf.append("<\"");
+            buf.appendMethod(validName, false, classname, name, descriptor);
+
+            if (!validName.equals(name)) {
+              buf.append("/* $VF was: ").append(name).append(" */");
+            }
+
+            buf.append('"');
             for (PooledConstant arg : bootstrapArguments) {
               buf.append(',');
               appendBootstrapArgument(buf, arg);
@@ -869,7 +883,10 @@ public class InvocationExprent extends Exprent {
             buf.append('>');
           }
         } else {
-          buf.appendMethod(name, false, classname, name, descriptor);
+          buf.appendMethod(validName, false, classname, name, descriptor);
+          if (!validName.equals(name)) {
+            buf.append("/* $VF was: ").append(name).append(" */");
+          }
         }
 
         buf.append("(");

@@ -1023,7 +1023,7 @@ public class ClassWriter implements StatementWriter {
     }
   }
 
-  private static String toValidJavaIdentifier(String name) {
+  public static String toValidJavaIdentifier(String name) {
     if (name == null || name.isEmpty()) return name;
 
     boolean changed = false;
@@ -1042,7 +1042,7 @@ public class ClassWriter implements StatementWriter {
     if (!changed) {
       return name;
     }
-    return res.append("/* $VF was: ").append(name).append("*/").toString();
+    return res.toString();
   }
 
   public boolean writeMethod(ClassNode node, StructMethod mt, int methodIndex, TextBuffer buffer, int indent) {
@@ -1257,7 +1257,11 @@ public class ClassWriter implements StatementWriter {
           buffer.append(' ');
         }
 
-        buffer.appendMethod(toValidJavaIdentifier(name), true, cl.qualifiedName, mt.getName(), md);
+        String validName = toValidJavaIdentifier(name);
+        buffer.appendMethod(validName, true, cl.qualifiedName, mt.getName(), md);
+        if (!validName.equals(name)) {
+          buffer.append("/* $VF was: ").append(name).append(" */");
+        }
 
         if (!methodWrapper.isCompactRecordConstructor) {
           paramCount = writeMethodParameterHeader(mt, buffer, indent, methodWrapper, md, isEnum, init, thisVar, descriptor, paramCount, isInterface, flags, cl);
