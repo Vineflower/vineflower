@@ -806,7 +806,9 @@ public class ExprProcessor implements CodeConstants {
     VarExprent vartmp = new VarExprent(VarExprent.STACK_BASE, var.getExprType(), var.getProcessor());
     vartmp.setStack(true);
 
-    prlst.getLstExprents().add(new AssignmentExprent(vartmp, var.copy(), null));
+    VarExprent catchVar = (VarExprent) var.copy();
+    catchVar.setCatchTempVar(true);
+    prlst.getLstExprents().add(new AssignmentExprent(vartmp, catchVar, null));
     prlst.getStack().push(vartmp.copy());
     return prlst;
   }
