@@ -36,6 +36,10 @@ public final class SynchronizedHelper {
                 mon.replaceExprent(mon.getValue(), ass.getRight());
                 res = true;
                 break;
+              } else if (ass.getRight().equals(mon.getValue()) && !var.isVarReferenced(stat.getParent())) {
+                sync.getFirst().getExprents().remove(e);
+                res = true;
+                break;
               }
             }
           }
