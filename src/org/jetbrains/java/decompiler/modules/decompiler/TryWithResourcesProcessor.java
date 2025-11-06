@@ -260,6 +260,13 @@ public final class TryWithResourcesProcessor {
       // Destroy catch block
       tryStatement.getStats().remove(1);
 
+      if (assignment.getLeft() instanceof VarExprent declaration
+          && (assignment.getRight() instanceof VarExprent
+              || assignment.getRight() instanceof FieldExprent)
+          && !declaration.isVarReferenced(tryStatement)) {
+        tryStatement.getResources().set(0, assignment.getRight());
+      }
+
       return true;
     }
 

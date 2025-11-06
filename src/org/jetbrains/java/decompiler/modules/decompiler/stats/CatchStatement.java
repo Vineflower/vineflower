@@ -249,7 +249,9 @@ public class CatchStatement extends Statement {
 
     // resource vars must also be included
     for (Exprent exp : getResources()) {
-      vars.add((VarExprent)((AssignmentExprent)exp).getLeft());
+      if (exp instanceof AssignmentExprent) {
+        vars.add((VarExprent) ((AssignmentExprent) exp).getLeft());
+      }
     }
 
     return vars;
