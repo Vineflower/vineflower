@@ -14,8 +14,8 @@ public class TestRecordPatterns3 {
    }// 18
 
    public void test3(TestRecordPatterns3.R r) {
-      if (r instanceof TestRecordPatterns3.R) {// 21
-         System.out.println(r);// 22
+      if (r instanceof TestRecordPatterns3.R x) {// 21
+         System.out.println(x);// 22
       }
    }// 24
 
@@ -86,7 +86,7 @@ class 'pkg/TestRecordPatterns3' {
       4      16
       5      16
       6      16
-      7      17
+      8      16
       9      17
       a      17
       b      17

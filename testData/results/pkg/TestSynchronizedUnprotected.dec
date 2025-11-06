@@ -24,7 +24,6 @@ public final class TestSynchronizedUnprotected {
 class 'pkg/TestSynchronizedUnprotected' {
    method 'test ()V' {
       0      15
-      2      15
       3      15
       5      16
       6      16

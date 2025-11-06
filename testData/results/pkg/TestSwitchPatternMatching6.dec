@@ -4,7 +4,9 @@ import ext.Direction;
 
 public class TestSwitchPatternMatching6 {
    static int testTriangle(Direction d) {
-      return switch (d) {// 1 7
+      Direction var1 = d;
+
+      return switch (var1) {// 1 7
          case null, default -> -1;// 10
          case NORTH, SOUTH, WEST -> 0;// 8
          case EAST, UP -> 1;// 9
@@ -15,66 +17,67 @@ public class TestSwitchPatternMatching6 {
 class 'pkg/TestSwitchPatternMatching6' {
    method 'testTriangle (Lext/Direction;)I' {
       0      6
-      3      6
-      4      6
-      5      6
-      9      6
-      12      6
-      13      6
-      14      6
-      15      6
-      16      6
-      17      6
-      18      6
-      19      6
-      1a      6
-      1b      6
-      1c      6
-      1d      6
-      1e      6
-      1f      6
-      20      6
-      21      6
-      22      6
-      23      6
-      24      6
-      25      6
-      26      6
-      27      6
-      28      6
-      29      6
-      2a      6
-      2b      6
-      2c      6
-      2d      6
-      2e      6
-      2f      6
-      30      6
-      31      6
-      32      6
-      33      6
-      34      6
-      35      6
-      36      6
-      37      6
-      38      6
-      39      6
-      3a      6
-      3b      6
-      3c      6
-      3d      6
-      3e      6
-      3f      6
-      40      8
-      44      9
-      48      7
-      49      6
+      1      6
+      3      8
+      4      8
+      5      8
+      9      8
+      12      8
+      13      8
+      14      8
+      15      8
+      16      8
+      17      8
+      18      8
+      19      8
+      1a      8
+      1b      8
+      1c      8
+      1d      8
+      1e      8
+      1f      8
+      20      8
+      21      8
+      22      8
+      23      8
+      24      8
+      25      8
+      26      8
+      27      8
+      28      8
+      29      8
+      2a      8
+      2b      8
+      2c      8
+      2d      8
+      2e      8
+      2f      8
+      30      8
+      31      8
+      32      8
+      33      8
+      34      8
+      35      8
+      36      8
+      37      8
+      38      8
+      39      8
+      3a      8
+      3b      8
+      3c      8
+      3d      8
+      3e      8
+      3f      8
+      40      10
+      44      11
+      48      9
+      49      8
    }
 }
 
 Lines mapping:
-1 <-> 7
-7 <-> 7
-8 <-> 9
-9 <-> 10
-10 <-> 8
+1 <-> 9
+7 <-> 9
+8 <-> 11
+9 <-> 12
+10 <-> 10

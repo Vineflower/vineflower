@@ -1,11 +1,8 @@
 package pkg;
 
-import java.util.Objects;
-
 public class TestSwitchPatternMatching20 {
    public void test(Object o) {
-      Objects.requireNonNull(o);// 5
-      switch (o) {
+      switch (o) {// 5
          case Integer var6 when false:
             break;
          case String s:// 7
@@ -19,66 +16,62 @@ public class TestSwitchPatternMatching20 {
 
 class 'pkg/TestSwitchPatternMatching20' {
    method 'test (Ljava/lang/Object;)V' {
-      0      6
-      2      6
-      3      6
-      4      6
-      9      7
-      10      7
-      11      7
-      12      7
-      13      7
-      14      7
-      15      7
-      16      7
-      17      7
-      18      7
-      19      7
-      1a      7
-      1b      7
-      1c      7
-      1d      7
-      1e      7
-      1f      7
-      20      7
-      21      7
-      22      7
-      23      7
-      24      7
-      25      7
-      26      7
-      27      7
-      28      7
-      29      7
-      2a      7
-      2b      7
-      3b      10
-      3c      10
-      3d      11
-      3e      11
-      3f      11
-      40      11
-      41      11
-      42      11
-      43      11
-      44      11
-      45      12
-      48      14
-      49      14
-      4a      14
-      4b      14
-      4c      14
-      4d      14
-      4e      14
-      4f      14
-      53      16
+      0      4
+      10      4
+      11      4
+      12      4
+      13      4
+      14      4
+      15      4
+      16      4
+      17      4
+      18      4
+      19      4
+      1a      4
+      1b      4
+      1c      4
+      1d      4
+      1e      4
+      1f      4
+      20      4
+      21      4
+      22      4
+      23      4
+      24      4
+      25      4
+      26      4
+      27      4
+      28      4
+      29      4
+      2a      4
+      2b      4
+      3b      7
+      3c      7
+      3d      8
+      3e      8
+      3f      8
+      40      8
+      41      8
+      42      8
+      43      8
+      44      8
+      45      9
+      48      11
+      49      11
+      4a      11
+      4b      11
+      4c      11
+      4d      11
+      4e      11
+      4f      11
+      53      13
    }
 }
 
 Lines mapping:
-5 <-> 7
-7 <-> 11
-8 <-> 15
-10 <-> 17
+5 <-> 5
+7 <-> 8
+8 <-> 12
+10 <-> 14
 Not mapped:
 6

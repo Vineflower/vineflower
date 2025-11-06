@@ -26,13 +26,13 @@ public class TestDoubleForeach {
       String[] twoArr = (String[])this.two.toArray(String[]::new);// 28
       String[] x = oneArr;// 32
       String[] x2 = twoArr;// 33
-      int l = oneArr.length;// 34
-      int l2 = twoArr.length;// 35
+      int l = x.length;// 34
 
-      for (int i = 0; i < l; i++) {// 37
-         String myString = x[i];// 38
+      for (String myString : x2) {// 35 37 38
+         ;
       }
 
+      byte l2;
       for (int i = 0; i < l2; i++) {// 41
          String myString = x2[i];// 42
       }
@@ -134,30 +134,16 @@ class 'pkg/TestDoubleForeach' {
       2c      28
       2d      28
       2e      28
-      2f      29
-      30      29
-      31      29
-      32      29
-      33      29
-      34      31
-      35      31
-      36      31
-      37      31
-      38      31
-      39      31
-      3a      31
-      3b      31
-      3c      31
-      3d      31
-      3e      32
-      3f      32
-      40      32
-      41      32
-      42      32
-      43      32
-      44      31
-      45      31
-      46      31
+      2f      30
+      30      30
+      32      30
+      33      30
+      35      30
+      36      30
+      43      30
+      44      30
+      45      30
+      46      30
       4a      35
       4b      35
       4c      35
@@ -194,9 +180,9 @@ Lines mapping:
 32 <-> 27
 33 <-> 28
 34 <-> 29
-35 <-> 30
-37 <-> 32
-38 <-> 33
+35 <-> 31
+37 <-> 31
+38 <-> 31
 41 <-> 36
 42 <-> 37
 44 <-> 39

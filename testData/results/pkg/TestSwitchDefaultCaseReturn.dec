@@ -44,7 +44,6 @@ class 'pkg/TestSwitchDefaultCaseReturn' {
       5      4
       6      4
       7      5
-      b      5
       29      6
       2a      6
       37      6
@@ -89,7 +88,6 @@ class 'pkg/TestSwitchDefaultCaseReturn' {
       6a      11
       6b      11
       6c      14
-      71      14
       91      15
       92      15
       a0      16

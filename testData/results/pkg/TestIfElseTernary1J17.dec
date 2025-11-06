@@ -88,7 +88,7 @@ public class TestIfElseTernary1J17 {
       if ((vvv1 != null || vvv2 != null) && vvv2 == null ? (vvv2 == null ? vvv2 == null : vvv3 != null && vvv1 == null) : vvv3 != null) {// 108
          synchronized (this) {// 109
             vvv2 = vvv3;// 112
-            System.out.println(vvv3);// 113
+            System.out.println(vvv2);// 113
             long[][] vvv4 = new long[0][];// 114
          }// 116
       } else {
@@ -103,9 +103,12 @@ public class TestIfElseTernary1J17 {
          }
       }
 
-      System.out.println(vvv2);// 145 146
-      System.out.println(vvv2);// 147 148
-      System.out.println(vvv2);// 150
+      vvv3 = vvv2;// 145
+      System.out.println(vvv3);// 146
+      vvv1 = vvv2;// 147
+      System.out.println(vvv1);// 148
+      vvv2 = vvv1;// 149
+      System.out.println(vvv1);// 150
       int vvv11 = -103;// 151
 
       try {
@@ -113,7 +116,7 @@ public class TestIfElseTernary1J17 {
       } finally {
          Object vvv12 = null;// 160
          vvv11 *= 314;// 161
-         System.out.println(vvv2);// 149 162
+         System.out.println(vvv2);// 162
          throw new RuntimeException();// 163
       }
    }
@@ -741,50 +744,53 @@ class 'pkg/TestIfElseTernary1J17' {
       7d      100
       85      101
       86      105
-      88      105
-      89      105
-      8a      105
-      8b      105
-      8c      105
-      8d      105
-      8e      105
-      8f      106
-      91      106
-      92      106
-      93      106
-      94      106
-      95      106
-      96      106
-      97      106
-      98      115
-      9a      107
-      9b      107
-      9c      107
-      9d      107
-      9e      107
-      9f      107
-      a0      107
-      a1      108
-      a2      108
-      a3      108
-      a4      108
-      ae      111
-      b1      113
-      b2      113
-      b3      113
-      b6      114
-      b7      114
-      b8      114
-      ba      114
-      bb      114
-      bc      115
-      bd      115
-      be      115
-      bf      115
-      c0      115
-      c1      115
-      c2      115
-      ca      116
+      87      105
+      88      106
+      89      106
+      8a      106
+      8b      106
+      8c      106
+      8d      106
+      8e      106
+      8f      107
+      90      107
+      91      108
+      92      108
+      93      108
+      94      108
+      95      108
+      96      108
+      97      108
+      98      109
+      99      109
+      9a      110
+      9b      110
+      9c      110
+      9d      110
+      9e      110
+      9f      110
+      a0      110
+      a1      111
+      a2      111
+      a3      111
+      a4      111
+      ae      114
+      b1      116
+      b2      116
+      b3      116
+      b6      117
+      b7      117
+      b8      117
+      ba      117
+      bb      117
+      bc      118
+      bd      118
+      be      118
+      bf      118
+      c0      118
+      c1      118
+      c2      118
+      ca      119
    }
 }
 
@@ -843,17 +849,17 @@ Lines mapping:
 128 <-> 100
 129 <-> 102
 145 <-> 106
-146 <-> 106
-147 <-> 107
-148 <-> 107
-149 <-> 116
-150 <-> 108
-151 <-> 109
-156 <-> 112
-160 <-> 114
-161 <-> 115
-162 <-> 116
-163 <-> 117
+146 <-> 107
+147 <-> 108
+148 <-> 109
+149 <-> 110
+150 <-> 111
+151 <-> 112
+156 <-> 115
+160 <-> 117
+161 <-> 118
+162 <-> 119
+163 <-> 120
 Not mapped:
 115
 121

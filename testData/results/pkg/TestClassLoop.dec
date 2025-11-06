@@ -78,7 +78,7 @@ public class TestClassLoop {
 
             decPt = i;// 98
             if (signSeen) {// 99
-               decPt = i - 1;// 100
+               decPt--;// 100
             }
 
             decSeen = true;// 102

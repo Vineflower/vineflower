@@ -53,9 +53,11 @@ public class TestSwitchPatternMatching18 {
       // 7f: return
    }
 
+   // $VF: Could not properly define all variable types!
    static void test2(Integer o) {
-      Integer i;
-      switch (o) {// 16
+      Integer i = o;// 16
+      <unknown> var3;
+      switch (i) {
          case 16:
          case null:
             System.out.println("maybe 16?");// 18
@@ -63,7 +65,7 @@ public class TestSwitchPatternMatching18 {
          case 42:
             System.out.println("42");// 17
             break;
-         case Integer var4 when i < 50:// 19
+         case Integer var4 when var3 < 50:// 19
             System.out.println("small");
             break;
          default:
@@ -71,9 +73,11 @@ public class TestSwitchPatternMatching18 {
       }
    }// 22
 
+   // $VF: Could not properly define all variable types!
    static void test3(Integer o) {
-      Integer i;
-      switch (o) {// 25
+      Integer i = o;// 25
+      <unknown> var3;
+      switch (i) {
          case 16:
          case null:
             System.out.println("definitely null");// 29
@@ -81,7 +85,7 @@ public class TestSwitchPatternMatching18 {
          case 42:
             System.out.println("42");// 26
             break;
-         case Integer var4 when i < 50:// 27
+         case Integer var4 when var3 < 50:// 27
             System.out.println("small");
             break;
          default:
@@ -93,175 +97,175 @@ public class TestSwitchPatternMatching18 {
 class 'pkg/TestSwitchPatternMatching18' {
    method 'test2 (Ljava/lang/Integer;)V' {
       0      57
-      4      57
-      b      57
-      c      57
-      d      57
-      e      57
-      f      57
-      10      57
-      11      57
-      12      57
-      13      57
-      14      57
-      15      57
-      16      57
-      17      57
-      18      57
-      19      57
-      1a      57
-      1b      57
-      1c      57
-      1d      57
-      1e      57
-      1f      57
-      20      57
-      21      57
-      22      57
-      23      57
-      24      57
-      25      57
-      26      57
-      27      57
-      28      63
-      29      63
-      2a      63
-      2b      63
-      2c      63
-      2d      63
-      2e      63
-      2f      63
-      30      64
-      33      60
-      34      60
-      35      60
-      36      60
-      37      60
-      38      60
-      39      60
-      3a      60
-      3b      61
-      3e      65
-      40      65
-      41      65
-      42      65
-      43      65
-      44      65
-      45      65
-      46      65
-      47      65
-      48      65
-      4e      66
-      4f      66
-      50      66
-      51      66
-      52      66
-      53      66
-      54      66
-      55      66
-      56      67
-      59      69
-      5a      69
-      5b      69
-      5c      69
-      5d      69
-      5e      69
-      5f      69
-      60      69
-      64      71
+      1      57
+      4      59
+      b      59
+      c      59
+      d      59
+      e      59
+      f      59
+      10      59
+      11      59
+      12      59
+      13      59
+      14      59
+      15      59
+      16      59
+      17      59
+      18      59
+      19      59
+      1a      59
+      1b      59
+      1c      59
+      1d      59
+      1e      59
+      1f      59
+      20      59
+      21      59
+      22      59
+      23      59
+      24      59
+      25      59
+      26      59
+      27      59
+      28      65
+      29      65
+      2a      65
+      2b      65
+      2c      65
+      2d      65
+      2e      65
+      2f      65
+      30      66
+      33      62
+      34      62
+      35      62
+      36      62
+      37      62
+      38      62
+      39      62
+      3a      62
+      3b      63
+      40      67
+      41      67
+      42      67
+      43      67
+      44      67
+      45      67
+      46      67
+      47      67
+      48      67
+      4e      68
+      4f      68
+      50      68
+      51      68
+      52      68
+      53      68
+      54      68
+      55      68
+      56      69
+      59      71
+      5a      71
+      5b      71
+      5c      71
+      5d      71
+      5e      71
+      5f      71
+      60      71
+      64      73
    }
 
    method 'test3 (Ljava/lang/Integer;)V' {
-      0      75
-      4      75
-      b      75
-      c      75
-      d      75
-      e      75
-      f      75
-      10      75
-      11      75
-      12      75
-      13      75
-      14      75
-      15      75
-      16      75
-      17      75
-      18      75
-      19      75
-      1a      75
-      1b      75
-      1c      75
-      1d      75
-      1e      75
-      1f      75
-      20      75
-      21      75
-      22      75
-      23      75
-      24      75
-      25      75
-      26      75
-      27      75
-      28      81
-      29      81
-      2a      81
-      2b      81
-      2c      81
-      2d      81
-      2e      81
-      2f      81
-      30      82
-      33      83
-      35      83
-      36      83
-      37      83
-      38      83
-      39      83
-      3a      83
-      3b      83
-      3c      83
-      3d      83
-      43      84
-      44      84
-      45      84
-      46      84
-      47      84
-      48      84
-      49      84
-      4a      84
-      4b      85
-      4e      78
-      4f      78
-      50      78
-      51      78
-      52      78
-      53      78
-      54      78
-      55      78
-      56      79
-      59      87
-      5a      87
-      5b      87
-      5c      87
-      5d      87
-      5e      87
-      5f      87
-      60      87
-      64      89
+      0      77
+      1      77
+      4      79
+      b      79
+      c      79
+      d      79
+      e      79
+      f      79
+      10      79
+      11      79
+      12      79
+      13      79
+      14      79
+      15      79
+      16      79
+      17      79
+      18      79
+      19      79
+      1a      79
+      1b      79
+      1c      79
+      1d      79
+      1e      79
+      1f      79
+      20      79
+      21      79
+      22      79
+      23      79
+      24      79
+      25      79
+      26      79
+      27      79
+      28      85
+      29      85
+      2a      85
+      2b      85
+      2c      85
+      2d      85
+      2e      85
+      2f      85
+      30      86
+      35      87
+      36      87
+      37      87
+      38      87
+      39      87
+      3a      87
+      3b      87
+      3c      87
+      3d      87
+      43      88
+      44      88
+      45      88
+      46      88
+      47      88
+      48      88
+      49      88
+      4a      88
+      4b      89
+      4e      82
+      4f      82
+      50      82
+      51      82
+      52      82
+      53      82
+      54      82
+      55      82
+      56      83
+      59      91
+      5a      91
+      5b      91
+      5c      91
+      5d      91
+      5e      91
+      5f      91
+      60      91
+      64      93
    }
 }
 
 Lines mapping:
 16 <-> 58
-17 <-> 64
-18 <-> 61
-19 <-> 66
-20 <-> 70
-22 <-> 72
-25 <-> 76
-26 <-> 82
-27 <-> 84
-29 <-> 79
-30 <-> 88
-32 <-> 90
+17 <-> 66
+18 <-> 63
+19 <-> 68
+20 <-> 72
+22 <-> 74
+25 <-> 78
+26 <-> 86
+27 <-> 88
+29 <-> 83
+30 <-> 92
+32 <-> 94

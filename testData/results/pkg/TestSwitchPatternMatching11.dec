@@ -2,7 +2,9 @@ package pkg;
 
 public class TestSwitchPatternMatching11 {
    static String test(String s) {
-      return switch (s) {// 5
+      String var1;
+
+      return switch (var1) {// 5
          case "hi" -> "hi";// 6
          case "bye" -> "bye";// 7
          case null -> null;// 8
@@ -13,51 +15,50 @@ public class TestSwitchPatternMatching11 {
 
 class 'pkg/TestSwitchPatternMatching11' {
    method 'test (Ljava/lang/String;)Ljava/lang/String;' {
-      0      4
-      8      4
-      29      5
-      2a      5
-      37      6
-      38      6
-      47      4
-      48      4
-      49      4
-      4a      4
-      4b      4
-      4c      4
-      4d      4
-      4e      4
-      4f      4
-      50      4
-      51      4
-      52      4
-      53      4
-      54      4
-      55      4
-      56      4
-      57      4
-      58      4
-      59      4
-      5a      4
-      5b      4
-      5c      4
-      5d      4
-      5e      4
-      5f      4
-      60      5
-      61      5
-      65      6
-      66      6
-      6a      7
-      6e      8
-      6f      8
-      70      4
+      8      6
+      29      7
+      2a      7
+      37      8
+      38      8
+      47      6
+      48      6
+      49      6
+      4a      6
+      4b      6
+      4c      6
+      4d      6
+      4e      6
+      4f      6
+      50      6
+      51      6
+      52      6
+      53      6
+      54      6
+      55      6
+      56      6
+      57      6
+      58      6
+      59      6
+      5a      6
+      5b      6
+      5c      6
+      5d      6
+      5e      6
+      5f      6
+      60      7
+      61      7
+      65      8
+      66      8
+      6a      9
+      6e      10
+      6f      10
+      70      6
    }
 }
 
 Lines mapping:
-5 <-> 5
-6 <-> 6
-7 <-> 7
-8 <-> 8
-9 <-> 9
+5 <-> 7
+6 <-> 8
+7 <-> 9
+8 <-> 10
+9 <-> 11

@@ -1,11 +1,8 @@
 package pkg;
 
-import java.util.Objects;
-
 public class TestSwitchPatternMatchingInstanceof4 {
    public void test(Object o) {
-      Objects.requireNonNull(o);// 5
-      switch (o) {
+      switch (o) {// 5
          case String s when o instanceof Class<?> clzz && clzz.getSigners()[0] instanceof Class<?> c2:// 6
             System.out.println("" + clzz + c2);
             break;
@@ -17,85 +14,80 @@ public class TestSwitchPatternMatchingInstanceof4 {
 
 class 'pkg/TestSwitchPatternMatchingInstanceof4' {
    method 'test (Ljava/lang/Object;)V' {
-      0      6
-      2      6
-      3      6
-      4      6
-      9      7
-      10      7
-      11      7
-      12      7
-      13      7
-      14      7
-      15      7
-      16      7
-      17      7
-      18      7
-      19      7
-      1a      7
-      1b      7
-      1c      7
-      1d      7
-      1e      7
-      1f      7
-      20      7
-      21      7
-      22      7
-      23      7
-      28      8
-      29      8
-      2a      8
-      2b      8
-      2c      8
-      2d      8
-      2e      8
-      2f      8
-      30      8
-      35      8
-      36      8
-      37      8
-      38      8
-      39      8
-      3a      8
-      3b      8
-      3c      8
-      3d      8
-      42      8
-      43      8
-      44      8
-      45      8
-      46      8
-      47      8
-      4d      8
-      4e      8
-      4f      9
-      50      9
-      51      9
-      57      9
-      58      9
-      5c      9
-      5d      9
-      61      9
-      62      9
-      63      9
-      64      9
-      65      9
-      66      9
-      6c      10
-      6f      12
-      70      12
-      71      12
-      72      12
-      73      12
-      74      12
-      75      12
-      76      12
-      7a      14
+      0      4
+      10      4
+      11      4
+      12      4
+      13      4
+      14      4
+      15      4
+      16      4
+      17      4
+      18      4
+      19      4
+      1a      4
+      1b      4
+      1c      4
+      1d      4
+      1e      4
+      1f      4
+      20      4
+      21      4
+      22      4
+      23      4
+      28      5
+      29      5
+      2a      5
+      2b      5
+      2c      5
+      2d      5
+      2e      5
+      2f      5
+      30      5
+      35      5
+      36      5
+      37      5
+      38      5
+      39      5
+      3a      5
+      3b      5
+      3c      5
+      3d      5
+      42      5
+      43      5
+      44      5
+      45      5
+      46      5
+      47      5
+      4d      5
+      4e      5
+      4f      6
+      50      6
+      51      6
+      57      6
+      58      6
+      5a      6
+      5b      6
+      5c      6
+      5d      6
+      5e      6
+      5f      6
+      60      6
+      66      7
+      69      9
+      6a      9
+      6b      9
+      6c      9
+      6d      9
+      6e      9
+      6f      9
+      70      9
+      74      11
    }
 }
 
 Lines mapping:
-5 <-> 7
-6 <-> 9
-7 <-> 13
-9 <-> 15
+5 <-> 5
+6 <-> 6
+7 <-> 10
+9 <-> 12

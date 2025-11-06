@@ -9,22 +9,16 @@ public class TestRecordPatterns5 {
    }// 11
 
    public void test2(TestRecordPatterns5.R r) {
-      if (r instanceof TestRecordPatterns5.R(Integer x, String var11)) {// 14
-         String s = var11;
-         if (s.length() > 10) {
-            System.out.println(x);// 15
-            System.out.println(s);// 16
-         }
+      if (r instanceof TestRecordPatterns5.R(Integer x, String s) && s.length() > 10) {// 14
+         System.out.println(x);// 15
+         System.out.println(s);// 16
       }
    }// 18
 
    public void test3(TestRecordPatterns5.R r) {
-      if (r instanceof TestRecordPatterns5.R(Integer x, String var11)) {// 21
-         String s = var11;
-         if (s.length() > 10 && x == 3) {
-            System.out.println(x);// 22
-            System.out.println(s);// 23
-         }
+      if (r instanceof TestRecordPatterns5.R(Integer x, String s) && s.length() > 10 && x == 3) {// 21
+         System.out.println(x);// 22
+         System.out.println(s);// 23
       }
    }// 25
 
@@ -42,10 +36,8 @@ class 'pkg/TestRecordPatterns5' {
       5      4
       6      4
       1c      4
-      21      4
-      22      4
-      23      6
-      24      6
+      25      4
+      26      4
       27      5
       28      5
       29      5
@@ -73,85 +65,81 @@ class 'pkg/TestRecordPatterns5' {
       5      11
       6      11
       1c      11
-      21      12
-      22      12
-      23      13
-      24      13
-      27      13
-      28      13
-      29      13
-      2a      13
-      2b      13
-      2c      13
-      2d      13
-      2e      13
-      2f      13
-      30      13
-      31      14
-      32      14
-      33      14
-      34      14
-      35      14
-      36      14
-      37      14
-      38      15
-      39      15
-      3a      15
-      3b      15
-      3c      15
-      3d      15
-      3e      15
-      3f      15
-      51      18
+      25      11
+      26      11
+      27      11
+      28      11
+      29      11
+      2a      11
+      2b      11
+      2c      11
+      2d      11
+      2e      11
+      2f      11
+      30      11
+      31      12
+      32      12
+      33      12
+      34      12
+      35      12
+      36      12
+      37      12
+      38      13
+      39      13
+      3a      13
+      3b      13
+      3c      13
+      3d      13
+      3e      13
+      3f      13
+      51      15
    }
 
    method 'test3 (Lpkg/TestRecordPatterns5$R;)V' {
-      0      21
-      1      21
-      2      21
-      3      21
-      4      21
-      5      21
-      6      21
-      1c      21
-      21      22
-      22      22
-      23      23
-      24      23
-      27      23
-      28      23
-      29      23
-      2a      23
-      2b      23
-      2c      23
-      2d      23
-      2e      23
-      2f      23
-      30      23
-      31      23
-      32      23
-      33      23
-      34      23
-      35      23
-      36      23
-      37      23
-      38      23
-      39      24
-      3a      24
-      3b      24
-      3c      24
-      3d      24
-      3e      24
-      3f      24
-      40      25
-      41      25
-      42      25
-      43      25
-      44      25
-      45      25
-      46      25
-      47      25
-      59      28
+      0      18
+      1      18
+      2      18
+      3      18
+      4      18
+      5      18
+      6      18
+      1c      18
+      25      18
+      26      18
+      27      18
+      28      18
+      29      18
+      2a      18
+      2b      18
+      2c      18
+      2d      18
+      2e      18
+      2f      18
+      30      18
+      31      18
+      32      18
+      33      18
+      34      18
+      35      18
+      36      18
+      37      18
+      38      18
+      39      19
+      3a      19
+      3b      19
+      3c      19
+      3d      19
+      3e      19
+      3f      19
+      40      20
+      41      20
+      42      20
+      43      20
+      44      20
+      45      20
+      46      20
+      47      20
+      59      22
    }
 }
 
@@ -161,10 +149,10 @@ Lines mapping:
 9 <-> 7
 11 <-> 9
 14 <-> 12
-15 <-> 15
-16 <-> 16
-18 <-> 19
-21 <-> 22
-22 <-> 25
-23 <-> 26
-25 <-> 29
+15 <-> 13
+16 <-> 14
+18 <-> 16
+21 <-> 19
+22 <-> 20
+23 <-> 21
+25 <-> 23

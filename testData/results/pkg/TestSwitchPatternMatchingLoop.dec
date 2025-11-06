@@ -20,7 +20,6 @@ public class TestSwitchPatternMatchingLoop {
 class 'pkg/TestSwitchPatternMatchingLoop' {
    method 'test (Ljava/lang/Object;)V' {
       0      5
-      9      5
       10      5
       11      5
       12      5
