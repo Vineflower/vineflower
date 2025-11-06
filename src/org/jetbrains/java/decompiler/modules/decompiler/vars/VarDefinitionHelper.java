@@ -246,7 +246,7 @@ public class VarDefinitionHelper {
     }
 
     mergeVars(root);
-    propogateLVTs(root);
+    propagateLVTs(root);
     setNonFinal(root, new HashSet<>());
     remapClashingNames(root, mt);
   }
@@ -1122,7 +1122,7 @@ public class VarDefinitionHelper {
     }
   }
 
-  private void propogateLVTs(Statement stat) {
+  private void propagateLVTs(Statement stat) {
     MethodDescriptor md = MethodDescriptor.parseDescriptor(mt.getDescriptor());
     Map<VarVersionPair, VarInfo> types = new LinkedHashMap<>();
 
@@ -1256,10 +1256,12 @@ public class VarDefinitionHelper {
           types.put(ver, new VarInfo(var.getLVT(), var.getVarType()));
         } else {
           VarInfo existing = types.get(ver);
-          if (existing == null)
+          if (existing == null) {
             existing = new VarInfo(var.getLVT(), var.getVarType());
-          else if (existing.getLVT() == null && var.getLVT() != null)
+          } else if (existing.getLVT() == null && var.getLVT() != null) {
             existing = new VarInfo(var.getLVT(), existing.getType());
+          }
+
           types.put(ver, existing);
         }
       }

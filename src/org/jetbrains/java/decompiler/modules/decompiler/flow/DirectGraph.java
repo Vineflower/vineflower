@@ -1,6 +1,7 @@
 // Copyright 2000-2017 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.flow;
 
+import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.DummyExitStatement;
 import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
@@ -104,7 +105,13 @@ public class DirectGraph {
       setVisited.add(node);
 
       for (int i = 0; i < node.exprents.size(); i++) {
-        int res = iter.processExprent(node.exprents.get(i));
+        Exprent expr = node.exprents.get(i);
+        if (expr == null) {
+          ValidationHelper.validateTrue(false, "Null exprent in node " + node);
+          continue;
+        }
+
+        int res = iter.processExprent(expr);
 
         if (res == 1) {
           return false;
@@ -126,13 +133,12 @@ public class DirectGraph {
 
   public boolean iterateExprentsDeep(ExprentIterator itr) {
     return iterateExprents(exprent -> {
-      List<Exprent> lst = exprent.getAllExprents(true);
-      lst.add(exprent);
-
-      for (Exprent expr : lst) {
+      for (Exprent expr : exprent.getAllExprents(true, true)) {
         int res = itr.processExprent(expr);
-        if (res == 1 || res == 2) {
+        if (res == 1) {
           return res;
+        } else if (res != 0) {
+          throw new IllegalStateException("Unsupported operation: " + res);
         }
       }
       return 0;

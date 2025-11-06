@@ -742,6 +742,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
 
     register(JAVA_21, "TestTypeAnnotations");
     register(JAVA_8, "TestCatchClashing");
+    register(JAVA_8_NODEBUG, "TestLVTReassignmentNoDebug");
   }
 
   private void registerEntireClassPath() {
@@ -792,7 +793,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestTryWithResourcesFakeTrigger");
 
     register(JAVA_16, "TestTryWithResourcesManyJ16");
-    // TODO: QF doesn't handle the synthetic method in the finally correctly
+    // TODO: VF doesn't handle the synthetic method in the finally correctly
 //    register(JAVA_9, "TestTryWithResourcesManyJ9");
 
     register(JAVA_8, "TestGenericMapEntireClasspath");
