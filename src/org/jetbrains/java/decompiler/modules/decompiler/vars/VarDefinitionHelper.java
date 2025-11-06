@@ -246,7 +246,7 @@ public class VarDefinitionHelper {
     }
 
     mergeVars(root);
-    propogateLVTs(root);
+    propagateLVTs(root);
     setNonFinal(root, new HashSet<>());
     remapClashingNames(root, mt);
   }
@@ -446,8 +446,8 @@ public class VarDefinitionHelper {
   }
 
   private void populateTypeBounds(VarProcessor proc, Statement stat) {
-    Map<VarVersionPair, VarType> mapExprentMinTypes = varproc.getVarVersions().getTypeProcessor().getMapExprentMinTypes();
-    Map<VarVersionPair, VarType> mapExprentMaxTypes = varproc.getVarVersions().getTypeProcessor().getMapExprentMaxTypes();
+    Map<VarVersionPair, VarType> mapExprentMinTypes = varproc.getVarVersions().getTypeProcessor().getLowerBounds();
+    Map<VarVersionPair, VarType> mapExprentMaxTypes = varproc.getVarVersions().getTypeProcessor().getUpperBounds();
     LinkedList<Statement> stack = new LinkedList<>();
     stack.add(root);
 
@@ -770,7 +770,7 @@ public class VarDefinitionHelper {
             VarType t1 = this.varproc.getVarType(ret.getKey());
             VarType t2 = this.varproc.getVarType(ret.getValue());
 
-            if (t1.isSuperset(t2) || t2.isSuperset(t1)) {
+            if (t1.higherEqualInLatticeThan(t2) || t2.higherEqualInLatticeThan(t1)) {
               return ret;
             }
           }
@@ -788,7 +788,7 @@ public class VarDefinitionHelper {
           VarType t1 = this.varproc.getVarType(ret.getKey());
           VarType t2 = this.varproc.getVarType(ret.getValue());
 
-          if (t1 != null && t2 != null && (t1.isSuperset(t2) || t2.isSuperset(t1))) {
+          if (t1.higherEqualInLatticeThan(t2) || t2.higherEqualInLatticeThan(t1)) {
             // TODO: this only checks for totally disjoint types, there are instances where merging is incorrect with primitives
 
             boolean ok = true;
@@ -1027,7 +1027,7 @@ public class VarDefinitionHelper {
           VarType type = right.getConstType();
 
           // We can only do this if the merged type is a superset of the old type
-          if (merged.isSuperset(type) && canConstTypeMerge(merged)) {
+          if (merged.higherEqualInLatticeThan(type) && canConstTypeMerge(merged)) {
             right.setConstType(merged);
           }
         }
@@ -1065,8 +1065,8 @@ public class VarDefinitionHelper {
   }
 
   private VarType getMergedType(VarVersionPair from, VarVersionPair to) {
-    Map<VarVersionPair, VarType> minTypes = varproc.getVarVersions().getTypeProcessor().getMapExprentMinTypes();
-    Map<VarVersionPair, VarType> maxTypes = varproc.getVarVersions().getTypeProcessor().getMapExprentMaxTypes();
+    Map<VarVersionPair, VarType> minTypes = varproc.getVarVersions().getTypeProcessor().getLowerBounds();
+    Map<VarVersionPair, VarType> maxTypes = varproc.getVarVersions().getTypeProcessor().getUpperBounds();
 
     return getMergedType(minTypes.get(from), minTypes.get(to), maxTypes.get(from), maxTypes.get(to));
   }
@@ -1075,7 +1075,7 @@ public class VarDefinitionHelper {
     if (fromMin != null && fromMin.equals(toMin)) {
       return fromMin; // Short circuit this for simplicities sake
     }
-    VarType type = fromMin == null ? toMin : (toMin == null ? fromMin : VarType.getCommonSupertype(fromMin, toMin));
+    VarType type = fromMin == null ? toMin : (toMin == null ? fromMin : VarType.join(fromMin, toMin));
     if (type == null || fromMin == null || toMin == null) {
       return null; // no common supertype, skip the remapping
     }
@@ -1113,7 +1113,7 @@ public class VarDefinitionHelper {
       return null;
     } else {
       // Both nonnull at this point
-      if (!fromMin.isStrictSuperset(toMin)) {
+      if (!fromMin.higherInLatticeThan(toMin)) {
         // If type we're merging into the old type isn't a strict superset of the old type, we cannot merge
         return null;
       }
@@ -1122,7 +1122,7 @@ public class VarDefinitionHelper {
     }
   }
 
-  private void propogateLVTs(Statement stat) {
+  private void propagateLVTs(Statement stat) {
     MethodDescriptor md = MethodDescriptor.parseDescriptor(mt.getDescriptor());
     Map<VarVersionPair, VarInfo> types = new LinkedHashMap<>();
 
@@ -1256,10 +1256,12 @@ public class VarDefinitionHelper {
           types.put(ver, new VarInfo(var.getLVT(), var.getVarType()));
         } else {
           VarInfo existing = types.get(ver);
-          if (existing == null)
+          if (existing == null) {
             existing = new VarInfo(var.getLVT(), var.getVarType());
-          else if (existing.getLVT() == null && var.getLVT() != null)
+          } else if (existing.getLVT() == null && var.getLVT() != null) {
             existing = new VarInfo(var.getLVT(), existing.getType());
+          }
+
           types.put(ver, existing);
         }
       }

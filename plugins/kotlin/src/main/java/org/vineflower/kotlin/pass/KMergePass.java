@@ -192,8 +192,8 @@ public class KMergePass extends MergeHelper implements Pass {
 
         // Type of assignment- store in var for type calculation
         CheckTypesResult typeRes = ass.checkExprTypeBounds();
-        if (typeRes != null && !typeRes.getLstMinTypeExprents().isEmpty()) {
-          VarType boundType = typeRes.getLstMinTypeExprents().get(0).type;
+        if (typeRes != null && !typeRes.getLowerBounds().isEmpty()) {
+          VarType boundType = typeRes.getLowerBounds().get(0).type;
           VarExprent var = (VarExprent) ass.getLeft();
           var.setBoundType(boundType);
         }
@@ -271,8 +271,8 @@ public class KMergePass extends MergeHelper implements Pass {
 
         // Type of assignment- store in var for type calculation
         CheckTypesResult typeRes = firstDoExprent.checkExprTypeBounds();
-        if (typeRes != null && !typeRes.getLstMinTypeExprents().isEmpty()) {
-          VarType boundType = typeRes.getLstMinTypeExprents().get(0).type;
+        if (typeRes != null && !typeRes.getLowerBounds().isEmpty()) {
+          VarType boundType = typeRes.getLowerBounds().get(0).type;
           VarExprent var = (VarExprent) firstDoExprent.getLeft();
           var.setBoundType(boundType);
         }

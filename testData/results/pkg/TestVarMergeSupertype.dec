@@ -3,7 +3,7 @@ package pkg;
 public class TestVarMergeSupertype {
    public void myMethod() {
       TestVarMergeSupertype.MyInterface rmcp = null;// 5
-      TestVarMergeSupertype.MyInterface var2 = this.getMyInterfaceImpl();// 6
+      rmcp = this.getMyInterfaceImpl();// 6
    }// 7
 
    public void myMethod2() {

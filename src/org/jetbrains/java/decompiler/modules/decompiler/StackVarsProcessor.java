@@ -27,6 +27,7 @@ import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribu
 import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
+import org.jetbrains.java.decompiler.util.DotExporter;
 import org.jetbrains.java.decompiler.util.collections.FastSparseSetFactory.FastSparseSet;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.collections.SFormsFastMapDirect;
@@ -237,23 +238,16 @@ public class StackVarsProcessor {
       }
     }
 
-    for (DirectNode nd : setVisited) {
-      for (Exprent expr : nd.exprents) {
-        if (expr == null) {
-          // TODO: how is this possible???
-          continue;
-        }
-
-        for (Exprent ex : expr.getAllExprents(true, true)) {
-          if (ex instanceof VarExprent var && lvts.containsKey(var.getVarVersionPair())) {
-            LocalVariable lvt = lvts.get(var.getVarVersionPair());
-            if (var.getLVT() == null) {
-              var.setLVT(lvt);
-            }
-          }
+    dgraph.iterateExprentsDeep(ex -> {
+      if (ex instanceof VarExprent var && lvts.containsKey(var.getVarVersionPair())) {
+        LocalVariable lvt = lvts.get(var.getVarVersionPair());
+        if (var.getLVT() == null) {
+          var.setLVT(lvt);
         }
       }
-    }
+
+      return 0;
+    });
 
     return res;
   }
@@ -311,7 +305,7 @@ public class StackVarsProcessor {
   // {nextIndex, (changed ? 1 : 0)}
   private static void iterateExprent(List<Exprent> lstExprents,
                                       Statement stat,
-                                     Map<VarVersionPair, LocalVariable> lvts,
+                                      Map<VarVersionPair, LocalVariable> lvts,
                                       int index,
                                       Exprent next,
                                       Map<VarVersionPair, Exprent> mapVarValues,
@@ -553,6 +547,12 @@ public class StackVarsProcessor {
           }
 
           for (VarVersionNode pred : predecessors(nd, versions, ssau.getVarAssignmentMap())) {
+            if (pred == null) {
+              // Shouldn't be possible??
+              ValidationHelper.validateTrue(false, "Predecessor is null!");
+              continue;
+            }
+
             if (!seen.contains(pred)) {
               nodes.add(pred);
             }

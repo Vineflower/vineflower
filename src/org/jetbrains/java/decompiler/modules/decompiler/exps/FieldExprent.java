@@ -101,7 +101,7 @@ public class FieldExprent extends Exprent {
               if (_new != null) {
                 ret = _new;
               } else {
-                ret = getExprType();
+                ret = descriptor.type;
               }
             }
           }
@@ -111,7 +111,7 @@ public class FieldExprent extends Exprent {
       }
     }
 
-    return getExprType();
+    return descriptor.type;
   }
 
   @Override

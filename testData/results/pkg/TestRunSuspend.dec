@@ -36,23 +36,23 @@ final class TestRunSuspend {
    }// 4
 
    @Nullable
-   public final Result<Unit> getResult_xLWZpok/* $VF was: getResult-xLWZpok*/() {
+   public final Result<Unit> getResult_xLWZpok/* $VF was: getResult-xLWZpok */() {
       return this.result;
    }
 
    public final void setResult(@Nullable Result<Unit> var1) {
-      this.result = <set-?>;// 5
+      this.result = var1/* $VF was: <set-?> */;// 5
    }
 
    // $VF: Extended synchronized range to monitorexit
    public final void await() {
       synchronized (this) {// 7
-         int $i$a$-synchronized-TestRunSuspend$await$1 = 0;
+         int var2/* $VF was: $i$a$-synchronized-TestRunSuspend$await$1 */ = 0;
 
          while (true) {
             Result result = this.result;// 9
             if (result != null) {// 10
-               Object var4 = result.unbox-impl();// 12
+               Object var4 = result.unbox_impl/* $VF was: unbox-impl */();// 12
                ResultKt.throwOnFailure(var4);
                return;
             }

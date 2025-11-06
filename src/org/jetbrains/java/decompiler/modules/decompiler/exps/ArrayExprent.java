@@ -59,8 +59,8 @@ public class ArrayExprent extends Exprent {
   @Override
   public CheckTypesResult checkExprTypeBounds() {
     CheckTypesResult result = new CheckTypesResult();
-    result.addMinTypeExprent(index, VarType.VARTYPE_BYTECHAR);
-    result.addMaxTypeExprent(index, VarType.VARTYPE_INT);
+    result.addExprLowerBound(index, VarType.VARTYPE_BYTECHAR);
+    result.addExprUpperBound(index, VarType.VARTYPE_INT);
     return result;
   }
 

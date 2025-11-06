@@ -5,7 +5,7 @@ import org.jetbrains.java.decompiler.api.java.JavaPassLocation;
 import org.jetbrains.java.decompiler.api.plugin.LanguageSpec;
 import org.jetbrains.java.decompiler.api.plugin.pass.PassContext;
 import org.jetbrains.java.decompiler.code.CodeConstants;
-import org.jetbrains.java.decompiler.code.InstructionSequence;
+import org.jetbrains.java.decompiler.code.FullInstructionSequence;
 import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
 import org.jetbrains.java.decompiler.code.cfg.ExceptionRangeCFG;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
@@ -96,7 +96,7 @@ public class MethodProcessor implements Runnable {
     PluginContext pluginContext = PluginContext.getCurrentContext();
 
     mt.expandData(cl);
-    InstructionSequence seq = mt.getInstructionSequence();
+    FullInstructionSequence seq = mt.getInstructionSequence();
     ControlFlowGraph graph = new ControlFlowGraph(seq);
     debugCurrentCFG.set(graph);
     DotExporter.toDotFile(graph, mt, "cfgConstructed", true);

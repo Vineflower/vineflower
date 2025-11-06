@@ -25,6 +25,10 @@ public enum TypeFamily {
     return numeric;
   }
 
+  public boolean intOrBool() {
+    return this == INTEGER || this == BOOLEAN;
+  }
+
   // TODO: document what these mean, and try to remove! Doesn't make sense to have these
 
   public boolean isGreater(@NotNull TypeFamily other) {
@@ -33,9 +37,5 @@ public enum TypeFamily {
 
   public boolean isLesser(@NotNull TypeFamily other) {
     return ordinal() < other.ordinal();
-  }
-
-  public boolean isLesserOrEqual(@NotNull TypeFamily other) {
-    return ordinal() <= other.ordinal();
   }
 }

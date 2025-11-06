@@ -174,11 +174,20 @@ public class VarExprent extends Exprent implements Pattern {
         }
 
         if (thisVar == null || !name.contains(".this")) {
-          buffer.appendVariable(name, definition, param, method.classStruct.qualifiedName, method.methodStruct.getName(), descriptor, varIndex, name);
+          String writeName = name;
+          if (!isValidName(name)) {
+            writeName = getVarVerName(getVarVersionPair());
+          }
+
+          buffer.appendVariable(writeName, definition, param, method.classStruct.qualifiedName, method.methodStruct.getName(), descriptor, varIndex, name);
+          if (!writeName.equals(name)) {
+            buffer.append("/* $VF was: ").append(name).append(" */");
+          }
         } else {
           int i = name.indexOf(".this");
           buffer.appendClass(name.substring(0, i), false, thisVar);
-          buffer.append(name.substring(i));
+          buffer.append(".");
+          writeName(buffer, name.substring(i + 1));
         }
       } else {
         String thisVar = null;
@@ -189,14 +198,43 @@ public class VarExprent extends Exprent implements Pattern {
         if (thisVar != null && name.contains(".this")) {
           int i = name.indexOf(".this");
           buffer.appendClass(name.substring(0, i), false, thisVar);
-          buffer.append(name.substring(i));
+          buffer.append(".");
+          writeName(buffer, name.substring(i + 1));
         } else {
-          buffer.append(name);
+          writeName(buffer, name);
         }
       }
     }
 
     return buffer;
+  }
+
+  private void writeName(TextBuffer buffer, String name) {
+    String writeName = name;
+    if (!isValidName(name)) {
+      writeName = getVarVerName(getVarVersionPair());
+    }
+
+    buffer.append(writeName);
+    if (!writeName.equals(name)) {
+      buffer.append("/* $VF was: ").append(name).append(" */");
+    }
+  }
+
+  private static boolean isValidName(String name) {
+    // Needed for later processing
+    if (name.equals(VAR_NAMELESS_ENCLOSURE)) {
+      return true;
+    }
+
+    for (int i = 0; i < name.length(); i++) {
+      char c = name.charAt(i);
+      if ((i == 0 && !Character.isJavaIdentifierStart(c)) || (i > 0 && !Character.isJavaIdentifierPart(c))) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   public VarVersionPair getVarVersionPair() {
@@ -327,6 +365,9 @@ public class VarExprent extends Exprent implements Pattern {
     }
 
     VarType vt = null;
+//    if (processor != null) {
+//      vt = processor.getVarType(getVarVersionPair());
+//    }
     if (processor != null) {
       String name = processor.getVarName(getVarVersionPair());
       vt = Exprent.inferredLambdaTypes.get().get(name);
@@ -448,6 +489,10 @@ public class VarExprent extends Exprent implements Pattern {
       }
     }
 
+    return getVarVerName(pair);
+  }
+
+  private @NotNull String getVarVerName(VarVersionPair pair) {
     return pair.version == 0 ? "var" + pair.var : "var" + pair.var + "_" + version;
   }
 
@@ -459,13 +504,13 @@ public class VarExprent extends Exprent implements Pattern {
   public CheckTypesResult checkExprTypeBounds() {
     if (this.lvt != null) {
       CheckTypesResult ret = new CheckTypesResult();
-      ret.addMinTypeExprent(this, this.lvt.getVarType());
+      ret.addExprLowerBound(this, this.lvt.getVarType());
       return ret;
     }
 
     if (this.boundType != null) {
       CheckTypesResult ret = new CheckTypesResult();
-      ret.addMinTypeExprent(this, this.boundType);
+      ret.addExprLowerBound(this, this.boundType);
       return ret;
     }
 

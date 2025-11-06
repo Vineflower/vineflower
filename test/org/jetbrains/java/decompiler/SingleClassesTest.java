@@ -742,6 +742,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
 
     register(JAVA_21, "TestTypeAnnotations");
     register(JAVA_8, "TestCatchClashing");
+    register(JAVA_8_NODEBUG, "TestLVTReassignmentNoDebug");
   }
 
   private void registerEntireClassPath() {
@@ -792,7 +793,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestTryWithResourcesFakeTrigger");
 
     register(JAVA_16, "TestTryWithResourcesManyJ16");
-    // TODO: QF doesn't handle the synthetic method in the finally correctly
+    // TODO: VF doesn't handle the synthetic method in the finally correctly
 //    register(JAVA_9, "TestTryWithResourcesManyJ9");
 
     register(JAVA_8, "TestGenericMapEntireClasspath");
@@ -826,15 +827,15 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestGenericWildcard");
     register(JAVA_8, "TestGenericObjectType");
     register(JAVA_8, "TestGenericSubclassTypes");
-    // TODO: wrong variable name
     register(JAVA_16_NODEBUG, "TestRecordCanonicalConstructor");
-    // TODO: wrong variable name, recursive constructor because missing cast
     register(JAVA_16_NODEBUG, "TestRecordCanonicalConstructor2");
     register(JAVA_8, "TestGenericArrays");
     register(JAVA_8, "TestInstanceGeneric");
     // TODO: wrong cast in lambda for array
     register(JAVA_8, "TestArrayGenerics");
     register(JAVA_8, "TestEmptyLambda");
+    register(JAVA_8, "TestArrayArg");
+    register(JAVA_8, "TestGenericLattice");
   }
 
   private void registerLiterals() {

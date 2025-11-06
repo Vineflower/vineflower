@@ -6,21 +6,28 @@ public class SwitchInstruction extends Instruction {
   private int[] values;
   private int defaultDestination;
 
-  public SwitchInstruction(int opcode, int group, boolean wide, BytecodeVersion bytecodeVersion, int[] operands, int length) {
-    super(opcode, group, wide, bytecodeVersion, operands, length);
+  public SwitchInstruction(
+    int opcode,
+    int group,
+    boolean wide,
+    BytecodeVersion bytecodeVersion,
+    int[] operands,
+    int startOffset,
+    int length
+  ) {
+    super(opcode, group, wide, bytecodeVersion, operands, startOffset, length);
   }
 
   @Override
-  public void initInstruction(InstructionSequence seq) {
-    defaultDestination = seq.getPointerByRelOffset(operands[0]);
+  public void initInstruction(FullInstructionSequence seq) {
+    defaultDestination = seq.getIndexByRelOffset(this, operands[0]);
 
     int prefix = opcode == CodeConstants.opc_tableswitch ? 3 : 2;
     int len = operands.length - prefix;
     int low = 0;
     if (opcode == CodeConstants.opc_lookupswitch) {
       len /= 2;
-    }
-    else {
+    } else {
       low = operands[1];
     }
 
@@ -30,11 +37,10 @@ public class SwitchInstruction extends Instruction {
       if (opcode == CodeConstants.opc_lookupswitch) {
         values[i] = operands[prefix + k];
         k++;
-      }
-      else {
+      } else {
         values[i] = low + k;
       }
-      destinations[i] = seq.getPointerByRelOffset(operands[prefix + k]);
+      destinations[i] = seq.getIndexByRelOffset(this, operands[prefix + k]);
     }
   }
 
@@ -52,7 +58,7 @@ public class SwitchInstruction extends Instruction {
 
   @Override
   public SwitchInstruction clone() {
-    SwitchInstruction copy = (SwitchInstruction)super.clone();
+    SwitchInstruction copy = (SwitchInstruction) super.clone();
     copy.defaultDestination = defaultDestination;
     copy.destinations = destinations.clone();
     copy.values = values.clone();

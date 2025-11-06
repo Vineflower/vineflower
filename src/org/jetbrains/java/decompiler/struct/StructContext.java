@@ -8,7 +8,6 @@ import org.jetbrains.java.decompiler.main.extern.IContextSource;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IResultSaver;
 import org.jetbrains.java.decompiler.main.plugins.PluginContext;
-import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericMain;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericMethodDescriptor;
 import org.jetbrains.java.decompiler.util.DataInputFullStream;
@@ -276,6 +275,10 @@ public class StructContext {
 
   // return (valclass instanceof reflcass)
   public boolean instanceOf(String valclass, String refclass) {
+    if (refclass == null || valclass == null) {
+      return false;
+    }
+
     if (valclass.equals(refclass)) {
       return true;
     }
@@ -294,11 +297,8 @@ public class StructContext {
       return true;
     }
 
-    int[] interfaces = cl.getInterfaces();
-    for (int i = 0; i < interfaces.length; i++) {
-      String intfc = cl.getPool().getPrimitiveConstant(interfaces[i]).getString();
-
-      if (this.instanceOf(intfc, refclass)) {
+    for (int iface : cl.getInterfaces()) {
+      if (this.instanceOf(cl.getPool().getPrimitiveConstant(iface).getString(), refclass)) {
         return true;
       }
     }
@@ -306,18 +306,34 @@ public class StructContext {
     return false;
   }
 
-  public StructClass getFirstCommonClass(String firstclass, String secondclass) {
-    StructClass fcls = this.getClass(firstclass);
-    StructClass scls = this.getClass(secondclass);
+  // JOIN both classes on the lattice. Find a common ancestor.
+  public @Nullable StructClass findCommonAncestor(String classA, String classB) {
+    StructClass a = this.getClass(classA);
+    StructClass b = this.getClass(classB);
 
-    if (fcls != null && scls != null) {
-      List<StructClass> clsList = scls.getAllSuperClasses();
-      while (fcls != null) {
-        if (clsList.contains(fcls)) {
-          return fcls;
-        }
+    if (a == null || b == null) {
+      return null;
+    }
 
-        fcls = fcls.superClass == null ? null : this.getClass(fcls.superClass.getString());
+    if (instanceOf(classB, classA)) {
+      return a;
+    }
+
+    // Iterate through the superclasses and interfaces to find any that can be assigned.
+    // Don't return if the returned class is Object, otherwise we may miss out on other opportunities to do better
+    // The returned type is essentially arbitrary; extended superclasses are preferred before interfaces.
+
+    if (a.superClass != null) {
+      StructClass cl = findCommonAncestor(a.superClass.getString(), classB);
+      if (cl != null && !cl.qualifiedName.equals("java/lang/Object")) {
+        return cl;
+      }
+    }
+
+    for (int iface : a.getInterfaces()) {
+      StructClass cl = findCommonAncestor(a.getPool().getPrimitiveConstant(iface).getString(), classB);
+      if (cl != null && !cl.qualifiedName.equals("java/lang/Object")) {
+        return cl;
       }
     }
 

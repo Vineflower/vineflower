@@ -350,7 +350,7 @@ public class DotExporter {
       }
 
       return java;
-    } catch (Exception e) {
+    } catch (Throwable t) {
       return "Could not get content";
     }
   }
@@ -701,6 +701,11 @@ public class DotExporter {
   }
 
   public static void errorToDotFile(DirectGraph dgraph, StructMethod mt, String suffix, Map<String, SFormsFastMapDirect> vars) {
+    if (DUMP_DOTS) {
+      toDotFile(dgraph, mt, suffix, vars);
+      return;
+    }
+
     if (!DUMP_ERROR_DOTS)
       return;
     try{
@@ -753,7 +758,9 @@ public class DotExporter {
       return;
     try{
       BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(DOTS_FOLDER, name)));
-      out.write(statToDot(stat, name).getBytes());
+      try (var lock = DecompilerContext.getImportCollector().lock()) {
+        out.write(statToDot(stat, name).getBytes());
+      }
       out.close();
     } catch (Exception e) {
       e.printStackTrace();
@@ -761,11 +768,18 @@ public class DotExporter {
   }
 
   public static void errorToDotFile(Statement stat, StructMethod mt, String suffix) {
+    if (DUMP_DOTS) {
+      toDotFile(stat, mt, suffix);
+      return;
+    }
+
     if (!DUMP_ERROR_DOTS)
       return;
     try{
       BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(DOTS_ERROR_FOLDER, mt, suffix)));
-      out.write(statToDot(stat, suffix).getBytes());
+      try (var lock = DecompilerContext.getImportCollector().lock()) {
+        out.write(statToDot(stat, suffix).getBytes());
+      }
       out.close();
     } catch (Exception e) {
       e.printStackTrace();
@@ -773,11 +787,17 @@ public class DotExporter {
   }
 
   public static void errorToDotFile(Statement stat, String name) {
+    if (DUMP_DOTS) {
+      toDotFile(stat, name);
+      return;
+    }
     if (!DUMP_ERROR_DOTS)
       return;
     try {
       BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(DOTS_ERROR_FOLDER, name)));
-      out.write(statToDot(stat, name).getBytes());
+      try (var lock = DecompilerContext.getImportCollector().lock()) {
+        out.write(statToDot(stat, name).getBytes());
+      }
       out.close();
     } catch (Exception e) {
       e.printStackTrace();
@@ -797,6 +817,11 @@ public class DotExporter {
   }
 
   public static void errorToDotFile(VarVersionsGraph graph, StructMethod mt, String suffix, Map<VarVersionPair, VarVersionPair> varAssignmentMap) {
+    if (DUMP_DOTS) {
+      toDotFile(graph, mt, suffix, varAssignmentMap);
+      return;
+    }
+
     if (!DUMP_ERROR_DOTS)
       return;
     try{
@@ -810,7 +835,9 @@ public class DotExporter {
 
   public static void toDotFile(DecompileRecord decompileRecord, StructMethod mt, String suffix, boolean error) {
     if (error) {
-      if (!DUMP_ERROR_DOTS) {
+      if (DUMP_DOTS) {
+        error = false;
+      } else if (!DUMP_ERROR_DOTS) {
         return;
       }
     } else {
@@ -841,6 +868,10 @@ public class DotExporter {
   }
 
   public static void errorToDotFile(ControlFlowGraph graph, StructMethod mt, String suffix) {
+    if (DUMP_DOTS) {
+      toDotFile(graph, mt, suffix, true);
+      return;
+    }
     if (!DUMP_ERROR_DOTS)
       return;
     try{

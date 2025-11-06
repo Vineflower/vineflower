@@ -2,6 +2,7 @@
 package org.jetbrains.java.decompiler.struct.gen;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
+import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.util.collections.ListStack;
 
@@ -41,7 +42,7 @@ public class DataPoint {
     return point;
   }
 
-  public static DataPoint getInitialDataPoint(StructMethod mt) {
+  public static DataPoint getInitialDataPoint(StructClass cl, StructMethod mt) {
 
     DataPoint point = new DataPoint();
 
@@ -49,7 +50,7 @@ public class DataPoint {
 
     int k = 0;
     if (!mt.hasModifier(CodeConstants.ACC_STATIC)) {
-      point.setVariable(k++, new VarType(CodeType.OBJECT, 0, null));
+      point.setVariable(k++, new VarType(CodeType.OBJECT, 0, cl.qualifiedName));
     }
 
     for (int i = 0; i < md.params.length; i++) {
