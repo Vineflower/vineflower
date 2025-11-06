@@ -35,6 +35,7 @@ import org.jetbrains.java.decompiler.util.collections.NullableConcurrentHashMap;
 
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -977,14 +978,29 @@ public class InvocationExprent extends Exprent {
       }
     }
     ClassNode currCls = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
-    List<StructMethod> matches = getMatchedDescriptors();
+    List<StructMethod> matches = getMatchedDescriptors(false);
+    boolean ambiguousVararg = isVarargsAmbiguous(getMatchedDescriptors(true));
     BitSet setAmbiguousParameters = getAmbiguousParameters(matches);
 
     // omit 'new Type[] {}' for the last parameter of a vararg method call
     if (lstParameters.size() == descriptor.params.length && isVarArgCall() && !lstParameters.isEmpty()) {
       Exprent lastParam = lstParameters.get(lstParameters.size() - 1);
-      if (lastParam instanceof NewExprent && lastParam.getExprType().arrayDim >= 1) {
-        ((NewExprent) lastParam).setVarArgParam(true);
+      if (lastParam instanceof NewExprent lastNew && lastParam.getExprType().arrayDim >= 1) {
+        if (!ambiguousVararg || lastNew.getLstArrayElements().size() != 1) {
+          lastNew.setVarArgParam(true);
+        }
+      }
+    }
+
+    // If the vararg is ambiguous e.g. method(Object o) vs method(Object... o) force the last param ambiguous for nulls
+    if (ambiguousVararg) {
+      VarType lastType = lstParameters.get(lstParameters.size() - 1).getExprType();
+      if (lastType.type == CodeType.NULL) {
+        if (setAmbiguousParameters == EMPTY_BIT_SET) {
+          setAmbiguousParameters = new BitSet(lstParameters.size());
+        }
+
+        setAmbiguousParameters.set(lstParameters.size() - 1);
       }
     }
 
@@ -1013,7 +1029,7 @@ public class InvocationExprent extends Exprent {
           int count = 0;
           StructClass stClass = DecompilerContext.getStructContext().getClass(classname);
           if (stClass != null) {
-            List<StructMethod> customMatchedDescriptors = getMatchedDescriptors((md) -> {
+            List<StructMethod> customMatchedDescriptors = getMatchedDescriptors(false, (mt, md) -> {
               if (md.params.length == descriptor.params.length) {
                 for (int x = 0; x < md.params.length; x++) {
                   if (md.params[x].typeFamily != descriptor.params[x].typeFamily &&
@@ -1276,14 +1292,16 @@ public class InvocationExprent extends Exprent {
     return boxing.forceUnboxing;
   }
 
-  private List<StructMethod> getMatchedDescriptors() {
-    return getMatchedDescriptors(null);
+  private List<StructMethod> getMatchedDescriptors(boolean varargs) {
+    return getMatchedDescriptors(varargs, null);
   }
-  private List<StructMethod> getMatchedDescriptors(@Nullable Predicate<MethodDescriptor> customParamMatcher) {
+
+  private List<StructMethod> getMatchedDescriptors(boolean varargs, @Nullable BiFunction<StructMethod, MethodDescriptor, Boolean> customParamMatcher) {
     List<StructMethod> matches = new ArrayList<>();
     ClassNode currCls = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
     StructClass cl = DecompilerContext.getStructContext().getClass(classname);
     if (cl == null) return matches;
+    StructMethod currentMethod = cl.getMethod(InterpreterUtil.makeUniqueKey(name, stringDescriptor));
 
     Set<String> visited = new HashSet<>();
     Queue<StructClass> que = new ArrayDeque<>();
@@ -1299,9 +1317,13 @@ public class InvocationExprent extends Exprent {
           MethodDescriptor md = MethodDescriptor.parseDescriptor(mt.getDescriptor());
           boolean matchedParams;
           if (customParamMatcher == null) {
-            matchedParams = matches(md.params, descriptor.params);
+            if (varargs) {
+              matchedParams = matchesVarargs(md.params, descriptor.params, mt, currentMethod);
+            } else {
+              matchedParams = matches(md.params, descriptor.params);
+            }
           } else {
-            matchedParams = customParamMatcher.test(md);
+            matchedParams = customParamMatcher.apply(mt, md);
           }
           if (matchedParams && (currCls == null || canAccess(currCls.classStruct, mt))) {
             matches.add(mt);
@@ -1353,6 +1375,32 @@ public class InvocationExprent extends Exprent {
     return false;
   }
 
+  private boolean matchesVarargs(VarType[] left, VarType[] right, StructMethod leftMethod, StructMethod rightMethod) {
+    if (left.length == right.length) {
+      for (int i = 0; i < left.length; i++) {
+        TypeFamily leftFamily = left[i].typeFamily;
+        TypeFamily rightFamily = right[i].typeFamily;
+        if (leftFamily != rightFamily && !(leftFamily.isNumeric() && rightFamily.isNumeric())) {
+          return false;
+        }
+
+        VarType leftType = left[i];
+        if (leftMethod.hasModifier(CodeConstants.ACC_VARARGS) && i == left.length - 1) {
+          leftType = leftType.decreaseArrayDim();
+        }
+        VarType rightType = right[i];
+        if (rightMethod != null && rightMethod.hasModifier(CodeConstants.ACC_VARARGS) && i == right.length - 1) {
+          rightType = rightType.decreaseArrayDim();
+        }
+        if (leftType.arrayDim != rightType.arrayDim) {
+          return false;
+        }
+      }
+      return true;
+    }
+    return false;
+  }
+
   private boolean canAccess(StructClass currCls, StructMethod mt) {
     if (mt.hasModifier(CodeConstants.ACC_PUBLIC)) {
       return true;
@@ -1383,6 +1431,35 @@ public class InvocationExprent extends Exprent {
     String pkg1 = class1.substring(0, pos1);
     String pkg2 = class2.substring(0, pos2);
     return pkg1.equals(pkg2);
+  }
+
+  private boolean isVarargsAmbiguous(List<StructMethod> matches) {
+    Set<StructMethod> varargs = matches.stream().filter(mt -> mt.hasModifier(CodeConstants.ACC_VARARGS))
+      .collect(Collectors.toSet());
+
+    // Check for:
+    // method(type t)
+    // method(type... t) // overload
+
+    for (StructMethod match : matches) {
+      for (StructMethod vararg : varargs) {
+        if (match == vararg) {
+          continue;
+        }
+
+        MethodDescriptor md1 = match.methodDescriptor();
+        MethodDescriptor md2 = vararg.methodDescriptor();
+        if (md1.params.length != md2.params.length) {
+          // Should be impossible, but always be sure
+          continue;
+        }
+
+        if (md1.params[md1.params.length - 1].equals(md2.params[md2.params.length - 1].decreaseArrayDim())) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   private BitSet getAmbiguousParameters(List<StructMethod> matches) {
@@ -1441,11 +1518,13 @@ public class InvocationExprent extends Exprent {
       return EMPTY_BIT_SET;
     }
 
-    StructMethod exact = exacts.iterator().next();
+    if (exacts.size() == 1) {
+      StructMethod exact = exacts.iterator().next();
 
-    // Exact method is our own? No need to check ambiguity, we have our match!
-    if (exact == currentMethod) {
-      return EMPTY_BIT_SET;
+      // Exact method is our own? No need to check ambiguity, we have our match!
+      if (exact == currentMethod) {
+        return EMPTY_BIT_SET;
+      }
     }
 
     // Now check for ambiguity
@@ -1465,7 +1544,14 @@ public class InvocationExprent extends Exprent {
         // Only consider non-equivalent types
         if (!md.params[i].equals(pmd.params[i])) {
           // If our desired method is higher in the lattice than
+
+//          System.out.println(pmd.params[i] + " - " + type);
+//          if (pmd.params[i].higherEqualInLatticeThan(type)) {
+//            ambiguous.set(i);
+//          }
+
           if (md.params[i].higherCrossFamilyThan(pmd.params[i], false)) {
+//            System.out.println(md.params[i]);
             ambiguous.set(i);
           } else if (type.equals(pmd.params[i])) {
             ambiguous.set(i);
