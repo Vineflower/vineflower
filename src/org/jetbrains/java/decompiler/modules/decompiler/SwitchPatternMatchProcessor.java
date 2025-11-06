@@ -286,6 +286,17 @@ public final class SwitchPatternMatchProcessor {
       }
     }
 
+    if (guarded && stat.getParent() instanceof DoStatement) {
+      // remove the enclosing while(true) loop of a guarded switch
+      stat.getParent().replaceWith(stat);
+      // FIXME: this replacement code looks wrong,
+      //  doesn't get any coverage in tests
+      // update continue-loops into break-switches
+      for (StatEdge edge : stat.getPredecessorEdges(StatEdge.TYPE_CONTINUE)) {
+        edge.changeType(StatEdge.TYPE_BREAK);
+      }
+    }
+
     // Try to inline:
     // var stackVar = ...
     // Objects.requireNonNull(stackVar)
@@ -298,6 +309,12 @@ public final class SwitchPatternMatchProcessor {
     Exprent oldSelector = realSelector;
     // inline head
     List<Exprent> basicHead = stat.getBasichead().getExprents();
+    if (basicHead.isEmpty()) {
+      List<StatEdge> edges = stat.getPredecessorEdges(StatEdge.TYPE_REGULAR);
+      if (edges.size() == 1 && edges.get(0).getSource() instanceof BasicBlockStatement block) {
+        basicHead = block.getExprents();
+      }
+    }
     if (realSelector instanceof VarExprent var && basicHead != null && basicHead.size() >= 1) {
       if (basicHead.get(basicHead.size() - 1) instanceof AssignmentExprent assignment && assignment.getLeft() instanceof VarExprent assigned) {
         if (var.equals(assigned) && !var.isVarReferenced(root,
@@ -351,17 +368,6 @@ public final class SwitchPatternMatchProcessor {
     }
 
     head.setValue(realSelector); // SwitchBootstraps.typeSwitch(o, var1) -> o
-
-    if (guarded && stat.getParent() instanceof DoStatement) {
-      // remove the enclosing while(true) loop of a guarded switch
-      stat.getParent().replaceWith(stat);
-      // FIXME: this replacement code looks wrong,
-      //  doesn't get any coverage in tests
-      // update continue-loops into break-switches
-      for (StatEdge edge : stat.getPredecessorEdges(StatEdge.TYPE_CONTINUE)) {
-        edge.changeType(StatEdge.TYPE_BREAK);
-      }
-    }
 
     return true;
   }

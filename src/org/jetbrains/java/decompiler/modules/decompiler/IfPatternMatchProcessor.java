@@ -163,11 +163,14 @@ public final class IfPatternMatchProcessor {
   }
 
   private static boolean findPatternMatchingInstanceof(Exprent left, Exprent right, Exprent source, Exprent target, Statement branch, FunctionExprent iof, Statement head) {
-    if (!(right instanceof FunctionExprent function) || function.getFuncType() != FunctionType.CAST) {
+    Exprent casted;
+    if (right instanceof FunctionExprent function && function.getFuncType() == FunctionType.CAST) {
+      casted = function.getLstOperands().get(0);
+    } else if (right instanceof VarExprent variable) {
+      casted = variable;
+    } else {
       return false;
     }
-
-    Exprent casted = right.getAllExprents().get(0);
 
     // Check if the exprent being casted is the exprent on the left side of the instanceof
     if (!source.equals(casted)) {
