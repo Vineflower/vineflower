@@ -196,6 +196,15 @@ public final class ExitHelper {
     Statement dest = edge.getDestination();
 
     if (edge.getType() == StatEdge.TYPE_BREAK && dest instanceof BasicBlockStatement && edge.explicit && (edge.labeled || isOnlyEdge(edge)) && edge.canInline) {
+      // Don't inline in phantom statements. This can break the statement graph, and cause recursive writing.
+      Statement parent = edge.closure;
+      while (parent != null) {
+        if (parent instanceof SwitchStatement sw && sw.isPhantom()) {
+          return null;
+        }
+        parent = parent.getParent();
+      }
+
       List<Exprent> data = dest.getExprents();
 
       if (data != null && data.size() == 1) {

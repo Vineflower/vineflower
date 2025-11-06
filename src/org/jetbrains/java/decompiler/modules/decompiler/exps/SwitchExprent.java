@@ -241,6 +241,10 @@ public class SwitchExprent extends Exprent {
     return new SwitchExprent(this.backing, this.type, this.fallthrough, this.standalone);
   }
 
+  public SwitchStatement getBacking() {
+    return backing;
+  }
+
   @Override
   protected List<Exprent> getAllExprents(List<Exprent> list) {
     return list;
