@@ -26,8 +26,8 @@ public class VarTypeProcessor {
 
   private final StructMethod method;
   private final MethodDescriptor methodDescriptor;
-  private final Map<VarVersionPair, VarType> mapExprentMinTypes = new HashMap<>();
-  private final Map<VarVersionPair, VarType> mapExprentMaxTypes = new HashMap<>();
+  private final Map<VarVersionPair, VarType> lowerBounds = new HashMap<>();
+  private final Map<VarVersionPair, VarType> upperBounds = new HashMap<>();
   private final Map<VarVersionPair, FinalType> mapFinalVars = new HashMap<>();
 
   public VarTypeProcessor(StructMethod mt, MethodDescriptor md) {
@@ -40,8 +40,21 @@ public class VarTypeProcessor {
 
     resetExprentTypes(graph);
 
-    //noinspection StatementWithEmptyBody
-    while (!processVarTypes(graph)) ;
+    // Run the variable types process to a fixed point (i.e. until no types change)
+    while (!processVarTypes(graph)) {
+      // TODO: should validate for bounds failure every loop?
+    }
+
+    for (VarVersionPair p : lowerBounds.keySet()) {
+      VarType min = lowerBounds.get(p);
+      VarType max = upperBounds.get(p);
+
+      if (max != null) {
+        if (min.typeFamily != TypeFamily.OBJECT && min.higherInLatticeThan(max)) {
+          ValidationHelper.validateTrue(false, "min type > max type");
+        }
+      }
+    }
 
     ValidationHelper.validateVars(graph, root, var -> var.getVarType() != VarType.VARTYPE_UNKNOWN, "Var type not set!");
   }
@@ -52,20 +65,21 @@ public class VarTypeProcessor {
     MethodDescriptor md = methodDescriptor;
 
     if (thisVar) {
-      StructClass cl = (StructClass)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS);
+      StructClass cl = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS);
+      ValidationHelper.assertTrue(cl != null, "Current class name should not be null");
       VarType clType = new VarType(CodeType.OBJECT, 0, cl.qualifiedName);
-      mapExprentMinTypes.put(new VarVersionPair(0, 1), clType);
-      mapExprentMaxTypes.put(new VarVersionPair(0, 1), clType);
+      lowerBounds.put(new VarVersionPair(0, 1), clType);
+      upperBounds.put(new VarVersionPair(0, 1), clType);
     }
 
     int varIndex = 0;
     for (int i = 0; i < md.params.length; i++) {
-      mapExprentMinTypes.put(new VarVersionPair(varIndex + (thisVar ? 1 : 0), 1), md.params[i]);
-      mapExprentMaxTypes.put(new VarVersionPair(varIndex + (thisVar ? 1 : 0), 1), md.params[i]);
+      lowerBounds.put(new VarVersionPair(varIndex + (thisVar ? 1 : 0), 1), md.params[i]);
+      upperBounds.put(new VarVersionPair(varIndex + (thisVar ? 1 : 0), 1), md.params[i]);
       varIndex += md.params[i].stackSize;
     }
 
-    // catch variables
+    // Implicitly defined variables
     LinkedList<Statement> stack = new LinkedList<>();
     stack.add(root);
 
@@ -76,8 +90,8 @@ public class VarTypeProcessor {
 
       if (vars != null) {
         for (VarExprent var : vars) {
-          mapExprentMinTypes.put(new VarVersionPair(var.getIndex(), 1), var.getVarType());
-          mapExprentMaxTypes.put(new VarVersionPair(var.getIndex(), 1), var.getVarType());
+          lowerBounds.put(new VarVersionPair(var.getIndex(), 1), var.getVarType());
+          upperBounds.put(new VarVersionPair(var.getIndex(), 1), var.getVarType());
         }
       }
 
@@ -85,22 +99,16 @@ public class VarTypeProcessor {
     }
   }
 
+  // The analysis should start on a blank slate, with the types set to the bottom type
   private static void resetExprentTypes(DirectGraph graph) {
     graph.iterateExprents(exprent -> {
       List<Exprent> lst = exprent.getAllExprents(true);
       lst.add(exprent);
 
       for (Exprent expr : lst) {
-        if (expr instanceof VarExprent) {
-          VarExprent ve = (VarExprent)expr;
-          if (ve.getLVT() != null) {
-            ve.setVarType(ve.getLVT().getVarType());
-          } else {
-            ve.setVarType(VarType.VARTYPE_UNKNOWN);
-          }
-        }
-        else if (expr instanceof ConstExprent) {
-          ConstExprent constExpr = (ConstExprent)expr;
+        if (expr instanceof VarExprent ve) {
+          ve.setVarType(VarType.VARTYPE_UNKNOWN);
+        } else if (expr instanceof ConstExprent constExpr) {
           if (constExpr.getConstType().typeFamily == TypeFamily.INTEGER) {
             constExpr.setConstType(new ConstExprent(constExpr.getIntValue(), constExpr.isBoolPermitted(), null).getConstType());
           }
@@ -126,13 +134,18 @@ public class VarTypeProcessor {
     return checkTypeExpr(exprent);
   }
 
+  private enum Bound {
+    LOWER,
+    UPPER
+  }
+
   private boolean checkTypeExpr(Exprent exprent) {
-    if (exprent instanceof ConstExprent) {
-      ConstExprent constExpr = (ConstExprent) exprent;
-      if (constExpr.getConstType().typeFamily.isLesserOrEqual(TypeFamily.INTEGER)) { // boolean or integer
+    if (exprent instanceof ConstExprent constExpr) {
+      TypeFamily family = constExpr.getConstType().typeFamily;
+      if (family.intOrBool()) { // boolean or integer
         VarVersionPair pair = new VarVersionPair(constExpr.id, -1);
-        if (!mapExprentMinTypes.containsKey(pair)) {
-          mapExprentMinTypes.put(pair, constExpr.getConstType());
+        if (!lowerBounds.containsKey(pair)) {
+          lowerBounds.put(pair, constExpr.getConstType());
         }
       }
     }
@@ -141,14 +154,12 @@ public class VarTypeProcessor {
 
     boolean res = true;
     if (result != null) {
-      for (CheckTypesResult.ExprentTypePair entry : result.getLstMaxTypeExprents()) {
-        if (entry.type.typeFamily != TypeFamily.OBJECT) {
-          changeExprentType(entry.exprent, entry.type, 1);
-        }
+      for (CheckTypesResult.ExprentTypePair entry : result.getUpperBounds()) {
+        changeExprentType(entry.exprent, entry.type, Bound.UPPER);
       }
 
-      for (CheckTypesResult.ExprentTypePair entry : result.getLstMinTypeExprents()) {
-        res &= changeExprentType(entry.exprent, entry.type, 0);
+      for (CheckTypesResult.ExprentTypePair entry : result.getLowerBounds()) {
+        res &= changeExprentType(entry.exprent, entry.type, Bound.LOWER);
       }
     }
     return res;
@@ -157,75 +168,94 @@ public class VarTypeProcessor {
 
   // true -> Do nothing
   // false -> cancel iteration
-  private boolean changeExprentType(Exprent exprent, VarType newType, int minMax) {
+  private boolean changeExprentType(Exprent exprent, VarType newType, Bound bound) {
+    ValidationHelper.assertTrue(newType != null, "Null type passed to CheckTypesResult!");
 
     switch (exprent.type) {
       case CONST:
         ConstExprent constExpr = (ConstExprent)exprent;
         VarType constType = constExpr.getConstType();
 
-        if (newType.typeFamily.isGreater(TypeFamily.INTEGER) || constType.typeFamily.isGreater(TypeFamily.INTEGER)) {
+        if (!newType.typeFamily.intOrBool() || !constType.typeFamily.intOrBool()) {
           return true;
         }
         else if (newType.typeFamily == TypeFamily.INTEGER) {
           VarType minInteger = new ConstExprent((Integer)constExpr.getValue(), false, null).getConstType();
-          if (minInteger.isStrictSuperset(newType)) {
+          if (minInteger.higherInLatticeThan(newType)) {
             newType = minInteger;
           }
         }
-        return changeVarExprentType(exprent, newType, minMax, new VarVersionPair(exprent.id, -1));
+        return changeVarExprentType(exprent, newType, bound, new VarVersionPair(exprent.id, -1));
       case VAR:
-        return changeVarExprentType(exprent, newType, minMax, new VarVersionPair((VarExprent) exprent));
+        return changeVarExprentType(exprent, newType, bound, new VarVersionPair((VarExprent) exprent));
 
       case ASSIGNMENT:
-        return changeExprentType(((AssignmentExprent)exprent).getRight(), newType, minMax);
+        // TODO: do we need to change the left too?
+        return changeExprentType(((AssignmentExprent)exprent).getRight(), newType, bound);
 
       case FUNCTION:
-        return changeFunctionExprentType(newType, minMax, (FunctionExprent)exprent);
+        return changeFunctionExprentType(newType, bound, (FunctionExprent)exprent);
+
       case SWITCH:
-        return changeSwitchExprentType(newType, minMax, (SwitchExprent) exprent);
+        SwitchExprent sw = (SwitchExprent) exprent;
+        // Only promote for integers
+        if (newType.typeFamily == TypeFamily.INTEGER) {
+          if (newType.higherInLatticeThan(sw.getExprType())) {
+            sw.setType(newType);
+            return false;
+          }
+        }
     }
 
     return true;
   }
 
-  private boolean changeVarExprentType(Exprent exprent, VarType newType, int minMax, VarVersionPair pair) {
-    if (minMax == 0) { // min
-      VarType currentMinType = mapExprentMinTypes.get(pair);
+  private boolean changeVarExprentType(Exprent exprent, VarType newType, Bound bound, VarVersionPair pair) {
+    // For variables, we want to make sure that the lower bound rises and the upper bound falls.
+
+    if (bound == Bound.LOWER) {
+      // Attempt to raise the lower bound of the variable
+
+      VarType currentMinType = lowerBounds.get(pair);
       VarType newMinType;
       if (currentMinType == null || newType.typeFamily.isGreater(currentMinType.typeFamily)) {
-        newMinType = newType;
+        newMinType = newType; // No recorded type or the new type has a higher family? The new type is just the incoming one.
       } else if (newType.typeFamily.isLesser(currentMinType.typeFamily)) {
+        // Going backwards? Early out.
         return true;
       } else {
-        newMinType = VarType.getCommonSupertype(currentMinType, newType);
+        // Already have a type? Find the higher of the two; the lower bound rises.
+        newMinType = VarType.join(currentMinType, newType);
       }
+      ValidationHelper.assertTrue(newMinType != null, "Trying to raise the minimum type of disjoint variables!");
 
-      mapExprentMinTypes.put(pair, newMinType);
+      lowerBounds.put(pair, newMinType);
       if (exprent instanceof ConstExprent) {
         ((ConstExprent) exprent).setConstType(newMinType);
       }
 
-      if (currentMinType != null && (newMinType.typeFamily.isGreater(currentMinType.typeFamily) || newMinType.isStrictSuperset(currentMinType))) {
+      if (currentMinType != null && (newMinType.typeFamily.isGreater(currentMinType.typeFamily) || newMinType.higherInLatticeThan(currentMinType))) {
+        // Made some progress; raised the lower bound of a variable. Restart the analysis with this information.
         return false;
       }
     } else {  // max
-      VarType currentMaxType = mapExprentMaxTypes.get(pair);
+      VarType currentMaxType = upperBounds.get(pair);
       VarType newMaxType;
       if (currentMaxType == null || newType.typeFamily.isLesser(currentMaxType.typeFamily)) {
         newMaxType = newType;
       } else if (newType.typeFamily.isGreater(currentMaxType.typeFamily)) {
         return true;
       } else {
-        newMaxType = VarType.getCommonMinType(currentMaxType, newType);
+        // Already have a type? Find the lower of the two; the upper bound falls.
+        newMaxType = VarType.meet(currentMaxType, newType);
       }
 
-      mapExprentMaxTypes.put(pair, newMaxType);
+      upperBounds.put(pair, newMaxType);
     }
     return true;
   }
 
-  private boolean changeFunctionExprentType(VarType newType, int minMax, FunctionExprent func) {
+  private boolean changeFunctionExprentType(VarType newType, Bound bound, FunctionExprent func) {
     int offset = 0;
     switch (func.getFuncType()) {
       case TERNARY:   // FIXME:
@@ -233,28 +263,19 @@ public class VarTypeProcessor {
       case AND:
       case OR:
       case XOR:
-        return changeExprentType(func.getLstOperands().get(offset), newType, minMax) &
-               changeExprentType(func.getLstOperands().get(offset + 1), newType, minMax);
+        return changeExprentType(func.getLstOperands().get(offset), newType, bound) &
+               changeExprentType(func.getLstOperands().get(offset + 1), newType, bound);
     }
     return true;
   }
 
-  private boolean changeSwitchExprentType(VarType newType, int minMax, SwitchExprent switchExpr) {
-    if (minMax == 1) { // max
-      VarType type = switchExpr.getExprType();
-      if (newType.typeFamily == TypeFamily.INTEGER && type.typeFamily == newType.typeFamily) {
-        switchExpr.setType(newType);
-      }
-    }
-    return true;
+
+  public Map<VarVersionPair, VarType> getUpperBounds() {
+    return upperBounds;
   }
 
-  public Map<VarVersionPair, VarType> getMapExprentMaxTypes() {
-    return mapExprentMaxTypes;
-  }
-
-  public Map<VarVersionPair, VarType> getMapExprentMinTypes() {
-    return mapExprentMinTypes;
+  public Map<VarVersionPair, VarType> getLowerBounds() {
+    return lowerBounds;
   }
 
   public Map<VarVersionPair, FinalType> getMapFinalVars() {
@@ -262,10 +283,10 @@ public class VarTypeProcessor {
   }
 
   public void setVarType(VarVersionPair pair, VarType type) {
-    mapExprentMinTypes.put(pair, type);
+    lowerBounds.put(pair, type);
   }
 
   public VarType getVarType(VarVersionPair pair) {
-    return mapExprentMinTypes.get(pair);
+    return lowerBounds.get(pair);
   }
 }

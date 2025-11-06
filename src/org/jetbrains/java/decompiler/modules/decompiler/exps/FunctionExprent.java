@@ -218,13 +218,13 @@ public class FunctionExprent extends Exprent {
       case TERNARY: {
         Exprent param1 = lstOperands.get(1);
         Exprent param2 = lstOperands.get(2);
-        VarType supertype = VarType.getCommonSupertype(param1.getExprType(), param2.getExprType());
+        VarType supertype = VarType.join(param1.getExprType(), param2.getExprType());
         if (supertype == null) {
           throw new IllegalStateException("No common supertype for ternary expression");
         }
 
         if (param1 instanceof ConstExprent && param2 instanceof ConstExprent &&
-          supertype.type != CodeType.BOOLEAN && VarType.VARTYPE_INT.isSuperset(supertype)) {
+          supertype.type != CodeType.BOOLEAN && VarType.VARTYPE_INT.higherEqualInLatticeThan(supertype)) {
           return VarType.VARTYPE_INT;
         } else {
           return supertype;
@@ -289,10 +289,10 @@ public class FunctionExprent extends Exprent {
         return type1;
       }
 
-      VarType union = VarType.getCommonSupertype(type1, type2);
+      VarType union = VarType.join(type1, type2);
 
       if (union != null && lstOperands.get(1) instanceof ConstExprent && lstOperands.get(2) instanceof ConstExprent &&
-        union.type != CodeType.BOOLEAN && VarType.VARTYPE_INT.isSuperset(union)) {
+        union.type != CodeType.BOOLEAN && VarType.VARTYPE_INT.higherEqualInLatticeThan(union)) {
         union = VarType.VARTYPE_INT;
       }
 
@@ -369,9 +369,9 @@ public class FunctionExprent extends Exprent {
     switch (funcType) {
       case TERNARY:
         VarType supertype = getExprType();
-        result.addMinTypeExprent(param1, VarType.VARTYPE_BOOLEAN);
-        result.addMinTypeExprent(param2, VarType.getMinTypeInFamily(supertype.typeFamily));
-        result.addMinTypeExprent(lstOperands.get(2), VarType.getMinTypeInFamily(supertype.typeFamily));
+        result.addExprLowerBound(param1, VarType.VARTYPE_BOOLEAN);
+        result.addExprLowerBound(param2, VarType.findFamilyBottom(supertype.typeFamily));
+        result.addExprLowerBound(lstOperands.get(2), VarType.findFamilyBottom(supertype.typeFamily));
         break;
       case I2L:
       case I2F:
@@ -379,15 +379,15 @@ public class FunctionExprent extends Exprent {
       case I2B:
       case I2C:
       case I2S:
-        result.addMinTypeExprent(param1, VarType.VARTYPE_BYTECHAR);
-        result.addMaxTypeExprent(param1, VarType.VARTYPE_INT);
+        result.addExprLowerBound(param1, VarType.VARTYPE_BYTECHAR);
+        result.addExprUpperBound(param1, VarType.VARTYPE_INT);
         break;
       case IMM:
       case IPP:
       case MMI:
       case PPI:
-        result.addMinTypeExprent(param1, implicitType);
-        result.addMaxTypeExprent(param1, implicitType);
+        result.addExprLowerBound(param1, implicitType);
+        result.addExprUpperBound(param1, implicitType);
         break;
       case ADD:
       case SUB:
@@ -401,11 +401,11 @@ public class FunctionExprent extends Exprent {
       case GE:
       case GT:
       case LE:
-        result.addMinTypeExprent(param2, VarType.VARTYPE_BYTECHAR);
+        result.addExprLowerBound(param2, VarType.VARTYPE_BYTECHAR);
       case BIT_NOT:
         // case BOOL_NOT:
       case NEG:
-        result.addMinTypeExprent(param1, VarType.VARTYPE_BYTECHAR);
+        result.addExprLowerBound(param1, VarType.VARTYPE_BYTECHAR);
         break;
       case AND:
       case OR:
@@ -413,22 +413,22 @@ public class FunctionExprent extends Exprent {
       case EQ:
       case NE: {
         if (type1.type == CodeType.BOOLEAN) {
-          if (type2.isStrictSuperset(type1)) {
-            result.addMinTypeExprent(param1, VarType.VARTYPE_BYTECHAR);
+          if (type2.higherInLatticeThan(type1)) {
+            result.addExprLowerBound(param1, VarType.VARTYPE_BYTECHAR);
           }
           else { // both are booleans
             boolean param1_false_boolean = (param1 instanceof ConstExprent && !((ConstExprent)param1).hasBooleanValue());
             boolean param2_false_boolean = (param2 instanceof ConstExprent && !((ConstExprent)param2).hasBooleanValue());
 
             if (param1_false_boolean || param2_false_boolean) {
-              result.addMinTypeExprent(param1, VarType.VARTYPE_BYTECHAR);
-              result.addMinTypeExprent(param2, VarType.VARTYPE_BYTECHAR);
+              result.addExprLowerBound(param1, VarType.VARTYPE_BYTECHAR);
+              result.addExprLowerBound(param2, VarType.VARTYPE_BYTECHAR);
             }
           }
         }
         else if (type2.type == CodeType.BOOLEAN) {
-          if (type1.isStrictSuperset(type2)) {
-            result.addMinTypeExprent(param2, VarType.VARTYPE_BYTECHAR);
+          if (type1.higherInLatticeThan(type2)) {
+            result.addExprLowerBound(param2, VarType.VARTYPE_BYTECHAR);
           }
         }
         break;
@@ -436,19 +436,23 @@ public class FunctionExprent extends Exprent {
       case INSTANCEOF:
         if (lstOperands.size() > 2 && lstOperands.get(2) instanceof VarExprent var) { // pattern matching instanceof
           // The type of the defined var must be the type being tested
-          result.addMinTypeExprent(var, lstOperands.get(1).getExprType());
+          result.addExprLowerBound(lstOperands.get(2), lstOperands.get(1).getExprType());
         }
         break;
       case STR_CONCAT:
         VarType type = this.implicitType == null ? VarType.VARTYPE_STRING : this.implicitType;
         // Inform children of the type of string concat that we are
         if (type1.typeFamily == type.typeFamily) {
-          result.addMinTypeExprent(param1, type);
+          result.addExprLowerBound(param1, type);
         }
 
         if (type2.typeFamily == type.typeFamily) {
-          result.addMinTypeExprent(param2, type);
+          result.addExprLowerBound(param2, type);
         }
+        break;
+      case CAST:
+        result.addExprLowerBound(param1, VarType.findFamilyBottom(type2.typeFamily));
+        result.addExprUpperBound(param1, type2);
         break;
 
       case OTHER: throw new PluginImplementationException();

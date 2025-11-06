@@ -3,8 +3,6 @@
  */
 package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
-import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
@@ -13,7 +11,6 @@ import org.jetbrains.java.decompiler.util.TextBuffer;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
-import java.util.Objects;
 
 public class SwitchHeadExprent extends Exprent {
 
@@ -50,8 +47,8 @@ public class SwitchHeadExprent extends Exprent {
     CheckTypesResult result = new CheckTypesResult();
 
     // TODO: this surely can't be right with switch on enum and string?
-    result.addMinTypeExprent(value, VarType.VARTYPE_BYTECHAR);
-    result.addMaxTypeExprent(value, VarType.VARTYPE_INT);
+    result.addExprLowerBound(value, VarType.VARTYPE_BYTECHAR);
+    result.addExprUpperBound(value, VarType.VARTYPE_INT);
 
     VarType valType = value.getExprType();
     for (List<Exprent> lst : caseValues) {
@@ -69,12 +66,12 @@ public class SwitchHeadExprent extends Exprent {
             // e.g. `switch(o) { case 40 -> ...; case Integer i -> ...; }`
             // FIXME: still isn't right?
             VarType unboxed = VarType.UNBOXING_TYPES.get(valType);
-            if (unboxed != null && unboxed.isSuperset(caseType)) {
+            if (unboxed != null && unboxed.higherEqualInLatticeThan(caseType)) {
               continue;
             }
-            valType = VarType.getCommonSupertype(caseType, valType);
+            valType = VarType.join(caseType, valType);
             if (valType != null) {
-              result.addMinTypeExprent(value, valType);
+              result.addExprLowerBound(value, valType);
             }
           }
         }

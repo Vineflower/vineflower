@@ -1,12 +1,9 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler;
 
-import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectEdgeType;
-import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNode;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
@@ -716,8 +713,8 @@ public class MergeHelper {
 
         // Type of assignment- store in var for type calculation
         CheckTypesResult typeRes = ass.checkExprTypeBounds();
-        if (typeRes != null && !typeRes.getLstMinTypeExprents().isEmpty()) {
-          VarType boundType = typeRes.getLstMinTypeExprents().get(0).type;
+        if (typeRes != null && !typeRes.getLowerBounds().isEmpty()) {
+          VarType boundType = typeRes.getLowerBounds().get(0).type;
           VarExprent var = (VarExprent) ass.getLeft();
           var.setBoundType(boundType);
         }
@@ -821,8 +818,8 @@ public class MergeHelper {
 
         // Type of assignment- store in var for type calculation
         CheckTypesResult typeRes = firstDoExprent.checkExprTypeBounds();
-        if (typeRes != null && !typeRes.getLstMinTypeExprents().isEmpty()) {
-          VarType boundType = typeRes.getLstMinTypeExprents().get(0).type;
+        if (typeRes != null && !typeRes.getLowerBounds().isEmpty()) {
+          VarType boundType = typeRes.getLowerBounds().get(0).type;
           VarExprent var = (VarExprent) firstDoExprent.getLeft();
           var.setBoundType(boundType);
         }

@@ -9,7 +9,6 @@ import org.jetbrains.java.decompiler.code.Instruction;
 import org.jetbrains.java.decompiler.code.InstructionSequence;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.main.collectors.ImportCollector;
 import org.jetbrains.java.decompiler.main.plugins.PluginContext;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectEdgeType;
 import org.jetbrains.java.decompiler.struct.gen.CodeType;
@@ -784,6 +783,15 @@ public class ExprProcessor implements CodeConstants {
       return ret;
     }
 
+    // Unrepresentable: only for debugging
+    if (tp == CodeType.BYTECHAR) {
+      return "<bytechar>";
+    }
+
+    if (tp == CodeType.SHORTCHAR) {
+      return "<shortchar>";
+    }
+
     throw new RuntimeException("invalid type: " + tp);
   }
 
@@ -975,7 +983,7 @@ public class ExprProcessor implements CodeConstants {
     VarType rightType = exprent.getInferredExprType(leftType);
     exprent = narrowGenericCastType(exprent, leftType);
 
-    boolean doCast = (!leftType.isSuperset(rightType) && (rightType.equals(VarType.VARTYPE_OBJECT) || leftType.type != CodeType.OBJECT));
+    boolean doCast = (!leftType.higherEqualInLatticeThan(rightType) && (rightType.equals(VarType.VARTYPE_OBJECT) || leftType.type != CodeType.OBJECT));
     boolean doCastNull = (castNull.cast && rightType.type == CodeType.NULL && !UNDEFINED_TYPE_STRING.equals(getTypeName(leftType)));
     boolean doCastNarrowing = (castNarrowing && isIntConstant(exprent) && isNarrowedIntType(leftType));
     boolean doCastGenerics = doGenericTypesCast(exprent, leftType, rightType);
@@ -1112,7 +1120,7 @@ public class ExprProcessor implements CodeConstants {
       if (rightType.isGeneric()) {
         GenericType genRight = (GenericType) rightType;
 
-        if (leftType.isSuperset(rightType)) {
+        if (leftType.higherEqualInLatticeThan(rightType)) {
           // Casting Clazz<?> to Clazz<T> or Clazz<Concrete>
           if ((genLeft.getWildcard() == GenericType.WILDCARD_NO || genLeft.getWildcard() == GenericType.WILDCARD_EXTENDS) &&
             genRight.getWildcard() == GenericType.WILDCARD_SUPER) {
@@ -1201,7 +1209,7 @@ public class ExprProcessor implements CodeConstants {
   }
 
   private static boolean isNarrowedIntType(VarType type) {
-    return VarType.VARTYPE_INT.isStrictSuperset(type) ||
+    return VarType.VARTYPE_INT.higherInLatticeThan(type) ||
            type.equals(VarType.VARTYPE_BYTE_OBJ) || type.equals(VarType.VARTYPE_SHORT_OBJ);
   }
 

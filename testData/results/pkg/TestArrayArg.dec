@@ -1,0 +1,44 @@
+package pkg;
+
+import java.util.Arrays;
+
+public class TestArrayArg {
+   public void in(Object[] in) {
+      Arrays.toString(in);// 7
+   }// 8
+
+   public void test(String... data) {
+      this.in(data);// 11
+      Arrays.toString(data);// 12
+   }// 13
+}
+
+class 'pkg/TestArrayArg' {
+   method 'in ([Ljava/lang/Object;)V' {
+      0      6
+      1      6
+      2      6
+      3      6
+      5      7
+   }
+
+   method 'test ([Ljava/lang/String;)V' {
+      0      10
+      1      10
+      2      10
+      3      10
+      4      10
+      5      11
+      6      11
+      7      11
+      8      11
+      a      12
+   }
+}
+
+Lines mapping:
+7 <-> 7
+8 <-> 8
+11 <-> 11
+12 <-> 12
+13 <-> 13

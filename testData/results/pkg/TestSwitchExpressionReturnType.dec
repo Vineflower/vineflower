@@ -10,12 +10,21 @@ public class TestSwitchExpressionReturnType {
       };
    }
 
-   public char asChar(TestSwitchExpressionReturnType.Type type) {
+   public int asInt2(TestSwitchExpressionReturnType.Type type) {
       return switch (type) {// 14
-         case A -> 'ᝰ';// 15
-         case B -> '\u1771';// 16
-         case C -> 'ᝲ';// 17
-         case D -> 'ᝳ';// 18
+         case A -> 6000;// 15
+         case B -> 6001;// 16
+         case C -> 33000;// 17
+         case D -> 6003;// 18
+      };
+   }
+
+   public char asChar(TestSwitchExpressionReturnType.Type type) {
+      return switch (type) {// 23
+         case A -> 'ᝰ';// 24
+         case B -> '\u1771';// 25
+         case C -> 'ᝲ';// 26
+         case D -> 'ᝳ';// 27
       };
    }
 
@@ -78,7 +87,7 @@ class 'pkg/TestSwitchExpressionReturnType' {
       48      4
    }
 
-   method 'asChar (Lpkg/TestSwitchExpressionReturnType$Type;)C' {
+   method 'asInt2 (Lpkg/TestSwitchExpressionReturnType$Type;)I' {
       3      13
       7      13
       8      13
@@ -121,11 +130,60 @@ class 'pkg/TestSwitchExpressionReturnType' {
       30      15
       34      16
       35      16
-      36      16
+      39      17
       3a      17
       3b      17
-      3c      17
-      48      13
+      47      13
+   }
+
+   method 'asChar (Lpkg/TestSwitchExpressionReturnType$Type;)C' {
+      3      22
+      7      22
+      8      22
+      9      22
+      a      22
+      b      22
+      c      22
+      d      22
+      e      22
+      f      22
+      10      22
+      11      22
+      12      22
+      13      22
+      14      22
+      15      22
+      16      22
+      17      22
+      18      22
+      19      22
+      1a      22
+      1b      22
+      1c      22
+      1d      22
+      1e      22
+      1f      22
+      20      22
+      21      22
+      22      22
+      23      22
+      24      22
+      25      22
+      26      22
+      27      22
+      28      23
+      29      23
+      2a      23
+      2e      24
+      2f      24
+      30      24
+      34      25
+      35      25
+      36      25
+      3a      26
+      3b      26
+      3c      26
+      48      22
    }
 }
 
@@ -140,3 +198,8 @@ Lines mapping:
 16 <-> 16
 17 <-> 17
 18 <-> 18
+23 <-> 23
+24 <-> 24
+25 <-> 25
+26 <-> 26
+27 <-> 27

@@ -47,7 +47,7 @@ public class GenericsChecker {
   }
 
   public boolean isProperlyBounded(VarType type, VarType bound) {
-    if (type.isSuperset(bound)) {
+    if (type.higherEqualInLatticeThan(bound)) {
       return true;
     }
 

@@ -1,7 +1,6 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler;
 
-import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
@@ -427,7 +426,7 @@ public final class SecondaryFunctionsHelper {
 
             // Simplify widening cast
             if (castType.typeFamily == TypeFamily.INTEGER) {
-              if (castType.isStrictSuperset(exprType)) {
+              if (castType.higherInLatticeThan(exprType)) {
                 fexpr.setNeedsCast(false);
                 return ret;
               }
@@ -638,7 +637,7 @@ public final class SecondaryFunctionsHelper {
                 operands = fparam.getLstOperands();
                 VarType left = operands.get(0).getExprType();
                 VarType right = operands.get(1).getExprType();
-                VarType commonSupertype = VarType.getCommonSupertype(left, right);
+                VarType commonSupertype = VarType.join(left, right);
                 if (commonSupertype != null) {
                   canSimplify = commonSupertype.type != CodeType.FLOAT && commonSupertype.type != CodeType.DOUBLE;
                 }

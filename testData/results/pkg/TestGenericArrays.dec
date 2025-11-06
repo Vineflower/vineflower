@@ -1,40 +1,97 @@
 package pkg;
 
+import java.util.EnumMap;
+import java.util.Map;
+import java.util.function.Function;
+
 public class TestGenericArrays<T extends Number> {
    public final T[] arr;
    public final T[][] multi;
 
    public TestGenericArrays(int i) {
-      this.arr = (T[])(new Number[i]);// 8
-      this.multi = (T[][])(new Number[i][]);// 9
-   }// 10
+      this.arr = (T[])(new Number[i]);// 12
+      this.multi = (T[][])(new Number[i][]);// 13
+   }// 14
+
+   public static <K extends Enum<K>, V> Map<K, V> makeEnumMap(Class<K> enumClass, Function<K, V> valueGetter) {
+      EnumMap<K, V> map = new EnumMap<>(enumClass);// 17
+
+      for (K _enum : (Enum[])enumClass.getEnumConstants()) {// 19
+         map.put(_enum, valueGetter.apply(_enum));// 20
+      }
+
+      return map;// 23
+   }
 }
 
 class 'pkg/TestGenericArrays' {
    method '<init> (I)V' {
-      4      7
-      5      7
-      9      7
-      a      7
-      b      7
-      c      7
-      d      7
-      e      7
-      f      8
-      10      8
-      14      8
-      15      8
-      16      8
-      17      8
-      18      8
-      19      8
-      1a      9
+      4      11
+      5      11
+      9      11
+      a      11
+      b      11
+      c      11
+      d      11
+      e      11
+      f      12
+      10      12
+      14      12
+      15      12
+      16      12
+      17      12
+      18      12
+      19      12
+      1a      13
+   }
+
+   method 'makeEnumMap (Ljava/lang/Class;Ljava/util/function/Function;)Ljava/util/Map;' {
+      4      16
+      8      16
+      9      18
+      a      18
+      b      18
+      c      18
+      d      18
+      e      18
+      f      18
+      10      18
+      11      18
+      13      18
+      14      18
+      16      18
+      17      18
+      23      18
+      24      18
+      25      19
+      26      19
+      27      19
+      28      19
+      29      19
+      2a      19
+      2b      19
+      2c      19
+      2d      19
+      2e      19
+      2f      19
+      30      19
+      31      19
+      32      19
+      34      18
+      35      18
+      36      18
+      3a      22
+      3b      22
    }
 }
 
 Lines mapping:
-8 <-> 8
-9 <-> 9
-10 <-> 10
+12 <-> 12
+13 <-> 13
+14 <-> 14
+17 <-> 17
+19 <-> 19
+20 <-> 20
+23 <-> 23
 Not mapped:
-7
+11

@@ -31,7 +31,7 @@ public class GenericFieldDescriptor {
   //FIXME this is necessary because some places don't have other signature information,
   // which prevents the ability to check class- or method-provided generic types
   public void verifyLoosely(VarType actualType) {
-    if (actualType.isSuperset(type)) {
+    if (actualType.higherEqualInLatticeThan(type)) {
       return;
     }
 

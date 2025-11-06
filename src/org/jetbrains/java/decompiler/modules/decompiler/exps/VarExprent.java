@@ -325,6 +325,9 @@ public class VarExprent extends Exprent implements Pattern {
     }
 
     VarType vt = null;
+//    if (processor != null) {
+//      vt = processor.getVarType(getVarVersionPair());
+//    }
     if (processor != null) {
       String name = processor.getVarName(getVarVersionPair());
       vt = Exprent.inferredLambdaTypes.get().get(name);
@@ -457,13 +460,13 @@ public class VarExprent extends Exprent implements Pattern {
   public CheckTypesResult checkExprTypeBounds() {
     if (this.lvt != null) {
       CheckTypesResult ret = new CheckTypesResult();
-      ret.addMinTypeExprent(this, this.lvt.getVarType());
+      ret.addExprLowerBound(this, this.lvt.getVarType());
       return ret;
     }
 
     if (this.boundType != null) {
       CheckTypesResult ret = new CheckTypesResult();
-      ret.addMinTypeExprent(this, this.boundType);
+      ret.addExprLowerBound(this, this.boundType);
       return ret;
     }
 

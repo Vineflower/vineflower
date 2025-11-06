@@ -417,12 +417,8 @@ public final class ValidationHelper {
   }
 
   public static void notNull(Object o) {
-    if (!VALIDATE) {
-      return;
-    }
-
     if (o == null) {
-      throw new NullPointerException("Validation: null object");
+      throw new NullPointerException("Null not expected here");
     }
   }
 

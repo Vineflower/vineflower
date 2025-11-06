@@ -83,18 +83,18 @@ public class TestNumberDisambiguation {
       this.bar((short)0, (short)i);// 84
       this.bar('\u0000', (char)i);// 85
       this.bar(0, i);// 86
-      this.bar(0L, (long)i);// 87
-      this.bar(0.0F, (float)i);// 88
-      this.bar(0.0, (double)i);// 89
+      this.bar(0L, i);// 87
+      this.bar(0.0F, i);// 88
+      this.bar(0.0, i);// 89
       this.baz(0, (byte)127, (byte)i);// 91
       this.baz(0, (short)32767, (short)i);// 92
       this.baz(0, '\uffff', (char)i);// 93
       this.baz(0, 2147483647, i);// 94
-      this.baz(0, 9223372036854775807L, (long)i);// 95
-      this.baz(0, 3.4028235E38F, (float)i);// 96
-      this.baz(0, 1.7976931348623157E308, (double)i);// 97
+      this.baz(0, 9223372036854775807L, i);// 95
+      this.baz(0, 3.4028235E38F, i);// 96
+      this.baz(0, 1.7976931348623157E308, i);// 97
       this.varargs(i);// 99
-      this.varargs((float)i);// 100
+      this.varargs(i);// 100
    }// 101
 }
 

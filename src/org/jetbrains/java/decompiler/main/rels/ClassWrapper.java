@@ -30,7 +30,7 @@ import java.util.concurrent.TimeoutException;
 public class ClassWrapper {
   // Sometimes when debugging you want to be able to only analyze a specific method.
   // When not null, this skips processing of every method except the one with the name specified.
-  private static final String DEBUG_METHOD_FILTER = null;
+  private static final String DEBUG_METHOD_FILTER = null;//"test";
   private final StructClass classStruct;
   private final Set<String> hiddenMembers = new HashSet<>();
   private final VBStyleCollection<Exprent, String> staticFieldInitializers = new VBStyleCollection<>();

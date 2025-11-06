@@ -27,7 +27,6 @@ import org.jetbrains.java.decompiler.util.collections.SFormsFastMapDirect;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
-import java.util.Map;
 
 public class AssignmentExprent extends Exprent {
   private Exprent left;
@@ -49,9 +48,9 @@ public class AssignmentExprent extends Exprent {
 
   @Override
   public VarType getExprType() {
-    // Union together types
-    VarType rType = VarType.getCommonSupertype(left.getExprType(), right.getExprType());
-    // TODO: maybe there's a better default for null
+    // join the types on the lattice
+    VarType rType = VarType.join(left.getExprType(), right.getExprType());
+    // No possible result? Return the left's type.
     return rType == null ? left.getExprType() : rType;
   }
 
@@ -68,12 +67,12 @@ public class AssignmentExprent extends Exprent {
     VarType typeRight = right.getExprType();
 
     if (typeLeft.typeFamily.isGreater(typeRight.typeFamily)) {
-      result.addMinTypeExprent(right, VarType.getMinTypeInFamily(typeLeft.typeFamily));
+      result.addExprLowerBound(right, VarType.findFamilyBottom(typeLeft.typeFamily));
     } else if (typeLeft.typeFamily.isLesser(typeRight.typeFamily)) {
-      result.addMinTypeExprent(left, typeRight);
+      result.addExprLowerBound(left, typeRight);
     }
     else {
-      result.addMinTypeExprent(left, VarType.getCommonSupertype(typeLeft, typeRight));
+      result.addExprLowerBound(left, VarType.join(typeLeft, typeRight));
     }
 
     return result;
@@ -160,8 +159,7 @@ public class AssignmentExprent extends Exprent {
 
     buffer.addStartBytecodeMapping(bytecode);
 
-    if (this.left instanceof VarExprent && DecompilerContext.getOption(IFernflowerPreferences.DECOMPILER_COMMENTS)) {
-      VarExprent varLeft = (VarExprent) this.left;
+    if (this.left instanceof VarExprent varLeft && DecompilerContext.getOption(IFernflowerPreferences.DECOMPILER_COMMENTS)) {
 
       if (varLeft.isDefinition() && varLeft.getProcessor() != null) {
         if (varLeft.getProcessor().getSyntheticSemaphores().contains(varLeft.getIndex())) {

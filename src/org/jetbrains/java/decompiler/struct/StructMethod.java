@@ -409,7 +409,7 @@ public class StructMethod extends StructMember {
 
   @Override
   public String toString() {
-    return name;
+    return name + " " + descriptor;
   }
 
   public String getClassQualifiedName() {

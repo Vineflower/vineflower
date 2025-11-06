@@ -1241,7 +1241,7 @@ public class KotlinWriter implements StatementWriter {
         buffer.append(')');
 
         VarType retType = descriptor == null ? md.ret : descriptor.returnType;
-        if (!init && !retType.isSuperset(VarType.VARTYPE_VOID)) {
+        if (!init && !retType.higherEqualInLatticeThan(VarType.VARTYPE_VOID)) {
           buffer.append(": ");
           String ret = KTypes.getKotlinType(retType);
           if (KTypes.isFunctionType(retType) && isNullable(mt)) {
