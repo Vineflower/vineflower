@@ -128,14 +128,26 @@ public class ContextUnit {
 
     sink.begin();
 
+    final DecompilerContext rootContext = DecompilerContext.getCurrentContext();
+
+    Set<String> otherNames = otherEntries.stream().map(IContextSource.Entry::path).collect(Collectors.toSet());
+
     // directory entries
     for (String dirEntry : dirEntries) {
-      sink.acceptDirectory(dirEntry);
+      boolean write = true;
+      if (!rootContext.classProcessor.isWhitelisted(dirEntry)) {
+        // not allowed? check if an other entry starts with this path
+        write = otherNames.stream().anyMatch(s -> s.startsWith(dirEntry));
+      }
+
+      if (write) {
+        sink.acceptDirectory(dirEntry);
+      }
     }
 
     // non-class entries
-    for (IContextSource.Entry otherEntry : otherEntries) {
-      sink.acceptOther(otherEntry.path());
+    for (String otherEntry : otherNames) {
+      sink.acceptOther(otherEntry);
     }
 
     //Whooo threads!
@@ -145,7 +157,6 @@ public class ContextUnit {
       threads = Runtime.getRuntime().availableProcessors();
     }
     ForkJoinPool pool = new ForkJoinPool(threads, namingScheme(), null, true);
-    final DecompilerContext rootContext = DecompilerContext.getCurrentContext();
     final List<ClassContext> toDump = new ArrayList<>(classEntries.size());
     Set<String> seen = new LinkedHashSet<>();
 

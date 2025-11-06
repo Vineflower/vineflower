@@ -129,9 +129,11 @@ public class ConsoleDecompiler implements /* IBytecodeProvider, */ IResultSaver,
         if (arg.equals("-s") || arg.equals("--silent")) {
           mapOptions.put(IFernflowerPreferences.LOG_LEVEL, "error");
         } else if (arg.startsWith("-e=") || arg.startsWith("--add-external=")) {
-          addPath(libraries, arg.substring(arg.indexOf('=') + 1));
+          for (String path : arg.substring(arg.indexOf('=') + 1).split(",")) {
+            addPath(libraries, path);
+          }
         } else if (arg.startsWith("-only=") || arg.startsWith("--only=")) {
-          whitelist.add(arg.substring(arg.indexOf('=') + 1));
+          whitelist.addAll(Arrays.asList(arg.substring(arg.indexOf('=') + 1).split(",")));
         } else {
           if (lastPath != null) {
             addPath(sources, lastPath);
