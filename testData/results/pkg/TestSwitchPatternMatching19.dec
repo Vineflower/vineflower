@@ -1,32 +1,70 @@
 package pkg;
 
 public class TestSwitchPatternMatching19 {
-   // $VF: Could not properly define all variable types!
-   static void test(TestSwitchPatternMatching19.XXX s) {
-      TestSwitchPatternMatching19.E e = s;// 5
-      <unknown> var3;
-      <unknown> var4;
-      <unknown> var5;
-      switch (e) {
-         case X1:
-            System.out.println("x1");// 6
-            break;
-         case TestSwitchPatternMatching19.XXX var8 when var3 != TestSwitchPatternMatching19.XXX.X1:// 7
-            System.out.println("a");
-            break;
-         case TestSwitchPatternMatching19.XXX var9 when var4 instanceof TestSwitchPatternMatching19.C:// 8
-            System.out.println("b");
-            break;
-         case TestSwitchPatternMatching19.XXX var10 when var5 == var5:// 9
-            System.out.println("d");
-            break;
-         case TestSwitchPatternMatching19.XXX var11 when false:
-            break;
-         case null:
-         default:
-            System.out.println("f");// 11
-      }
-   }// 13
+   static void test(TestSwitchPatternMatching19.XXX var0) {
+      // $VF: Couldn't be decompiled
+      // Bytecode:
+      // 00: aload 0
+      // 01: astore 1
+      // 02: bipush 0
+      // 03: istore 2
+      // 04: aload 1
+      // 05: iload 2
+      // 06: invokedynamic enumSwitch (Lpkg/TestSwitchPatternMatching19$XXX;I)I bsm=java/lang/runtime/SwitchBootstraps.enumSwitch (Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite; args=[ "X1", pkg/TestSwitchPatternMatching19$XXX, pkg/TestSwitchPatternMatching19$XXX, pkg/TestSwitchPatternMatching19$XXX, pkg/TestSwitchPatternMatching19$XXX, pkg/TestSwitchPatternMatching19$XXX ]
+      // 0b: tableswitch 134 -1 4 134 37 48 73 100 126
+      // 30: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 33: ldc "x1"
+      // 35: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // 38: goto 9f
+      // 3b: aload 1
+      // 3c: astore 3
+      // 3d: aload 3
+      // 3e: getstatic pkg/TestSwitchPatternMatching19$XXX.X1 Lpkg/TestSwitchPatternMatching19$XXX;
+      // 41: if_acmpne 49
+      // 44: bipush 2
+      // 45: istore 2
+      // 46: goto 04
+      // 49: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 4c: ldc "a"
+      // 4e: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // 51: goto 9f
+      // 54: aload 1
+      // 55: astore 4
+      // 57: aload 4
+      // 59: instanceof pkg/TestSwitchPatternMatching19$C
+      // 5c: ifne 64
+      // 5f: bipush 3
+      // 60: istore 2
+      // 61: goto 04
+      // 64: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 67: ldc "b"
+      // 69: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // 6c: goto 9f
+      // 6f: aload 1
+      // 70: astore 5
+      // 72: aload 5
+      // 74: aload 5
+      // 76: if_acmpeq 7e
+      // 79: bipush 4
+      // 7a: istore 2
+      // 7b: goto 04
+      // 7e: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 81: ldc "d"
+      // 83: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // 86: goto 9f
+      // 89: aload 1
+      // 8a: astore 6
+      // 8c: bipush 5
+      // 8d: istore 2
+      // 8e: goto 04
+      // 91: aload 1
+      // 92: astore 7
+      // 94: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 97: ldc "f"
+      // 99: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // 9c: goto 9f
+      // 9f: return
+   }
 
    static void test2(TestSwitchPatternMatching19.XXX s) {
       switch (s) {// 16
@@ -77,202 +115,86 @@ public class TestSwitchPatternMatching19 {
 }
 
 class 'pkg/TestSwitchPatternMatching19' {
-   method 'test (Lpkg/TestSwitchPatternMatching19$XXX;)V' {
-      0      5
-      1      5
-      4      9
-      b      9
-      c      9
-      d      9
-      e      9
-      f      9
-      10      9
-      11      9
-      12      9
-      13      9
-      14      9
-      15      9
-      16      9
-      17      9
-      18      9
-      19      9
-      1a      9
-      1b      9
-      1c      9
-      1d      9
-      1e      9
-      1f      9
-      20      9
-      21      9
-      22      9
-      23      9
-      24      9
-      25      9
-      26      9
-      27      9
-      28      9
-      29      9
-      2a      9
-      2b      9
-      2c      9
-      2d      9
-      2e      9
-      2f      9
-      30      11
-      31      11
-      32      11
-      33      11
-      34      11
-      35      11
-      36      11
-      37      11
-      38      12
-      3d      13
-      3e      13
-      3f      13
-      40      13
-      41      13
-      42      13
-      43      13
-      49      14
-      4a      14
-      4b      14
-      4c      14
-      4d      14
-      4e      14
-      4f      14
-      50      14
-      51      15
-      57      16
-      58      16
-      59      16
-      5a      16
-      5b      16
-      64      17
-      65      17
-      66      17
-      67      17
-      68      17
-      69      17
-      6a      17
-      6b      17
-      6c      18
-      72      19
-      73      19
-      74      19
-      75      19
-      76      19
-      77      19
-      78      19
-      7e      20
-      7f      20
-      80      20
-      81      20
-      82      20
-      83      20
-      84      20
-      85      20
-      86      21
-      94      26
-      95      26
-      96      26
-      97      26
-      98      26
-      99      26
-      9a      26
-      9b      26
-      9f      28
-   }
-
    method 'test2 (Lpkg/TestSwitchPatternMatching19$XXX;)V' {
-      0      31
-      b      31
-      c      31
-      d      31
-      e      31
-      f      31
-      10      31
-      11      31
-      12      31
-      13      31
-      14      31
-      15      31
-      16      31
-      17      31
-      18      31
-      19      31
-      1a      31
-      1b      31
-      1c      31
-      1d      31
-      1e      31
-      1f      31
-      20      31
-      21      31
-      22      31
-      23      31
-      24      31
-      25      31
-      26      31
-      27      31
-      28      37
-      29      37
-      2a      37
-      2b      37
-      2c      37
-      2d      37
-      2e      37
-      2f      37
-      30      38
-      33      34
-      34      34
-      35      34
-      36      34
-      37      34
-      38      34
-      39      34
-      3a      34
-      3b      35
-      40      39
-      41      39
-      42      39
-      43      39
-      44      39
-      4d      40
-      4e      40
-      4f      40
-      50      40
-      51      40
-      52      40
-      53      40
-      54      40
-      55      41
-      58      43
-      59      43
-      5a      43
-      5b      43
-      5c      43
-      5d      43
-      5e      43
-      5f      43
-      63      45
+      0      69
+      b      69
+      c      69
+      d      69
+      e      69
+      f      69
+      10      69
+      11      69
+      12      69
+      13      69
+      14      69
+      15      69
+      16      69
+      17      69
+      18      69
+      19      69
+      1a      69
+      1b      69
+      1c      69
+      1d      69
+      1e      69
+      1f      69
+      20      69
+      21      69
+      22      69
+      23      69
+      24      69
+      25      69
+      26      69
+      27      69
+      28      75
+      29      75
+      2a      75
+      2b      75
+      2c      75
+      2d      75
+      2e      75
+      2f      75
+      30      76
+      33      72
+      34      72
+      35      72
+      36      72
+      37      72
+      38      72
+      39      72
+      3a      72
+      3b      73
+      40      77
+      41      77
+      42      77
+      43      77
+      44      77
+      4d      78
+      4e      78
+      4f      78
+      50      78
+      51      78
+      52      78
+      53      78
+      54      78
+      55      79
+      58      81
+      59      81
+      5a      81
+      5b      81
+      5c      81
+      5d      81
+      5e      81
+      5f      81
+      63      83
    }
 }
 
 Lines mapping:
-5 <-> 6
-6 <-> 12
-7 <-> 14
-8 <-> 17
-9 <-> 20
-11 <-> 27
-13 <-> 29
-16 <-> 32
-17 <-> 38
-18 <-> 35
-19 <-> 40
-20 <-> 41
-21 <-> 44
-23 <-> 46
-Not mapped:
-10
+16 <-> 70
+17 <-> 76
+18 <-> 73
+19 <-> 78
+20 <-> 79
+21 <-> 82
+23 <-> 84

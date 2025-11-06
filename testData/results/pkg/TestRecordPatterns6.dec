@@ -14,7 +14,7 @@ public class TestRecordPatterns6 {
 
    public String test2(TestRecordPatterns6.I in) {
       Objects.requireNonNull(in);
-      Object var2 = in;
+      TestRecordPatterns6.I var2 = in;
 
       while (true) {
          return (String)(switch (var2) {// 19
