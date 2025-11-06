@@ -769,25 +769,6 @@ public class MergeHelper {
           }
         }
 
-        VarExprent assignPre = null;
-        for (Exprent e : preData.getExprents()) {
-          if (e instanceof AssignmentExprent) {
-            AssignmentExprent a = (AssignmentExprent)e;
-            if (a.getLeft() instanceof VarExprent) {
-              if (a.getRight() instanceof VarExprent) {
-                if (((VarExprent)a.getLeft()).getVarVersionPair().equals(array.getVarVersionPair())) {
-                  assignPre = (VarExprent)a.getRight();
-                }
-              }
-            }
-          }
-        }
-
-        // TODO: handle this case! don't just fail silently!
-        if (assignPre != null && !((VarExprent)funcRight.getLstOperands().get(0)).getVarVersionPair().equals(assignPre.getVarVersionPair())) {
-          return false;
-        }
-
         // Make sure this variable isn't used before
         if (isVarUsedBefore((VarExprent) firstDoExprent.getLeft(), stat)) {
           return false;
@@ -808,10 +789,10 @@ public class MergeHelper {
         firstData.getExprents().remove(firstDoExprent);
         lastData.getExprents().remove(lastExprent);
 
-        if (initExprents[2] != null && initExprents[2].getLeft() instanceof VarExprent) {
+        if (initExprents[2] != null && initExprents[2].getLeft() instanceof VarExprent && stat.getIncExprent() instanceof VarExprent inc) {
           VarExprent copy = (VarExprent)initExprents[2].getLeft();
 
-          if (copy.getIndex() == array.getIndex() && copy.getVersion() == array.getVersion()) {
+          if (copy.getIndex() == array.getIndex() && copy.getVersion() == array.getVersion() && !copy.isVarReferenced(stat.getParent(), inc)) {
             preData.getExprents().remove(initExprents[2]);
             initExprents[2].getRight().addBytecodeOffsets(initExprents[2].bytecode);
             initExprents[2].getRight().addBytecodeOffsets(stat.getIncExprent().bytecode);
