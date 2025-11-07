@@ -841,7 +841,11 @@ public class TextBuffer {
 
     @Override
     public int hashCode() {
-      return Objects.hash(myBytecodeOffset, myClass, myMethod);
+      int res = 1;
+      res = 31 * res + Integer.hashCode(myBytecodeOffset);
+      res = 31 * res + (myClass == null ? 0 : myClass.hashCode());
+      res = 31 * res + (myMethod == null ? 0 : myMethod.hashCode());
+      return res;
     }
 
     @Override
