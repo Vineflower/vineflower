@@ -115,7 +115,12 @@ public final class SwitchPatternMatchProcessor {
       }
     }
 
+    int defaultCase = -1;
+
     for (int i = 0; i < stat.getCaseStatements().size(); i++) {
+      if (stat.getCaseValues().get(i).contains(null)) {
+        defaultCase = i;
+      }
       Statement caseStat = stat.getCaseStatements().get(i);
 
       List<Exprent> allCases = stat.getCaseValues().get(i);
@@ -197,8 +202,11 @@ public final class SwitchPatternMatchProcessor {
                     operands.add(check); // checking var
                     operands.add(new ConstExprent(VarType.VARTYPE_CLASS, primitive.value, null));
                     operands.add(var); // pattern match var
-                    if (constExpr.getIntValue() == -1 && allCases.size() == 2) {
-                      allCases.remove(1);
+                    if (allCases.contains(null)) {
+                      stat.setDefaultEdge(null);
+                      int index = allCases.indexOf(null);
+                      allCases.remove(index);
+                      stat.getCaseEdges().get(i).remove(index);
                     }
                   }
                 } else if (assign.getRight() instanceof FunctionExprent cast) {
@@ -224,23 +232,20 @@ public final class SwitchPatternMatchProcessor {
       }
     }
 
-    for (int i = 0; i < stat.getCaseValues().size(); i++) {
-      if (stat.getCaseValues().get(i).contains(null)) {
-        // Default case statements are required to be last
-        stat.getCaseValues().add(stat.getCaseValues().remove(i));
-        stat.getCaseStatements().add(stat.getCaseStatements().remove(i));
-        stat.getCaseEdges().add(stat.getCaseEdges().remove(i));
-        if (i < stat.getCaseGuards().size()) {
-          if (stat.getCaseGuards().get(i) != null) {
-            while (stat.getCaseGuards().size() < stat.getCaseStatements().size()) {
-              stat.getCaseGuards().add(null);
-            }
-            stat.getCaseGuards().add(stat.getCaseGuards().remove(i));
-          } else {
-            stat.getCaseGuards().remove(i);
+    if (defaultCase != -1) {
+      // Default case statements are required to be last
+      stat.getCaseValues().add(stat.getCaseValues().remove(defaultCase));
+      stat.getCaseStatements().add(stat.getCaseStatements().remove(defaultCase));
+      stat.getCaseEdges().add(stat.getCaseEdges().remove(defaultCase));
+      if (defaultCase < stat.getCaseGuards().size()) {
+        if (stat.getCaseGuards().get(defaultCase) != null) {
+          while (stat.getCaseGuards().size() < stat.getCaseStatements().size()) {
+            stat.getCaseGuards().add(null);
           }
+          stat.getCaseGuards().add(stat.getCaseGuards().remove(defaultCase));
+        } else {
+          stat.getCaseGuards().remove(defaultCase);
         }
-        break;
       }
     }
 

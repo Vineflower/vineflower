@@ -529,4 +529,8 @@ public class SwitchStatement extends Statement {
 
     this.scopedCaseStatements.add(stat);
   }
+
+  public void setDefaultEdge(StatEdge edge) {
+    this.defaultEdge = edge;
+  }
 }
