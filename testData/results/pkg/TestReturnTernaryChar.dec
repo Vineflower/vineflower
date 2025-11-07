@@ -13,11 +13,30 @@ public class TestReturnTernaryChar {
       return "hello".equals(input) ? 34 : 21;// 13
    }
 
+   public void sink1(char c) {
+   }// 18
+
+   public void sink2(byte b) {
+   }// 22
+
    public int get(int v) {
-      int w = v == 0 ? 36009 : v;// 17
-      System.out.println(w);// 18
-      return w;// 19
+      int w = v == 0 ? 36009 : v;// 25
+      System.out.println(w);// 26
+      return w;// 27
    }
+
+   public void get2(boolean b) {
+      int v = b ? 0 : 1;// 31
+      this.get(v);// 32
+   }// 33
+
+   public void get3(boolean b) {
+      this.sink1((char)(b ? 'a' : 'A'));// 36
+   }// 37
+
+   public void get4(boolean b) {
+      this.sink2((byte)(b ? 0 : 1));// 40
+   }// 41
 }
 
 class 'pkg/TestReturnTernaryChar' {
@@ -74,24 +93,79 @@ class 'pkg/TestReturnTernaryChar' {
       10      12
    }
 
-   method 'get (I)I' {
+   method 'sink1 (C)V' {
       0      16
-      1      16
-      2      16
-      3      16
-      4      16
-      5      16
-      9      16
-      a      16
-      b      17
-      c      17
-      d      17
-      e      17
-      f      17
-      10      17
-      11      17
-      12      18
-      13      18
+   }
+
+   method 'sink2 (B)V' {
+      0      19
+   }
+
+   method 'get (I)I' {
+      0      22
+      1      22
+      2      22
+      3      22
+      4      22
+      5      22
+      9      22
+      a      22
+      b      23
+      c      23
+      d      23
+      e      23
+      f      23
+      10      23
+      11      23
+      12      24
+      13      24
+   }
+
+   method 'get2 (Z)V' {
+      0      28
+      1      28
+      2      28
+      3      28
+      4      28
+      8      28
+      9      28
+      a      29
+      b      29
+      c      29
+      d      29
+      e      29
+      10      30
+   }
+
+   method 'get3 (Z)V' {
+      0      33
+      1      33
+      2      33
+      3      33
+      4      33
+      5      33
+      6      33
+      a      33
+      b      33
+      c      33
+      d      33
+      e      33
+      f      34
+   }
+
+   method 'get4 (Z)V' {
+      0      37
+      1      37
+      2      37
+      3      37
+      4      37
+      5      37
+      9      37
+      a      37
+      b      37
+      c      37
+      d      37
+      e      38
    }
 }
 
@@ -99,6 +173,15 @@ Lines mapping:
 5 <-> 5
 9 <-> 9
 13 <-> 13
-17 <-> 17
-18 <-> 18
-19 <-> 19
+18 <-> 17
+22 <-> 20
+25 <-> 23
+26 <-> 24
+27 <-> 25
+31 <-> 29
+32 <-> 30
+33 <-> 31
+36 <-> 34
+37 <-> 35
+40 <-> 38
+41 <-> 39
