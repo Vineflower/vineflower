@@ -191,7 +191,8 @@ public final class SwitchExpressionHelper {
         }
 
         // Re-add control flow from switch to basic block successor
-        stat.addSuccessor(new StatEdge(StatEdge.TYPE_REGULAR, stat, suc, seq));
+        // TODO: this is required for validation, but causes certain switches to have an unreferenced label
+        //stat.addSuccessor(new StatEdge(StatEdge.TYPE_REGULAR, stat, suc, seq));
 
         // Control flow from new basic block to the next one
         suc.addSuccessor(new StatEdge(StatEdge.TYPE_REGULAR, suc, oldSuc, seq));

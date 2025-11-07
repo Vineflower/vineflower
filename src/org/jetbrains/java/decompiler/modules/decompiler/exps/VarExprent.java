@@ -173,7 +173,7 @@ public class VarExprent extends Exprent implements Pattern {
 
         if (thisVar == null || !name.contains(".this")) {
           String writeName = name;
-          if (!isValidName(name)) {
+          if (!isValidName(name) && !name.contains(".this")) {
             writeName = getVarVerName(getVarVersionPair());
           }
 
