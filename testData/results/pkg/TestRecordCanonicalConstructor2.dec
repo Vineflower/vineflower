@@ -2,7 +2,7 @@ package pkg;
 
 public record TestRecordCanonicalConstructor2(String name, Object meta) {
    public TestRecordCanonicalConstructor2(String var1) {
-      this(var1, null);
+      this(var1, (String)null);
       if (var1 == null) {
          throw new NullPointerException("name");
       }

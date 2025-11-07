@@ -12,6 +12,12 @@ public class TestReturnTernaryChar {
    public int testByteChar(String input) {
       return "hello".equals(input) ? 34 : 21;// 13
    }
+
+   public int get(int v) {
+      int w = v == 0 ? 36009 : v;// 17
+      System.out.println(w);// 18
+      return w;// 19
+   }
 }
 
 class 'pkg/TestReturnTernaryChar' {
@@ -67,9 +73,32 @@ class 'pkg/TestReturnTernaryChar' {
       f      12
       10      12
    }
+
+   method 'get (I)I' {
+      0      16
+      1      16
+      2      16
+      3      16
+      4      16
+      5      16
+      9      16
+      a      16
+      b      17
+      c      17
+      d      17
+      e      17
+      f      17
+      10      17
+      11      17
+      12      18
+      13      18
+   }
 }
 
 Lines mapping:
 5 <-> 5
 9 <-> 9
 13 <-> 13
+17 <-> 17
+18 <-> 18
+19 <-> 19

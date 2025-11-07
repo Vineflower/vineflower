@@ -11,6 +11,90 @@ public class TestArrayArg {
       this.in(data);// 11
       Arrays.toString(data);// 12
    }// 13
+
+   public static void test1() {
+      overloaded(new Object[]{"arg"});// 16
+   }// 17
+
+   public static void test1_() {
+      overloaded("arg");// 20
+   }// 21
+
+   public static void test1_2() {
+      overloaded(new Object());// 24
+   }// 25
+
+   public static void test2() {
+      overloaded((Object)null);// 28
+   }// 29
+
+   public static void test2_() {
+      overloaded((Object[])null);// 32
+   }// 33
+
+   public static void test3() {
+      overloaded1(new String[]{"arg"});// 36
+   }// 37
+
+   public static void test3_() {
+      overloaded1("arg");// 40
+   }// 41
+
+   public static void test4() {
+      overloaded1((String)null);// 44
+   }// 45
+
+   public static void test4_() {
+      overloaded1((String[])null);// 48
+   }// 49
+
+   public static void test5() {
+      overloaded2((Object)null);// 52
+   }// 53
+
+   public static void test5_() {
+      overloaded2((Object[])null);// 56
+   }// 57
+
+   public static void test6() {
+      overloaded3(null, 1);// 60
+   }// 61
+
+   public static void test6_() {
+      overloaded3(null, "s");// 64
+   }// 65
+
+   private static void overloaded(Object o) {
+      System.out.println("non-variadic");// 68
+   }// 69
+
+   private static void overloaded(Object... o) {
+      System.out.println("variadic");// 72
+   }// 73
+
+   private static void overloaded1(String s) {
+      System.out.println("non-variadic");// 76
+   }// 77
+
+   private static void overloaded1(String... s) {
+      System.out.println("variadic");// 80
+   }// 81
+
+   private static void overloaded2(Object o) {
+      System.out.println("non-array");// 84
+   }// 85
+
+   private static void overloaded2(Object[] o) {
+      System.out.println("array");// 88
+   }// 89
+
+   private static void overloaded3(Object o, Number n) {
+      System.out.println("non-array");// 92
+   }// 93
+
+   private static void overloaded3(String s, String s2) {
+      System.out.println("non-array");// 96
+   }// 97
 }
 
 class 'pkg/TestArrayArg' {
@@ -34,6 +118,227 @@ class 'pkg/TestArrayArg' {
       8      11
       a      12
    }
+
+   method 'test1 ()V' {
+      6      15
+      7      15
+      9      15
+      a      15
+      b      15
+      c      16
+   }
+
+   method 'test1_ ()V' {
+      0      19
+      1      19
+      2      19
+      3      19
+      4      19
+      5      20
+   }
+
+   method 'test1_2 ()V' {
+      7      23
+      8      23
+      9      23
+      a      24
+   }
+
+   method 'test2 ()V' {
+      0      27
+      1      27
+      2      27
+      3      27
+      4      28
+   }
+
+   method 'test2_ ()V' {
+      0      31
+      1      31
+      2      31
+      3      31
+      4      31
+      5      31
+      6      31
+      7      32
+   }
+
+   method 'test3 ()V' {
+      6      35
+      7      35
+      9      35
+      a      35
+      b      35
+      c      36
+   }
+
+   method 'test3_ ()V' {
+      0      39
+      1      39
+      2      39
+      3      39
+      4      39
+      5      40
+   }
+
+   method 'test4 ()V' {
+      0      43
+      1      43
+      2      43
+      3      43
+      4      43
+      5      43
+      6      43
+      7      44
+   }
+
+   method 'test4_ ()V' {
+      0      47
+      1      47
+      2      47
+      3      47
+      4      47
+      5      47
+      6      47
+      7      48
+   }
+
+   method 'test5 ()V' {
+      0      51
+      1      51
+      2      51
+      3      51
+      4      52
+   }
+
+   method 'test5_ ()V' {
+      0      55
+      1      55
+      2      55
+      3      55
+      4      55
+      5      55
+      6      55
+      7      56
+   }
+
+   method 'test6 ()V' {
+      0      59
+      1      59
+      2      59
+      3      59
+      4      59
+      5      59
+      6      59
+      7      59
+      8      60
+   }
+
+   method 'test6_ ()V' {
+      0      63
+      1      63
+      2      63
+      3      63
+      4      63
+      5      63
+      6      64
+   }
+
+   method 'overloaded (Ljava/lang/Object;)V' {
+      0      67
+      1      67
+      2      67
+      3      67
+      4      67
+      5      67
+      6      67
+      7      67
+      8      68
+   }
+
+   method 'overloaded ([Ljava/lang/Object;)V' {
+      0      71
+      1      71
+      2      71
+      3      71
+      4      71
+      5      71
+      6      71
+      7      71
+      8      72
+   }
+
+   method 'overloaded1 (Ljava/lang/String;)V' {
+      0      75
+      1      75
+      2      75
+      3      75
+      4      75
+      5      75
+      6      75
+      7      75
+      8      76
+   }
+
+   method 'overloaded1 ([Ljava/lang/String;)V' {
+      0      79
+      1      79
+      2      79
+      3      79
+      4      79
+      5      79
+      6      79
+      7      79
+      8      80
+   }
+
+   method 'overloaded2 (Ljava/lang/Object;)V' {
+      0      83
+      1      83
+      2      83
+      3      83
+      4      83
+      5      83
+      6      83
+      7      83
+      8      84
+   }
+
+   method 'overloaded2 ([Ljava/lang/Object;)V' {
+      0      87
+      1      87
+      2      87
+      3      87
+      4      87
+      5      87
+      6      87
+      7      87
+      8      88
+   }
+
+   method 'overloaded3 (Ljava/lang/Object;Ljava/lang/Number;)V' {
+      0      91
+      1      91
+      2      91
+      3      91
+      4      91
+      5      91
+      6      91
+      7      91
+      8      92
+   }
+
+   method 'overloaded3 (Ljava/lang/String;Ljava/lang/String;)V' {
+      0      95
+      1      95
+      2      95
+      3      95
+      4      95
+      5      95
+      6      95
+      7      95
+      8      96
+   }
 }
 
 Lines mapping:
@@ -42,3 +347,45 @@ Lines mapping:
 11 <-> 11
 12 <-> 12
 13 <-> 13
+16 <-> 16
+17 <-> 17
+20 <-> 20
+21 <-> 21
+24 <-> 24
+25 <-> 25
+28 <-> 28
+29 <-> 29
+32 <-> 32
+33 <-> 33
+36 <-> 36
+37 <-> 37
+40 <-> 40
+41 <-> 41
+44 <-> 44
+45 <-> 45
+48 <-> 48
+49 <-> 49
+52 <-> 52
+53 <-> 53
+56 <-> 56
+57 <-> 57
+60 <-> 60
+61 <-> 61
+64 <-> 64
+65 <-> 65
+68 <-> 68
+69 <-> 69
+72 <-> 72
+73 <-> 73
+76 <-> 76
+77 <-> 77
+80 <-> 80
+81 <-> 81
+84 <-> 84
+85 <-> 85
+88 <-> 88
+89 <-> 89
+92 <-> 92
+93 <-> 93
+96 <-> 96
+97 <-> 97
