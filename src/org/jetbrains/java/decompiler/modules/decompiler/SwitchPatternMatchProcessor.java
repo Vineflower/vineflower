@@ -7,6 +7,7 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
+import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.consts.PooledConstant;
 import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
 import org.jetbrains.java.decompiler.struct.gen.CodeType;
@@ -188,21 +189,34 @@ public final class SwitchPatternMatchProcessor {
               VarExprent var = (VarExprent) assign.getLeft();
 
               if (isPatternMatchingCastAssignment(head, assign)) {
-                FunctionExprent cast = (FunctionExprent) assign.getRight();
-
                 List<Exprent> operands = new ArrayList<>();
-                operands.add(cast.getLstOperands().get(0)); // checking var
-                operands.add(cast.getLstOperands().get(1)); // type
-                operands.add(var); // pattern match var
+                if (assign.getRight() instanceof VarExprent check) {
+                  if (caseExpr instanceof ConstExprent constExpr
+                      && value.getBootstrapArguments().get(constExpr.getIntValue() == -1 ? value.getBootstrapArguments().size() - 1 : constExpr.getIntValue()) instanceof PrimitiveConstant primitive
+                      && primitive.type == CodeConstants.CONSTANT_Class) {
+                    operands.add(check); // checking var
+                    operands.add(new ConstExprent(VarType.VARTYPE_CLASS, primitive.value, null));
+                    operands.add(var); // pattern match var
+                    if (constExpr.getIntValue() == -1 && allCases.size() == 2) {
+                      allCases.remove(1);
+                    }
+                  }
+                } else if (assign.getRight() instanceof FunctionExprent cast) {
+                  operands.add(cast.getLstOperands().get(0)); // checking var
+                  operands.add(cast.getLstOperands().get(1)); // type
+                  operands.add(var); // pattern match var
+                }
 
-                FunctionExprent func = new FunctionExprent(FunctionExprent.FunctionType.INSTANCEOF, operands, null);
+                if (!operands.isEmpty()) {
+                  FunctionExprent func = new FunctionExprent(FunctionExprent.FunctionType.INSTANCEOF, operands, null);
 
-                caseStatBlock.getExprents().remove(0);
+                  caseStatBlock.getExprents().remove(0);
 
-                // TODO: ssau representation
-                // any shared nulls will be at the end, and patterns & defaults can't be shared,
-                // so its safe to overwrite whatever's here
-                allCases.set(0, func);
+                  // TODO: ssau representation
+                  // any shared nulls will be at the end, and patterns & defaults can't be shared,
+                  // so its safe to overwrite whatever's here
+                  allCases.set(0, func);
+                }
               }
             }
           }
@@ -555,17 +569,22 @@ public final class SwitchPatternMatchProcessor {
   }
 
   private static boolean isPatternMatchingCastAssignment(final SwitchHeadExprent switchHead, final AssignmentExprent assignment) {
-    if (!(assignment.getRight() instanceof final FunctionExprent functionExprent)) return false;
-    if (functionExprent.getFuncType() != FunctionType.CAST) return false;
+    if (assignment.getRight() instanceof VarExprent switchHeadRef) {
+      if (switchHead.containsVar(switchHeadRef.getVarVersionPair())) {
+        return true;
+      }
+    } else if (assignment.getRight() instanceof final FunctionExprent functionExprent) {
+      if (functionExprent.getFuncType() != FunctionType.CAST) return false;
 
-    final List<Exprent> lstOperands = functionExprent.getLstOperands();
-    // We expect the assignment to be a literal `n = (Type) m`.
-    // Any other operands are not allowed in simple pattern matching.
-    if (lstOperands.size() < 2) return false;
-    if (!(lstOperands.get(0) instanceof final VarExprent switchHeadRef)) return false;
-    if (!(lstOperands.get(1) instanceof final ConstExprent castTypeRef)) return false;
-    if (!switchHead.containsVar(switchHeadRef.getVarVersionPair())) return false; // Not the switch head var ref
-
-    return true;
+      final List<Exprent> lstOperands = functionExprent.getLstOperands();
+      // We expect the assignment to be a literal `n = (Type) m`.
+      // Any other operands are not allowed in simple pattern matching.
+      if (lstOperands.size() < 2) return false;
+      if (!(lstOperands.get(0) instanceof final VarExprent switchHeadRef)) return false;
+      if (!(lstOperands.get(1) instanceof final ConstExprent castTypeRef)) return false;
+      if (!switchHead.containsVar(switchHeadRef.getVarVersionPair())) return false; // Not the switch head var ref
+      return true;
+    }
+    return false;
   }
 }
