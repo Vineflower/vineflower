@@ -51,7 +51,7 @@ public class VarTypeProcessor {
 
       if (upper != null) {
         if (lower.typeFamily != TypeFamily.OBJECT && lower.higherInLatticeThan(upper)) {
-          ValidationHelper.assertTrue(false, "lower bound " + lower + " > upper bound " + upper + " for var " + p);
+          ValidationHelper.validateTrue(false, "lower bound " + lower + " > upper bound " + upper + " for var " + p);
         }
       }
     }
