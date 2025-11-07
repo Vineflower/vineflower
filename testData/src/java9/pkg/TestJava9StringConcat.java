@@ -31,4 +31,12 @@ public class TestJava9StringConcat {
   public String testEmptyInfix(int value, int value2){
     return value + "" + value2;
   }
+
+  public String test3() {
+    return "" + get();
+  }
+
+  public String get() {
+    return "";
+  }
 }
