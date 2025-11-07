@@ -766,6 +766,10 @@ public class MergeHelper {
           }
         }
 
+        if (!array.equalsVersions(funcRight.getLstOperands().get(0))) {
+          return false;
+        }
+
         // Make sure this variable isn't used before
         if (isVarUsedBefore((VarExprent) firstDoExprent.getLeft(), stat)) {
           return false;
