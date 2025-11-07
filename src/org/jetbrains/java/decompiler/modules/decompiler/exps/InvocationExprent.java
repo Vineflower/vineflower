@@ -1354,8 +1354,7 @@ public class InvocationExprent extends Exprent {
           return false;
         }
 
-        VarType type = lstParameters.get(i).getExprType();
-        if (type.type != CodeType.NULL) {
+        if (i >= lstParameters.size() || lstParameters.get(i).getExprType().type != CodeType.NULL) {
           if (left[i].arrayDim != right[i].arrayDim) {
             return false;
           }
@@ -1383,8 +1382,8 @@ public class InvocationExprent extends Exprent {
         if (rightMethod != null && rightMethod.hasModifier(CodeConstants.ACC_VARARGS) && i == right.length - 1) {
           rightType = rightType.decreaseArrayDim();
         }
-        VarType type = lstParameters.get(i).getExprType();
-        if (type.type != CodeType.NULL) {
+
+        if (i >= lstParameters.size() || lstParameters.get(i).getExprType().type != CodeType.NULL) {
           if (leftType.arrayDim != rightType.arrayDim) {
             return false;
           }
