@@ -48,21 +48,53 @@ public class TestArrayArg {
       overloaded1((String[])null);// 48
    }// 49
 
-   private static void overloaded(Object o) {
-      System.out.println("non-variadic");// 52
+   public static void test5() {
+      overloaded2((Object)null);// 52
    }// 53
 
-   private static void overloaded(Object... o) {
-      System.out.println("variadic");// 56
+   public static void test5_() {
+      overloaded2((Object[])null);// 56
    }// 57
 
-   private static void overloaded1(String s) {
-      System.out.println("non-variadic");// 60
+   public static void test6() {
+      overloaded3(null, 1);// 60
    }// 61
 
-   private static void overloaded1(String... s) {
-      System.out.println("variadic");// 64
+   public static void test6_() {
+      overloaded3(null, "s");// 64
    }// 65
+
+   private static void overloaded(Object o) {
+      System.out.println("non-variadic");// 68
+   }// 69
+
+   private static void overloaded(Object... o) {
+      System.out.println("variadic");// 72
+   }// 73
+
+   private static void overloaded1(String s) {
+      System.out.println("non-variadic");// 76
+   }// 77
+
+   private static void overloaded1(String... s) {
+      System.out.println("variadic");// 80
+   }// 81
+
+   private static void overloaded2(Object o) {
+      System.out.println("non-array");// 84
+   }// 85
+
+   private static void overloaded2(Object[] o) {
+      System.out.println("array");// 88
+   }// 89
+
+   private static void overloaded3(Object o, Number n) {
+      System.out.println("non-array");// 92
+   }// 93
+
+   private static void overloaded3(String s, String s2) {
+      System.out.println("non-array");// 96
+   }// 97
 }
 
 class 'pkg/TestArrayArg' {
@@ -171,19 +203,15 @@ class 'pkg/TestArrayArg' {
       7      48
    }
 
-   method 'overloaded (Ljava/lang/Object;)V' {
+   method 'test5 ()V' {
       0      51
       1      51
       2      51
       3      51
-      4      51
-      5      51
-      6      51
-      7      51
-      8      52
+      4      52
    }
 
-   method 'overloaded ([Ljava/lang/Object;)V' {
+   method 'test5_ ()V' {
       0      55
       1      55
       2      55
@@ -191,11 +219,10 @@ class 'pkg/TestArrayArg' {
       4      55
       5      55
       6      55
-      7      55
-      8      56
+      7      56
    }
 
-   method 'overloaded1 (Ljava/lang/String;)V' {
+   method 'test6 ()V' {
       0      59
       1      59
       2      59
@@ -207,16 +234,110 @@ class 'pkg/TestArrayArg' {
       8      60
    }
 
-   method 'overloaded1 ([Ljava/lang/String;)V' {
+   method 'test6_ ()V' {
       0      63
       1      63
       2      63
       3      63
       4      63
       5      63
-      6      63
-      7      63
-      8      64
+      6      64
+   }
+
+   method 'overloaded (Ljava/lang/Object;)V' {
+      0      67
+      1      67
+      2      67
+      3      67
+      4      67
+      5      67
+      6      67
+      7      67
+      8      68
+   }
+
+   method 'overloaded ([Ljava/lang/Object;)V' {
+      0      71
+      1      71
+      2      71
+      3      71
+      4      71
+      5      71
+      6      71
+      7      71
+      8      72
+   }
+
+   method 'overloaded1 (Ljava/lang/String;)V' {
+      0      75
+      1      75
+      2      75
+      3      75
+      4      75
+      5      75
+      6      75
+      7      75
+      8      76
+   }
+
+   method 'overloaded1 ([Ljava/lang/String;)V' {
+      0      79
+      1      79
+      2      79
+      3      79
+      4      79
+      5      79
+      6      79
+      7      79
+      8      80
+   }
+
+   method 'overloaded2 (Ljava/lang/Object;)V' {
+      0      83
+      1      83
+      2      83
+      3      83
+      4      83
+      5      83
+      6      83
+      7      83
+      8      84
+   }
+
+   method 'overloaded2 ([Ljava/lang/Object;)V' {
+      0      87
+      1      87
+      2      87
+      3      87
+      4      87
+      5      87
+      6      87
+      7      87
+      8      88
+   }
+
+   method 'overloaded3 (Ljava/lang/Object;Ljava/lang/Number;)V' {
+      0      91
+      1      91
+      2      91
+      3      91
+      4      91
+      5      91
+      6      91
+      7      91
+      8      92
+   }
+
+   method 'overloaded3 (Ljava/lang/String;Ljava/lang/String;)V' {
+      0      95
+      1      95
+      2      95
+      3      95
+      4      95
+      5      95
+      6      95
+      7      95
+      8      96
    }
 }
 
@@ -252,3 +373,19 @@ Lines mapping:
 61 <-> 61
 64 <-> 64
 65 <-> 65
+68 <-> 68
+69 <-> 69
+72 <-> 72
+73 <-> 73
+76 <-> 76
+77 <-> 77
+80 <-> 80
+81 <-> 81
+84 <-> 84
+85 <-> 85
+88 <-> 88
+89 <-> 89
+92 <-> 92
+93 <-> 93
+96 <-> 96
+97 <-> 97

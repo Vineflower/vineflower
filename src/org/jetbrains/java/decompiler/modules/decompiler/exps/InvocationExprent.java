@@ -992,18 +992,6 @@ public class InvocationExprent extends Exprent {
       }
     }
 
-    // If the vararg is ambiguous e.g. method(Object o) vs method(Object... o) force the last param ambiguous for nulls
-    if (ambiguousVararg) {
-      VarType lastType = lstParameters.get(lstParameters.size() - 1).getExprType();
-      if (lastType.type == CodeType.NULL) {
-        if (setAmbiguousParameters == EMPTY_BIT_SET) {
-          setAmbiguousParameters = new BitSet(lstParameters.size());
-        }
-
-        setAmbiguousParameters.set(lstParameters.size() - 1);
-      }
-    }
-
     int start = isEnum ? 2 : 0;
     List<Exprent> parameters = new ArrayList<>(lstParameters);
     VarType[] types = Arrays.copyOf(descriptor.params, descriptor.params.length);
@@ -1366,8 +1354,11 @@ public class InvocationExprent extends Exprent {
           return false;
         }
 
-        if (left[i].arrayDim != right[i].arrayDim) {
-          return false;
+        VarType type = lstParameters.get(i).getExprType();
+        if (type.type != CodeType.NULL) {
+          if (left[i].arrayDim != right[i].arrayDim) {
+            return false;
+          }
         }
       }
       return true;
@@ -1392,8 +1383,11 @@ public class InvocationExprent extends Exprent {
         if (rightMethod != null && rightMethod.hasModifier(CodeConstants.ACC_VARARGS) && i == right.length - 1) {
           rightType = rightType.decreaseArrayDim();
         }
-        if (leftType.arrayDim != rightType.arrayDim) {
-          return false;
+        VarType type = lstParameters.get(i).getExprType();
+        if (type.type != CodeType.NULL) {
+          if (leftType.arrayDim != rightType.arrayDim) {
+            return false;
+          }
         }
       }
       return true;
@@ -1497,7 +1491,7 @@ public class InvocationExprent extends Exprent {
 
         VarType type = exp.getExprType();
 
-        exact &= md.params[i].equals(type);
+        exact &= md.params[i].equals(type) || type.type == CodeType.NULL;
 
         if (md.params[i].higherCrossFamilyThan(type, true)) {
           possible.add(mt);
@@ -1514,11 +1508,9 @@ public class InvocationExprent extends Exprent {
       return EMPTY_BIT_SET;
     }
 
-    if (exacts.size() != 1) {
+    if (exacts.isEmpty()) {
       return EMPTY_BIT_SET;
-    }
-
-    if (exacts.size() == 1) {
+    } else if (exacts.size() == 1) {
       StructMethod exact = exacts.iterator().next();
 
       // Exact method is our own? No need to check ambiguity, we have our match!
@@ -1545,15 +1537,11 @@ public class InvocationExprent extends Exprent {
         if (!md.params[i].equals(pmd.params[i])) {
           // If our desired method is higher in the lattice than
 
-//          System.out.println(pmd.params[i] + " - " + type);
-//          if (pmd.params[i].higherEqualInLatticeThan(type)) {
-//            ambiguous.set(i);
-//          }
-
           if (md.params[i].higherCrossFamilyThan(pmd.params[i], false)) {
-//            System.out.println(md.params[i]);
             ambiguous.set(i);
           } else if (type.equals(pmd.params[i])) {
+            ambiguous.set(i);
+          } else if (type.type == CodeType.NULL) {
             ambiguous.set(i);
           }
         }
