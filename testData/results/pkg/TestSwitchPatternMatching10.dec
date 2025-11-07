@@ -2,8 +2,7 @@ package pkg;
 
 public class TestSwitchPatternMatching10 {
    static void test(String s) {
-      String var1;
-      switch (var1) {// 5
+      switch (s) {// 5
          case "hi":
             System.out.println("hi");// 6
             break;
@@ -19,69 +18,69 @@ public class TestSwitchPatternMatching10 {
 
 class 'pkg/TestSwitchPatternMatching10' {
    method 'test (Ljava/lang/String;)V' {
-      8      5
-      29      6
-      2a      6
-      37      9
-      38      9
-      47      5
-      48      5
-      49      5
-      4a      5
-      4b      5
-      4c      5
-      4d      5
-      4e      5
-      4f      5
-      50      5
-      51      5
-      52      5
-      53      5
-      54      5
-      55      5
-      56      5
-      57      5
-      58      5
-      59      5
-      5a      5
-      5b      5
-      5c      5
-      5d      5
-      5e      5
-      5f      5
-      60      7
-      61      7
-      62      7
-      63      7
-      64      7
-      65      7
-      66      7
-      67      7
-      68      8
-      6b      10
-      6c      10
-      6d      10
-      6e      10
-      6f      10
-      70      10
-      71      10
-      72      10
-      73      11
-      76      14
-      77      14
-      78      14
-      79      14
-      7a      14
-      7b      14
-      7c      14
-      7d      14
-      7e      16
+      0      4
+      29      5
+      2a      5
+      37      8
+      38      8
+      47      4
+      48      4
+      49      4
+      4a      4
+      4b      4
+      4c      4
+      4d      4
+      4e      4
+      4f      4
+      50      4
+      51      4
+      52      4
+      53      4
+      54      4
+      55      4
+      56      4
+      57      4
+      58      4
+      59      4
+      5a      4
+      5b      4
+      5c      4
+      5d      4
+      5e      4
+      5f      4
+      60      6
+      61      6
+      62      6
+      63      6
+      64      6
+      65      6
+      66      6
+      67      6
+      68      7
+      6b      9
+      6c      9
+      6d      9
+      6e      9
+      6f      9
+      70      9
+      71      9
+      72      9
+      73      10
+      76      13
+      77      13
+      78      13
+      79      13
+      7a      13
+      7b      13
+      7c      13
+      7d      13
+      7e      15
    }
 }
 
 Lines mapping:
-5 <-> 6
-6 <-> 8
-7 <-> 11
-8 <-> 15
-10 <-> 17
+5 <-> 5
+6 <-> 7
+7 <-> 10
+8 <-> 14
+10 <-> 16

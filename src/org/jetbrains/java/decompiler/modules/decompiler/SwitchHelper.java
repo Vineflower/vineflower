@@ -303,9 +303,9 @@ public final class SwitchHelper {
         .filter(e -> switchStatement.containsStatement(e.getSource()) && e.getSource() != switchStatement.getFirst())
         .forEach(e -> e.getSource().removeSuccessor(e));
 
-      BasicBlockStatement head = switchStatement.getBasichead();
-      if (head.getExprents().size() > 0
-          && head.getExprents().get(head.getExprents().size() - 1) instanceof AssignmentExprent assignment
+      BasicBlockStatement head = nullable ? containingNullCheck.getBasichead() : switchStatement.getBasichead();
+      if (head.getExprents().size() >= (nullable ? 2 : 1)
+          && head.getExprents().get(head.getExprents().size() - (nullable ? 2 : 1)) instanceof AssignmentExprent assignment
           && assignment.getLeft() instanceof VarExprent tmpVar
           && following.getHeadexprent() instanceof SwitchHeadExprent switchHead
           && tmpVar.equalsVersions(switchHead.getValue())

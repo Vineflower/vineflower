@@ -2,9 +2,7 @@ package pkg;
 
 public class TestSwitchPatternMatching9 {
    static String test(String s) {
-      String var1;
-
-      return switch (var1) {// 5
+      return switch (s) {// 5
          case "hi" -> "hi";// 6
          case "bye" -> "bye";// 7
          case "null", null -> "null";// 8
@@ -15,59 +13,59 @@ public class TestSwitchPatternMatching9 {
 
 class 'pkg/TestSwitchPatternMatching9' {
    method 'test (Ljava/lang/String;)Ljava/lang/String;' {
-      8      6
-      31      7
-      32      7
-      3f      8
-      40      8
-      4d      9
-      4e      9
-      5d      6
-      5e      6
-      5f      6
-      60      6
-      61      6
-      62      6
-      63      6
-      64      6
-      65      6
-      66      6
-      67      6
-      68      6
-      69      6
-      6a      6
-      6b      6
-      6c      6
-      6d      6
-      6e      6
-      6f      6
-      70      6
-      71      6
-      72      6
-      73      6
-      74      6
-      75      6
-      76      6
-      77      6
-      78      6
-      79      6
-      7a      6
-      7b      6
-      7c      7
-      7d      7
-      81      8
-      82      8
-      86      9
-      87      9
-      8b      10
-      8c      10
-      8d      6
+      0      4
+      31      5
+      32      5
+      3f      6
+      40      6
+      4d      7
+      4e      7
+      5d      4
+      5e      4
+      5f      4
+      60      4
+      61      4
+      62      4
+      63      4
+      64      4
+      65      4
+      66      4
+      67      4
+      68      4
+      69      4
+      6a      4
+      6b      4
+      6c      4
+      6d      4
+      6e      4
+      6f      4
+      70      4
+      71      4
+      72      4
+      73      4
+      74      4
+      75      4
+      76      4
+      77      4
+      78      4
+      79      4
+      7a      4
+      7b      4
+      7c      5
+      7d      5
+      81      6
+      82      6
+      86      7
+      87      7
+      8b      8
+      8c      8
+      8d      4
    }
 }
 
 Lines mapping:
-5 <-> 7
-6 <-> 8
-7 <-> 9
-8 <-> 10
-9 <-> 11
+5 <-> 5
+6 <-> 6
+7 <-> 7
+8 <-> 8
+9 <-> 9
