@@ -960,10 +960,16 @@ public class InvocationExprent extends Exprent {
       } else {
         buf.append(stringValue);
       }
-    } else if (arg instanceof LinkConstant) {
-      // TODO: errors trying to print condy as const arg
-      VarType cls = new VarType(((LinkConstant) arg).classname);
-      buf.appendCastTypeName(cls).append("::").append(((LinkConstant) arg).elementname);
+    } else if (arg instanceof LinkConstant link) {
+      if (link.classname != null) {
+        buf.appendCastTypeName(new VarType(link.classname))
+          .append("::")
+          .append(link.elementname);
+      } else if (link.descriptor != null) {
+        buf.append("/* VF: Constant Dynamic */ (").appendCastTypeName(new VarType(link.descriptor))
+          .append(") ")
+          .append(link.elementname);
+      }
     }
   }
 
