@@ -370,8 +370,12 @@ public class FunctionExprent extends Exprent {
       case TERNARY:
         VarType supertype = getExprType();
         result.addExprLowerBound(param1, VarType.VARTYPE_BOOLEAN);
+        result.addExprUpperBound(param1, VarType.VARTYPE_BOOLEAN);
+
         result.addExprLowerBound(param2, VarType.findFamilyBottom(supertype.typeFamily));
         result.addExprLowerBound(lstOperands.get(2), VarType.findFamilyBottom(supertype.typeFamily));
+        result.addExprUpperBound(param2, supertype);
+        result.addExprUpperBound(lstOperands.get(2), supertype);
         break;
       case I2L:
       case I2F:

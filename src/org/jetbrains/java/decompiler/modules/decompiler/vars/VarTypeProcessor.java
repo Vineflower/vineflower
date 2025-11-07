@@ -249,6 +249,7 @@ public class VarTypeProcessor {
         // Already have a type? Find the lower of the two; the upper bound falls.
         newMaxType = VarType.meet(currentMaxType, newType);
       }
+      ValidationHelper.assertTrue(newMaxType != null, "Trying to lower the maximum type of disjoint variables!");
 
       upperBounds.put(pair, newMaxType);
     }
