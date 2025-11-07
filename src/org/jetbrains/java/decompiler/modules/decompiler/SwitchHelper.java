@@ -194,6 +194,17 @@ public final class SwitchHelper {
         }
       }
 
+      BasicBlockStatement head = switchStatement.getBasichead();
+      if (head.getExprents().size() > 0
+          && head.getExprents().get(head.getExprents().size() - 1) instanceof AssignmentExprent assignment
+          && assignment.getLeft() instanceof VarExprent tempVar
+          && assignment.getRight() instanceof VarExprent realVar
+          && switchHeadExprent.getValue() instanceof VarExprent usedVar
+          && !tempVar.isVarReferenced(root, usedVar)) {
+        head.getExprents().remove(head.getExprents().size() - 1);
+        switchHeadExprent.setValue(realVar);
+      }
+
       return true;
     } else if (isSwitchOnString(switchStatement)) {
       Map<Integer, Exprent> caseMap = new HashMap<>();
