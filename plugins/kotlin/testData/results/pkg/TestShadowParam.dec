@@ -2,8 +2,8 @@ package pkg
 
 public class TestShadowParam {
    public fun test(x: Int) {
-      val xx: Int = x - 1// 5 6
-      System.out.println(x - 1)// 7
+      System.out.println(--x)// 5 6 7
+      val xx: Int
       if (xx < 0) {// 8
          System.out.println(xx)// 9
       }
@@ -16,13 +16,12 @@ class 'pkg/TestShadowParam' {
       2      4
       3      4
       4      4
-      5      5
-      6      5
-      7      5
-      8      5
-      9      5
-      a      5
-      b      5
+      5      4
+      6      4
+      7      4
+      9      4
+      a      4
+      b      4
       c      6
       d      6
       e      6
@@ -41,7 +40,7 @@ class 'pkg/TestShadowParam' {
 Lines mapping:
 5 <-> 5
 6 <-> 5
-7 <-> 6
+7 <-> 5
 8 <-> 7
 9 <-> 8
 11 <-> 10

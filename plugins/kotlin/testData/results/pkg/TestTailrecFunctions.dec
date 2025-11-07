@@ -78,12 +78,12 @@ public class TestTailrecFunctions {
             n = var11
             acc = acc
          } else {
-            val var15: Long = n - 1L
-            val var13: Long = acc * x
+            val var17: Long = n - 1L
+            val var18: Long = acc * x
             var7 = var7// 46
             x = x
-            n = var15
-            acc = var13
+            n = var17
+            acc = var18
          }
       }
 
