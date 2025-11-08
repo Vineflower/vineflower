@@ -71,9 +71,9 @@ public class FastSparseSetFactory<E> {
     private final PackedMap<E> colValuesInternal;
 
     @NotNull
-    private final FastSparseSetFactory.ArrayHolder data;
+    private final FastSparseSetFactory.IntArray data;
     @NotNull
-    private final FastSparseSetFactory.ArrayHolder next;
+    private final FastSparseSetFactory.IntArray next;
 
     private FastSparseSet(FastSparseSetFactory<E> factory) {
       this.factory = factory;
@@ -82,13 +82,12 @@ public class FastSparseSetFactory<E> {
       // Originally, this returned factory.getLastBlock() + 1. However, in the most common case, only 1 element is added.
       // This means that the array is unnecessarily large. Instead, max(lastBlock, 1) is used to ensure empty factories
       // don't produce -1 lengths.
-      // TODO: the array init of size 1 can be elided, and the array can be lazy initialized when sized above 1
       int length = Math.max(factory.getLastBlock(), 1);
-      this.data = new ArrayHolder(length);
-      this.next = new ArrayHolder(length);
+      this.data = new IntArray(length);
+      this.next = new IntArray(length);
     }
 
-    private FastSparseSet(FastSparseSetFactory<E> factory, ArrayHolder data, ArrayHolder next) {
+    private FastSparseSet(FastSparseSetFactory<E> factory, IntArray data, IntArray next) {
       this.factory = factory;
       this.colValuesInternal = factory.getInternalValuesCollection();
 
@@ -97,8 +96,8 @@ public class FastSparseSetFactory<E> {
     }
 
     public FastSparseSet<E> getCopy() {
-      ArrayHolder newData = this.data.copy();
-      ArrayHolder newNext = this.next.copy();
+      IntArray newData = this.data.copy();
+      IntArray newNext = this.next.copy();
 
       return new FastSparseSet<>(factory, newData, newNext);
     }
@@ -187,6 +186,10 @@ public class FastSparseSetFactory<E> {
     }
 
     private void changeNext(int key, int oldnext, int newnext) {
+      if (oldnext == newnext) {
+        return;
+      }
+
       for (int i = key - 1; i >= 0; i--) {
         if (getNextIdx(i) == oldnext) {
           next.set(i, newnext);
@@ -198,8 +201,8 @@ public class FastSparseSetFactory<E> {
 
     public void union(FastSparseSet<E> set) {
 
-      ArrayHolder extdata = set.getData();
-      ArrayHolder intdata = data;
+      IntArray extdata = set.getData();
+      IntArray intdata = data;
       int intlength = intdata.length();
 
       int pointer = 0;
@@ -221,8 +224,8 @@ public class FastSparseSetFactory<E> {
     }
 
     public void intersection(FastSparseSet<E> set) {
-      ArrayHolder extdata = set.getData();
-      ArrayHolder intdata = data;
+      IntArray extdata = set.getData();
+      IntArray intdata = data;
 
       int minlength = Math.min(extdata.length(), intdata.length());
 
@@ -239,8 +242,8 @@ public class FastSparseSetFactory<E> {
 
     public void complement(FastSparseSet<E> set) {
 
-      ArrayHolder extdata = set.getData();
-      ArrayHolder intdata = data;
+      IntArray extdata = set.getData();
+      IntArray intdata = data;
       int extlength = extdata.length();
 
       int pointer = 0;
@@ -268,8 +271,8 @@ public class FastSparseSetFactory<E> {
       if (o == this) return true;
       if (!(o instanceof FastSparseSet)) return false;
 
-      ArrayHolder longdata = ((FastSparseSet)o).getData();
-      ArrayHolder shortdata = data;
+      IntArray longdata = ((FastSparseSet)o).getData();
+      IntArray shortdata = data;
 
       if (data.length() > longdata.length()) {
         shortdata = longdata;
@@ -294,7 +297,7 @@ public class FastSparseSetFactory<E> {
     public int getCardinality() {
 
       boolean found = false;
-      ArrayHolder intdata = data;
+      IntArray intdata = data;
 
       for (int i = intdata.length() - 1; i >= 0; i--) {
         int block = intdata.get(i);
@@ -326,7 +329,7 @@ public class FastSparseSetFactory<E> {
     public Set<E> toPlainSet() {
       HashSet<E> set = new HashSet<>();
 
-      ArrayHolder intdata = data;
+      IntArray intdata = data;
 
       int size = data.length() * 32;
       if (size > colValuesInternal.size()) {
@@ -349,11 +352,11 @@ public class FastSparseSetFactory<E> {
       return toPlainSet().toString();
     }
 
-    private ArrayHolder getData() {
+    private IntArray getData() {
       return data;
     }
 
-    private ArrayHolder getNext() {
+    private IntArray getNext() {
       return next;
     }
 
@@ -364,8 +367,8 @@ public class FastSparseSetFactory<E> {
   public static final class FastSparseSetIterator<E> implements Iterator<E> {
 
     private final PackedMap<E> colValuesInternal;
-    private final ArrayHolder data;
-    private final ArrayHolder next;
+    private final IntArray data;
+    private final IntArray next;
     private final int size;
 
     private int pointer = -1;
@@ -441,12 +444,20 @@ public class FastSparseSetFactory<E> {
 
   }
 
-  private static class ArrayHolder {
+  public static final class IntArray {
     private ArrayTower tower = ArrayTower.None.INSTANCE;
     private int size;
 
-    public ArrayHolder(int size) {
+    public IntArray(int size) {
       this.size = size;
+    }
+
+    public void setNone() {
+      tower = ArrayTower.None.INSTANCE;
+    }
+
+    public String str() {
+      return tower.toString();
     }
 
     public int get(int index) {
@@ -457,29 +468,60 @@ public class FastSparseSetFactory<E> {
       if (!tower.canSet(index, value)) {
         ArrayTower last = tower;
         if (tower instanceof ArrayTower.None) {
-          tower = new ArrayTower.Single(index, value);
+          if (index == 0 && value == 1) {
+            tower = new ArrayTower.Ladder();
+          } else {
+            tower = new ArrayTower.Single(index, value);
+          }
         } else if (tower instanceof ArrayTower.Single single) {
           if (single.value == value) {
             // Same value with multiple indices, use bitset
-            BitSet bits = new BitSet();
-            bits.set(single.index);
-            tower = new ArrayTower.Bits(value, bits);
+//            BitSet bits = new BitSet();
+//            bits.set(single.index);
+//            tower = new ArrayTower.Bits(value, bits);
+
+            // range
+            tower = new ArrayTower.Range(value, single.index, single.index);
           } else {
             // Different values, fall all the way down to array
-            int[] ints = new int[size];
-            ints[single.index] = single.value;
-            tower = new ArrayTower.Array(ints);
+            if (index == single.index || single.value == 0) {
+              // Size is one, just replace the value in single
+              tower = new ArrayTower.Single(index, value);
+            } else {
+              int[] ints = new int[size];
+              ints[single.index] = single.value;
+              tower = new ArrayTower.Array(ints, 1);
+            }
           }
-        } else if (tower instanceof ArrayTower.Bits bits) {
+        }
+//        else if (tower instanceof ArrayTower.Bits bits) {
+//          int[] ints = new int[size];
+//          bits.promote(ints);
+//          tower = new ArrayTower.Array(ints, bits.set);
+//        }
+        else if (tower instanceof ArrayTower.Ladder ladder) {
           int[] ints = new int[size];
-          bits.promote(ints);
-          tower = new ArrayTower.Array(ints);
+          ladder.promote(ints);
+          tower = new ArrayTower.Array(ints, ladder.size + 1);
+        } else if (tower instanceof ArrayTower.Range range) {
+          int[] ints = new int[size];
+          range.promote(ints);
+          tower = new ArrayTower.Array(ints, (range.end - range.start) + 1);
         }
 
         ValidationHelper.validateTrue(last != tower, "must have changed");
       }
 
       tower.set(index, value);
+
+//      if (this.tower instanceof ArrayTower.Bits bits && bits.set == 0) {
+//        this.tower = ArrayTower.None.INSTANCE;
+//      } else
+        if (this.tower instanceof ArrayTower.Array ary) {
+        if (ary.set == 0) {
+          this.tower = ArrayTower.None.INSTANCE;
+        }
+      }
     }
 
     public void resize(int newSize) {
@@ -487,13 +529,29 @@ public class FastSparseSetFactory<E> {
         size = newSize;
 
         if (tower instanceof ArrayTower.Array ary) {
-          tower = new ArrayTower.Array(Arrays.copyOf(ary.ary, newSize));
+          tower = new ArrayTower.Array(Arrays.copyOf(ary.ary, newSize), ary.set);
         }
       }
     }
 
-    public ArrayHolder copy() {
-      ArrayHolder next = new ArrayHolder(size);
+    public int cardApprox() {
+      if (this.tower instanceof ArrayTower.None) {
+        return 0;
+      } else if (this.tower instanceof ArrayTower.Single) {
+        return 1;
+      } else if (this.tower instanceof ArrayTower.Bits bits) {
+        return Math.min(bits.set, 2);
+      } else if (this.tower instanceof ArrayTower.Ladder ladder) {
+        return Math.min(ladder.size + 1, 2);
+      } else if (this.tower instanceof ArrayTower.Array array) {
+        return Math.min(array.set, 2);
+      }
+
+      throw new IllegalStateException("Illegal state!");
+    }
+
+    public IntArray copy() {
+      IntArray next = new IntArray(size);
       next.tower = tower.copy();
 
       return next;
@@ -518,6 +576,12 @@ public class FastSparseSetFactory<E> {
     boolean canSet(int i, int v);
 
     ArrayTower copy();
+
+    default void promote(int[] ary) {
+      for (int i = 0; i < ary.length; i++) {
+        ary[i] = get(i);
+      }
+    }
 
     record None() implements ArrayTower {
       public static final None INSTANCE = new None();
@@ -556,7 +620,53 @@ public class FastSparseSetFactory<E> {
       }
     }
 
-    record Bits(int value, BitSet index) implements ArrayTower {
+    final class Ladder implements ArrayTower {
+      private int size = -1;
+
+      @Override
+      public int get(int i) {
+        return i <= size ? i + 1 : 0;
+      }
+
+      @Override
+      public void set(int i, int v) {
+        // Increase ladder size
+        if (i == size + 1) {
+          if (v == size + 2) {
+            size++;
+          } else if (v == 0) {
+            size--;
+          } else {
+            ValidationHelper.assertTrue(false, "impossible case");
+          }
+        }
+        // else already in ladder, no change
+      }
+
+      @Override
+      public boolean canSet(int i, int v) {
+        return i == size + 1 && (v == size + 2 || v == 0) // new in ladder
+          || i <= size && i + 1 == v // already in ladder
+          ;
+      }
+
+      @Override
+      public ArrayTower copy() {
+        Ladder ladder = new Ladder();
+        ladder.size = size;
+        return ladder;
+      }
+    }
+
+    final class Bits implements ArrayTower {
+      private final int value;
+      private final BitSet index;
+      private int set = 0;
+
+      private Bits(int value, BitSet index) {
+        this.value = value;
+        this.index = index;
+      }
 
       @Override
       public int get(int i) {
@@ -566,7 +676,15 @@ public class FastSparseSetFactory<E> {
       @Override
       public void set(int i, int v) {
         ValidationHelper.assertTrue(v == value || v == 0, "must be");
+        int old = index.get(i) ? value : 0;
+
         index.set(i, v == value);
+
+        if (old == 0 && v != 0) {
+          set++;
+        } else if (old != 0 && v == 0) {
+          set--;
+        }
       }
 
       @Override
@@ -576,17 +694,83 @@ public class FastSparseSetFactory<E> {
 
       @Override
       public ArrayTower copy() {
-        return new ArrayTower.Bits(value, (BitSet) index.clone());
-      }
-
-      public void promote(int[] ary) {
-        for (int i = 0; i < ary.length; i++) {
-          ary[i] = get(i);
-        }
+        Bits bits = new Bits(value, (BitSet) index.clone());
+        bits.set = set;
+        return bits;
       }
     }
 
-    record Array(int[] ary) implements ArrayTower {
+    final class Range implements ArrayTower {
+      private final int value;
+      private int start;
+      private int end;
+
+      public Range(int value, int start, int end) {
+        this.value = value;
+        this.start = start;
+        this.end = end;
+      }
+
+      @Override
+      public int get(int i) {
+        return i >= start && i <= end ? value : 0;
+      }
+
+      @Override
+      public void set(int i, int v) {
+        if (v == 0) {
+          // contract range
+          if (i == start) {
+            start++;
+          } else {
+            end--;
+          }
+        } else {
+          // expand range
+          if (i == start - 1) {
+            start--;
+          } else {
+            end++;
+          }
+        }
+      }
+
+      @Override
+      public boolean canSet(int i, int v) {
+        // TODO: extract common behavior?
+        if (v == value) {
+          // expand range
+          if (i == start - 1) {
+            return true;
+          } else if (i == end + 1) {
+            return true;
+          }
+        } else if (v == 0) {
+          // contract range
+          if (i == start) {
+            return true;
+          } else if (i == end) {
+            return true;
+          }
+        }
+
+        return false;
+      }
+
+      @Override
+      public ArrayTower copy() {
+        return new Range(value, start, end);
+      }
+    }
+
+    final class Array implements ArrayTower {
+      private final int[] ary;
+      private int set;
+
+      private Array(int[] ary, int set) {
+        this.ary = ary;
+        this.set = set;
+      }
 
       @Override
       public int get(int i) {
@@ -595,7 +779,14 @@ public class FastSparseSetFactory<E> {
 
       @Override
       public void set(int i, int v) {
+        int old = ary[i];
         ary[i] = v;
+
+        if (old == 0 && v != 0) {
+          set++;
+        } else if (old != 0 && v == 0) {
+          set--;
+        }
       }
 
       @Override
@@ -605,7 +796,7 @@ public class FastSparseSetFactory<E> {
 
       @Override
       public ArrayTower copy() {
-        return new ArrayTower.Array(Arrays.copyOf(ary, ary.length));
+        return new ArrayTower.Array(Arrays.copyOf(ary, ary.length), set);
       }
     }
   }

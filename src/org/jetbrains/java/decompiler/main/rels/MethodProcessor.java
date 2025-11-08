@@ -88,9 +88,9 @@ public class MethodProcessor implements Runnable {
   public static RootStatement codeToJava(StructClass cl, StructMethod mt, MethodDescriptor md, VarProcessor varProc, LanguageSpec spec) throws IOException {
     CancelationManager.checkCanceled();
 
-    debugCurrentlyDecompiling.set(null);
-    debugCurrentCFG.set(null);
-    debugCurrentDecompileRecord.set(null);
+    debugCurrentlyDecompiling.remove();
+    debugCurrentCFG.remove();
+    debugCurrentDecompileRecord.remove();
 
     boolean isInitializer = CodeConstants.CLINIT_NAME.equals(mt.getName()); // for now static initializer only
     PluginContext pluginContext = PluginContext.getCurrentContext();
@@ -476,6 +476,8 @@ public class MethodProcessor implements Runnable {
     // Debug print the decompile record
     DotExporter.toDotFile(decompileRecord, mt, "decompileRecord", false);
 
+    // Delete unneeded data now that processing is complete
+    ExprProcessor.releaseResources(root, varProc);
     mt.releaseResources();
 
     return root;

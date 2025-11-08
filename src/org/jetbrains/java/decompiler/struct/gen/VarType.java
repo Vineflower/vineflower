@@ -78,7 +78,7 @@ public class VarType {
     ValidationHelper.assertTrue(type == CodeType.NULL || value != null, "Must not be null for non null type");
     this.type = type;
     this.arrayDim = arrayDim;
-    this.value = value;
+    this.value = value == null ? null : value.intern();
     this.typeFamily = typeFamily;
     this.stackSize = stackSize;
   }
@@ -120,7 +120,7 @@ public class VarType {
 
     this.type = type;
     this.arrayDim = arrayDim;
-    this.value = value;
+    this.value = value == null ? null : value.intern();
     this.typeFamily = getFamily(type, arrayDim);
     this.stackSize = getStackSize(type, arrayDim);
   }

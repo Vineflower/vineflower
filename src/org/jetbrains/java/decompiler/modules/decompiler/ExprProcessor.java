@@ -747,6 +747,23 @@ public class ExprProcessor implements CodeConstants {
     }
   }
 
+  public static void releaseResources(RootStatement stat, VarProcessor varProc) {
+    releaseResources(stat);
+
+    varProc.getVarVersions().getTypeProcessor().getUpperBounds().clear();
+  }
+
+  private static void releaseResources(Statement stat) {
+    for (Statement st : stat.getStats()) {
+      releaseResources(st);
+    }
+
+    if (stat instanceof BasicBlockStatement block) {
+      ((ArrayList<Integer>)block.getBlock().getInstrOldOffsets()).trimToSize();
+      ((ArrayList<Exprent>) block.getExprents()).trimToSize();
+    }
+  }
+
   public static String getTypeName(VarType type) {
     return getTypeName(type, true);
   }
