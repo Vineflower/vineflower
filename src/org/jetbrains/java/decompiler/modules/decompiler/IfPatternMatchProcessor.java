@@ -167,6 +167,7 @@ public final class IfPatternMatchProcessor {
     if (right instanceof FunctionExprent function && function.getFuncType() == FunctionType.CAST) {
       casted = function.getLstOperands().get(0);
     } else if (right instanceof VarExprent variable) {
+      // If the pattern is the same type or a super type then there is no cast
       casted = variable;
     } else {
       return false;
@@ -338,7 +339,7 @@ public final class IfPatternMatchProcessor {
     //
     // [1]:
     // try {
-    // stackCVar = <stackVar>.<component>();
+    //   stackCVar = <stackVar>.<component>();
     // } catch (Throwable t) {
     //   throw new MatchException(...);
     // }
@@ -399,7 +400,7 @@ public final class IfPatternMatchProcessor {
           boolean ok = false;
           BasicBlockStatement head = next.getBasichead();
           if (head.getExprents().size() >= 2) {
-            // look for "exVar = stackCVar;" to remove it
+            // look for "exVar = stackCVar;" and "realVar = exVar;" to remove it
             if (head.getExprents().get(0) instanceof AssignmentExprent assign && assign.getLeft() instanceof VarExprent exVar) {
               if (assign.getRight().equals(foundVar)) {
                 if (head.getExprents().get(1) instanceof AssignmentExprent realAssign
@@ -421,7 +422,7 @@ public final class IfPatternMatchProcessor {
                     }
                   }
 
-                  // If we haven't destroyed it, we should remove the "realVar = exVar;" anyway.
+                  // If we haven't destroyed it, we should remove the "exVar = stackCVar" and "realVar = exVar;" anyway.
                   // Mark it as such.
                   if (!destroyed) {
                     List<Exprent> toRemove = remove.computeIfAbsent(head, block -> new ArrayList<>());

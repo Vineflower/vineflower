@@ -128,6 +128,7 @@ public final class SwitchHelper {
         }
       }
 
+      boolean nullable = false;
       List<List<Exprent>> realCaseValues = new ArrayList<>(caseValues.size());
       for (List<Exprent> caseValue : caseValues) {
         List<Exprent> values = new ArrayList<>(caseValue.size());
@@ -147,6 +148,7 @@ public final class SwitchHelper {
                   // check for -1, used by nullable switches for the null branch
                   if (intLabel == -1) {
                     values.add(new ConstExprent(VarType.VARTYPE_NULL, null, null));
+                    nullable = true;
                     continue;
                   }
                   // other values can show up in a `tableswitch`, such as in [-1, fall-through synthetic 0, 1, 2, ...]
@@ -194,15 +196,17 @@ public final class SwitchHelper {
         }
       }
 
+      // Java 17 preview uses a switch map and creates a synthetic variable if there is a null case
       BasicBlockStatement head = switchStatement.getBasichead();
-      if (head.getExprents().size() > 0
+      if (nullable
+          && head.getExprents().size() > 0
           && head.getExprents().get(head.getExprents().size() - 1) instanceof AssignmentExprent assignment
           && assignment.getLeft() instanceof VarExprent tempVar
-          && assignment.getRight() instanceof VarExprent realVar
           && switchHeadExprent.getValue() instanceof VarExprent usedVar
+          && tempVar.equalsVersions(usedVar)
           && !tempVar.isVarReferenced(root, usedVar)) {
         head.getExprents().remove(head.getExprents().size() - 1);
-        switchHeadExprent.setValue(realVar);
+        switchHeadExprent.setValue(assignment.getRight());
       }
 
       return true;

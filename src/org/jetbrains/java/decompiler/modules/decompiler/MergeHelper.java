@@ -766,6 +766,7 @@ public class MergeHelper {
           }
         }
 
+        // Check that the array being accessed is the same as the one used for getting the length
         if (!array.equalsVersions(funcRight.getLstOperands().get(0))) {
           return false;
         }
@@ -790,10 +791,12 @@ public class MergeHelper {
         firstData.getExprents().remove(firstDoExprent);
         lastData.getExprents().remove(lastExprent);
 
-        if (initExprents[2] != null && initExprents[2].getLeft() instanceof VarExprent && stat.getIncExprent() instanceof VarExprent inc) {
+        // Check for the variable that the for each loop creates to store the array
+        // If it exists then and nothing else uses the variable then remove the assignment
+        if (initExprents[2] != null && initExprents[2].getLeft() instanceof VarExprent && stat.getIncExprent() instanceof VarExprent forArray) {
           VarExprent copy = (VarExprent)initExprents[2].getLeft();
 
-          if (copy.getIndex() == array.getIndex() && copy.getVersion() == array.getVersion() && !copy.isVarReferenced(stat.getParent(), inc)) {
+          if (copy.getIndex() == array.getIndex() && copy.getVersion() == array.getVersion() && !copy.isVarReferenced(stat.getParent(), forArray)) {
             preData.getExprents().remove(initExprents[2]);
             initExprents[2].getRight().addBytecodeOffsets(initExprents[2].bytecode);
             initExprents[2].getRight().addBytecodeOffsets(stat.getIncExprent().bytecode);
