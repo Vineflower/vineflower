@@ -502,6 +502,7 @@ public class VarExprent extends Exprent implements Pattern {
 
   @Override
   public CheckTypesResult checkExprTypeBounds() {
+    // TODO: variables should not bound themelves! Find another way to introduce bounds!
     if (this.lvt != null) {
       CheckTypesResult ret = new CheckTypesResult();
       ret.addExprLowerBound(this, this.lvt.getVarType());

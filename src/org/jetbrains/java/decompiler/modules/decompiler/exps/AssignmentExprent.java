@@ -70,8 +70,16 @@ public class AssignmentExprent extends Exprent {
       result.addExprLowerBound(right, VarType.findFamilyBottom(typeLeft.typeFamily));
     } else if (typeLeft.typeFamily.isLesser(typeRight.typeFamily)) {
       result.addExprLowerBound(left, typeRight);
-    }
-    else {
+    } else {
+      // Ternaries with constants always return int, but our own type might be more restrictive (e.g., byte v = (byte) b ? 0 : 1).
+      // In this case, treat it as bytechar instead of int to avoid blowing past the left type in the lattice and creating
+      // improper bounds.
+      if (right instanceof FunctionExprent func && func.getFuncType() == FunctionExprent.FunctionType.TERNARY) {
+        if (VarType.VARTYPE_INT.equals(typeRight)) {
+          typeRight = VarType.VARTYPE_BYTECHAR;
+        }
+      }
+
       result.addExprLowerBound(left, VarType.join(typeLeft, typeRight));
     }
 

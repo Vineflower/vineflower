@@ -46,12 +46,12 @@ public class VarTypeProcessor {
     }
 
     for (VarVersionPair p : lowerBounds.keySet()) {
-      VarType min = lowerBounds.get(p);
-      VarType max = upperBounds.get(p);
+      VarType lower = lowerBounds.get(p);
+      VarType upper = upperBounds.get(p);
 
-      if (max != null) {
-        if (min.typeFamily != TypeFamily.OBJECT && min.higherInLatticeThan(max)) {
-          ValidationHelper.validateTrue(false, "min type > max type");
+      if (upper != null) {
+        if (lower.typeFamily != TypeFamily.OBJECT && lower.higherInLatticeThan(upper)) {
+          ValidationHelper.validateTrue(false, "lower bound " + lower + " > upper bound " + upper + " for var " + p);
         }
       }
     }
@@ -91,7 +91,8 @@ public class VarTypeProcessor {
       if (vars != null) {
         for (VarExprent var : vars) {
           lowerBounds.put(new VarVersionPair(var.getIndex(), 1), var.getVarType());
-          upperBounds.put(new VarVersionPair(var.getIndex(), 1), var.getVarType());
+          // TODO: this can break processing by immediately setting the upper bound to BOTTOM for record patterns
+          // upperBounds.put(new VarVersionPair(var.getIndex(), 1), var.getVarType());
         }
       }
 
@@ -178,13 +179,13 @@ public class VarTypeProcessor {
 
         if (!newType.typeFamily.intOrBool() || !constType.typeFamily.intOrBool()) {
           return true;
-        }
-        else if (newType.typeFamily == TypeFamily.INTEGER) {
+        } else if (newType.typeFamily == TypeFamily.INTEGER) {
           VarType minInteger = new ConstExprent((Integer)constExpr.getValue(), false, null).getConstType();
           if (minInteger.higherInLatticeThan(newType)) {
             newType = minInteger;
           }
         }
+
         return changeVarExprentType(exprent, newType, bound, new VarVersionPair(exprent.id, -1));
       case VAR:
         return changeVarExprentType(exprent, newType, bound, new VarVersionPair((VarExprent) exprent));
@@ -244,7 +245,9 @@ public class VarTypeProcessor {
       if (currentMaxType == null || newType.typeFamily.isLesser(currentMaxType.typeFamily)) {
         newMaxType = newType;
       } else if (newType.typeFamily.isGreater(currentMaxType.typeFamily)) {
-        return true;
+        // TODO: this return seems to do nothing?
+//        return true;
+        newMaxType = newType;
       } else {
         // Already have a type? Find the lower of the two; the upper bound falls.
         newMaxType = VarType.meet(currentMaxType, newType);
