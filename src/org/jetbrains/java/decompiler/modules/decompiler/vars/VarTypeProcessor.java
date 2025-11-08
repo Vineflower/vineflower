@@ -36,6 +36,9 @@ public class VarTypeProcessor {
   }
 
   public void calculateVarTypes(RootStatement root, DirectGraph graph) {
+    lowerBounds.clear();
+    upperBounds.clear();
+
     setInitVars(root);
 
     resetExprentTypes(graph);

@@ -152,7 +152,7 @@ public class AnnotationExprent extends Exprent {
   }
 
   @Override
-  public void getBytecodeRange(BitSet values) {
+  public void getBytecodeRange(BytecodeRange values) {
     measureBytecode(values, parValues);
     measureBytecode(values);
   }

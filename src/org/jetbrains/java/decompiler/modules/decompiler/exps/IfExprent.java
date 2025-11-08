@@ -56,7 +56,7 @@ public class IfExprent extends Exprent {
 
   private Exprent condition;
 
-  public IfExprent(Type ifType, ListStack<Exprent> stack, BitSet bytecodeOffsets) {
+  public IfExprent(Type ifType, ListStack<Exprent> stack, BytecodeRange bytecodeOffsets) {
     this(null, bytecodeOffsets);
 
     if (ifType.ordinal() <= Type.LE.ordinal()) {
@@ -69,7 +69,7 @@ public class IfExprent extends Exprent {
     condition = ifType.functionType == null ? stack.pop() : new FunctionExprent(ifType.functionType, stack, bytecodeOffsets);
   }
 
-  private IfExprent(Exprent condition, BitSet bytecodeOffsets) {
+  private IfExprent(Exprent condition, BytecodeRange bytecodeOffsets) {
     super(Exprent.Type.IF);
     this.condition = condition;
 
@@ -132,7 +132,7 @@ public class IfExprent extends Exprent {
   }
 
   @Override
-  public void getBytecodeRange(BitSet values) {
+  public void getBytecodeRange(BytecodeRange values) {
     measureBytecode(values, condition);
     measureBytecode(values);
   }

@@ -95,7 +95,7 @@ public class PatternExprent extends Exprent implements Pattern {
   }
 
   @Override
-  public void getBytecodeRange(BitSet values) {
+  public void getBytecodeRange(BytecodeRange values) {
     measureBytecode(values, exprents);
     measureBytecode(values);
   }

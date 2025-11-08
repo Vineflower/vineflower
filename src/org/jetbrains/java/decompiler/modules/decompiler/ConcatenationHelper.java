@@ -180,7 +180,7 @@ public final class ConcatenationHelper {
     return createConcatExprent(lstOperands, expr.bytecode);
   }
 
-  private static Exprent createConcatExprent(List<Exprent> lstOperands, BitSet bytecode) {
+  private static Exprent createConcatExprent(List<Exprent> lstOperands, Exprent.BytecodeRange bytecode) {
     // build exprent to return
     Exprent func = lstOperands.get(0);
 
