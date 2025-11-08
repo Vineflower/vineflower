@@ -40,15 +40,15 @@ public class FieldExprent extends Exprent {
   private boolean isQualifier = false;
   private boolean wasCondy = false;
 
-  public FieldExprent(LinkConstant cn, Exprent instance, BitSet bytecodeOffsets) {
+  public FieldExprent(LinkConstant cn, Exprent instance, BytecodeRange bytecodeOffsets) {
     this(cn.elementname, cn.classname, instance == null, instance, FieldDescriptor.parseDescriptor(cn.descriptor), bytecodeOffsets);
   }
 
-  public FieldExprent(String name, String classname, boolean isStatic, Exprent instance, FieldDescriptor descriptor, BitSet bytecodeOffsets) {
+  public FieldExprent(String name, String classname, boolean isStatic, Exprent instance, FieldDescriptor descriptor, BytecodeRange bytecodeOffsets) {
     this(name, classname, isStatic, instance, descriptor, bytecodeOffsets, false, false);
   }
 
-  public FieldExprent(String name, String classname, boolean isStatic, Exprent instance, FieldDescriptor descriptor, BitSet bytecodeOffsets, boolean forceQualified, boolean wasCondy) {
+  public FieldExprent(String name, String classname, boolean isStatic, Exprent instance, FieldDescriptor descriptor, BytecodeRange bytecodeOffsets, boolean forceQualified, boolean wasCondy) {
     super(Type.FIELD);
     this.name = name;
     this.classname = classname;
@@ -284,7 +284,7 @@ public class FieldExprent extends Exprent {
   }
 
   @Override
-  public void getBytecodeRange(BitSet values) {
+  public void getBytecodeRange(BytecodeRange values) {
     measureBytecode(values, instance);
     measureBytecode(values);
   }

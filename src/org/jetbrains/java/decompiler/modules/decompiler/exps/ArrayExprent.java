@@ -15,7 +15,7 @@ public class ArrayExprent extends Exprent {
   private Exprent index;
   private final VarType hardType;
 
-  public ArrayExprent(Exprent array, Exprent index, VarType hardType, BitSet bytecodeOffsets) {
+  public ArrayExprent(Exprent array, Exprent index, VarType hardType, BytecodeRange bytecodeOffsets) {
     super(Type.ARRAY);
     this.array = array;
     this.index = index;
@@ -130,7 +130,7 @@ public class ArrayExprent extends Exprent {
   }
   
   @Override
-  public void getBytecodeRange(BitSet values) {
+  public void getBytecodeRange(BytecodeRange values) {
     measureBytecode(values, array);
     measureBytecode(values, index);
     measureBytecode(values);

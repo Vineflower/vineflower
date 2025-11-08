@@ -21,7 +21,7 @@ public class MonitorExprent extends Exprent {
   private final Type monType;
   private Exprent value;
 
-  public MonitorExprent(Type monType, Exprent value, BitSet bytecodeOffsets) {
+  public MonitorExprent(Type monType, Exprent value, BytecodeRange bytecodeOffsets) {
     super(Exprent.Type.MONITOR);
     this.monType = monType;
     this.value = value;
@@ -91,7 +91,7 @@ public class MonitorExprent extends Exprent {
   }
 
   @Override
-  public void getBytecodeRange(BitSet values) {
+  public void getBytecodeRange(BytecodeRange values) {
     measureBytecode(values, value);
     measureBytecode(values);
   }

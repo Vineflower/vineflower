@@ -68,7 +68,7 @@ public class YieldExprent extends Exprent {
   }
 
   @Override
-  public void getBytecodeRange(BitSet values) {
+  public void getBytecodeRange(BytecodeRange values) {
     measureBytecode(values, this.content);
     measureBytecode(values);
   }
