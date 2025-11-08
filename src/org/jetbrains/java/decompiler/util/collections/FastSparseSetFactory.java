@@ -474,7 +474,7 @@ public class FastSparseSetFactory<E> {
             tower = new ArrayTower.Single(index, value);
           }
         } else if (tower instanceof ArrayTower.Single single) {
-          if (single.value == value) {
+          if (single.value == value && (single.index == index + 1 || single.index == index - 1)) {
             // Same value with multiple indices, use bitset
 //            BitSet bits = new BitSet();
 //            bits.set(single.index);
@@ -517,9 +517,15 @@ public class FastSparseSetFactory<E> {
 //      if (this.tower instanceof ArrayTower.Bits bits && bits.set == 0) {
 //        this.tower = ArrayTower.None.INSTANCE;
 //      } else
-        if (this.tower instanceof ArrayTower.Array ary) {
+      if (this.tower instanceof ArrayTower.Array ary) {
         if (ary.set == 0) {
           this.tower = ArrayTower.None.INSTANCE;
+        }
+      } else if (this.tower instanceof ArrayTower.Range range) {
+        if (range.end < range.start) {
+          this.tower = ArrayTower.None.INSTANCE;
+        } else if (range.end == range.start) {
+          this.tower = new ArrayTower.Single(range.start, range.value);
         }
       }
     }
@@ -600,6 +606,11 @@ public class FastSparseSetFactory<E> {
       public ArrayTower copy() {
         return INSTANCE;
       }
+
+      @Override
+      public String toString() {
+        return "Nil";
+      }
     }
 
     record Single(int index, int value) implements ArrayTower {
@@ -617,6 +628,11 @@ public class FastSparseSetFactory<E> {
       @Override
       public ArrayTower copy() {
         return new Single(index, value);
+      }
+
+      @Override
+      public String toString() {
+        return value + "@" + index;
       }
     }
 
@@ -655,6 +671,18 @@ public class FastSparseSetFactory<E> {
         Ladder ladder = new Ladder();
         ladder.size = size;
         return ladder;
+      }
+
+      @Override
+      public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < size; i++) {
+          if (i > 0) {
+            sb.append(",");
+          }
+          sb.append(i + 1);
+        }
+        return "Ladder:" + sb.toString();
       }
     }
 
@@ -697,6 +725,11 @@ public class FastSparseSetFactory<E> {
         Bits bits = new Bits(value, (BitSet) index.clone());
         bits.set = set;
         return bits;
+      }
+
+      @Override
+      public String toString() {
+        return value + "@" + index;
       }
     }
 
@@ -761,6 +794,11 @@ public class FastSparseSetFactory<E> {
       public ArrayTower copy() {
         return new Range(value, start, end);
       }
+
+      @Override
+      public String toString() {
+        return value + "@[" + start + "-" + end + "]";
+      }
     }
 
     final class Array implements ArrayTower {
@@ -797,6 +835,11 @@ public class FastSparseSetFactory<E> {
       @Override
       public ArrayTower copy() {
         return new ArrayTower.Array(Arrays.copyOf(ary, ary.length), set);
+      }
+
+      @Override
+      public String toString() {
+        return Arrays.toString(ary);
       }
     }
   }
