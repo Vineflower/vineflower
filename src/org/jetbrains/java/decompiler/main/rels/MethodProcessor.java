@@ -19,6 +19,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.decompose.DomHelper;
 import org.jetbrains.java.decompiler.modules.code.ExceptionDeobfuscator;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.struct.StructClass;
@@ -261,6 +262,12 @@ public class MethodProcessor implements Runnable {
 
     // Main loop
     while (true) {
+      if (root.isSimple() && root.getFirst().getExprents().size() <= 1) {
+        LabelHelper.identifyLabels(root);
+        decompileRecord.add("IdentifyLabels", root);
+        break;
+      }
+
       decompileRecord.incrementMainLoop();
       decompileRecord.add("Start", root);
 
@@ -321,11 +328,6 @@ public class MethodProcessor implements Runnable {
       // Apply post processing transformations
       if (SecondaryFunctionsHelper.identifySecondaryFunctions(root, varProc)) {
         decompileRecord.add("IdentifySecondary", root);
-        continue;
-      }
-
-      if (IntersectionCastProcessor.makeIntersectionCasts(root)) {
-        decompileRecord.add("intersectionCasts", root);
         continue;
       }
 
@@ -461,6 +463,10 @@ public class MethodProcessor implements Runnable {
     // Hide empty default edges caused by switch statement processing
     if (root.hasSwitch() && LabelHelper.hideDefaultSwitchEdges(root)) {
       decompileRecord.add("HideEmptyDefault", root);
+    }
+
+    if (IntersectionCastProcessor.makeIntersectionCasts(root)) {
+      decompileRecord.add("intersectionCasts", root);
     }
 
     if (GenericsProcessor.qualifyChains(root)) {
