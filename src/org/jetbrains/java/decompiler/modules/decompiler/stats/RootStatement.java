@@ -75,6 +75,10 @@ public final class RootStatement extends Statement {
 
   public void buildContentFlags() {
     buildContentFlagsStat(this);
+
+    if (!flags.hasLoops && !flags.hasSwitch && !flags.hasTryCatch && first instanceof BasicBlockStatement) {
+      flags.simple = true;
+    }
   }
 
   private void buildContentFlagsStat(Statement stat) {
@@ -103,6 +107,10 @@ public final class RootStatement extends Statement {
     return this.flags.hasSwitch;
   }
 
+  public boolean isSimple() {
+    return this.flags.simple;
+  }
+
   @Override
   public StartEndPair getStartEndRange() {
     return StartEndPair.join(first.getStartEndRange(), dummyExit != null ? dummyExit.getStartEndRange() : null);
@@ -112,5 +120,6 @@ public final class RootStatement extends Statement {
     private boolean hasTryCatch;
     private boolean hasLoops;
     private boolean hasSwitch;
+    private boolean simple;
   }
 }
