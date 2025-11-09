@@ -31,6 +31,7 @@ public final class SynchronizedHelper {
             if (ass.getLeft() instanceof VarExprent) {
               VarExprent var = (VarExprent)ass.getLeft();
 
+              // Check for synthetic variable assignment
               if (var.equals(mon.getValue()) && !var.isVarReferenced(stat.getParent(), (VarExprent) mon.getValue())) {
                 sync.getFirst().getExprents().remove(e);
                 mon.replaceExprent(mon.getValue(), ass.getRight());

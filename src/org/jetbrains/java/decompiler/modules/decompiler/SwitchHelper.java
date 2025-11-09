@@ -318,6 +318,9 @@ public final class SwitchHelper {
         .filter(e -> switchStatement.containsStatement(e.getSource()) && e.getSource() != switchStatement.getFirst())
         .forEach(e -> e.getSource().removeSuccessor(e));
 
+      // Check for the synthetic variable 
+      // If the switch is nullable it is the 2nd to last exprent in the basic head of the null check
+      // If the switch is not nullable it is the last exprent in the basic head of the null check due to a different synthetic variable getting removed above
       BasicBlockStatement head = nullable ? containingNullCheck.getBasichead() : switchStatement.getBasichead();
       if (head.getExprents().size() >= (nullable ? 2 : 1)
           && head.getExprents().get(head.getExprents().size() - (nullable ? 2 : 1)) instanceof AssignmentExprent assignment
@@ -326,7 +329,9 @@ public final class SwitchHelper {
           && tmpVar.equalsVersions(switchHead.getValue())
           && !tmpVar.isVarReferenced(following.getParent(), (VarExprent) switchHead.getValue())) {
         switchHead.replaceExprent(switchHead.getValue(), assignment.getRight());
-        head.getExprents().remove(head.getExprents().size() - 1);
+        if (!nullable) {
+          head.getExprents().remove(head.getExprents().size() - 1);
+        }
       }
 
       return true;

@@ -326,14 +326,15 @@ public final class SwitchPatternMatchProcessor {
     // switch (...) {
 
     Exprent oldSelector = realSelector;
-    // inline head
     List<Exprent> basicHead = stat.getBasichead().getExprents();
+    // In the case of a guarded switch the synthetic variable assignment and requireNonNull is in the previous statement
     if (basicHead.isEmpty()) {
       List<StatEdge> edges = stat.getPredecessorEdges(StatEdge.TYPE_REGULAR);
       if (edges.size() == 1 && edges.get(0).getSource() instanceof BasicBlockStatement block) {
         basicHead = block.getExprents();
       }
     }
+    // inline head
     if (realSelector instanceof VarExprent var && basicHead != null && basicHead.size() >= 1) {
       if (basicHead.get(basicHead.size() - 1) instanceof AssignmentExprent assignment && assignment.getLeft() instanceof VarExprent assigned) {
         if (var.equals(assigned) && !var.isVarReferenced(root,
