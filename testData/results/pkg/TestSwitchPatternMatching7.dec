@@ -13,7 +13,6 @@ public class TestSwitchPatternMatching7 {
 class 'pkg/TestSwitchPatternMatching7' {
    method 'test (Ljava/lang/Object;)Ljava/lang/String;' {
       0      4
-      4      4
       b      4
       c      4
       d      4

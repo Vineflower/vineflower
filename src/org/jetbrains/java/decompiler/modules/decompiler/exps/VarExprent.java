@@ -60,6 +60,7 @@ public class VarExprent extends Exprent implements Pattern {
   private boolean writingPattern = false;
   private VarType boundType;
   private boolean isIntersectionType = false;
+  private boolean isCatchTempVar = false;
 
   public VarExprent(int index, VarType varType, VarProcessor processor) {
     this(index, varType, processor, null);
@@ -113,6 +114,7 @@ public class VarExprent extends Exprent implements Pattern {
     var.setStack(stack);
     var.setLVT(lvt);
     var.setEffectivelyFinal(isEffectivelyFinal);
+    var.setCatchTempVar(isCatchTempVar);
     return var;
   }
 
@@ -585,6 +587,14 @@ public class VarExprent extends Exprent implements Pattern {
 
   public boolean isIntersectionType() {
     return this.isIntersectionType;
+  }
+
+  public void setCatchTempVar(boolean catchVar) {
+    this.isCatchTempVar = catchVar;
+  }
+
+  public boolean isCatchTempVar() {
+    return this.isCatchTempVar;
   }
 
   // *****************************************************************************

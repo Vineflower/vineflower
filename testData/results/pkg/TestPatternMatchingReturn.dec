@@ -23,7 +23,6 @@ public class TestPatternMatchingReturn {
 class 'pkg/TestPatternMatchingReturn' {
    method 'getPattern (Ljava/lang/Object;)Ljava/lang/String;' {
       0      4
-      2      4
       3      4
       4      4
       5      4

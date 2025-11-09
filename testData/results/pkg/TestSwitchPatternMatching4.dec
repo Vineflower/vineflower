@@ -12,7 +12,6 @@ public class TestSwitchPatternMatching4 {
 class 'pkg/TestSwitchPatternMatching4' {
    method 'test (Ljava/lang/Object;)V' {
       0      4
-      9      4
       10      4
       11      4
       12      4

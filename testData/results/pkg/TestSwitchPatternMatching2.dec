@@ -32,7 +32,6 @@ public class TestSwitchPatternMatching2 {
 class 'pkg/TestSwitchPatternMatching2' {
    method 'testTriangle (Lpkg/TestSwitchPatternMatching2$Shape;)V' {
       0      4
-      4      4
       b      4
       c      4
       d      4

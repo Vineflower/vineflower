@@ -429,7 +429,7 @@ public class StackVarsProcessor {
 
     // stack variables only
     if ((!left.isStack() && !options.inlineRegularVars) &&
-        (!(right instanceof VarExprent) || ((VarExprent)right).isStack())) { // special case catch(... ex)
+        (!(right instanceof VarExprent variable) || !variable.isCatchTempVar())) { // special case catch(... ex)
       setRet(ret, -1, changed);
       return;
     }

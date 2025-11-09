@@ -163,11 +163,15 @@ public final class IfPatternMatchProcessor {
   }
 
   private static boolean findPatternMatchingInstanceof(Exprent left, Exprent right, Exprent source, Exprent target, Statement branch, FunctionExprent iof, Statement head) {
-    if (!(right instanceof FunctionExprent function) || function.getFuncType() != FunctionType.CAST) {
+    Exprent casted;
+    if (right instanceof FunctionExprent function && function.getFuncType() == FunctionType.CAST) {
+      casted = function.getLstOperands().get(0);
+    } else if (right instanceof VarExprent variable) {
+      // If the pattern is the same type or a super type then there is no cast
+      casted = variable;
+    } else {
       return false;
     }
-
-    Exprent casted = right.getAllExprents().get(0);
 
     // Check if the exprent being casted is the exprent on the left side of the instanceof
     if (!source.equals(casted)) {
@@ -296,7 +300,7 @@ public final class IfPatternMatchProcessor {
     }
 
     // Ending exprents we may want to remove
-    Map<BasicBlockStatement, Exprent> remove = new HashMap<>();
+    Map<BasicBlockStatement, List<Exprent>> remove = new HashMap<>();
     // Statements that ought to be destroyed as a result of creating the pattern
     List<Statement> toDestroy = new ArrayList<>();
 
@@ -318,14 +322,14 @@ public final class IfPatternMatchProcessor {
       st.replaceWithEmpty();
     }
 
-    for (Map.Entry<BasicBlockStatement, Exprent> e : remove.entrySet()) {
-      e.getKey().getExprents().remove(e.getValue());
+    for (Map.Entry<BasicBlockStatement, List<Exprent>> e : remove.entrySet()) {
+      e.getKey().getExprents().removeAll(e.getValue());
     }
 
     return pattern.exp;
   }
 
-  private static PatternData getChildPattern(StructClass cl, Exprent storeVariable, VarType type, Statement branch, int stIdx, List<Statement> toDestroy, Map<BasicBlockStatement, Exprent> remove) {
+  private static PatternData getChildPattern(StructClass cl, Exprent storeVariable, VarType type, Statement branch, int stIdx, List<Statement> toDestroy, Map<BasicBlockStatement, List<Exprent>> remove) {
     // Iteratively go through the sequence to see if it extracts from the record
 
     // The general strategy is to identify an "extracting try" [1] for each record component.
@@ -335,13 +339,14 @@ public final class IfPatternMatchProcessor {
     //
     // [1]:
     // try {
-    //   exVar = <stackVar>.<component>();
+    //   stackCVar = <stackVar>.<component>();
     // } catch (Throwable t) {
     //   throw new MatchException(...);
     // }
     //
     // [2]:
-    // realVar = exVar;
+    // exVar = stackCVar;
+    // realVar = exVar
     // <stackVar> = <originalVar>;
 
     if (cl == null || cl.getRecordComponents() == null) {
@@ -371,7 +376,7 @@ public final class IfPatternMatchProcessor {
             // var<x> = var10000.<comp>()
             if (inner.getExprents().size() == 1 && inner.getExprents().get(0) instanceof AssignmentExprent assign) {
               // Make sure the invocation matches the record component
-              if (assign.getLeft() instanceof VarExprent var && assign.getRight() instanceof InvocationExprent invok && invok.getClassname().equals(type.value)) {
+              if (assign.getLeft() instanceof VarExprent var && var.isStack() && assign.getRight() instanceof InvocationExprent invok && invok.getClassname().equals(type.value)) {
                 if (invok.getName().equals(c.getName())) {
                   // Found one!
                   foundVar = var;
@@ -393,28 +398,37 @@ public final class IfPatternMatchProcessor {
           next = branch.getStats().get(stIdx);
 
           boolean ok = false;
-          if (next instanceof BasicBlockStatement bb && next.getExprents().size() > 0) {
-            // look for "realVar = exVar;" to remove it
-            if (next.getExprents().get(0) instanceof AssignmentExprent assign && assign.getLeft() instanceof VarExprent var) {
+          BasicBlockStatement head = next.getBasichead();
+          if (head.getExprents().size() >= 2) {
+            // look for "exVar = stackCVar;" and "realVar = exVar;" to remove it
+            if (head.getExprents().get(0) instanceof AssignmentExprent assign && assign.getLeft() instanceof VarExprent exVar) {
               if (assign.getRight().equals(foundVar)) {
-                vars.put(c, var);
+                if (head.getExprents().get(1) instanceof AssignmentExprent realAssign
+                    && realAssign.getLeft() instanceof VarExprent realVar
+                    && exVar.equals(realAssign.getRight())
+                    && !exVar.isVarReferenced(branch, (VarExprent) realAssign.getRight())) {
+                  vars.put(c, realVar);
 
-                ok = true;
+                  ok = true;
 
-                // Check for "<stackVar> = <originalVar>;"
-                // If that's the only other thing in the statement, then we can destroy it!
-                boolean destroyed = false;
-                if (next.getExprents().size() == 2) {
-                  if (next.getExprents().get(1) instanceof AssignmentExprent nAssign && nAssign.getRight().equals(storeVariable)) {
-                    toDestroy.add(next);
+                  // Check for "<stackVar> = <originalVar>;"
+                  // If that's the only other thing in the statement, then we can destroy it!
+                  boolean destroyed = false;
+                  if (head.getExprents().size() == 3) {
+                    if (head.getExprents().get(2) instanceof AssignmentExprent nAssign && nAssign.getRight().equals(storeVariable)) {
+                      toDestroy.add(head);
 
-                    destroyed = true;
+                      destroyed = true;
+                    }
                   }
-                }
 
-                // If we haven't destroyed it, we should remove the "realVar = exVar;" anyway. Mark it as such.
-                if (!destroyed) {
-                  remove.put(bb, assign);
+                  // If we haven't destroyed it, we should remove the "exVar = stackCVar" and "realVar = exVar;" anyway.
+                  // Mark it as such.
+                  if (!destroyed) {
+                    List<Exprent> toRemove = remove.computeIfAbsent(head, block -> new ArrayList<>());
+                    toRemove.add(assign);
+                    toRemove.add(realAssign);
+                  }
                 }
               }
             }
@@ -476,7 +490,7 @@ public final class IfPatternMatchProcessor {
     // Check for any nested record patterns
     for (PatternStore patternStore : patternStores) {
       List<Statement> tmpToDestroy = new ArrayList<>();
-      Map<BasicBlockStatement, Exprent> tmpRemove = new HashMap<>();
+      Map<BasicBlockStatement, List<Exprent>> tmpRemove = new HashMap<>();
       PatternData patternData = getChildPattern(patternStore.cl, patternStore.store, patternStore.type, branch, stIdx, tmpToDestroy, tmpRemove);
       if (patternData != null) {
         vars.put(patternStore.component, patternData.exp);

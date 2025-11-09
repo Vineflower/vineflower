@@ -35,7 +35,6 @@ public class TestSwitchPatternMatching14 {
 class 'pkg/TestSwitchPatternMatching14' {
    method 'test (Lpkg/TestSwitchPatternMatching14$Shape;)V' {
       0      4
-      4      4
       b      4
       c      4
       d      4

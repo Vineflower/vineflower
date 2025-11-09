@@ -235,7 +235,6 @@ class 'pkg/TestSwitchOnEnumJ21' {
 
    method 'test3 (Lpkg/TestSwitchOnEnumJ21$TestEnum;)I' {
       0      23
-      4      23
       b      23
       c      23
       d      23
@@ -274,7 +273,6 @@ class 'pkg/TestSwitchOnEnumJ21' {
 
    method 'test4 (Lext/TestEnum2;)I' {
       0      32
-      4      32
       b      32
       c      32
       d      32
@@ -514,7 +512,6 @@ class 'pkg/TestSwitchOnEnumJ21' {
 
    method 'testEnumSwitchWithCastYields (Lpkg/TestSwitchOnEnumJ21$TestEnum;Ljava/util/function/Function;)Ljava/lang/Object;' {
       0      140
-      5      140
       d      140
       e      140
       f      140
