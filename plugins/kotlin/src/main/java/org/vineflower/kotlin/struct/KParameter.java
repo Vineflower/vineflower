@@ -1,16 +1,16 @@
 package org.vineflower.kotlin.struct;
 
+import kotlin.metadata.internal.metadata.deserialization.Flags;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.vineflower.kotlin.KotlinWriter;
-import org.vineflower.kotlin.util.ProtobufFlags;
 
-public record KParameter(ProtobufFlags.ValueParameter flags, String name, KType type, KType varargType, int typeId) {
+public record KParameter(int flags, String name, KType type, KType varargType, int typeId) implements Flags {
   public void stringify(int indent, TextBuffer buf) {
-    if (flags.isCrossinline) {
+    if (IS_CROSSINLINE.get(flags)) {
       buf.append("crossinline ");
     }
 
-    if (flags.isNoinline) {
+    if (IS_NOINLINE.get(flags)) {
       buf.append("noinline ");
     }
 

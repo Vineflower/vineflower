@@ -2,6 +2,7 @@
 package org.vineflower.kotlin;
 
 import kotlin.metadata.internal.metadata.ProtoBuf;
+import kotlin.metadata.internal.metadata.deserialization.Flags;
 import net.fabricmc.fernflower.api.IFabricJavadocProvider;
 import org.jetbrains.java.decompiler.api.plugin.StatementWriter;
 import org.jetbrains.java.decompiler.code.CodeConstants;
@@ -32,19 +33,21 @@ import org.jetbrains.java.decompiler.struct.gen.generics.GenericClassDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericFieldDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericMethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericsChecker;
-import org.jetbrains.java.decompiler.util.*;
+import org.jetbrains.java.decompiler.util.InterpreterUtil;
+import org.jetbrains.java.decompiler.util.Key;
+import org.jetbrains.java.decompiler.util.TextBuffer;
+import org.jetbrains.java.decompiler.util.TextUtil;
 import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
 import org.vineflower.kotlin.expr.KAnnotationExprent;
 import org.vineflower.kotlin.metadata.MetadataNameResolver;
 import org.vineflower.kotlin.struct.*;
 import org.vineflower.kotlin.util.KTypes;
 import org.vineflower.kotlin.util.KUtils;
-import org.vineflower.kotlin.util.ProtobufFlags;
 
 import java.io.IOException;
 import java.util.*;
 
-public class KotlinWriter implements StatementWriter {
+public class KotlinWriter implements StatementWriter, Flags {
   private static final Set<String> ERROR_DUMP_STOP_POINTS = new HashSet<>(Arrays.asList(
     "Fernflower.decompileContext",
     "MethodProcessor.codeToJava",
@@ -228,14 +231,14 @@ public class KotlinWriter implements StatementWriter {
 
       ProtoBuf.Class proto = KotlinDecompilationContext.getCurrentClass();
 
-      ProtobufFlags.Class kotlinFlags;
+      int kotlinFlags;
       if (proto != null) {
-        kotlinFlags = new ProtobufFlags.Class(proto.getFlags());
+        kotlinFlags = proto.getFlags();
       } else {
         if (KotlinDecompilationContext.getCurrentType() == null) {
           appendComment(buffer, "Class flags could not be determined", indent);
         }
-        kotlinFlags = new ProtobufFlags.Class(0);
+        kotlinFlags = 0;
       }
 
       if (DecompilerContext.getOption(IFernflowerPreferences.SOURCE_FILE_COMMENTS)) {
@@ -252,7 +255,7 @@ public class KotlinWriter implements StatementWriter {
         }
       }
 
-      if (kotlinFlags.kind == ProtoBuf.Class.Kind.ANNOTATION_CLASS || cl.hasModifier(CodeConstants.ACC_ANNOTATION)) {
+      if (CLASS_KIND.get(kotlinFlags) == ProtoBuf.Class.Kind.ANNOTATION_CLASS || cl.hasModifier(CodeConstants.ACC_ANNOTATION)) {
         // Kotlin's annotation classes are treated quite differently from other classes
         writeAnnotationDefinition(node, buffer, indent, propertyData, functions, constructorData);
         return;
@@ -691,7 +694,7 @@ public class KotlinWriter implements StatementWriter {
     buffer.appendLineSeparator();
   }
 
-  private void writeClassDefinition(ClassNode node, TextBuffer buffer, int indent, KConstructor.Data constructorData, ProtobufFlags.Class kotlinFlags) {
+  private void writeClassDefinition(ClassNode node, TextBuffer buffer, int indent, KConstructor.Data constructorData, int kotlinFlags) {
     if (node.type == ClassNode.Type.ANONYMOUS) {
       buffer.append(" {").appendLineSeparator();
       return;
@@ -727,31 +730,34 @@ public class KotlinWriter implements StatementWriter {
 
     buffer.appendIndent(indent);
 
-    if (kotlinFlags.visibility != ProtoBuf.Visibility.PUBLIC || DecompilerContext.getOption(KotlinOptions.SHOW_PUBLIC_VISIBILITY)) {
-      buffer.append(ProtobufFlags.toString(kotlinFlags.visibility)).append(' ');
+    if (VISIBILITY.get(kotlinFlags) != ProtoBuf.Visibility.PUBLIC || DecompilerContext.getOption(KotlinOptions.SHOW_PUBLIC_VISIBILITY)) {
+      KUtils.appendVisibility(buffer, VISIBILITY.get(kotlinFlags));
     }
 
-    if (kotlinFlags.isExpect) {
+    if (IS_EXPECT_CLASS.get(kotlinFlags)) {
       buffer.append("expect ");
     }
 
-    if ((!isInterface && kotlinFlags.modality != ProtoBuf.Modality.FINAL) || kotlinFlags.modality == ProtoBuf.Modality.SEALED) {
-      buffer.append(ProtobufFlags.toString(kotlinFlags.modality)).append(' ');
-    }
+    buffer.append(switch (MODALITY.get(kotlinFlags)) {
+      case FINAL -> isInterface ? "final " : "";
+      case OPEN -> isInterface ? "" : "open ";
+      case ABSTRACT -> isInterface ? "" : "abstract ";
+      case SEALED -> "sealed ";
+    });
 
-    if (kotlinFlags.isExternal) {
+    if (IS_EXTERNAL_CLASS.get(kotlinFlags)) {
       buffer.append("external ");
     }
-    if (kotlinFlags.isInner) {
+    if (IS_INNER.get(kotlinFlags)) {
       buffer.append("inner ");
     }
-    if (kotlinFlags.isFun) {
+    if (IS_FUN_INTERFACE.get(kotlinFlags)) {
       buffer.append("fun ");
     }
-    if (kotlinFlags.isInline) {
-      buffer.append("inline ");
+    if (IS_VALUE_CLASS.get(kotlinFlags)) {
+      buffer.append("value ");
     }
-    if (kotlinFlags.isData) {
+    if (IS_DATA.get(kotlinFlags)) {
       buffer.append("data ");
     }
 
@@ -761,15 +767,15 @@ public class KotlinWriter implements StatementWriter {
       buffer.append("interface");
     } else if (isAnnotation) {
       buffer.append("annotation class");
-    } else if (kotlinFlags.kind == ProtoBuf.Class.Kind.OBJECT) {
+    } else if (CLASS_KIND.get(kotlinFlags) == ProtoBuf.Class.Kind.OBJECT) {
       buffer.append("object");
-    } else if (kotlinFlags.kind == ProtoBuf.Class.Kind.COMPANION_OBJECT) {
+    } else if (CLASS_KIND.get(kotlinFlags) == ProtoBuf.Class.Kind.COMPANION_OBJECT) {
       buffer.append("companion object");
     } else {
       buffer.append("class");
     }
 
-    if (kotlinFlags.kind != ProtoBuf.Class.Kind.COMPANION_OBJECT || !node.simpleName.equals("Companion")) {
+    if (CLASS_KIND.get(kotlinFlags) != ProtoBuf.Class.Kind.COMPANION_OBJECT || !node.simpleName.equals("Companion")) {
       buffer.append(" ").append(toValidKotlinIdentifier(node.simpleName));
     }
 

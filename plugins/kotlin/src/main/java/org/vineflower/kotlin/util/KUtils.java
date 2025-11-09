@@ -50,22 +50,17 @@ public class KUtils {
 
   public static void appendVisibility(TextBuffer buf, ProtoBuf.Visibility visibility) {
     switch (visibility) {
-      case LOCAL:
-        buf.append("// QF: local property")
-          .appendLineSeparator()
-          .append("internal ");
-        break;
-      case PRIVATE_TO_THIS:
-        buf.append("private ");
-        break;
-      case PUBLIC:
+      case LOCAL -> buf.append("// $VF: local visibility outside of method")
+        .appendLineSeparator()
+        .append("internal ");
+      case PRIVATE_TO_THIS -> buf.append("private ");
+      case PUBLIC -> {
         if (DecompilerContext.getOption(KotlinOptions.SHOW_PUBLIC_VISIBILITY)) {
           buf.append("public ");
         }
-        break;
-      default:
-        buf.append(visibility.name().toLowerCase())
-          .append(' ');
+      }
+      default -> buf.append(visibility.name().toLowerCase())
+        .append(' ');
     }
   }
 
