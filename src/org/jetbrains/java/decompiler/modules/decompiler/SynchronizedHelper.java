@@ -34,6 +34,7 @@ public final class SynchronizedHelper {
               // Check for synthetic variable assignment
               if (var.equals(mon.getValue()) && !var.isVarReferenced(stat.getParent(), (VarExprent) mon.getValue())) {
                 sync.getFirst().getExprents().remove(e);
+                mon.addBytecodeOffsets(mon.getValue().bytecode);
                 mon.replaceExprent(mon.getValue(), ass.getRight());
                 res = true;
                 break;

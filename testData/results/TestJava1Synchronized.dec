@@ -34,9 +34,9 @@ public class TestJava1Synchronized {
       try {
          System.out.println("try");// 34 35
       } finally {
-         synchronized (this) {
+         synchronized (this) {// 37
             System.out.println("hello");// 38
-         }// 37
+         }
       }
    }
 }
@@ -44,6 +44,7 @@ public class TestJava1Synchronized {
 class 'TestJava1Synchronized' {
    method 'test1 (I)V' {
       0      2
+      2      2
       3      2
       4      3
       5      3
@@ -78,6 +79,7 @@ class 'TestJava1Synchronized' {
 
    method 'test2 (I)V' {
       0      15
+      2      15
       3      15
       4      16
       5      16
@@ -104,6 +106,7 @@ class 'TestJava1Synchronized' {
 
    method 'test3 ()V' {
       0      24
+      2      24
       3      24
       4      25
       5      25
@@ -133,6 +136,7 @@ class 'TestJava1Synchronized' {
       6      34
       7      34
       d      36
+      13      36
       14      36
       17      37
       18      37
@@ -162,7 +166,7 @@ Lines mapping:
 29 <-> 29
 34 <-> 35
 35 <-> 35
-37 <-> 39
+37 <-> 37
 38 <-> 38
 Not mapped:
 2

@@ -88,6 +88,7 @@ class 'pkg/TestRunSuspend' {
 
    method 'await ()V' {
       0      48
+      2      48
       3      48
       5      49
       6      49

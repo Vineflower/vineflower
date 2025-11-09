@@ -848,6 +848,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
   private void registerPatternMatching() {
     // TODO: testReturnTernaryComplex is not the most ideal form of the statement (pattern matching bool not distribution)
     // TODO: test against generics?
+    // TODO: <unknown> variable type, sforms validation error in testInvertedLoop
     register(JAVA_16, "TestPatternMatching");
     register(JAVA_16, "TestPatternMatchingFake");
     register(JAVA_16, "TestPatternMatchingFakeLoops");
