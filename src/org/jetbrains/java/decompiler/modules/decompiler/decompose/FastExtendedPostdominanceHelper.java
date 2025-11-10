@@ -19,7 +19,7 @@ import java.util.Map.Entry;
 // This class only uses the regular edges in the statement graph to run its analysis, with one special case continue edge type. However, an important thing to note is that every edge
 // starts out as a regular edge- with a few exceptions. As statements get discovered by DomHelper, it's type gets refined and thus it
 // becomes invisible to ExtendedPostdominance. This has the result of the statement graph tightening over time, with fewer nodes getting postdominance information
-// in subsequent runs
+// in subsequent runs.
 public class FastExtendedPostdominanceHelper {
 
   private List<Statement> lstReversePostOrderList;

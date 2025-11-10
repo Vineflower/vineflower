@@ -175,6 +175,81 @@ public class TestLoopFinally {
          }
       }
    }
+
+   public void test6(Object o) {
+      while (true) {
+         try {
+            System.out.println("try");// 193
+         } finally {
+            label41:
+            if (o != null) {// 195
+               try {
+                  System.out.println("finally");// 197
+               } catch (Exception var8) {// 199
+                  break label41;
+               }
+
+               return;// 203
+            }
+         }
+      }
+   }
+
+   public void test7(Object o) {
+      while (true) {
+         try {
+            System.out.println("try");// 208
+         } finally {
+            label41:
+            if (o != null) {// 210
+               try {
+                  System.out.println("finally");// 212
+               } catch (Exception var8) {// 214
+                  break label41;
+               }
+
+               System.out.println("outer");// 219
+               return;// 220
+            }
+         }
+      }
+   }
+
+   public void test8(Object o) {
+      while (true) {
+         try {
+            System.out.println("try");// 225
+         } finally {
+            if (o != null) {// 227
+               try {
+                  System.out.println("finally");// 229
+                  continue;
+               } catch (Exception var8) {// 231
+               }
+            }
+         }
+      }
+   }
+
+   public void test9(Object o) {
+      while (true) {
+         try {
+            System.out.println("try");// 240
+         } finally {
+            label41:
+            if (o != null) {// 242
+               try {
+                  System.out.println("finally");// 244
+               } catch (Exception var8) {// 246
+                  System.out.println("outer finally");// 248
+                  break label41;
+               }
+
+               return;// 252
+            }
+         }
+      }
+   }
 }
 
 class 'pkg/TestLoopFinally' {
@@ -562,6 +637,121 @@ class 'pkg/TestLoopFinally' {
       40      173
       41      173
    }
+
+   method 'test6 (Ljava/lang/Object;)V' {
+      0      181
+      1      181
+      2      181
+      3      181
+      4      181
+      5      181
+      6      181
+      7      181
+      1c      184
+      1d      184
+      1e      184
+      1f      184
+      20      186
+      21      186
+      22      186
+      23      186
+      24      186
+      25      186
+      26      186
+      27      186
+      2b      187
+      32      191
+   }
+
+   method 'test7 (Ljava/lang/Object;)V' {
+      0      200
+      1      200
+      2      200
+      3      200
+      4      200
+      5      200
+      6      200
+      7      200
+      1c      203
+      1d      203
+      1e      203
+      1f      203
+      20      205
+      21      205
+      22      205
+      23      205
+      24      205
+      25      205
+      26      205
+      27      205
+      2b      206
+      32      210
+      33      210
+      34      210
+      35      210
+      36      210
+      37      210
+      38      210
+      39      210
+      3a      211
+   }
+
+   method 'test8 (Ljava/lang/Object;)V' {
+      0      220
+      1      220
+      2      220
+      3      220
+      4      220
+      5      220
+      6      220
+      7      220
+      1c      222
+      1d      222
+      1e      222
+      1f      222
+      20      224
+      21      224
+      22      224
+      23      224
+      24      224
+      25      224
+      26      224
+      27      224
+      2b      226
+   }
+
+   method 'test9 (Ljava/lang/Object;)V' {
+      0      236
+      1      236
+      2      236
+      3      236
+      4      236
+      5      236
+      6      236
+      7      236
+      24      239
+      25      239
+      26      239
+      27      239
+      28      241
+      29      241
+      2a      241
+      2b      241
+      2c      241
+      2d      241
+      2e      241
+      2f      241
+      33      242
+      35      243
+      36      243
+      37      243
+      38      243
+      39      243
+      3a      243
+      3b      243
+      3c      243
+      42      247
+   }
 }
 
 Lines mapping:
@@ -635,6 +825,27 @@ Lines mapping:
 183 <-> 171
 184 <-> 173
 185 <-> 174
+193 <-> 182
+195 <-> 185
+197 <-> 187
+199 <-> 188
+203 <-> 192
+208 <-> 201
+210 <-> 204
+212 <-> 206
+214 <-> 207
+219 <-> 211
+220 <-> 212
+225 <-> 221
+227 <-> 223
+229 <-> 225
+231 <-> 227
+240 <-> 237
+242 <-> 240
+244 <-> 242
+246 <-> 243
+248 <-> 244
+252 <-> 248
 Not mapped:
 12
 38
@@ -653,3 +864,11 @@ Not mapped:
 166
 186
 187
+198
+201
+213
+216
+230
+233
+245
+250

@@ -22,6 +22,7 @@ class DomTracer {
   }
 
   private void add(Statement gen, String s, Map<Statement, String> props) {
+    String sb = "";
     if (COLLECT_DOTS) {
       HashMap<Statement, String> map = new HashMap<>(props);
       if (map.containsKey(gen)) {
@@ -32,12 +33,17 @@ class DomTracer {
       DotExporter.toDotFile(gen, this.structMethod, this.filePrefix, "g" + this.counter, map);
 
       if (COLLECT_STRINGS) {
-        string += "(g" + this.counter +") ";
+        sb += "(g" + this.counter +") ";
       }
     }
 
     if (COLLECT_STRINGS) {
-      this.string += ("[" + gen + "] " + s + "\n");
+      sb += ("[" + gen + "] " + s);
+
+      // Uncomment this for debugging:
+//      System.out.println(sb);
+
+      string += sb + "\n";
     }
 
     this.counter++;
