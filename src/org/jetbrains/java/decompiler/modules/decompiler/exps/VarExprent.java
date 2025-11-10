@@ -624,4 +624,18 @@ public class VarExprent extends Exprent implements Pattern {
   public @NotNull List<VarExprent> getPatternVars() {
     return List.of(this);
   }
+
+  public class DefinitionLocker implements AutoCloseable {
+    boolean isDef;
+
+    public DefinitionLocker() {
+      isDef = isDefinition();
+      setDefinition(false);
+    }
+
+    @Override
+    public void close() {
+      setDefinition(isDef);
+    }
+  }
 }

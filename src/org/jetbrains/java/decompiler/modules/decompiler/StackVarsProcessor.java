@@ -559,8 +559,6 @@ public class StackVarsProcessor {
           }
         }
 
-        rightVar.setLVT(left.getLVT());
-
         // In the pattern:
         // catch (Exception var2) {
         //   ex = var2; // ex -> var1

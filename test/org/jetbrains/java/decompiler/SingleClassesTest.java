@@ -743,6 +743,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_21, "TestTypeAnnotations");
     register(JAVA_8, "TestCatchClashing");
     register(JAVA_8_NODEBUG, "TestLVTReassignmentNoDebug");
+    register(JAVA_8, "TestMultiException");
   }
 
   private void registerEntireClassPath() {
