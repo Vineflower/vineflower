@@ -1,0 +1,26 @@
+package pkg;
+
+public class TestNoLvt {
+   public void test(int var1) {
+      if (var1 > 0) {
+         int var2 = 5;
+      } else {
+         int var5 = 2;
+      }
+
+      if (var1 > 0) {
+         int var3 = 5000;
+      } else {
+         int var6 = 3000;
+      }
+
+      int var4;
+      if (var1 > 0) {
+         var4 = 5000;
+      } else {
+         var4 = 3000;
+      }
+
+      System.out.println(var4);
+   }
+}

@@ -70,6 +70,16 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.USE_DEBUG_VAR_NAMES, "1",
       IFernflowerPreferences.VERIFY_PRE_POST_VARIABLE_MERGES, "1"
     );
+    registerSet("No LVT", this::registerNoLVT,
+      IFernflowerPreferences.DECOMPILE_INNER, "1",
+      IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
+      IFernflowerPreferences.DECOMPILE_GENERIC_SIGNATURES, "1",
+      IFernflowerPreferences.ASCII_STRING_CHARACTERS, "1",
+      IFernflowerPreferences.REMOVE_SYNTHETIC, "1",
+      IFernflowerPreferences.REMOVE_BRIDGE, "1",
+      IFernflowerPreferences.USE_DEBUG_VAR_NAMES, "0",
+      IFernflowerPreferences.VERIFY_PRE_POST_VARIABLE_MERGES, "1"
+    );
     registerSet("Javadoc", () -> {
       register(JAVA_8, "TestJavadoc");
     }, IFabricJavadocProvider.PROPERTY_NAME, new IFabricJavadocProvider() {
@@ -867,6 +877,10 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestLVTComplex");
     register(JAVA_8, "TestVarType");
     register(JAVA_8, "TestLoopMerging");
+  }
+
+  private void registerNoLVT() {
+    register(JAVA_8, "TestNoLvt");
   }
 
   private void registerTextTokens() {

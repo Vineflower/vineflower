@@ -477,7 +477,7 @@ public class VarExprent extends Exprent implements Pattern {
         }
       }
 
-      if (this.lvt != null) {
+      if (DecompilerContext.getOption(IFernflowerPreferences.USE_DEBUG_VAR_NAMES) && this.lvt != null) {
         return this.lvt.getName();
       }
 
