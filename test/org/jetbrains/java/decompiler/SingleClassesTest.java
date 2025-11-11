@@ -897,6 +897,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestTextTokens");
     register(JAVA_16, "TestTextTokens2");
     register(JAVA_8, "TestTextTokens3");
+    register(JAVA_21, "TestTypeAnnotationsTokens");
   }
 
   private void registerSyntheticsMarking() {

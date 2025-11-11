@@ -1,0 +1,85 @@
+package pkg;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Target;
+
+public class TestTypeAnnotationsTokens {
+   public @TestTypeAnnotationsTokens.Anno TestTypeAnnotationsTokens.Inner a;
+   public TestTypeAnnotationsTokens.@TestTypeAnnotationsTokens.Anno Inner b;
+   public TestTypeAnnotationsTokens.@TestTypeAnnotationsTokens.Anno InnerStatic c;
+   public @TestTypeAnnotationsTokens.Anno TestTypeAnnotationsTokens[] d;
+   public TestTypeAnnotationsTokens @TestTypeAnnotationsTokens.Anno [] e;
+   public TestTypeAnnotationsTokens.@TestTypeAnnotationsTokens.Anno InnerStatic.Inner2 f;
+   public TestTypeAnnotationsTokens.InnerStatic.@TestTypeAnnotationsTokens.Anno Inner2 g;
+   public TestTypeAnnotationsTokens.InnerStatic.@TestTypeAnnotationsTokens.Anno Inner2Static g_1;
+
+   @Target(ElementType.TYPE_USE)
+   public @interface Anno {
+   }
+
+   public class Inner {
+   }
+
+   public static class InnerStatic {
+      public class Inner2 {
+      }
+
+      public static class Inner2Static {
+      }
+   }
+}
+
+
+/*
+Tokens:
+(6:14, 6:39) class [declaration] pkg/TestTypeAnnotationsTokens
+(7:12, 7:37) class [reference] pkg/TestTypeAnnotationsTokens
+(7:38, 7:42) class [reference] pkg/TestTypeAnnotationsTokens$Anno
+(7:43, 7:68) class [reference] pkg/TestTypeAnnotationsTokens
+(7:69, 7:74) class [reference] pkg/TestTypeAnnotationsTokens$Inner
+(7:75, 7:76) field [declaration] pkg/TestTypeAnnotationsTokens#a:Lpkg/TestTypeAnnotationsTokens$Inner;
+(8:11, 8:36) class [reference] pkg/TestTypeAnnotationsTokens
+(8:38, 8:63) class [reference] pkg/TestTypeAnnotationsTokens
+(8:64, 8:68) class [reference] pkg/TestTypeAnnotationsTokens$Anno
+(8:69, 8:74) class [reference] pkg/TestTypeAnnotationsTokens$Inner
+(8:75, 8:76) field [declaration] pkg/TestTypeAnnotationsTokens#b:Lpkg/TestTypeAnnotationsTokens$Inner;
+(9:11, 9:36) class [reference] pkg/TestTypeAnnotationsTokens
+(9:38, 9:63) class [reference] pkg/TestTypeAnnotationsTokens
+(9:64, 9:68) class [reference] pkg/TestTypeAnnotationsTokens$Anno
+(9:69, 9:80) class [reference] pkg/TestTypeAnnotationsTokens$InnerStatic
+(9:81, 9:82) field [declaration] pkg/TestTypeAnnotationsTokens#c:Lpkg/TestTypeAnnotationsTokens$InnerStatic;
+(10:12, 10:37) class [reference] pkg/TestTypeAnnotationsTokens
+(10:38, 10:42) class [reference] pkg/TestTypeAnnotationsTokens$Anno
+(10:43, 10:68) class [reference] pkg/TestTypeAnnotationsTokens
+(10:71, 10:72) field [declaration] pkg/TestTypeAnnotationsTokens#d:[Lpkg/TestTypeAnnotationsTokens;
+(11:11, 11:36) class [reference] pkg/TestTypeAnnotationsTokens
+(11:38, 11:63) class [reference] pkg/TestTypeAnnotationsTokens
+(11:64, 11:68) class [reference] pkg/TestTypeAnnotationsTokens$Anno
+(11:72, 11:73) field [declaration] pkg/TestTypeAnnotationsTokens#e:[Lpkg/TestTypeAnnotationsTokens;
+(12:11, 12:36) class [reference] pkg/TestTypeAnnotationsTokens
+(12:38, 12:63) class [reference] pkg/TestTypeAnnotationsTokens
+(12:64, 12:68) class [reference] pkg/TestTypeAnnotationsTokens$Anno
+(12:69, 12:80) class [reference] pkg/TestTypeAnnotationsTokens$InnerStatic
+(12:81, 12:87) class [reference] pkg/TestTypeAnnotationsTokens$InnerStatic$Inner2
+(12:88, 12:89) field [declaration] pkg/TestTypeAnnotationsTokens#f:Lpkg/TestTypeAnnotationsTokens$InnerStatic$Inner2;
+(13:11, 13:36) class [reference] pkg/TestTypeAnnotationsTokens
+(13:37, 13:48) class [reference] pkg/TestTypeAnnotationsTokens$InnerStatic
+(13:50, 13:75) class [reference] pkg/TestTypeAnnotationsTokens
+(13:76, 13:80) class [reference] pkg/TestTypeAnnotationsTokens$Anno
+(13:81, 13:87) class [reference] pkg/TestTypeAnnotationsTokens$InnerStatic$Inner2
+(13:88, 13:89) field [declaration] pkg/TestTypeAnnotationsTokens#g:Lpkg/TestTypeAnnotationsTokens$InnerStatic$Inner2;
+(14:11, 14:36) class [reference] pkg/TestTypeAnnotationsTokens
+(14:37, 14:48) class [reference] pkg/TestTypeAnnotationsTokens$InnerStatic
+(14:50, 14:75) class [reference] pkg/TestTypeAnnotationsTokens
+(14:76, 14:80) class [reference] pkg/TestTypeAnnotationsTokens$Anno
+(14:81, 14:93) class [reference] pkg/TestTypeAnnotationsTokens$InnerStatic$Inner2Static
+(14:94, 14:97) field [declaration] pkg/TestTypeAnnotationsTokens#g_1:Lpkg/TestTypeAnnotationsTokens$InnerStatic$Inner2Static;
+(16:5, 16:11) class [reference] java/lang/annotation/Target
+(16:12, 16:23) class [reference] java/lang/annotation/ElementType
+(16:24, 16:32) field [reference] java/lang/annotation/ElementType#TYPE_USE:Ljava/lang/annotation/ElementType;
+(17:22, 17:26) class [declaration] pkg/TestTypeAnnotationsTokens$Anno
+(20:17, 20:22) class [declaration] pkg/TestTypeAnnotationsTokens$Inner
+(23:24, 23:35) class [declaration] pkg/TestTypeAnnotationsTokens$InnerStatic
+(24:20, 24:26) class [declaration] pkg/TestTypeAnnotationsTokens$InnerStatic$Inner2
+(27:27, 27:39) class [declaration] pkg/TestTypeAnnotationsTokens$InnerStatic$Inner2Static
+*/
