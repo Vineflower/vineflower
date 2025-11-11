@@ -24,6 +24,21 @@ public class TestUnknownCast {
          vvv1 = vvv2;// 19
       }
    }// 21
+
+   private void myMethod() {
+      Object[] myObjects = new Object[0];// 24
+      int[] myInts = new int[]{1, 2, 3};// 25
+      int myObjectsLength = myObjects.length;// 27
+
+      for (int i = 0; i < myInts.length; i++) {// 28
+         int myInt = myInts[i];// 29
+         int[] myInts2 = myInts;// 30
+         int myInts2Length = myInts2.length;// 31
+         if (myInts2Length != myObjectsLength) {// 32
+            System.out.println(myInts2Length + " " + myObjectsLength);// 33
+         }
+      }
+   }// 36
 }
 
 class 'pkg/TestUnknownCast' {
@@ -60,6 +75,66 @@ class 'pkg/TestUnknownCast' {
       2c      23
       30      25
    }
+
+   method 'myMethod ()V' {
+      0      28
+      4      28
+      a      29
+      e      29
+      12      29
+      14      29
+      15      30
+      16      30
+      17      30
+      18      30
+      19      32
+      1a      32
+      1b      32
+      1c      32
+      1d      32
+      1e      32
+      1f      32
+      20      32
+      21      33
+      22      33
+      23      33
+      24      33
+      25      33
+      26      34
+      27      34
+      28      34
+      29      35
+      2a      35
+      2b      35
+      2c      35
+      2d      35
+      2e      36
+      2f      36
+      30      36
+      31      36
+      32      36
+      33      36
+      34      36
+      35      37
+      36      37
+      37      37
+      3f      37
+      40      37
+      44      37
+      45      37
+      49      37
+      4a      37
+      4e      37
+      4f      37
+      50      37
+      51      37
+      52      37
+      53      37
+      54      32
+      55      32
+      56      32
+      5a      40
+   }
 }
 
 Lines mapping:
@@ -74,6 +149,16 @@ Lines mapping:
 18 <-> 23
 19 <-> 24
 21 <-> 26
+24 <-> 29
+25 <-> 30
+27 <-> 31
+28 <-> 33
+29 <-> 34
+30 <-> 35
+31 <-> 36
+32 <-> 37
+33 <-> 38
+36 <-> 41
 Not mapped:
 12
 13
