@@ -50,8 +50,11 @@ public class FinallyProcessor {
 
   private final MethodDescriptor methodDescriptor;
   private final VarProcessor varProcessor;
+
+  // Ephemeral variables
   private @Nullable VarVersionsGraph ssuversions;
   private @Nullable Map<Instruction, Integer> instrRewrites;
+  private RootStatement root;
 
   public FinallyProcessor(StructMethod mt, MethodDescriptor md, VarProcessor varProc) {
     this.methodDescriptor = md;
@@ -60,6 +63,8 @@ public class FinallyProcessor {
 
   public boolean iterateGraph(StructClass cl, StructMethod mt, RootStatement root, ControlFlowGraph graph) {
     this.ssuversions = null;
+    this.instrRewrites = null;
+    this.root = root;
     BytecodeVersion bytecodeVersion = mt.getBytecodeVersion();
 
     ListStack<Statement> stack = new ListStack<>();
@@ -148,25 +153,34 @@ public class FinallyProcessor {
   private record FinallyExit(BasicBlock source, BasicBlock succ, ExitType type) {
   }
 
-  private @Nullable Record getFinallyInformation(StructClass cl, StructMethod mt, RootStatement root, CatchAllStatement fstat) {
-    ExprProcessor proc = new ExprProcessor(this.methodDescriptor, this.varProcessor);
-    proc.processStatement(root, cl);
-
-    if (this.ssuversions == null) {
-      // FIXME: don't split SSAU unless needed!
+  private Map<Instruction, Integer> getInstrRewrites() {
+    if (this.instrRewrites == null) {
       SSAConstructorSparseEx ssa = new SSAConstructorSparseEx();
-      ssa.splitVariables(root, mt);
+      ssa.splitVariables(root, root.mt);
 
       this.instrRewrites = SimpleSSAReassign.reassignSSAForm(ssa, root);
 
       StackVarsProcessor.setVersionsToNull(root);
+    }
 
+    return this.instrRewrites;
+  }
+
+  private VarVersionsGraph getVarVersionsGraph() {
+    if (this.ssuversions == null) {
       SSAUConstructorSparseEx ssau = new SSAUConstructorSparseEx();
-      ssau.splitVariables(root, mt);
+      ssau.splitVariables(root, root.mt);
 
       this.ssuversions = ssau.getSsuVersions();
       StackVarsProcessor.setVersionsToNull(root);
     }
+
+    return this.ssuversions;
+  }
+
+  private @Nullable Record getFinallyInformation(StructClass cl, StructMethod mt, RootStatement root, CatchAllStatement fstat) {
+    ExprProcessor proc = new ExprProcessor(this.methodDescriptor, this.varProcessor);
+    proc.processStatement(root, cl);
 
     Map<BasicBlock, ExitType> mapLast = new LinkedHashMap<>();
 
@@ -900,8 +914,6 @@ public class FinallyProcessor {
   }
 
   public boolean equalInstructions(Instruction first, Instruction second, List<int[]> lstStoreVars) {
-    ValidationHelper.notNull(this.instrRewrites);
-    ValidationHelper.notNull(this.ssuversions);
     if (!Instruction.equals(first, second)) {
       return false;
     }
@@ -930,14 +942,15 @@ public class FinallyProcessor {
         boolean ok = false;
         if (isOpcVar(first.opcode)) {
           // Find rewritten variables
-          if (this.instrRewrites.containsKey(first)) {
-            firstOp = this.instrRewrites.get(first);
+          Map<Instruction, Integer> rewrites = this.getInstrRewrites();
+          if (rewrites.containsKey(first)) {
+            firstOp = rewrites.get(first);
           }
-          if (this.instrRewrites.containsKey(second)) {
-            secondOp = this.instrRewrites.get(second);
+          if (rewrites.containsKey(second)) {
+            secondOp = rewrites.get(second);
           }
 
-          if (this.ssuversions.areVarsAnalogous(firstOp, secondOp)) {
+          if (this.getVarVersionsGraph().areVarsAnalogous(firstOp, secondOp)) {
             ok = true;
           }
 
