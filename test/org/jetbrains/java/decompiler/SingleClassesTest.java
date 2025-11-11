@@ -50,16 +50,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.LITERALS_AS_IS, "0",
       IFernflowerPreferences.VERIFY_PRE_POST_VARIABLE_MERGES, "1"
     );
-    registerSet("Pattern Matching", this::registerPatternMatching,
-      IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
-      IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
-      IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
-      IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
-      IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
-      IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "0",
-      IFernflowerPreferences.PATTERN_MATCHING, "1",
-      IFernflowerPreferences.VERIFY_PRE_POST_VARIABLE_MERGES, "1"
-    );
     registerSet("Ternary Constant Simplification", this::registerTernaryConstantSimplification,
       IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
       IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
@@ -78,16 +68,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.REMOVE_SYNTHETIC, "1",
       IFernflowerPreferences.REMOVE_BRIDGE, "1",
       IFernflowerPreferences.USE_DEBUG_VAR_NAMES, "1",
-      IFernflowerPreferences.VERIFY_PRE_POST_VARIABLE_MERGES, "1"
-    );
-    registerSet("Try Loop", this::registerTryLoop,
-      IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
-      IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
-      IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
-      IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
-      IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
-      IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "0",
-      IFernflowerPreferences.TRY_LOOP_FIX, "1",
       IFernflowerPreferences.VERIFY_PRE_POST_VARIABLE_MERGES, "1"
     );
     registerSet("Javadoc", () -> {
@@ -744,6 +724,35 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestCatchClashing");
     register(JAVA_8_NODEBUG, "TestLVTReassignmentNoDebug");
     register(JAVA_8, "TestMultiException");
+
+    // TODO: testReturnTernaryComplex is not the most ideal form of the statement (pattern matching bool not distribution)
+    // TODO: test against generics?
+    // TODO: <unknown> variable type, sforms validation error in testInvertedLoop
+    register(JAVA_16, "TestPatternMatching");
+    register(JAVA_16, "TestPatternMatchingFake");
+    register(JAVA_16, "TestPatternMatchingFakeLoops");
+    register(JAVA_16, "TestPatternMatchingFakeLoopsInverted");
+    register(JAVA_16, "TestPatternMatchingFakeNew");
+    register(JAVA_16, "TestPatternMatchingMerge");
+    register(JAVA_16, "TestPatternMatchingStatic");
+    // TODO: local variables aren't merged properly, bring out of nodebug when they are
+    register(JAVA_16_NODEBUG, "TestPatternMatchingAssign");
+    register(JAVA_16, "TestPatternMatchingLocalCapture");
+    register(JAVA_16, "TestPatternMatchingReturn");
+
+    register(JAVA_17, "TestPatternMatching17");
+    register(JAVA_17, "TestPatternMatching17Fake");
+    register(JAVA_17, "TestPatternMatching17FakeLoops");
+    register(JAVA_17, "TestPatternMatching17FakeLoopsInverted");
+    register(JAVA_17, "TestPatternMatching17FakeNew");
+    register(JAVA_17, "TestPatternMatching17AlreadyUsed");
+    register(JAVA_17, "TestPatternMatchingInteger");
+
+    register(JAVA_8, "TestTryLoop");
+    register(JAVA_8, "TestTryLoop2");
+    register(JAVA_8, "TestTryLoopRecompile");
+    register(JAVA_8, "TestTryLoopSimpleFinally");
+    register(JAVA_8, "TestTryLoopReturnFinally");
   }
 
   private void registerEntireClassPath() {
@@ -846,31 +855,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestPiDivision");
   }
 
-  private void registerPatternMatching() {
-    // TODO: testReturnTernaryComplex is not the most ideal form of the statement (pattern matching bool not distribution)
-    // TODO: test against generics?
-    // TODO: <unknown> variable type, sforms validation error in testInvertedLoop
-    register(JAVA_16, "TestPatternMatching");
-    register(JAVA_16, "TestPatternMatchingFake");
-    register(JAVA_16, "TestPatternMatchingFakeLoops");
-    register(JAVA_16, "TestPatternMatchingFakeLoopsInverted");
-    register(JAVA_16, "TestPatternMatchingFakeNew");
-    register(JAVA_16, "TestPatternMatchingMerge");
-    register(JAVA_16, "TestPatternMatchingStatic");
-    // TODO: local variables aren't merged properly, bring out of nodebug when they are
-    register(JAVA_16_NODEBUG, "TestPatternMatchingAssign");
-    register(JAVA_16, "TestPatternMatchingLocalCapture");
-    register(JAVA_16, "TestPatternMatchingReturn");
-
-    register(JAVA_17, "TestPatternMatching17");
-    register(JAVA_17, "TestPatternMatching17Fake");
-    register(JAVA_17, "TestPatternMatching17FakeLoops");
-    register(JAVA_17, "TestPatternMatching17FakeLoopsInverted");
-    register(JAVA_17, "TestPatternMatching17FakeNew");
-    register(JAVA_17, "TestPatternMatching17AlreadyUsed");
-    register(JAVA_17, "TestPatternMatchingInteger");
-  }
-
   private void registerTernaryConstantSimplification() {
     register(JAVA_8, "TestReturnTernaryConstantSimplification");
     // TODO: ifOr, redundantIf, nestedIf and nestedIfs aren't reduced to a ternary that would be simplified
@@ -883,14 +867,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestLVTComplex");
     register(JAVA_8, "TestVarType");
     register(JAVA_8, "TestLoopMerging");
-  }
-
-  private void registerTryLoop() {
-    register(JAVA_8, "TestTryLoop");
-    register(JAVA_8, "TestTryLoop2");
-    register(JAVA_8, "TestTryLoopRecompile");
-    register(JAVA_8, "TestTryLoopSimpleFinally");
-    register(JAVA_8, "TestTryLoopReturnFinally");
   }
 
   private void registerTextTokens() {
