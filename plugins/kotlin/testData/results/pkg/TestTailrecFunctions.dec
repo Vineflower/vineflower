@@ -45,12 +45,12 @@ public class TestTailrecFunctions {
    }// 31
 
    public tailrec fun testTryCatchFinally() {
-      run label34@{
-         run label33@{
+      run label35@{
+         run label34@{
             try {
                try {
                   this.testTryCatchFinally()// 35
-                  break label33;
+                  break label34;
                } catch (var2: Exception) {// 36
                   this.testTryCatchFinally()// 37
                }

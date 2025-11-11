@@ -40,21 +40,21 @@ public class TestTryFinallyExpressions {
    }
 
    public fun test2(a: String, b: String) {
-      run label140@{
+      run label141@{
          var var19: java.lang.String = a// 28
 
-         run label139@{
-            run label138@{
-               run label137@{
+         run label140@{
+            run label139@{
+               run label138@{
                   try {
                      try {
                         if (a == b) {// 30
-                           return@label139
+                           return@label140
                         }
 
                         var19 = b// 33
                         this.test0(b)// 34
-                        return@label137
+                        return@label138
                      } catch (var11: IOException) {// 36
                         var19 = a// 37
                         this.test1(a, a)// 38
@@ -65,7 +65,7 @@ public class TestTryFinallyExpressions {
                   }
 
                   var19 = if (var19 == a) b else a
-                  return@label138// 46
+                  return@label139// 46
                }
 
                var19 = if (var19 == a) b else a

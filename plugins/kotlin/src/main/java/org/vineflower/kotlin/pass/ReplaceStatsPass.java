@@ -29,6 +29,9 @@ public class ReplaceStatsPass implements Pass {
       } else if (st instanceof IfStatement) {
         st.replaceWith(new KIfStatement((IfStatement) st));
         res = true;
+      } else if (st instanceof CatchStatement) {
+        st.replaceWith(new KCatchStatement((CatchStatement) st));
+        res = true;
       }
     }
 
