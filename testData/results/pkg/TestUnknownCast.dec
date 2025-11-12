@@ -25,7 +25,7 @@ public class TestUnknownCast {
       }
    }// 21
 
-   private void myMethod() {
+   private void test1() {
       Object[] myObjects = new Object[0];// 24
       int[] myInts = new int[]{1, 2, 3};// 25
       int myObjectsLength = myObjects.length;// 27
@@ -76,7 +76,7 @@ class 'pkg/TestUnknownCast' {
       30      25
    }
 
-   method 'myMethod ()V' {
+   method 'test1 ()V' {
       0      28
       4      28
       a      29
