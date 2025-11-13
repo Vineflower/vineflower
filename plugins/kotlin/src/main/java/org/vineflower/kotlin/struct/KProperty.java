@@ -102,15 +102,14 @@ public record KProperty(
 
     if (initializer != null) {
       TextBuffer initializerBuf = initializer.toJava(indent);
-      String initializerMethod = underlyingField.hasModifier(CodeConstants.ACC_STATIC) ? "<clinit> ()" : "<init> ()";
       if (IS_DELEGATED.get(flags)) {
         buf.append(" by ")
-          .append(initializerBuf, node.classStruct.qualifiedName, initializerMethod);
+          .append(initializerBuf);
       } else {
         buf.append(" =")
           .pushNewlineGroup(indent, 1)
           .appendPossibleNewline(" ")
-          .append(initializerBuf, node.classStruct.qualifiedName, initializerMethod)
+          .append(initializerBuf)
           .popNewlineGroup();
       }
     }
