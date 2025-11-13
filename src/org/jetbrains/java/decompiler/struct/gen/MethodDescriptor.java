@@ -106,7 +106,15 @@ public final class MethodDescriptor {
           }
         }
         if (actualParams != sig.parameterTypes.size()) {
-          String message = "Descriptor and signature parameter count mismatch, attempting to correct: " + struct.getClassQualifiedName() + " " + struct.getName() + struct.getDescriptor();
+          if (sigFields == null || sigFields.size() != sig.parameterTypes.size()) {
+            //TODO: figure out why scala, guava, and likely other libraries encounter this
+            String message = "Descriptor and signature parameter counts mismatch, assuming ok: " + struct.getClassQualifiedName() + " " + struct.getName() + struct.getDescriptor();
+            DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.WARN);
+            md.addGenericDescriptor(sig);
+            return md;
+          }
+
+          String message = "Descriptor and signature parameter counts mismatch, attempting to correct: " + struct.getClassQualifiedName() + " " + struct.getName() + struct.getDescriptor();
           DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.WARN);
           List<VarType> newVarTypes = new ArrayList<>();
           for (int i = 0; i < sigFields.size(); i++) {
