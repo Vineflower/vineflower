@@ -1183,12 +1183,14 @@ public class ClassWriter implements StatementWriter {
           params.remove(0);
         }
 
-        // Exclude any parameters that the signature itself won't contain
-        List<VarVersionPair> mask = methodWrapper.synthParameters;
-        if (mask != null) {
-          for (int i = 0, j = 0; i < mask.size(); i++, j++) {
-            if (mask.get(i) != null) {
-              params.remove(j--);
+        if (params.size() != descriptor.parameterTypes.size()) {
+          // Exclude any parameters that the signature itself won't contain
+          List<VarVersionPair> mask = methodWrapper.synthParameters;
+          if (mask != null) {
+            for (int i = 0, j = 0; i < mask.size(); i++, j++) {
+              if (mask.get(i) != null) {
+                params.remove(j--);
+              }
             }
           }
         }

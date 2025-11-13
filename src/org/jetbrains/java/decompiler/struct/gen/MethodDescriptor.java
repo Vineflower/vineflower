@@ -106,10 +106,15 @@ public final class MethodDescriptor {
           }
         }
         if (actualParams != sig.parameterTypes.size()) {
-          //TODO: Coroutines (and likely other Kotlin-compiler-plugin-injected parameters) break this
-          String message = "Inconsistent generic signature in method " + struct.getName() + " " + struct.getDescriptor() + " in " + struct.getClassQualifiedName();
+          String message = "Descriptor and signature parameter count mismatch, attempting to correct: " + struct.getClassQualifiedName() + " " + struct.getName() + struct.getDescriptor();
           DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.WARN);
-          sig = null;
+          List<VarType> newVarTypes = new ArrayList<>();
+          for (int i = 0; i < sigFields.size(); i++) {
+            if (sigFields.get(i) == null) {
+              newVarTypes.add(sig.parameterTypes.get(i));
+            }
+          }
+          sig = new GenericMethodDescriptor(sig.typeParameters, sig.typeParameterBounds, newVarTypes, sig.returnType, sig.exceptionTypes);
         }
       }
       md.addGenericDescriptor(sig);
