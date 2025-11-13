@@ -1173,9 +1173,9 @@ public class ClassWriter implements StatementWriter {
         buffer.append("default ");
       }
 
-      GenericMethodDescriptor descriptor = mt.getSignature();
+      GenericMethodDescriptor descriptor = md.genericInfo;
       if (descriptor != null) {
-        List<VarType> params = new ArrayList<>(Arrays.asList(mt.methodDescriptor().params));
+        List<VarType> params = new ArrayList<>(Arrays.asList(md.params));
 
         if (init && node.classStruct.hasModifier(CodeConstants.ACC_ENUM)) {
           // Enum name and ordinal parameters need to be explicitly excluded

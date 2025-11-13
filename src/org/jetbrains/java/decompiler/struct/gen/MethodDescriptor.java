@@ -106,6 +106,7 @@ public final class MethodDescriptor {
           }
         }
         if (actualParams != sig.parameterTypes.size()) {
+          //TODO: Coroutines (and likely other Kotlin-compiler-plugin-injected parameters) break this
           String message = "Inconsistent generic signature in method " + struct.getName() + " " + struct.getDescriptor() + " in " + struct.getClassQualifiedName();
           DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.WARN);
           sig = null;
