@@ -969,7 +969,9 @@ public abstract class Statement implements IMatchable {
   }
 
   public String toDebug() {
-    return toJava().convertToStringAndAllowDataDiscard();
+    try (var v = DecompilerContext.getImportCollector().lock()) {
+      return toJava().convertToStringAndAllowDataDiscard();
+    }
   }
 
   // helper methods

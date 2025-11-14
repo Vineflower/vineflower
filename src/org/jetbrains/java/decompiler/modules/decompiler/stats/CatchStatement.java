@@ -208,9 +208,11 @@ public class CatchStatement extends Statement {
   }
 
   private void validateType(List<String> exTypes, VarType exVarType) {
+    // TODO: join together all types, then check if exVarType instanceof that
+    // Not correct!!
     if (ValidationHelper.VALIDATE) {
-      VarType type = new VarType(CodeType.OBJECT, 0, exTypes.get(exTypes.size() - 1));
-      ValidationHelper.validateTrue(exVarType.higherEqualInLatticeThan(type), "Invalid exception variable type");
+//      VarType type = new VarType(CodeType.OBJECT, 0, exTypes.get(exTypes.size() - 1));
+//      ValidationHelper.validateTrue(type.higherEqualInLatticeThan(exVarType), "Invalid exception type " + exVarType + " " + type);
     }
   }
 

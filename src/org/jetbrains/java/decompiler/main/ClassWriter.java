@@ -84,11 +84,10 @@ public class ClassWriter implements StatementWriter {
     }
     StructClass cl = wrapper.getClassStruct();
 
-
-
     // Very late switch processing, needs entire class to be decompiled for eclipse switchmap style switch-on-enum
     for (MethodWrapper method : wrapper.getMethods()) {
       DecompileRecord rec = new DecompileRecord(method.methodStruct);
+      DecompilerContext.resetMethod(method);
 
       if (method.root != null) {
         try {
@@ -111,6 +110,7 @@ public class ClassWriter implements StatementWriter {
           DecompilerContext.getLogger().writeMessage("Method " + method.methodStruct.getName() + " " + method.methodStruct.getDescriptor() + " in class " + node.classStruct.qualifiedName + " couldn't be written.",
             IFernflowerLogger.Severity.WARN,
             e);
+          DotExporter.errorToDotFile(method.root, method.methodStruct, "failProcessing");
           method.decompileError = e;
         }
       }
@@ -135,6 +135,7 @@ public class ClassWriter implements StatementWriter {
       }
 
       for (MethodWrapper mw : wrapper.getMethods()) {
+        DecompilerContext.resetMethod(mw);
         RecordHelper.fixupCanonicalConstructor(mw, cl);
         if (mw.root != null) {
           mw.varproc.rerunClashing(mw.root);

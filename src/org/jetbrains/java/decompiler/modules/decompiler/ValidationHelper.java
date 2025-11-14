@@ -66,9 +66,13 @@ public final class ValidationHelper {
         throw new IllegalStateException("Non-existing first statement: [" + stat + "] " + stat.getFirst());
       }
 
+      if (!stat.getStats().contains(stat.getFirst()) && !(stat instanceof DummyExitStatement) && !(stat instanceof BasicBlockStatement)) {
+        throw new IllegalStateException("Stat doesn't contain first statement: [" + stat + "] " + stat.getFirst());
+      }
+
       for (Statement statStat : stat.getStats()) {
         if (statStat.getParent() != stat) {
-          throw new IllegalStateException("Statement parent is not set correctly: " + statStat);
+          throw new IllegalStateException("Statement parent is not set correctly [" + statStat + "]: Expected " + stat + " but was " + statStat.getParent());
         }
       }
 
@@ -402,7 +406,6 @@ public final class ValidationHelper {
               if (sub instanceof VarExprent) {
                 VarExprent var = (VarExprent) sub;
                 if (!predicate.test(var)) {
-                  System.out.println(root.toJava().convertToStringAndAllowDataDiscard());
                   throw new IllegalStateException(message + ": " + var.getIndex() + "_" + var.getVersion() + " " + var.getVarType());
                 }
               }

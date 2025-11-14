@@ -291,8 +291,6 @@ public final class IfPatternMatchProcessor {
   }
 
   public static PatternExprent identifyRecordPatternMatch(Statement parent, Statement branch, Exprent storeVariable, VarType type, boolean simulate) {
-    Statement original = branch;
-
     StructClass cl = DecompilerContext.getStructContext().getClass(type.value);
 
     if (cl == null || cl.getRecordComponents() == null || cl.getRecordComponents().isEmpty()) {
@@ -308,14 +306,14 @@ public final class IfPatternMatchProcessor {
     if (pattern == null) {
       return null;
     }
-    branch = pattern.stat;
 
     if (simulate) {
       return pattern.exp;
     }
 
-    if (original != branch) {
-      parent.replaceStatement(original, branch);
+    if (branch != pattern.stat) {
+      parent.replaceStatement(branch, pattern.stat);
+      pattern.stat.getSuccessorEdges(StatEdge.TYPE_BREAK).forEach(e -> e.changeClosure(parent));
     }
 
     for (Statement st : toDestroy) {
@@ -352,6 +350,8 @@ public final class IfPatternMatchProcessor {
     if (cl == null || cl.getRecordComponents() == null) {
       return null; // No idea what class, or not a record!
     }
+
+    Statement original = branch;
 
     record PatternStore(StructRecordComponent component, StructClass cl, VarType type, VarExprent store) {
     }
@@ -419,6 +419,9 @@ public final class IfPatternMatchProcessor {
                       toDestroy.add(head);
 
                       destroyed = true;
+
+                      // Remove breaks from this statement
+                      head.getSuccessorEdges(StatEdge.TYPE_BREAK).forEach(StatEdge::remove);
                     }
                   }
 
@@ -464,10 +467,12 @@ public final class IfPatternMatchProcessor {
                 ok = true;
               }
 
+              toDestroy.add(ifSt);
+
               if (inverted) {
                 stIdx++;
-                toDestroy.add(ifSt);
               } else {
+                // Reset execution from the top of this statement
                 branch = ifSt.getIfstat();
                 stIdx = 0;
               }
@@ -484,6 +489,26 @@ public final class IfPatternMatchProcessor {
         }
       } else {
         return null;
+      }
+    }
+
+    // Cleanup statement
+    for (Statement st : toDestroy) {
+      if (st instanceof CatchStatement) {
+        // The matched trys will have a single assignment in the try body and a throw in the catch. These have break edges
+        // that should be removed
+        st.getStats().get(0).getSuccessorEdges(StatEdge.TYPE_BREAK).forEach(StatEdge::remove);
+        st.getStats().get(1).getSuccessorEdges(StatEdge.TYPE_BREAK).forEach(StatEdge::remove);
+      } else if (st instanceof IfStatement) {
+        st.getSuccessorEdges(StatEdge.TYPE_BREAK).forEach(StatEdge::remove);
+      }
+    }
+
+    if (branch != original) {
+      if (branch.getParent() instanceof IfStatement ifSt) {
+        // If we had to dig inside an if to find the body content, delete any breaks it has and any head->if body successors
+        ifSt.getSuccessorEdges(StatEdge.TYPE_BREAK).forEach(StatEdge::remove);
+        ifSt.getFirst().getSuccessorEdges(StatEdge.TYPE_REGULAR).forEach(StatEdge::remove);
       }
     }
 

@@ -91,8 +91,10 @@ public class VarTypeProcessor {
       if (vars != null) {
         for (VarExprent var : vars) {
           lowerBounds.put(new VarVersionPair(var.getIndex(), 1), var.getVarType());
-          // TODO: this can break processing by immediately setting the upper bound to BOTTOM for record patterns
-          // upperBounds.put(new VarVersionPair(var.getIndex(), 1), var.getVarType());
+          // This can break processing by immediately setting the upper bound to BOTTOM for record patterns, only do it for catch vars
+          if (stat instanceof CatchStatement || stat instanceof CatchAllStatement) {
+            upperBounds.put(new VarVersionPair(var.getIndex(), 1), var.getVarType());
+          }
         }
       }
 

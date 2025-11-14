@@ -176,7 +176,7 @@ public class StatEdge {
    * longer be labeled.
    */
   public void removeClosure() {
-    ValidationHelper.validateTrue(closure != null, "closure shouldn't be null here");
+    ValidationHelper.assertTrue(closure != null, "closure shouldn't be null here");
     this.closure.getLabelEdges().remove(this);
     this.labeled = false;
     this.closure = null;

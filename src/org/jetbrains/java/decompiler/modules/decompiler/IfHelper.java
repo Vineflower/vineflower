@@ -10,6 +10,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.IfExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
+import org.jetbrains.java.decompiler.util.DotExporter;
 
 import java.util.*;
 
@@ -474,7 +475,12 @@ public final class IfHelper {
           mainIf.getFirstSuccessor().remove();
         }
 
-        // move seconds successor to be the if's successor
+        // Check for closure, remove it
+        if (secondIf.getFirstSuccessor().closure == secondIf) {
+          secondIf.getFirstSuccessor().removeClosure();
+        }
+
+        // move second's successor to be the if's successor
         secondIf.getFirstSuccessor().changeSource(mainIf);
         if (mainIf.getFirstSuccessor().closure == mainIf) {
           // TODO: always removing causes some <unknownclosure> bugs, while not removing causes issues with invalid closure validations
@@ -893,12 +899,14 @@ public final class IfHelper {
         ifSt.iftype = IfStatement.IFTYPE_IF;
         SequenceStatement seq = new SequenceStatement(ifSt, elseStat);
 
-        ifSt.getElseEdge().remove();
+        StatEdge elseEdge = ifSt.getElseEdge();
         ifSt.getStats().removeWithKey(elseStat.id);
 
         ifSt.setElsestat(null);
         ifSt.setElseEdge(null);
         ifSt.replaceWith(seq);
+        elseEdge.changeSource(ifSt);
+        seq.setAllParent();
 
         return true;
       }

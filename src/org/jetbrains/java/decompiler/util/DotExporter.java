@@ -76,6 +76,7 @@ public class DotExporter {
     if (stat instanceof RootStatement) {
       exit = ((RootStatement)stat).getDummyExit();
     }
+    stats.add(exit);
 
     // Pre process
     Map<StatEdge, String> extraData = new HashMap<>();
@@ -86,11 +87,11 @@ public class DotExporter {
         IfStatement ifs = (IfStatement) st;
 
         if (ifs.getIfEdge() != null) {
-          extraData.put(ifs.getIfEdge(), "If Edge");
+          extraData.put(ifs.getIfEdge(), "If Edge of " + ifs.id);
         }
 
         if (ifs.getElseEdge() != null) {
-          extraData.put(ifs.getElseEdge(), "Else Edge");
+          extraData.put(ifs.getElseEdge(), "Else Edge of " + ifs.id);
         }
       }
       if (SAME_RANK_MODE && st.getStats().size() > 1){
@@ -107,6 +108,8 @@ public class DotExporter {
         buffer.append("}\r\n");
       }
     }
+
+
 
     for(Statement st : stats) {
       String sourceId = st.id + (st.getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty()?"":"000000");
@@ -203,6 +206,10 @@ public class DotExporter {
       boolean foundIf = false;
       boolean foundElse = false;
       for (Statement s : st.getStats()) {
+        if (s instanceof DummyExitStatement) {
+          continue;
+        }
+
         String destId = s.id + (s.getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty()?"":"000000");
 
         String label = "";
@@ -257,6 +264,29 @@ public class DotExporter {
 //      }
     }
 
+    // Unreferenced by preds
+    if (!EXTENDED_MODE) {
+      for (Statement st : stats) {
+        for (StatEdge pred : st.getAllPredecessorEdges()) {
+          if (!referenced.contains(pred.getSource().id)) {
+            String edgeType = getEdgeType(pred);
+            String meta = getEdgeMeta(pred);
+
+            referenced.add(pred.getSource().id);
+            referenced.add(pred.getDestination().id);
+
+            if (pred.closure != null ) {
+              edgeType = edgeType == null ? "Closure: " + pred.closure.id : edgeType + " (Closure: " + pred.closure.id + ")";
+            }
+
+            buffer.append(pred.getSource().id + "->" + pred.getDestination().id + (edgeType != null ? "[label=\"" + edgeType + "\", " + meta + "]" : "[" + meta + "]") + ";\n");
+          }
+        }
+      }
+    }
+
+
+
     // Exits
     if (exit != null) {
       buffer.append(exit.id + " [color=green,label=\"" + exit.id + " (Canonical Return)\"];\n");
@@ -287,7 +317,7 @@ public class DotExporter {
       String destId = labelEdge.getDestination().id + (labelEdge.getDestination().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty() ? "" : "000000");
       String label = "Floating extra edge: ("  + extraData.get(labelEdge) + ")";
 
-      buffer.append(src + " -> " + destId + " [arrowhead=vee,color=red,fontcolor=red,label=\"" + label + "\"];\r\n");
+      buffer.append(src + " -> " + destId + " [arrowhead=vee,color=purple,fontcolor=red,label=\"" + label + "\"];\r\n");
     }
 
 //    if (subgraph.size() > 0) {
