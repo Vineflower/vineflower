@@ -503,6 +503,7 @@ public abstract class Statement implements IMatchable {
 
   public void replaceExprent(Exprent oldexpr, Exprent newexpr) {
     // do nothing
+    // TODO: validate?
   }
 
   public Statement getSimpleCopy() {

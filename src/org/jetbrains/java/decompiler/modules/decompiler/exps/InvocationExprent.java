@@ -1615,6 +1615,7 @@ public class InvocationExprent extends Exprent {
         };
         VarType mapped = map.apply(bound);
 
+        Map<VarType, VarType> seen = new HashMap<>();
         if (mapped != null && !mapped.equals(bound)) {
           VarType last = bound;
           while (bound != null) {
@@ -1624,6 +1625,12 @@ public class InvocationExprent extends Exprent {
             // TODO: fixes potential infinite loop, is this valid?
             if (last.equals(bound)) {
               break;
+            }
+            if (seen.containsKey(last) && seen.get(last).equals(bound)) {
+              // Not making any progress?
+              break;
+            } else {
+              seen.put(last, bound);
             }
           }
           bound = last;
