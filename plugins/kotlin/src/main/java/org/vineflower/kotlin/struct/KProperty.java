@@ -102,7 +102,6 @@ public record KProperty(
 
     if (initializer != null) {
       TextBuffer initializerBuf = initializer.toJava(indent);
-//      initializerBuf.clearUnassignedBytecodeMappingData();
       if (IS_DELEGATED.get(flags)) {
         buf.append(" by ")
           .append(initializerBuf);
@@ -269,10 +268,11 @@ public record KProperty(
 
       // Delegates create a hidden field containing the created delegate, so reference that instead
       Exprent delegateExprent = null;
+      StructField delegateField = null;
       if (IS_DELEGATED.get(flags)) {
         String delegateFieldName = nameResolver.resolve(jvmProp.getField().getName());
         String delegateDesc = nameResolver.resolve(jvmProp.getField().getDesc());
-        StructField delegateField = structClass.getField(delegateFieldName, delegateDesc);
+        delegateField = structClass.getField(delegateFieldName, delegateDesc);
         if (delegateField != null) {
           associatedFields.add(delegateField);
           String key = InterpreterUtil.makeUniqueKey(delegateFieldName, delegateDesc);
@@ -355,6 +355,7 @@ public record KProperty(
 
       if (delegateExprent != null) {
         initializer = delegateExprent;
+        field = delegateField;
       } else if (field == null) {
         initializer = null;
       } else if (field.hasAttribute(StructGeneralAttribute.ATTRIBUTE_CONSTANT_VALUE)) {

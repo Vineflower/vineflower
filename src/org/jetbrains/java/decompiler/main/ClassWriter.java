@@ -1174,9 +1174,9 @@ public class ClassWriter implements StatementWriter {
         buffer.append("default ");
       }
 
-      GenericMethodDescriptor descriptor = mt.getSignature();
+      GenericMethodDescriptor descriptor = md.genericInfo;
       if (descriptor != null) {
-        List<VarType> params = new ArrayList<>(Arrays.asList(mt.methodDescriptor().params));
+        List<VarType> params = new ArrayList<>(Arrays.asList(md.params));
 
         if (init && node.classStruct.hasModifier(CodeConstants.ACC_ENUM)) {
           // Enum name and ordinal parameters need to be explicitly excluded
@@ -1184,12 +1184,14 @@ public class ClassWriter implements StatementWriter {
           params.remove(0);
         }
 
-        // Exclude any parameters that the signature itself won't contain
-        List<VarVersionPair> mask = methodWrapper.synthParameters;
-        if (mask != null) {
-          for (int i = 0, j = 0; i < mask.size(); i++, j++) {
-            if (mask.get(i) != null) {
-              params.remove(j--);
+        if (params.size() != descriptor.parameterTypes.size()) {
+          // Exclude any parameters that the signature itself won't contain
+          List<VarVersionPair> mask = methodWrapper.synthParameters;
+          if (mask != null) {
+            for (int i = 0, j = 0; i < mask.size(); i++, j++) {
+              if (mask.get(i) != null) {
+                params.remove(j--);
+              }
             }
           }
         }
