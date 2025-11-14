@@ -96,12 +96,12 @@ public class StackVarsProcessor {
 
   public static void setVersionsToNull(Statement stat) {
     if (stat.getExprents() == null) {
-      for (Object obj : stat.getSequentialObjects()) {
-        if (obj instanceof Statement) {
-          setVersionsToNull((Statement)obj);
-        } else if (obj instanceof Exprent) {
-          setExprentVersionsToNull((Exprent)obj);
-        }
+      for (Statement st : stat.getStats()) {
+        setVersionsToNull(st);
+      }
+
+      for (Exprent exprent : stat.getStatExprents()) {
+        setExprentVersionsToNull(exprent);
       }
     } else {
       for (Exprent exprent : stat.getExprents()) {
@@ -111,12 +111,11 @@ public class StackVarsProcessor {
   }
 
   private static void setExprentVersionsToNull(Exprent exprent) {
-    List<Exprent> lst = exprent.getAllExprents(true);
-    lst.add(exprent);
+    List<Exprent> lst = exprent.getAllExprents(true, true);
 
     for (Exprent expr : lst) {
-      if (expr instanceof VarExprent) {
-        ((VarExprent)expr).setVersion(0);
+      if (expr instanceof VarExprent var) {
+        var.setVersion(0);
       }
     }
   }

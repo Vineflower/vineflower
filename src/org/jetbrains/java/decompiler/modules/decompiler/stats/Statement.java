@@ -3,6 +3,8 @@
  */
 package org.jetbrains.java.decompiler.modules.decompiler.stats;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.InstructionSequence;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
@@ -490,9 +492,9 @@ public abstract class Statement implements IMatchable {
     throw new RuntimeException("not implemented");
   }
 
-  // TODO: make obsolete and remove
-  public List<Object> getSequentialObjects() {
-    return new ArrayList<>(stats);
+  // Extra, non-body exprents. Loop/if/switch headers, try resources, catch values, and more.
+  public List<Exprent> getStatExprents() {
+    return List.of();
   }
 
   public void initExprents() {
@@ -944,11 +946,13 @@ public abstract class Statement implements IMatchable {
     return varDefinitions;
   }
 
-  public List<Exprent> getExprents() {
+  // The exprents stored in the body, only nonnull for BasicBlockStatements. To find other exprents, use getStatExprents.
+  public @Nullable List<Exprent> getExprents() {
     return exprents;
   }
 
-  public void setExprents(List<Exprent> exprents) {
+  public void setExprents(@NotNull List<Exprent> exprents) {
+    ValidationHelper.assertTrue(exprents != null, "Shouldn't set null exprent array here");
     this.exprents = exprents;
   }
 
@@ -988,14 +992,12 @@ public abstract class Statement implements IMatchable {
         e.getBytecodeRange(values);
       }
     } else {
-      for (Object obj : this.getSequentialObjects()) {
-        if (obj instanceof Statement) {
-          ((Statement)obj).getOffset(values);
-        } else if (obj instanceof Exprent) {
-          ((Exprent)obj).getBytecodeRange(values);
-        } else if (obj != null) {
-          DecompilerContext.getLogger().writeMessage("Found unknown class from sequential objects! " + obj.getClass(), IFernflowerLogger.Severity.ERROR);
-        }
+      for (Statement st : getStats()) {
+        st.getOffset(values);
+      }
+
+      for (Exprent e : getStatExprents()) {
+        e.getBytecodeRange(values);
       }
     }
   }

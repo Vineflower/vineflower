@@ -131,30 +131,30 @@ public final class SecondaryFunctionsHelper {
     while (replaced) {
       replaced = false;
 
-      List<Object> lstObjects = new ArrayList<>(stat.getExprents() == null ? stat.getSequentialObjects() : stat.getExprents());
+      for (Statement st : stat.getStats()) {
+        if (identifySecondaryFunctions(st, varProc, options)) {
+          ret = true;
+          replaced = true;
+          break;
+        }
+      }
 
-      for (int i = 0; i < lstObjects.size(); i++) {
-        Object obj = lstObjects.get(i);
+      List<Exprent> exprents = new ArrayList<>(stat.getExprents() == null ? stat.getStatExprents() : stat.getExprents());
 
-        if (obj instanceof Statement) {
-          if (identifySecondaryFunctions((Statement) obj, varProc, options)) {
-            ret = true;
-            replaced = true;
-            break;
+      for (int i = 0; i < exprents.size(); i++) {
+        Exprent expr = exprents.get(i);
+
+        Exprent retexpr = identifySecondaryFunctions(stat, expr, true, varProc, options);
+        if (retexpr != null) {
+          if (stat.getExprents() == null) {
+            // only head expressions can be replaced!
+            stat.replaceExprent(expr, retexpr);
+          } else {
+            stat.getExprents().set(i, retexpr);
           }
-        } else if (obj instanceof Exprent) {
-          Exprent retexpr = identifySecondaryFunctions(stat, (Exprent) obj, true, varProc, options);
-          if (retexpr != null) {
-            if (stat.getExprents() == null) {
-              // only head expressions can be replaced!
-              stat.replaceExprent((Exprent) obj, retexpr);
-            } else {
-              stat.getExprents().set(i, retexpr);
-            }
-            ret = true;
-            replaced = true;
-            break;
-          }
+          ret = true;
+          replaced = true;
+          break;
         }
       }
     }
@@ -664,48 +664,44 @@ public final class SecondaryFunctionsHelper {
    */
   public static boolean updateAssignments(Statement stat) {
     boolean res = false;
-    // Get all sequential objects if the statement doesn't have exprents
-    List<Object> objects = new ArrayList<>(stat.getExprents() == null ? stat.getSequentialObjects() : stat.getExprents());
 
-    for (Object obj : objects) {
-      if (obj instanceof Statement) {
-        // If the object is a statement, recurse
-        res |= updateAssignments((Statement) obj);
-      } else if (obj instanceof Exprent) {
-        // If the statement is an exprent, start processing
-        Exprent exprent = (Exprent) obj;
+    for (Statement st : stat.getStats()) {
+      res |= updateAssignments(st);
+    }
 
-        if (exprent instanceof AssignmentExprent) {
-          AssignmentExprent assignment = (AssignmentExprent) exprent;
+    List<Exprent> exprents = new ArrayList<>(stat.getExprents() == null ? stat.getStatExprents() : stat.getExprents());
 
-          List<Exprent> params = exprent.getAllExprents();
+    for (Exprent exprent : exprents) {
+      if (exprent instanceof AssignmentExprent) {
+        AssignmentExprent assignment = (AssignmentExprent) exprent;
 
-          // Get params of the assignment exprent
-          Exprent lhs = params.get(0);
-          Exprent rhs = params.get(1);
+        List<Exprent> params = exprent.getAllExprents();
 
-          // We only want expressions that are standard assignments where the left hand side is a variable and the right hand side is a function.
-          if (assignment.getCondType() == null && lhs instanceof VarExprent && rhs instanceof FunctionExprent) {
-            VarExprent lhsVar = (VarExprent) lhs;
-            FunctionExprent rhsFunc = (FunctionExprent) rhs;
+        // Get params of the assignment exprent
+        Exprent lhs = params.get(0);
+        Exprent rhs = params.get(1);
 
-            List<Exprent> funcParams = rhsFunc.getAllExprents();
+        // We only want expressions that are standard assignments where the left hand side is a variable and the right hand side is a function.
+        if (assignment.getCondType() == null && lhs instanceof VarExprent && rhs instanceof FunctionExprent) {
+          VarExprent lhsVar = (VarExprent) lhs;
+          FunctionExprent rhsFunc = (FunctionExprent) rhs;
 
-            // Make sure that the function is a mathematical or bit shift function
-            if (rhsFunc.getFuncType().isArithmeticBinaryOperation() && funcParams.get(0) instanceof VarExprent) {
-              // Get the left hand side of the function
-              VarExprent lhsVarFunc = (VarExprent) funcParams.get(0);
+          List<Exprent> funcParams = rhsFunc.getAllExprents();
 
-              // Check if the left hand side of the assignment and the left hand side of the function are the same variable
-              // TODO: maybe we should be checking for var version equality too?
-              if (lhsVar.getIndex() == lhsVarFunc.getIndex()) {
-                // If all the checks succeed, set the assignment to be a compound assignment and set the right hand side to be the 2nd part of the function
-                assignment.setCondType(rhsFunc.getFuncType());
-                assignment.setRight(funcParams.get(1));
-                // TODO: doesn't hit all instances, see ClientWorld
+          // Make sure that the function is a mathematical or bit shift function
+          if (rhsFunc.getFuncType().isArithmeticBinaryOperation() && funcParams.get(0) instanceof VarExprent) {
+            // Get the left hand side of the function
+            VarExprent lhsVarFunc = (VarExprent) funcParams.get(0);
 
-                res = true;
-              }
+            // Check if the left hand side of the assignment and the left hand side of the function are the same variable
+            // TODO: maybe we should be checking for var version equality too?
+            if (lhsVar.getIndex() == lhsVarFunc.getIndex()) {
+              // If all the checks succeed, set the assignment to be a compound assignment and set the right hand side to be the 2nd part of the function
+              assignment.setCondType(rhsFunc.getFuncType());
+              assignment.setRight(funcParams.get(1));
+              // TODO: doesn't hit all instances, see ClientWorld
+
+              res = true;
             }
           }
         }

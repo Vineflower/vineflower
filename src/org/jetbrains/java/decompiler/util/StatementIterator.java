@@ -32,13 +32,12 @@ public class StatementIterator {
     }
 
     if (stat.getExprents() == null) {
-      for (Object obj : stat.getSequentialObjects()) {
-        if (obj instanceof Statement) {
-          iterate((Statement)obj, itr);
-        }
-        else if (obj instanceof Exprent) {
-          iterate((Exprent)obj, itr);
-        }
+      for (Statement st : stat.getStats()) {
+        iterate(st, itr);
+      }
+
+      for (Exprent expr : stat.getStatExprents()) {
+        iterate(expr, itr);
       }
     }
     else {

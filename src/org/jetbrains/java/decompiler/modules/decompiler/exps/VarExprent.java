@@ -520,16 +520,14 @@ public class VarExprent extends Exprent implements Pattern {
 
   public boolean isVarReferenced(Statement stat, VarExprent... whitelist) {
     if (stat.getExprents() == null) {
-      for (Object obj : stat.getSequentialObjects()) {
-        if (obj instanceof Statement) {
-          if (isVarReferenced((Statement)obj, whitelist)) {
-            return true;
-          }
+      for (Statement st : stat.getStats()) {
+        if (isVarReferenced(st, whitelist)) {
+          return true;
         }
-        else if (obj instanceof Exprent) {
-          if (isVarReferenced((Exprent)obj, whitelist)) {
-            return true;
-          }
+      }
+      for (Exprent exp : stat.getStatExprents()) {
+        if (isVarReferenced(exp, whitelist)) {
+          return true;
         }
       }
     }

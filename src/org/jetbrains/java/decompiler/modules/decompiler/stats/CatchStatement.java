@@ -216,12 +216,10 @@ public class CatchStatement extends Statement {
     }
   }
 
-  public List<Object> getSequentialObjects() {
-
-    List<Object> lst = new ArrayList<>(resources);
-    lst.addAll(stats);
+  @Override
+  public List<Exprent> getStatExprents() {
+    List<Exprent> lst = new ArrayList<>(resources);
     lst.addAll(vars);
-
     return lst;
   }
 

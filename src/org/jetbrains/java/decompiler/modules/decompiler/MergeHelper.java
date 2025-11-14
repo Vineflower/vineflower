@@ -470,12 +470,12 @@ public class MergeHelper {
 
   private static Set<VarExprent> getFinalVariables(Statement stat, Set<VarExprent> variables) {
     if (stat.getExprents() == null) {
-      for (Object o : stat.getSequentialObjects()) {
-        if (o instanceof Statement) {
-          getFinalVariables((Statement) o, variables);
-        } else if (o instanceof Exprent) {
-          getFinalVariables((Exprent) o, variables);
-        }
+      for (Statement s : stat.getStats()) {
+        getFinalVariables(s, variables);
+      }
+
+      for (Exprent exp : stat.getStatExprents()) {
+        getFinalVariables(exp, variables);
       }
     } else {
       for (Exprent exp : stat.getExprents()) {
