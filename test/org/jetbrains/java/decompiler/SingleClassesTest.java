@@ -785,6 +785,10 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestVarArgCalls");
     register(JAVA_8, "TestUnionType");
     register(JAVA_8, "TestTryWithResources");
+    register(JAVA_8, "TestTryWithResourcesLoop");
+    register(JAVA_8, "TestTryWithResourcesMulti");
+    register(JAVA_8, "TestTryWithResourcesNestedLoop");
+    register(JAVA_8, "TestTryWithResourcesReturn");
     // TODO: continue not explicit
     register(JAVA_8, "TestNestedLoops");
     register(JAVA_8, "TestAnonymousClass");
@@ -809,7 +813,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestTryWithResourcesLoopJ16");
     register(JAVA_16, "TestTryWithResourcesFake");
     register(JAVA_16, "TestTryWithResourcesSwitchJ16");
-    register(JAVA_16, "TestTryWithResourcesNestedLoop");
+    register(JAVA_16, "TestTryWithResourcesNestedLoopJ16");
     register(JAVA_16, "TestTryWithResourcesFakeTrigger");
 
     register(JAVA_16, "TestTryWithResourcesManyJ16");

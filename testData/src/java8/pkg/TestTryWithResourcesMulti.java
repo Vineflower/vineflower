@@ -5,7 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
 
-public class TestTryWithResourcesMultiJ16 {
+public class TestTryWithResourcesMulti {
     public void testMulti(File file) throws IOException {
         try (Scanner scanner = new Scanner(file); FileWriter writer = new FileWriter(file)) {
             scanner.next();

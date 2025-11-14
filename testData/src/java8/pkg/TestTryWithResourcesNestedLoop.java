@@ -26,7 +26,9 @@ public class TestTryWithResourcesNestedLoop {
             }
           }
 
-          return new ByteArrayInputStream(lv3.readAllBytes());
+          byte[] ary = new byte[lv3.available()];
+          lv3.read(ary);
+          return new ByteArrayInputStream(ary);
         }
       }
     }

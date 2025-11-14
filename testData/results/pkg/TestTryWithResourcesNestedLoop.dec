@@ -8,193 +8,215 @@ import java.nio.file.Path;
 
 public class TestTryWithResourcesNestedLoop {
    public static InputStream test(Path base, Path overlay, int width, int left, int top, int right, int bottom) throws IOException {
+      ByteArrayInputStream var72;
       try (
          InputStream lv = Files.newInputStream(base);// 11
          InputStream lv2 = Files.newInputStream(overlay);// 12
       ) {
          int n = lv.available();// 14
          int o = lv.read();// 15
-         if (n == lv2.available() && o == lv2.read()) {// 17
-            try (ByteArrayInputStream lv3 = new ByteArrayInputStream(new byte[0], n, o)) {// 18
-               int p = n / width;// 19
+         if (n != lv2.available() || o != lv2.read()) {// 17
+            return null;// 36
+         }
 
-               for (int q = top * p; q < bottom * p; q++) {// 20
-                  for (int r = left * p; r < right * p; r++) {// 21
-                     int s = lv2.read(new byte[0], r, q);// 22
-                     int t = lv.read(new byte[0], r, q);// 23
-                     lv3.read(new byte[0], r, q);// 25
-                  }
+         try (ByteArrayInputStream lv3 = new ByteArrayInputStream(new byte[0], n, o)) {// 18
+            int p = n / width;// 19
+
+            for (int q = top * p; q < bottom * p; q++) {// 20
+               for (int r = left * p; r < right * p; r++) {// 21
+                  int s = lv2.read(new byte[0], r, q);// 22
+                  int t = lv.read(new byte[0], r, q);// 23
+                  lv3.read(new byte[0], r, q);// 25
                }
-
-               return new ByteArrayInputStream(lv3.readAllBytes());// 29
             }
+
+            byte[] ary = new byte[lv3.available()];// 29
+            lv3.read(ary);// 30
+            var72 = new ByteArrayInputStream(ary);
          }
       }
 
-      return null;// 34
+      return var72;// 31
    }
 }
 
 class 'pkg/TestTryWithResourcesNestedLoop' {
    method 'test (Ljava/nio/file/Path;Ljava/nio/file/Path;IIIII)Ljava/io/InputStream;' {
-      0      11
-      5      11
-      6      11
-      7      11
-      8      11
-      9      11
-      a      12
-      f      12
-      10      12
-      11      12
-      12      12
-      13      12
-      14      14
-      15      14
-      16      14
-      17      14
-      18      14
-      19      14
-      1a      14
+      0      12
+      5      12
+      6      12
+      7      12
+      8      12
+      9      12
+      d      13
+      12      13
+      13      13
+      14      13
+      15      13
+      16      13
+      1a      15
       1b      15
       1c      15
       1d      15
       1e      15
       1f      15
       20      15
-      21      15
+      21      16
       22      16
       23      16
       24      16
       25      16
       26      16
       27      16
-      28      16
-      29      16
-      2a      16
-      2b      16
-      2c      16
-      2d      16
-      2e      16
-      2f      16
-      30      16
-      31      16
-      32      16
-      33      16
-      34      16
-      35      16
+      28      17
+      29      17
+      2a      17
+      2b      17
+      2c      17
+      2d      17
+      2e      17
+      2f      17
+      30      17
+      31      17
+      32      17
+      33      17
+      34      17
+      35      17
+      36      17
+      37      17
+      38      17
+      39      17
       3a      17
-      3d      17
-      3e      17
-      3f      17
-      40      17
-      44      17
-      45      17
-      46      18
-      47      18
-      48      18
-      49      18
-      4a      18
-      4b      18
-      4c      20
-      4d      20
-      4e      20
-      4f      20
-      50      20
-      51      20
-      52      20
-      53      20
-      54      20
-      55      20
-      56      20
-      57      20
-      58      20
-      59      20
-      5a      20
-      5b      20
-      5c      20
-      5d      21
-      5e      21
-      5f      21
-      60      21
-      61      21
-      62      21
-      63      21
-      64      21
-      65      21
-      66      21
-      67      21
-      68      21
-      69      21
-      6a      21
-      6b      21
-      6c      21
-      6d      22
-      6e      22
-      6f      22
-      72      22
-      73      22
-      74      22
-      75      22
-      76      22
-      77      22
-      78      22
-      79      22
-      7a      22
-      7b      23
-      7c      23
-      7d      23
-      80      23
-      81      23
-      82      23
-      83      23
-      84      23
-      85      23
-      86      23
-      87      23
-      88      23
-      89      24
-      8a      24
-      8b      24
-      8e      24
-      8f      24
-      90      24
-      91      24
-      92      24
-      93      24
-      94      24
-      96      21
-      97      21
-      98      21
-      9c      20
-      9d      20
-      9e      20
-      a6      28
-      a7      28
-      a8      28
-      a9      28
-      aa      28
-      cb      28
-      132      33
-      133      33
+      3b      17
+      40      21
+      43      21
+      44      21
+      45      21
+      46      21
+      4a      21
+      4b      21
+      4f      22
+      50      22
+      51      22
+      52      22
+      53      22
+      54      22
+      55      24
+      56      24
+      57      24
+      58      24
+      59      24
+      5a      24
+      5b      24
+      5c      24
+      5d      24
+      5e      24
+      5f      24
+      60      24
+      61      24
+      62      24
+      63      24
+      64      24
+      65      24
+      66      25
+      67      25
+      68      25
+      69      25
+      6a      25
+      6b      25
+      6c      25
+      6d      25
+      6e      25
+      6f      25
+      70      25
+      71      25
+      72      25
+      73      25
+      74      25
+      75      25
+      76      26
+      77      26
+      78      26
+      7b      26
+      7c      26
+      7d      26
+      7e      26
+      7f      26
+      80      26
+      81      26
+      82      26
+      83      26
+      84      27
+      85      27
+      86      27
+      89      27
+      8a      27
+      8b      27
+      8c      27
+      8d      27
+      8e      27
+      8f      27
+      90      27
+      91      27
+      92      28
+      93      28
+      94      28
+      97      28
+      98      28
+      99      28
+      9a      28
+      9b      28
+      9c      28
+      9d      28
+      9f      25
+      a0      25
+      a1      25
+      a5      24
+      a6      24
+      a7      24
+      ab      32
+      ac      32
+      ad      32
+      ae      32
+      af      32
+      b2      32
+      b3      32
+      b4      33
+      b5      33
+      b6      33
+      b7      33
+      b8      33
+      b9      33
+      ba      33
+      c0      34
+      c1      34
+      c5      34
+      c6      34
+      130      38
+      131      38
+      132      38
+      212      18
+      213      18
    }
 }
 
 Lines mapping:
-11 <-> 12
-12 <-> 13
-14 <-> 15
-15 <-> 16
-17 <-> 17
-18 <-> 18
-19 <-> 19
-20 <-> 21
-21 <-> 22
-22 <-> 23
-23 <-> 24
-25 <-> 25
-29 <-> 29
-34 <-> 34
+11 <-> 13
+12 <-> 14
+14 <-> 16
+15 <-> 17
+17 <-> 18
+18 <-> 22
+19 <-> 23
+20 <-> 25
+21 <-> 26
+22 <-> 27
+23 <-> 28
+25 <-> 29
+29 <-> 33
+30 <-> 34
+31 <-> 39
+36 <-> 19
 Not mapped:
-30
 32
+34
