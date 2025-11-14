@@ -365,6 +365,8 @@ public abstract class Exprent implements IMatchable {
 
   @Override
   public String toString() {
-    return toJava(0).convertToStringAndAllowDataDiscard();
+    try (var v = DecompilerContext.getImportCollector().lock()) {
+      return toJava(0).convertToStringAndAllowDataDiscard();
+    }
   }
 }

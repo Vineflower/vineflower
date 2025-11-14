@@ -5,7 +5,9 @@ import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.struct.StructClass;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class TryHelper {
   public static boolean enhanceTryStats(RootStatement root, StructClass cl) {
@@ -46,8 +48,6 @@ public class TryHelper {
       return ret;
   }
 
-  // J11+
-  // Merge all try statements recursively
   private static boolean mergeTrys(Statement root) {
     boolean ret = false;
 
@@ -74,6 +74,16 @@ public class TryHelper {
     // Get the statement inside of the current try
     Statement inner = stat.getStats().get(0);
 
+    // If the inside is a sequence, check the first of the sequence, which can happen for J8 try with resources due to
+    // finally return behavior. Don't do this if there are non-exit breaks coming out of the statement.
+    Set<StatEdge> edges = new HashSet<>();
+    TryWithResourcesProcessor.findEdgesLeaving(stat, inner, edges);
+    Statement parent = stat;
+    if (inner instanceof SequenceStatement && edges.isEmpty()) {
+      parent = inner;
+      inner = inner.getStats().get(0);
+    }
+
     // Check if the inner statement is a try statement
     if (inner instanceof CatchStatement) {
       // Filter on try with resources statements
@@ -95,7 +105,7 @@ public class TryHelper {
           for (StatEdge succ : innerBlock.getAllSuccessorEdges()) {
             boolean found = false;
             for (StatEdge innerEdge : innerEdges) {
-              if (succ.getDestination() == innerEdge.getDestination() && succ.getType() == innerEdge.getType()) {
+              if (succ.getDestination() == innerEdge.getDestination()) {
                 found = true;
                 break;
               }
@@ -107,7 +117,7 @@ public class TryHelper {
           }
 
           // Replace the inner try statement with the block inside
-          stat.replaceStatement(inner, innerBlock);
+          parent.replaceStatement(inner, innerBlock);
 
           return true;
         }

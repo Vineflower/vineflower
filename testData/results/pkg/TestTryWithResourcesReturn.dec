@@ -2,34 +2,86 @@ package pkg;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Scanner;
 
 public class TestTryWithResourcesReturn {
    public Scanner test(File file) throws FileNotFoundException {
       Scanner var4;
-      try (Scanner scanner = new Scanner(file)) {// 9
+      try (Scanner scanner = new Scanner(file)) {// 10
          var4 = scanner;
       }
 
-      return var4;// 10
+      return var4;// 11
+   }
+
+   public Scanner test2(File file) throws FileNotFoundException {
+      try (Scanner scanner = new Scanner(file)) {// 16
+         System.out.println("try");// 17
+         return scanner;// 18
+      } catch (IOException e) {// 19
+         System.out.println("catch");// 20
+         throw new RuntimeException(e);// 21
+      }
+   }
+
+   public Scanner test3(File file) throws FileNotFoundException {
+      try (Scanner scanner = new Scanner(file)) {// 26
+         return scanner;// 27
+      } catch (IOException e) {// 28
+         System.out.println("catch");// 29
+         return null;// 30
+      }
+   }
+
+   public Scanner test4(File file) throws FileNotFoundException {
+      System.out.println("pre");// 35
+
+      try (Scanner scanner = new Scanner(file)) {// 37
+         return scanner;// 38
+      } catch (IOException e) {// 39
+         System.out.println("catch");// 40
+         return null;// 41
+      }
+   }
+
+   public Scanner test5(File file) throws FileNotFoundException {
+      System.out.println("pre");// 46
+
+      try (Scanner scanner = new Scanner(file)) {// 48
+         System.out.println("try");// 49
+         return scanner;// 50
+      } catch (IOException e) {// 51
+         System.out.println("catch");// 52
+         return null;// 53
+      }
+   }
+
+   public Scanner test6(File file) throws FileNotFoundException {
+      try (Scanner scanner = this.create(file)) {// 58
+         return scanner != null ? new Scanner(System.in) : scanner;// 59
+      } catch (IOException e) {// 60
+         System.out.println("catch");// 61
+         return null;// 62
+      }
    }
 
    public Scanner testFunc(File file) throws FileNotFoundException {
       Scanner var4;
-      try (Scanner scanner = this.create(file)) {// 15
+      try (Scanner scanner = this.create(file)) {// 67
          var4 = scanner;
       }
 
-      return var4;// 16
+      return var4;// 68
    }
 
    public Scanner testFinally(File file) {
       try {
-         try (Scanner scanner = new Scanner(file)) {// 21
+         try (Scanner scanner = new Scanner(file)) {// 73
             ;
          }
 
-         return null;// 24
+         return null;// 76
       } finally {
          ;
       }
@@ -157,311 +209,473 @@ public class TestTryWithResourcesReturn {
    public String testComplex(File f, File f2, File f3) throws FileNotFoundException {
       String o;
       try (
-         Scanner scanner = this.create(f);// 42
-         Scanner s2 = this.create(f2);// 43
+         Scanner scanner = this.create(f);// 94
+         Scanner s2 = this.create(f2);// 95
       ) {
-         scanner.next();// 44
-         if (!scanner.hasNext() || !s2.hasNext()) {// 46
-            return null;// 47
+         scanner.next();// 96
+         if (!scanner.hasNext() || !s2.hasNext()) {// 98
+            return null;// 99
          }
 
-         try (Scanner s = this.create(f3)) {// 50
-            scanner.next();// 51
+         try (Scanner s = this.create(f3)) {// 102
+            scanner.next();// 103
 
-            for (int i = 0; i < s.nextInt(); i++) {// 53
-               System.out.println(i);// 54
+            for (int i = 0; i < s.nextInt(); i++) {// 105
+               System.out.println(i);// 106
             }
 
-            o = s.next();// 57
+            o = s.next();// 109
          }
       }
 
-      return o;// 61
+      return o;// 113
    }
 
    public String testComplex1(File f, File f2, File f3) throws FileNotFoundException {
       String var8;
       try (
-         Scanner scanner = this.create(f);// 65
-         Scanner s2 = this.create(f2);// 66
+         Scanner scanner = this.create(f);// 117
+         Scanner s2 = this.create(f2);// 118
       ) {
-         if (!scanner.hasNext() || !s2.hasNext()) {// 67
-            s2.next();// 71
-            return null;// 74
+         if (!scanner.hasNext() || !s2.hasNext()) {// 119
+            s2.next();// 123
+            return null;// 126
          }
 
          var8 = scanner.next();
       }
 
-      return var8;// 68
+      return var8;// 120
    }
 
    public String testComplex2(File f, File f2, File f3) throws FileNotFoundException {
       String var6;
-      try (Scanner scanner = this.create(f)) {// 78
-         if (!scanner.hasNext()) {// 79
-            scanner.next();// 83
-            return null;// 86
+      try (Scanner scanner = this.create(f)) {// 130
+         if (!scanner.hasNext()) {// 131
+            scanner.next();// 135
+            return null;// 138
          }
 
          var6 = scanner.next();
       }
 
-      return var6;// 80
+      return var6;// 132
    }
 
    private Scanner create(File file) throws FileNotFoundException {
-      return new Scanner(file);// 90
+      return new Scanner(file);// 142
    }
 }
 
 class 'pkg/TestTryWithResourcesReturn' {
    method 'test (Ljava/io/File;)Ljava/util/Scanner;' {
-      4      9
-      8      9
-      b      10
-      c      10
-      d      10
-      2c      13
-      2d      13
-      2e      13
+      4      10
+      8      10
+      b      11
+      c      11
+      d      11
+      2c      14
+      2d      14
+      2e      14
+   }
+
+   method 'test2 (Ljava/io/File;)Ljava/util/Scanner;' {
+      4      18
+      8      18
+      b      19
+      c      19
+      d      19
+      e      19
+      f      19
+      10      19
+      11      19
+      12      19
+      13      20
+      36      20
+      62      21
+      63      22
+      64      22
+      65      22
+      66      22
+      67      22
+      68      22
+      69      22
+      6a      22
+      6f      23
+      73      23
+   }
+
+   method 'test3 (Ljava/io/File;)Ljava/util/Scanner;' {
+      4      28
+      8      28
+      b      29
+      2e      29
+      5a      30
+      5b      31
+      5c      31
+      5d      31
+      5e      31
+      5f      31
+      60      31
+      61      31
+      62      31
+      63      32
+      64      32
+   }
+
+   method 'test4 (Ljava/io/File;)Ljava/util/Scanner;' {
+      0      37
+      1      37
+      2      37
+      3      37
+      4      37
+      5      37
+      6      37
+      7      37
+      c      39
+      10      39
+      13      40
+      36      40
+      62      41
+      63      42
+      64      42
+      65      42
+      66      42
+      67      42
+      68      42
+      69      42
+      6a      42
+      6b      43
+      6c      43
+   }
+
+   method 'test5 (Ljava/io/File;)Ljava/util/Scanner;' {
+      0      48
+      1      48
+      2      48
+      3      48
+      4      48
+      5      48
+      6      48
+      7      48
+      c      50
+      10      50
+      13      51
+      14      51
+      15      51
+      16      51
+      17      51
+      18      51
+      19      51
+      1a      51
+      1b      52
+      3e      52
+      6a      53
+      6b      54
+      6c      54
+      6d      54
+      6e      54
+      6f      54
+      70      54
+      71      54
+      72      54
+      73      55
+      74      55
+   }
+
+   method 'test6 (Ljava/io/File;)Ljava/util/Scanner;' {
+      0      60
+      1      60
+      2      60
+      3      60
+      4      60
+      5      60
+      8      61
+      9      61
+      a      61
+      b      61
+      10      61
+      11      61
+      12      61
+      19      61
+      3c      61
+      68      62
+      69      63
+      6a      63
+      6b      63
+      6c      63
+      6d      63
+      6e      63
+      6f      63
+      70      63
+      71      64
+      72      64
    }
 
    method 'testFunc (Ljava/io/File;)Ljava/util/Scanner;' {
-      0      18
-      1      18
-      2      18
-      3      18
-      4      18
-      5      18
-      8      19
-      9      19
-      a      19
-      29      22
-      2a      22
-      2b      22
+      0      70
+      1      70
+      2      70
+      3      70
+      4      70
+      5      70
+      8      71
+      9      71
+      a      71
+      29      74
+      2a      74
+      2b      74
    }
 
    method 'testFinally (Ljava/io/File;)Ljava/util/Scanner;' {
-      4      27
-      8      27
-      2c      31
-      2d      31
+      4      79
+      8      79
+      2c      83
+      2d      83
    }
 
    method 'testComplex (Ljava/io/File;Ljava/io/File;Ljava/io/File;)Ljava/lang/String;' {
-      0      159
-      1      159
-      2      159
-      3      159
-      4      159
-      5      159
-      6      159
-      a      160
-      b      160
-      c      160
-      d      160
-      e      160
-      f      160
-      10      160
-      14      162
-      15      162
-      16      162
-      17      162
-      18      162
-      1a      163
-      1b      163
-      1c      163
-      1d      163
-      1e      163
-      1f      163
-      20      163
-      21      163
-      22      163
-      23      163
-      24      163
-      25      163
-      26      163
-      27      163
-      28      163
-      29      163
-      2a      164
-      75      164
-      76      167
-      77      167
-      78      167
-      79      167
-      7a      167
-      7b      167
-      7c      167
-      80      168
-      81      168
-      82      168
-      83      168
-      84      168
-      86      170
-      87      170
-      88      170
-      89      170
-      8a      170
-      8b      170
-      8c      170
-      8d      170
-      8e      170
-      8f      170
-      90      170
-      91      170
-      92      170
-      93      171
-      94      171
-      95      171
-      96      171
-      97      171
-      98      171
-      99      171
-      9a      171
-      9b      170
-      9c      170
-      9d      170
-      a1      174
-      a2      174
-      a3      174
-      a4      174
-      a5      174
-      a6      174
-      a7      174
-      1ad      178
-      1ae      178
-      1af      178
+      0      211
+      1      211
+      2      211
+      3      211
+      4      211
+      5      211
+      6      211
+      a      212
+      b      212
+      c      212
+      d      212
+      e      212
+      f      212
+      10      212
+      14      214
+      15      214
+      16      214
+      17      214
+      18      214
+      1a      215
+      1b      215
+      1c      215
+      1d      215
+      1e      215
+      1f      215
+      20      215
+      21      215
+      22      215
+      23      215
+      24      215
+      25      215
+      26      215
+      27      215
+      28      215
+      29      215
+      2a      216
+      75      216
+      76      219
+      77      219
+      78      219
+      79      219
+      7a      219
+      7b      219
+      7c      219
+      80      220
+      81      220
+      82      220
+      83      220
+      84      220
+      86      222
+      87      222
+      88      222
+      89      222
+      8a      222
+      8b      222
+      8c      222
+      8d      222
+      8e      222
+      8f      222
+      90      222
+      91      222
+      92      222
+      93      223
+      94      223
+      95      223
+      96      223
+      97      223
+      98      223
+      99      223
+      9a      223
+      9b      222
+      9c      222
+      9d      222
+      a1      226
+      a2      226
+      a3      226
+      a4      226
+      a5      226
+      a6      226
+      a7      226
+      1ad      230
+      1ae      230
+      1af      230
    }
 
    method 'testComplex1 (Ljava/io/File;Ljava/io/File;Ljava/io/File;)Ljava/lang/String;' {
-      0      184
-      1      184
-      2      184
-      3      184
-      4      184
-      5      184
-      6      184
-      a      185
-      b      185
-      c      185
-      d      185
-      e      185
-      f      185
-      10      185
-      14      187
-      15      187
-      16      187
-      17      187
-      18      187
-      19      187
-      1a      187
-      1b      187
-      1c      187
-      1d      187
-      1e      187
-      1f      187
-      20      187
-      21      187
-      22      187
-      23      187
-      24      192
-      25      192
-      26      192
-      27      192
-      28      192
-      29      192
-      2a      192
-      71      195
-      72      195
-      73      195
-      74      188
-      75      188
-      76      188
-      77      188
-      78      188
-      128      189
-      129      189
+      0      236
+      1      236
+      2      236
+      3      236
+      4      236
+      5      236
+      6      236
+      a      237
+      b      237
+      c      237
+      d      237
+      e      237
+      f      237
+      10      237
+      14      239
+      15      239
+      16      239
+      17      239
+      18      239
+      19      239
+      1a      239
+      1b      239
+      1c      239
+      1d      239
+      1e      239
+      1f      239
+      20      239
+      21      239
+      22      239
+      23      239
+      24      244
+      25      244
+      26      244
+      27      244
+      28      244
+      29      244
+      2a      244
+      71      247
+      72      247
+      73      247
+      74      240
+      75      240
+      76      240
+      77      240
+      78      240
+      128      241
+      129      241
    }
 
    method 'testComplex2 (Ljava/io/File;Ljava/io/File;Ljava/io/File;)Ljava/lang/String;' {
-      0      200
-      1      200
-      2      200
-      3      200
-      4      200
-      5      200
-      6      200
-      a      201
-      b      201
-      c      201
-      d      201
-      e      201
-      f      201
-      10      201
-      11      201
-      12      206
-      13      206
-      14      206
-      15      206
-      16      206
-      17      206
-      18      206
-      3c      209
-      3d      209
-      3e      209
-      3f      202
-      40      202
-      41      202
-      42      202
-      43      202
-      9c      203
-      9d      203
+      0      252
+      1      252
+      2      252
+      3      252
+      4      252
+      5      252
+      6      252
+      a      253
+      b      253
+      c      253
+      d      253
+      e      253
+      f      253
+      10      253
+      11      253
+      12      258
+      13      258
+      14      258
+      15      258
+      16      258
+      17      258
+      18      258
+      3c      261
+      3d      261
+      3e      261
+      3f      254
+      40      254
+      41      254
+      42      254
+      43      254
+      9c      255
+      9d      255
    }
 
    method 'create (Ljava/io/File;)Ljava/util/Scanner;' {
-      4      213
-      8      213
+      4      265
+      8      265
    }
 }
 
 Lines mapping:
-9 <-> 10
-10 <-> 14
-15 <-> 19
-16 <-> 23
-21 <-> 28
-24 <-> 32
-42 <-> 160
-43 <-> 161
-44 <-> 163
-46 <-> 164
-47 <-> 165
-50 <-> 168
-51 <-> 169
-53 <-> 171
-54 <-> 172
-57 <-> 175
-61 <-> 179
-65 <-> 185
-66 <-> 186
-67 <-> 188
-68 <-> 196
-71 <-> 189
-74 <-> 190
-78 <-> 201
-79 <-> 202
-80 <-> 210
-83 <-> 203
-86 <-> 204
-90 <-> 214
+10 <-> 11
+11 <-> 15
+16 <-> 19
+17 <-> 20
+18 <-> 21
+19 <-> 22
+20 <-> 23
+21 <-> 24
+26 <-> 29
+27 <-> 30
+28 <-> 31
+29 <-> 32
+30 <-> 33
+35 <-> 38
+37 <-> 40
+38 <-> 41
+39 <-> 42
+40 <-> 43
+41 <-> 44
+46 <-> 49
+48 <-> 51
+49 <-> 52
+50 <-> 53
+51 <-> 54
+52 <-> 55
+53 <-> 56
+58 <-> 61
+59 <-> 62
+60 <-> 63
+61 <-> 64
+62 <-> 65
+67 <-> 71
+68 <-> 75
+73 <-> 80
+76 <-> 84
+94 <-> 212
+95 <-> 213
+96 <-> 215
+98 <-> 216
+99 <-> 217
+102 <-> 220
+103 <-> 221
+105 <-> 223
+106 <-> 224
+109 <-> 227
+113 <-> 231
+117 <-> 237
+118 <-> 238
+119 <-> 240
+120 <-> 248
+123 <-> 241
+126 <-> 242
+130 <-> 253
+131 <-> 254
+132 <-> 262
+135 <-> 255
+138 <-> 256
+142 <-> 266
 Not mapped:
-11
-17
-22
-23
-58
-59
-72
-84
+12
+69
+74
+75
+110
+111
+124
+136
