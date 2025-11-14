@@ -1034,32 +1034,28 @@ public class NestedClassProcessor {
     if (stat.getExprents() == null) {
       int counter = 0;
 
-      for (Object obj : stat.getSequentialObjects()) {
-        if (obj instanceof Statement) {
-          Statement st = (Statement)obj;
+      for (Statement st : stat.getStats()) {
+        Statement stTemp = getDefStatement(st, classType, setStats);
 
-          Statement stTemp = getDefStatement(st, classType, setStats);
-
-          if (stTemp != null) {
-            if (counter == 1) {
-              retStat = stat;
-              break;
-            }
-            retStat = stTemp;
-            counter++;
+        if (stTemp != null) {
+          if (counter == 1) {
+            retStat = stat;
+            break;
           }
-
-          if (st instanceof DoStatement) {
-            DoStatement dost = (DoStatement)st;
-
-            lst.addAll(dost.getInitExprentList());
-            lst.addAll(dost.getConditionExprentList());
-          }
+          retStat = stTemp;
+          counter++;
         }
-        else if (obj instanceof Exprent) {
-          lst.add((Exprent)obj);
+
+        // TODO: is this needed?
+        if (st instanceof DoStatement) {
+          DoStatement dost = (DoStatement)st;
+
+          lst.addAll(dost.getInitExprentList());
+          lst.addAll(dost.getConditionExprentList());
         }
       }
+
+      lst.addAll(stat.getStatExprents());
     }
     else {
       lst = stat.getExprents();

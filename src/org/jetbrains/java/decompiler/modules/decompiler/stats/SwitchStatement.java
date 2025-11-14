@@ -207,10 +207,8 @@ public class SwitchStatement extends Statement {
   }
 
   @Override
-  public List<Object> getSequentialObjects() {
-
-    List<Object> lst = new ArrayList<>(stats);
-    lst.add(1, headexprent.get(0));
+  public List<Exprent> getStatExprents() {
+    List<Exprent> lst = new ArrayList<>(headexprent);
     // make sure guards can be simplified by other helpers
     for (Exprent caseGuard : getCaseGuards()) {
       if (caseGuard != null) {
@@ -219,7 +217,11 @@ public class SwitchStatement extends Statement {
     }
 
     for (List<Exprent> caseList : this.caseValues) {
-      lst.addAll(caseList);
+      for (Exprent exp : caseList) {
+        if (exp != null) {
+          lst.add(exp);
+        }
+      }
     }
 
     return lst;

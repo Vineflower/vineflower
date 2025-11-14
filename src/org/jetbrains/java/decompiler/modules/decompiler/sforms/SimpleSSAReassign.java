@@ -88,13 +88,12 @@ public final class SimpleSSAReassign {
 
   private static void findAllVars(Statement stat, Consumer<VarExprent> action) {
     if (stat.getExprents() == null) {
-      for (Object obj : stat.getSequentialObjects()) {
-        if (obj instanceof Statement) {
-          findAllVars((Statement)obj, action);
-        }
-        else if (obj instanceof Exprent) {
-          findAllVars((Exprent)obj, action);
-        }
+      for (Statement st : stat.getStats()) {
+        findAllVars(st, action);
+      }
+
+      for (Exprent exprent : stat.getStatExprents()) {
+        findAllVars(exprent, action);
       }
     }
     else {

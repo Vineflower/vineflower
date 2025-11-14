@@ -284,12 +284,8 @@ public class IfStatement extends Statement {
   }
 
   @Override
-  public List<Object> getSequentialObjects() {
-
-    List<Object> lst = new ArrayList<>(stats);
-    lst.add(1, headexprent.get(0));
-
-    return lst;
+  public List<Exprent> getStatExprents() {
+    return new ArrayList<>(headexprent);
   }
 
   @Override

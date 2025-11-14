@@ -154,9 +154,8 @@ public class DoStatement extends Statement {
   }
 
   @Override
-  public List<Object> getSequentialObjects() {
-
-    List<Object> lst = new ArrayList<>();
+  public List<Exprent> getStatExprents() {
+    List<Exprent> lst = new ArrayList<>();
 
     switch (looptype) {
       case FOR:
@@ -170,8 +169,6 @@ public class DoStatement extends Statement {
         lst.add(getInitExprent());
         lst.add(getIncExprent());
     }
-
-    lst.add(first);
 
     switch (looptype) {
       case DO_WHILE:

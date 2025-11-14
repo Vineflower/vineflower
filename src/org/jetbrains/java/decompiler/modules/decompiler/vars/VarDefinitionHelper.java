@@ -258,18 +258,17 @@ public class VarDefinitionHelper {
 
   private LocalVariable findLVT(int index, Statement stat) {
     if (stat.getExprents() == null) {
-      for (Object obj : stat.getSequentialObjects()) {
-        if (obj instanceof Statement) {
-          LocalVariable lvt = findLVT(index, (Statement)obj);
-          if (lvt != null) {
-            return lvt;
-          }
+      for (Statement st : stat.getStats()) {
+        LocalVariable lvt = findLVT(index, st);
+        if (lvt != null) {
+          return lvt;
         }
-        else if (obj instanceof Exprent) {
-          LocalVariable lvt = findLVT(index, (Exprent)obj);
-          if (lvt != null) {
-            return lvt;
-          }
+      }
+
+      for (Exprent exp : stat.getStatExprents()) {
+        LocalVariable lvt = findLVT(index, exp);
+        if (lvt != null) {
+          return lvt;
         }
       }
     }
@@ -352,30 +351,26 @@ public class VarDefinitionHelper {
       List<Integer> childVars = new ArrayList<>();
       List<Exprent> currVars = new ArrayList<>();
 
-      for (Object obj : stat.getSequentialObjects()) {
-        if (obj instanceof Statement) {
-          Statement st = (Statement)obj;
-          childVars.addAll(initStatement(st));
+      for (Statement st : stat.getStats()) {
+        childVars.addAll(initStatement(st));
 
-          if (st instanceof DoStatement) {
-            DoStatement dost = (DoStatement)st;
-            if (dost.getLooptype() != DoStatement.Type.FOR &&
-                dost.getLooptype() != DoStatement.Type.FOR_EACH &&
-                dost.getLooptype() != DoStatement.Type.INFINITE) {
-              currVars.add(dost.getConditionExprent());
-            }
-          }
-          else if (st instanceof CatchAllStatement) {
-            CatchAllStatement fin = (CatchAllStatement)st;
-            if (fin.isFinally() && fin.getMonitor() != null) {
-              currVars.add(fin.getMonitor());
-            }
+        if (st instanceof DoStatement) {
+          DoStatement dost = (DoStatement)st;
+          if (dost.getLooptype() != DoStatement.Type.FOR &&
+            dost.getLooptype() != DoStatement.Type.FOR_EACH &&
+            dost.getLooptype() != DoStatement.Type.INFINITE) {
+            currVars.add(dost.getConditionExprent());
           }
         }
-        else if (obj instanceof Exprent) {
-          currVars.add((Exprent)obj);
+        else if (st instanceof CatchAllStatement) {
+          CatchAllStatement fin = (CatchAllStatement)st;
+          if (fin.isFinally() && fin.getMonitor() != null) {
+            currVars.add(fin.getMonitor());
+          }
         }
       }
+
+      currVars.addAll(stat.getStatExprents());
 
       // children statements
       for (Integer index : childVars) {
@@ -673,6 +668,14 @@ public class VarDefinitionHelper {
     return null;
   }
 
+  // FIXME: Needed for variable merging combat, get rid of it!
+  private static List<Object> getSequentialObjects(Statement stat) {
+    ArrayList<Object> lst = new ArrayList<>();
+    lst.addAll(stat.getStatExprents());
+    lst.addAll(stat.getStats());
+    return lst;
+  }
+
 
   private VPPEntry mergeVars(Statement stat, Map<Integer, VarVersionPair> parent, Map<Integer, VarVersionPair> leaked, Map<VarVersionPair, VarVersionPair> denylist) {
     Map<Integer, VarVersionPair> this_vars = new HashMap<>();
@@ -711,7 +714,7 @@ public class VarDefinitionHelper {
     }
 
     if (stat.getExprents() == null) {
-      List<Object> objs = stat.getSequentialObjects();
+      List<Object> objs = getSequentialObjects(stat);
       for (int i = 0; i < objs.size(); i++) {
         Object obj = objs.get(i);
         if (obj instanceof Statement) {
@@ -942,14 +945,13 @@ public class VarDefinitionHelper {
       throw new IllegalStateException("Trying to remap var version " + from + " in statement " + stat + " to itself!");
     boolean success = false;
     if (stat.getExprents() == null) {
-      for (Object obj : stat.getSequentialObjects()) {
-        if (obj instanceof Statement) {
-          success |= remapVar((Statement)obj, from, to);
-        }
-        else if (obj instanceof Exprent) {
-          if (remapVar((Exprent)obj, from, to)) {
-            success = true;
-          }
+      for (Statement st : stat.getStats()) {
+        success |= remapVar(st, from, to);
+      }
+
+      for (Exprent exp : stat.getStatExprents()) {
+        if (remapVar(exp, from, to)) {
+          success = true;
         }
       }
     }
@@ -1228,13 +1230,12 @@ public class VarDefinitionHelper {
     }
 
     if (stat.getExprents() == null) {
-      for (Object obj : stat.getSequentialObjects()) {
-        if (obj instanceof Statement) {
-          findTypes((Statement)obj, types);
-        }
-        else if (obj instanceof Exprent) {
-          findTypes((Exprent)obj, types);
-        }
+      for (Statement st : stat.getStats()) {
+        findTypes(st, types);
+      }
+
+      for (Exprent exp : stat.getStatExprents()) {
+        findTypes(exp, types);
       }
     }
     else {
@@ -1278,13 +1279,12 @@ public class VarDefinitionHelper {
     }
 
     if (stat.getExprents() == null) {
-      for (Object obj : stat.getSequentialObjects()) {
-        if (obj instanceof Statement) {
-          applyTypes((Statement)obj, types);
-        }
-        else if (obj instanceof Exprent) {
-          applyTypes((Exprent)obj, types);
-        }
+      for (Statement st : stat.getStats()) {
+        applyTypes(st, types);
+      }
+
+      for (Exprent exp : stat.getStatExprents()) {
+        applyTypes(exp, types);
       }
     }
     else {
@@ -1370,7 +1370,7 @@ public class VarDefinitionHelper {
 
   private static boolean isVarReadFirst(VarVersionPair var, Statement stat, int index, VarExprent... allowlist) {
     if (stat.getExprents() == null) {
-      List<Object> objs = stat.getSequentialObjects();
+      List<Object> objs = getSequentialObjects(stat);
       for (int x = index; x < objs.size(); x++) {
         Object obj = objs.get(x);
         if (obj instanceof Statement) {
@@ -1624,13 +1624,11 @@ public class VarDefinitionHelper {
       }
     } else {
       // Process var definitions in statement head
-      for (Object obj : stat.getSequentialObjects()) {
-        if (obj instanceof Exprent) {
-          List<Exprent> exprents = ((Exprent) obj).getAllExprents(true, true);
+      for (Exprent exp : stat.getStatExprents()) {
+        List<Exprent> exprents = exp.getAllExprents(true, true);
 
-          for (Exprent exprent : exprents) {
-            iterateClashingExprent(stat, mt, varDefinitions, exprent, liveVarDefs, curVarDefs, nameMap, seenMethods);
-          }
+        for (Exprent exprent : exprents) {
+          iterateClashingExprent(stat, mt, varDefinitions, exprent, liveVarDefs, curVarDefs, nameMap, seenMethods);
         }
       }
 
