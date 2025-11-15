@@ -286,7 +286,7 @@ public class InvocationExprent extends Exprent {
           // Don't capture as a real upper bound unless the upperbound is an object or a likewise generic.
           // FunctionExprent needs to inform its children about the type that it has, so it'll cause conflict here.
           if (r.type == CodeType.GENVAR && (upperBound.typeFamily == TypeFamily.OBJECT || upperBound.isGeneric())) {
-            upperBoundsMap.put(r.resizeArrayDim(0), upperBound.resizeArrayDim(upperBound.arrayDim - r.arrayDim));
+            upperBoundsMap.put(r.resizeArrayDim(0), upperBound.resizeArrayDim(Math.max(upperBound.arrayDim - r.arrayDim, 0)));
           }
           else {
             gatherGenerics(ub, r, tempMap);
