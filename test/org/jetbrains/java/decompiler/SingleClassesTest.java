@@ -763,6 +763,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestTryLoopRecompile");
     register(JAVA_8, "TestTryLoopSimpleFinally");
     register(JAVA_8, "TestTryLoopReturnFinally");
+    register(JASM, "TestNumberCompareToBoolean");
   }
 
   private void registerEntireClassPath() {
