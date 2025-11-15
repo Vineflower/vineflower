@@ -1,0 +1,498 @@
+package pkg;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+
+public class TestTryWithResourcesJ21 {
+   public void test1(File f) {
+      try (Scanner s = this.create(f)) {// 15
+         TestTryWithResourcesJ21.Sealed i = this.get(s.nextLine());// 16
+         if (i instanceof TestTryWithResourcesJ21.Sealed.R1(int v)) {// 17
+            System.out.println(v);// 18
+         } else if (i instanceof TestTryWithResourcesJ21.Sealed.R2(String w)) {// 19
+            System.out.println(w);// 20
+         }
+      } catch (FileNotFoundException e) {// 22
+         System.out.println(e);// 23
+      }
+   }// 25
+
+   public Object test2(File param1) {
+      // $VF: Couldn't be decompiled
+      // Bytecode:
+      // 00: aload 0
+      // 01: aload 1
+      // 02: invokevirtual pkg/TestTryWithResourcesJ21.create (Ljava/io/File;)Ljava/util/Scanner;
+      // 05: astore 2
+      // 06: aload 0
+      // 07: aload 2
+      // 08: invokevirtual java/util/Scanner.nextLine ()Ljava/lang/String;
+      // 0b: invokevirtual pkg/TestTryWithResourcesJ21.get (Ljava/lang/String;)Lpkg/TestTryWithResourcesJ21$Sealed;
+      // 0e: astore 3
+      // 0f: aload 3
+      // 10: instanceof pkg/TestTryWithResourcesJ21$Sealed$R1
+      // 13: ifeq 39
+      // 16: aload 3
+      // 17: checkcast pkg/TestTryWithResourcesJ21$Sealed$R1
+      // 1a: astore 4
+      // 1c: aload 4
+      // 1e: invokevirtual pkg/TestTryWithResourcesJ21$Sealed$R1.x ()I
+      // 21: istore 8
+      // 23: iload 8
+      // 25: istore 5
+      // 27: iload 5
+      // 29: invokestatic java/lang/Integer.valueOf (I)Ljava/lang/Integer;
+      // 2c: astore 8
+      // 2e: aload 2
+      // 2f: ifnull 36
+      // 32: aload 2
+      // 33: invokevirtual java/util/Scanner.close ()V
+      // 36: aload 8
+      // 38: areturn
+      // 39: aload 3
+      // 3a: instanceof pkg/TestTryWithResourcesJ21$Sealed$R2
+      // 3d: ifeq 60
+      // 40: aload 3
+      // 41: checkcast pkg/TestTryWithResourcesJ21$Sealed$R2
+      // 44: astore 6
+      // 46: aload 6
+      // 48: invokevirtual pkg/TestTryWithResourcesJ21$Sealed$R2.s ()Ljava/lang/String;
+      // 4b: astore 8
+      // 4d: aload 8
+      // 4f: astore 7
+      // 51: aload 7
+      // 53: astore 8
+      // 55: aload 2
+      // 56: ifnull 5d
+      // 59: aload 2
+      // 5a: invokevirtual java/util/Scanner.close ()V
+      // 5d: aload 8
+      // 5f: areturn
+      // 60: goto 71
+      // 63: astore 3
+      // 64: new java/lang/MatchException
+      // 67: dup
+      // 68: aload 3
+      // 69: invokevirtual java/lang/Throwable.toString ()Ljava/lang/String;
+      // 6c: aload 3
+      // 6d: invokespecial java/lang/MatchException.<init> (Ljava/lang/String;Ljava/lang/Throwable;)V
+      // 70: athrow
+      // 71: aload 2
+      // 72: ifnull 92
+      // 75: aload 2
+      // 76: invokevirtual java/util/Scanner.close ()V
+      // 79: goto 92
+      // 7c: astore 3
+      // 7d: aload 2
+      // 7e: ifnull 90
+      // 81: aload 2
+      // 82: invokevirtual java/util/Scanner.close ()V
+      // 85: goto 90
+      // 88: astore 4
+      // 8a: aload 3
+      // 8b: aload 4
+      // 8d: invokevirtual java/lang/Throwable.addSuppressed (Ljava/lang/Throwable;)V
+      // 90: aload 3
+      // 91: athrow
+      // 92: goto 98
+      // 95: astore 2
+      // 96: aload 2
+      // 97: areturn
+      // 98: aconst_null
+      // 99: areturn
+   }
+
+   public Object test3(File f) {
+      try (Scanner s = this.create(f)) {// 43
+         if (this.get(s.nextLine()) instanceof TestTryWithResourcesJ21.Sealed.R1(int v)) {// 44 45
+            return v;// 46
+         } else {
+            System.out.println("end");// 48
+            return null;// 53
+         }
+      } catch (FileNotFoundException e) {// 49
+         return e;// 50
+      }
+   }
+
+   public Object test4(File f) {
+      try (Scanner s = this.create(f)) {// 57
+         if (this.get(s.nextLine()) instanceof TestTryWithResourcesJ21.Sealed.R1 r) {// 58 59
+            return r;// 60
+         } else {
+            System.out.println("end");// 62
+            return null;// 67
+         }
+      } catch (FileNotFoundException e) {// 63
+         return e;// 64
+      }
+   }
+
+   public Object test5(File param1) {
+      // $VF: Couldn't be decompiled
+      // Bytecode:
+      // 00: aload 0
+      // 01: aload 1
+      // 02: invokevirtual pkg/TestTryWithResourcesJ21.create (Ljava/io/File;)Ljava/util/Scanner;
+      // 05: astore 2
+      // 06: aload 0
+      // 07: aload 2
+      // 08: invokevirtual java/util/Scanner.nextLine ()Ljava/lang/String;
+      // 0b: invokevirtual pkg/TestTryWithResourcesJ21.get (Ljava/lang/String;)Lpkg/TestTryWithResourcesJ21$Sealed;
+      // 0e: astore 3
+      // 0f: aload 3
+      // 10: instanceof pkg/TestTryWithResourcesJ21$Sealed$R1
+      // 13: ifeq 32
+      // 16: aload 3
+      // 17: checkcast pkg/TestTryWithResourcesJ21$Sealed$R1
+      // 1a: astore 4
+      // 1c: aload 4
+      // 1e: invokevirtual pkg/TestTryWithResourcesJ21$Sealed$R1.x ()I
+      // 21: istore 8
+      // 23: iload 8
+      // 25: istore 5
+      // 27: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 2a: iload 5
+      // 2c: invokevirtual java/io/PrintStream.println (I)V
+      // 2f: goto 59
+      // 32: aload 3
+      // 33: instanceof pkg/TestTryWithResourcesJ21$Sealed$R2
+      // 36: ifeq 59
+      // 39: aload 3
+      // 3a: checkcast pkg/TestTryWithResourcesJ21$Sealed$R2
+      // 3d: astore 6
+      // 3f: aload 6
+      // 41: invokevirtual pkg/TestTryWithResourcesJ21$Sealed$R2.s ()Ljava/lang/String;
+      // 44: astore 8
+      // 46: aload 8
+      // 48: astore 7
+      // 4a: aload 7
+      // 4c: astore 8
+      // 4e: aload 2
+      // 4f: ifnull 56
+      // 52: aload 2
+      // 53: invokevirtual java/util/Scanner.close ()V
+      // 56: aload 8
+      // 58: areturn
+      // 59: goto 6a
+      // 5c: astore 3
+      // 5d: new java/lang/MatchException
+      // 60: dup
+      // 61: aload 3
+      // 62: invokevirtual java/lang/Throwable.toString ()Ljava/lang/String;
+      // 65: aload 3
+      // 66: invokespecial java/lang/MatchException.<init> (Ljava/lang/String;Ljava/lang/Throwable;)V
+      // 69: athrow
+      // 6a: aload 2
+      // 6b: ifnull 8b
+      // 6e: aload 2
+      // 6f: invokevirtual java/util/Scanner.close ()V
+      // 72: goto 8b
+      // 75: astore 3
+      // 76: aload 2
+      // 77: ifnull 89
+      // 7a: aload 2
+      // 7b: invokevirtual java/util/Scanner.close ()V
+      // 7e: goto 89
+      // 81: astore 4
+      // 83: aload 3
+      // 84: aload 4
+      // 86: invokevirtual java/lang/Throwable.addSuppressed (Ljava/lang/Throwable;)V
+      // 89: aload 3
+      // 8a: athrow
+      // 8b: goto 91
+      // 8e: astore 2
+      // 8f: aload 2
+      // 90: areturn
+      // 91: aconst_null
+      // 92: areturn
+   }
+
+   public Object test6(File param1) {
+      // $VF: Couldn't be decompiled
+      // Bytecode:
+      // 00: aload 0
+      // 01: aload 1
+      // 02: invokevirtual pkg/TestTryWithResourcesJ21.create (Ljava/io/File;)Ljava/util/Scanner;
+      // 05: astore 2
+      // 06: aload 0
+      // 07: aload 2
+      // 08: invokevirtual java/util/Scanner.nextLine ()Ljava/lang/String;
+      // 0b: invokevirtual pkg/TestTryWithResourcesJ21.get (Ljava/lang/String;)Lpkg/TestTryWithResourcesJ21$Sealed;
+      // 0e: astore 3
+      // 0f: aload 3
+      // 10: instanceof pkg/TestTryWithResourcesJ21$Sealed$R1
+      // 13: ifeq 39
+      // 16: aload 3
+      // 17: checkcast pkg/TestTryWithResourcesJ21$Sealed$R1
+      // 1a: astore 4
+      // 1c: aload 4
+      // 1e: invokevirtual pkg/TestTryWithResourcesJ21$Sealed$R1.x ()I
+      // 21: istore 8
+      // 23: iload 8
+      // 25: istore 5
+      // 27: iload 5
+      // 29: invokestatic java/lang/Integer.valueOf (I)Ljava/lang/Integer;
+      // 2c: astore 8
+      // 2e: aload 2
+      // 2f: ifnull 36
+      // 32: aload 2
+      // 33: invokevirtual java/util/Scanner.close ()V
+      // 36: aload 8
+      // 38: areturn
+      // 39: aload 3
+      // 3a: instanceof pkg/TestTryWithResourcesJ21$Sealed$R2
+      // 3d: ifeq 59
+      // 40: aload 3
+      // 41: checkcast pkg/TestTryWithResourcesJ21$Sealed$R2
+      // 44: astore 6
+      // 46: aload 6
+      // 48: invokevirtual pkg/TestTryWithResourcesJ21$Sealed$R2.s ()Ljava/lang/String;
+      // 4b: astore 8
+      // 4d: aload 8
+      // 4f: astore 7
+      // 51: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 54: aload 7
+      // 56: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // 59: goto 6a
+      // 5c: astore 3
+      // 5d: new java/lang/MatchException
+      // 60: dup
+      // 61: aload 3
+      // 62: invokevirtual java/lang/Throwable.toString ()Ljava/lang/String;
+      // 65: aload 3
+      // 66: invokespecial java/lang/MatchException.<init> (Ljava/lang/String;Ljava/lang/Throwable;)V
+      // 69: athrow
+      // 6a: aload 2
+      // 6b: ifnull 8b
+      // 6e: aload 2
+      // 6f: invokevirtual java/util/Scanner.close ()V
+      // 72: goto 8b
+      // 75: astore 3
+      // 76: aload 2
+      // 77: ifnull 89
+      // 7a: aload 2
+      // 7b: invokevirtual java/util/Scanner.close ()V
+      // 7e: goto 89
+      // 81: astore 4
+      // 83: aload 3
+      // 84: aload 4
+      // 86: invokevirtual java/lang/Throwable.addSuppressed (Ljava/lang/Throwable;)V
+      // 89: aload 3
+      // 8a: athrow
+      // 8b: goto 91
+      // 8e: astore 2
+      // 8f: aload 2
+      // 90: areturn
+      // 91: aconst_null
+      // 92: areturn
+   }
+
+   private TestTryWithResourcesJ21.Sealed get(String s) {
+      return null;// 101
+   }
+
+   private Scanner create(File file) throws FileNotFoundException {
+      return new Scanner(file);// 105
+   }
+
+   sealed interface Sealed permits TestTryWithResourcesJ21.Sealed.R1, TestTryWithResourcesJ21.Sealed.R2 {
+      record R1(int x) implements TestTryWithResourcesJ21.Sealed {
+      }
+
+      record R2(String s) implements TestTryWithResourcesJ21.Sealed {
+      }
+   }
+}
+
+class 'pkg/TestTryWithResourcesJ21' {
+   method 'test1 (Ljava/io/File;)V' {
+      0      8
+      1      8
+      2      8
+      3      8
+      4      8
+      5      8
+      6      9
+      7      9
+      8      9
+      9      9
+      a      9
+      b      9
+      c      9
+      d      9
+      e      9
+      f      10
+      10      10
+      11      10
+      12      10
+      13      10
+      14      10
+      15      10
+      25      10
+      26      10
+      27      11
+      28      11
+      29      11
+      2a      11
+      2b      11
+      2c      11
+      2d      11
+      2e      11
+      32      12
+      33      12
+      34      12
+      35      12
+      36      12
+      37      12
+      38      12
+      48      12
+      49      12
+      4a      13
+      4b      13
+      4c      13
+      4d      13
+      4e      13
+      4f      13
+      50      13
+      51      13
+      87      15
+      88      16
+      89      16
+      8a      16
+      8b      16
+      8c      16
+      8d      16
+      8e      16
+      8f      18
+   }
+
+   method 'test3 (Ljava/io/File;)Ljava/lang/Object;' {
+      0      106
+      1      106
+      2      106
+      3      106
+      4      106
+      5      106
+      6      107
+      7      107
+      8      107
+      9      107
+      a      107
+      b      107
+      c      107
+      d      107
+      10      107
+      11      107
+      12      107
+      13      107
+      14      107
+      15      107
+      25      107
+      26      107
+      27      108
+      28      108
+      29      108
+      2a      108
+      2b      108
+      38      108
+      39      110
+      3a      110
+      3b      110
+      3c      110
+      3d      110
+      3e      110
+      3f      110
+      40      110
+      76      113
+      77      114
+      78      114
+      79      111
+      7a      111
+   }
+
+   method 'test4 (Ljava/io/File;)Ljava/lang/Object;' {
+      0      119
+      1      119
+      2      119
+      3      119
+      4      119
+      5      119
+      6      120
+      7      120
+      8      120
+      9      120
+      a      120
+      b      120
+      c      120
+      d      120
+      10      120
+      11      120
+      12      120
+      13      120
+      14      120
+      15      120
+      1a      120
+      1b      120
+      1c      121
+      1d      121
+      2a      121
+      2b      123
+      2c      123
+      2d      123
+      2e      123
+      2f      123
+      30      123
+      31      123
+      32      123
+      57      126
+      58      127
+      59      127
+      5a      124
+      5b      124
+   }
+
+   method 'get (Ljava/lang/String;)Lpkg/TestTryWithResourcesJ21$Sealed;' {
+      0      292
+      1      292
+   }
+
+   method 'create (Ljava/io/File;)Ljava/util/Scanner;' {
+      4      296
+      8      296
+   }
+}
+
+Lines mapping:
+15 <-> 9
+16 <-> 10
+17 <-> 11
+18 <-> 12
+19 <-> 13
+20 <-> 14
+22 <-> 16
+23 <-> 17
+25 <-> 19
+43 <-> 107
+44 <-> 108
+45 <-> 108
+46 <-> 109
+48 <-> 111
+49 <-> 114
+50 <-> 115
+53 <-> 112
+57 <-> 120
+58 <-> 121
+59 <-> 121
+60 <-> 122
+62 <-> 124
+63 <-> 127
+64 <-> 128
+67 <-> 125
+101 <-> 293
+105 <-> 297
+Not mapped:
+24
+51
+65

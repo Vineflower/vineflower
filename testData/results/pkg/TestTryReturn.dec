@@ -224,6 +224,23 @@ public class TestTryReturn {
          System.out.println(var3);// 194
       }
    }// 187
+
+   public void returnInCatch() {
+      label27: {
+         try {
+            System.out.println("Hi!");// 200
+            break label27;
+         } catch (Exception e) {// 201
+            System.out.println("hello");// 202
+         } finally {
+            System.out.println("finally");// 205
+         }
+
+         return;// 203
+      }
+
+      System.out.println("post");// 206 208
+   }
 }
 
 class 'pkg/TestTryReturn' {
@@ -635,6 +652,43 @@ class 'pkg/TestTryReturn' {
       54      223
       55      223
    }
+
+   method 'returnInCatch ()V' {
+      0      230
+      1      230
+      2      230
+      3      230
+      4      230
+      5      230
+      6      230
+      7      230
+      10      241
+      11      241
+      12      241
+      13      232
+      14      233
+      15      233
+      16      233
+      17      233
+      18      233
+      19      233
+      1a      233
+      1b      233
+      24      238
+      26      235
+      27      235
+      28      235
+      29      235
+      2a      235
+      2b      235
+      2c      235
+      2d      235
+      30      241
+      31      241
+      33      241
+      34      241
+      35      241
+   }
 }
 
 Lines mapping:
@@ -711,6 +765,13 @@ Lines mapping:
 190 <-> 221
 194 <-> 224
 195 <-> 218
+200 <-> 231
+201 <-> 233
+202 <-> 234
+203 <-> 239
+205 <-> 236
+206 <-> 242
+208 <-> 242
 Not mapped:
 20
 35
@@ -723,3 +784,4 @@ Not mapped:
 175
 191
 196
+209

@@ -1,0 +1,282 @@
+package pkg;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+
+public class TestRecordPatterns8 {
+   public Object test1(File param1) {
+      // $VF: Couldn't be decompiled
+      // Bytecode:
+      // 00: aload 0
+      // 01: ldc "aaaa"
+      // 03: invokevirtual pkg/TestRecordPatterns8.get (Ljava/lang/String;)Lpkg/TestRecordPatterns8$Sealed;
+      // 06: astore 2
+      // 07: aload 2
+      // 08: instanceof pkg/TestRecordPatterns8$Sealed$R1
+      // 0b: ifeq 23
+      // 0e: aload 2
+      // 0f: checkcast pkg/TestRecordPatterns8$Sealed$R1
+      // 12: astore 3
+      // 13: aload 3
+      // 14: invokevirtual pkg/TestRecordPatterns8$Sealed$R1.x ()I
+      // 17: istore 7
+      // 19: iload 7
+      // 1b: istore 4
+      // 1d: iload 4
+      // 1f: invokestatic java/lang/Integer.valueOf (I)Ljava/lang/Integer;
+      // 22: areturn
+      // 23: aload 2
+      // 24: instanceof pkg/TestRecordPatterns8$Sealed$R2
+      // 27: ifeq 3e
+      // 2a: aload 2
+      // 2b: checkcast pkg/TestRecordPatterns8$Sealed$R2
+      // 2e: astore 5
+      // 30: aload 5
+      // 32: invokevirtual pkg/TestRecordPatterns8$Sealed$R2.s ()Ljava/lang/String;
+      // 35: astore 7
+      // 37: aload 7
+      // 39: astore 6
+      // 3b: aload 6
+      // 3d: areturn
+      // 3e: goto 4f
+      // 41: astore 2
+      // 42: new java/lang/MatchException
+      // 45: dup
+      // 46: aload 2
+      // 47: invokevirtual java/lang/Throwable.toString ()Ljava/lang/String;
+      // 4a: aload 2
+      // 4b: invokespecial java/lang/MatchException.<init> (Ljava/lang/String;Ljava/lang/Throwable;)V
+      // 4e: athrow
+      // 4f: goto 55
+      // 52: astore 2
+      // 53: aload 2
+      // 54: areturn
+      // 55: aconst_null
+      // 56: areturn
+   }
+
+   public Object test2(File param1) {
+      // $VF: Couldn't be decompiled
+      // Bytecode:
+      // 00: aload 0
+      // 01: ldc "aaaa"
+      // 03: invokevirtual pkg/TestRecordPatterns8.get (Ljava/lang/String;)Lpkg/TestRecordPatterns8$Sealed;
+      // 06: astore 2
+      // 07: aload 2
+      // 08: instanceof pkg/TestRecordPatterns8$Sealed$R1
+      // 0b: ifeq 28
+      // 0e: aload 2
+      // 0f: checkcast pkg/TestRecordPatterns8$Sealed$R1
+      // 12: astore 3
+      // 13: aload 3
+      // 14: invokevirtual pkg/TestRecordPatterns8$Sealed$R1.x ()I
+      // 17: istore 7
+      // 19: iload 7
+      // 1b: istore 4
+      // 1d: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 20: iload 4
+      // 22: invokevirtual java/io/PrintStream.println (I)V
+      // 25: goto 43
+      // 28: aload 2
+      // 29: instanceof pkg/TestRecordPatterns8$Sealed$R2
+      // 2c: ifeq 43
+      // 2f: aload 2
+      // 30: checkcast pkg/TestRecordPatterns8$Sealed$R2
+      // 33: astore 5
+      // 35: aload 5
+      // 37: invokevirtual pkg/TestRecordPatterns8$Sealed$R2.s ()Ljava/lang/String;
+      // 3a: astore 7
+      // 3c: aload 7
+      // 3e: astore 6
+      // 40: aload 6
+      // 42: areturn
+      // 43: goto 54
+      // 46: astore 2
+      // 47: new java/lang/MatchException
+      // 4a: dup
+      // 4b: aload 2
+      // 4c: invokevirtual java/lang/Throwable.toString ()Ljava/lang/String;
+      // 4f: aload 2
+      // 50: invokespecial java/lang/MatchException.<init> (Ljava/lang/String;Ljava/lang/Throwable;)V
+      // 53: athrow
+      // 54: goto 5a
+      // 57: astore 2
+      // 58: aload 2
+      // 59: areturn
+      // 5a: aconst_null
+      // 5b: areturn
+   }
+
+   public Object test3(File param1) {
+      // $VF: Couldn't be decompiled
+      // Bytecode:
+      // 00: aload 0
+      // 01: ldc "aaaa"
+      // 03: invokevirtual pkg/TestRecordPatterns8.get (Ljava/lang/String;)Lpkg/TestRecordPatterns8$Sealed;
+      // 06: astore 2
+      // 07: aload 2
+      // 08: instanceof pkg/TestRecordPatterns8$Sealed$R1
+      // 0b: ifeq 23
+      // 0e: aload 2
+      // 0f: checkcast pkg/TestRecordPatterns8$Sealed$R1
+      // 12: astore 3
+      // 13: aload 3
+      // 14: invokevirtual pkg/TestRecordPatterns8$Sealed$R1.x ()I
+      // 17: istore 7
+      // 19: iload 7
+      // 1b: istore 4
+      // 1d: iload 4
+      // 1f: invokestatic java/lang/Integer.valueOf (I)Ljava/lang/Integer;
+      // 22: areturn
+      // 23: aload 2
+      // 24: instanceof pkg/TestRecordPatterns8$Sealed$R2
+      // 27: ifeq 43
+      // 2a: aload 2
+      // 2b: checkcast pkg/TestRecordPatterns8$Sealed$R2
+      // 2e: astore 5
+      // 30: aload 5
+      // 32: invokevirtual pkg/TestRecordPatterns8$Sealed$R2.s ()Ljava/lang/String;
+      // 35: astore 7
+      // 37: aload 7
+      // 39: astore 6
+      // 3b: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 3e: aload 6
+      // 40: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // 43: goto 54
+      // 46: astore 2
+      // 47: new java/lang/MatchException
+      // 4a: dup
+      // 4b: aload 2
+      // 4c: invokevirtual java/lang/Throwable.toString ()Ljava/lang/String;
+      // 4f: aload 2
+      // 50: invokespecial java/lang/MatchException.<init> (Ljava/lang/String;Ljava/lang/Throwable;)V
+      // 53: athrow
+      // 54: goto 5a
+      // 57: astore 2
+      // 58: aload 2
+      // 59: areturn
+      // 5a: aconst_null
+      // 5b: areturn
+   }
+
+   public Object test4(File f) {
+      try {
+         return this.get("aaaa") instanceof TestRecordPatterns8.Sealed.R1(int v) ? v : null;// 60 61 62 68
+      } catch (FileNotFoundException e) {// 64
+         return e;// 65
+      }
+   }
+
+   public Object test5(File f) {
+      try {
+         if (this.get("aaaa") instanceof TestRecordPatterns8.Sealed.R1(int v)) {// 73 74
+            return v;// 75
+         } else {
+            System.out.println("end");// 77
+            return null;// 82
+         }
+      } catch (FileNotFoundException e) {// 78
+         return e;// 79
+      }
+   }
+
+   private TestRecordPatterns8.Sealed get(String s) throws FileNotFoundException {
+      return null;// 86
+   }
+
+   sealed interface Sealed permits TestRecordPatterns8.Sealed.R1, TestRecordPatterns8.Sealed.R2 {
+      record R1(int x) implements TestRecordPatterns8.Sealed {
+      }
+
+      record R2(String s) implements TestRecordPatterns8.Sealed {
+      }
+   }
+}
+
+class 'pkg/TestRecordPatterns8' {
+   method 'test4 (Ljava/io/File;)Ljava/lang/Object;' {
+      0      163
+      1      163
+      2      163
+      3      163
+      4      163
+      5      163
+      8      163
+      9      163
+      a      163
+      b      163
+      c      163
+      d      163
+      1b      163
+      1c      163
+      1d      163
+      1e      163
+      1f      163
+      20      163
+      21      163
+      37      164
+      38      165
+      39      165
+      3a      163
+   }
+
+   method 'test5 (Ljava/io/File;)Ljava/lang/Object;' {
+      0      171
+      1      171
+      2      171
+      3      171
+      4      171
+      5      171
+      8      171
+      9      171
+      a      171
+      b      171
+      c      171
+      d      171
+      1b      171
+      1c      171
+      1d      172
+      1e      172
+      1f      172
+      20      172
+      21      172
+      22      172
+      23      174
+      24      174
+      25      174
+      26      174
+      27      174
+      28      174
+      29      174
+      2a      174
+      2b      175
+      3f      177
+      40      178
+      41      178
+      42      175
+   }
+
+   method 'get (Ljava/lang/String;)Lpkg/TestRecordPatterns8$Sealed;' {
+      0      183
+      1      183
+   }
+}
+
+Lines mapping:
+60 <-> 164
+61 <-> 164
+62 <-> 164
+64 <-> 165
+65 <-> 166
+68 <-> 164
+73 <-> 172
+74 <-> 172
+75 <-> 173
+77 <-> 175
+78 <-> 178
+79 <-> 179
+82 <-> 176
+86 <-> 184
+Not mapped:
+66
+80

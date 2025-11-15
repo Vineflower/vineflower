@@ -688,6 +688,9 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_21, "TestRecordPatterns5");
     register(JAVA_21, "TestRecordPatterns6");
     register(JAVA_21, "TestRecordPatterns7");
+    // TODO: parsing failure
+    register(JAVA_21, "TestRecordPatterns8");
+    register(JAVA_21, "TestRecordPatterns9");
     register(JAVA_21_PREVIEW, "TestStrProcessor");
     register(JAVA_21_PREVIEW, "TestRawProcessor");
     register(JAVA_21_PREVIEW, "TestFmtProcessor");
@@ -861,6 +864,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestEmptyLambda");
     register(JAVA_8, "TestArrayArg");
     register(JAVA_8, "TestGenericLattice");
+    // TODO: parsing failure
+    register(JAVA_21, "TestTryWithResourcesJ21");
   }
 
   private void registerLiterals() {
