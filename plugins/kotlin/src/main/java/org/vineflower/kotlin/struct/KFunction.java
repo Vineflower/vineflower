@@ -6,7 +6,6 @@ import org.vineflower.kt.metadata.jvm.JvmProtoBuf;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.code.CodeConstants;
-import org.jetbrains.java.decompiler.main.ClassesProcessor;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
@@ -27,6 +26,7 @@ import org.vineflower.kotlin.util.KUtils;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public record KFunction(
@@ -35,22 +35,22 @@ public record KFunction(
   List<KTypeParameter> typeParameters,
   KType returnType,
   int flags,
-  List<KType> contextReceiverTypes, MethodWrapper method,
+  List<KType> contextReceiverTypes,
+  Function<ClassWrapper, MethodWrapper> methodSupplier,
   @Nullable KType receiverType,
   @Nullable KContract contract,
   boolean knownOverride,
-  @NotNull DefaultArgsMap defaultArgs,
-  ClassesProcessor.ClassNode node
+  @NotNull Function<ClassWrapper, @NotNull DefaultArgsMap> defaultArgsSupplier,
+  StructClass classStruct,
+  StructMethod methodStruct
 ) implements Flags {
-  public static Map<StructMethod, KFunction> parse(ClassesProcessor.ClassNode node) {
-    StructKotlinMetadataAttribute ktData = node.classStruct.getAttribute(StructKotlinMetadataAttribute.KEY);
+  public static Map<StructMethod, KFunction> parse(StructClass classStruct) {
+    StructKotlinMetadataAttribute ktData = classStruct.getAttribute(StructKotlinMetadataAttribute.KEY);
     if (ktData == null || ktData.nameResolver == null) {
       return Map.of();
     }
 
     MetadataNameResolver resolver = ktData.nameResolver;
-    ClassWrapper wrapper = node.getWrapper();
-    StructClass struct = wrapper.getClassStruct();
 
     //TODO: replace with switch once on Java 21
     List<ProtoBuf.Function> protoFunctions;
@@ -93,14 +93,13 @@ public record KFunction(
 
       KType returnType = KType.from(function.getReturnType(), resolver);
 
-      MethodWrapper method = null;
-
+      StructMethod methodLookup = null;
       String lookupName = jvmData.hasName() ? resolver.resolve(jvmData.getName()) : name;
       if (jvmData.hasDesc()) {
-        method = wrapper.getMethodWrapper(lookupName, resolver.resolve(jvmData.getDesc()));
+        methodLookup = classStruct.getMethod(lookupName, resolver.resolve(jvmData.getDesc()));
       }
 
-      if (method == null) {
+      if (methodLookup == null) {
         StringBuilder desc = new StringBuilder("(");
         if (receiverType != null) {
           desc.append(receiverType);
@@ -112,12 +111,13 @@ public record KFunction(
 
         desc.append(")").append(returnType);
 
-        method = wrapper.getMethodWrapper(lookupName, desc.toString());
+        methodLookup = classStruct.getMethod(lookupName, desc.toString());
 
-        if (method == null) {
-          throw new IllegalStateException("Couldn't find method " + name + " " + desc + " in class " + struct.qualifiedName);
+        if (methodLookup == null) {
+          throw new IllegalStateException("Couldn't find methodSupplier " + name + " " + desc + " in class " + classStruct.qualifiedName);
         }
       }
+      @NotNull StructMethod method = methodLookup;
 
       List<KTypeParameter> typeParameters = function.getTypeParameterList().stream()
         .map(typeParameter -> KTypeParameter.from(typeParameter, resolver))
@@ -127,11 +127,11 @@ public record KFunction(
         .map(ctxType -> KType.from(ctxType, resolver))
         .collect(Collectors.toList());
 
-      boolean isStatic = (method.methodStruct.getAccessFlags() & CodeConstants.ACC_STATIC) != 0;
+      boolean isStatic = method.hasModifier(CodeConstants.ACC_STATIC);
       String defaultArgsName = name + "$default";
       StringBuilder defaultArgsDesc = new StringBuilder("(");
       if (!isStatic) {
-        defaultArgsDesc.append("L").append(struct.qualifiedName).append(";");
+        defaultArgsDesc.append("L").append(classStruct.qualifiedName).append(";");
       }
       if (receiverType != null) {
         defaultArgsDesc.append(receiverType);
@@ -154,14 +154,14 @@ public record KFunction(
       defaultArgsDesc.append("Ljava/lang/Object;)");
       defaultArgsDesc.append(returnType);
 
-      DefaultArgsMap defaultArgs = DefaultArgsMap.from(wrapper.getMethodWrapper(defaultArgsName, defaultArgsDesc.toString()), method, parameters);
+      Function<ClassWrapper, DefaultArgsMap> defaultArgs = wrapper -> DefaultArgsMap.from(wrapper.getMethodWrapper(defaultArgsName, defaultArgsDesc.toString()), wrapper.getMethodWrapper(method.getName(), method.getDescriptor()), parameters);
 
       ProtoBuf.Visibility visibility = VISIBILITY.get(flags);
 
       boolean knownOverride = visibility != ProtoBuf.Visibility.PRIVATE
         && visibility != ProtoBuf.Visibility.PRIVATE_TO_THIS
         && visibility != ProtoBuf.Visibility.LOCAL
-        && KotlinWriter.searchForMethod(struct, method.methodStruct.getName(), method.desc(), false);
+        && KotlinWriter.searchForMethod(classStruct, method.getName(), method.methodDescriptor(), false);
 
       KContract contract = function.hasContract() ? KContract.from(function.getContract(), List.of(parameters), ktData) : null;
 
@@ -172,28 +172,29 @@ public record KFunction(
         returnType,
         flags,
         contextReceiverTypes,
-        method,
+        wrapper -> wrapper.getMethodWrapper(method.getName(), method.getDescriptor()),
         receiverType,
         contract,
         knownOverride,
         defaultArgs,
-        node
+        classStruct,
+        method
       );
 
-      functions.put(method.methodStruct, kFunction);
+      functions.put(method, kFunction);
     }
 
     return functions;
   }
 
-  public TextBuffer stringify(int indent) {
+  public TextBuffer stringify(ClassWrapper wrapper, int indent) {
     TextBuffer buf = new TextBuffer();
-    KotlinWriter.appendAnnotations(buf, indent, method.methodStruct, TypeAnnotation.METHOD_RETURN_TYPE);
-    StructKotlinMetadataAttribute classData = node.classStruct.getAttribute(StructKotlinMetadataAttribute.KEY);
+    KotlinWriter.appendAnnotations(buf, indent, methodStruct, TypeAnnotation.METHOD_RETURN_TYPE);
+    StructKotlinMetadataAttribute classData = classStruct.getAttribute(StructKotlinMetadataAttribute.KEY);
     boolean isInFile = classData != null && classData.metadata instanceof StructKotlinMetadataAttribute.File;
-    KotlinWriter.appendJvmAnnotations(buf, indent, method.methodStruct, false, isInFile, method.classStruct.getPool(), TypeAnnotation.METHOD_RETURN_TYPE);
+    KotlinWriter.appendJvmAnnotations(buf, indent, methodStruct, false, isInFile, classStruct.getPool(), TypeAnnotation.METHOD_RETURN_TYPE);
 
-    String methodKey = InterpreterUtil.makeUniqueKey(method.methodStruct.getName(), method.methodStruct.getDescriptor());
+    String methodKey = InterpreterUtil.makeUniqueKey(methodStruct.getName(), methodStruct.getDescriptor());
 
     buf.appendIndent(indent);
 
@@ -313,7 +314,7 @@ public record KFunction(
 
       parameter.stringify(indent + 1, buf);
       if (DECLARES_DEFAULT_VALUE.get(parameter.flags())) {
-        buf.append(defaultArgs.toJava(parameter, indent + 1), node.classStruct.qualifiedName, methodKey);
+        buf.append(defaultArgsSupplier.apply(wrapper).toJava(parameter, indent + 1), classStruct.qualifiedName, methodKey);
       }
     }
 
@@ -358,8 +359,9 @@ public record KFunction(
       buf.append(contract.stringify(indent + 1));
     }
 
-    RootStatement root = method.root;
-    if (root != null && method.decompileError == null) {
+    MethodWrapper methodWrapper = methodSupplier.apply(wrapper);
+    RootStatement root = methodWrapper.root;
+    if (root != null && methodWrapper.decompileError == null) {
       try {
         TextBuffer body = root.toJava(indent + 1);
         body.addBytecodeMapping(root.getDummyExit().bytecode);
@@ -367,16 +369,16 @@ public record KFunction(
           buf.appendLineSeparator();
         }
 
-        buf.append(body, node.classStruct.qualifiedName, methodKey);
+        buf.append(body, classStruct.qualifiedName, methodKey);
       } catch (Throwable t) {
-        String message = "Method " + method.methodStruct.getName() + " " + method.desc() + " in class " + node.classStruct.qualifiedName + " couldn't be written.";
+        String message = "Method " + methodStruct.getName() + " " + methodWrapper.desc() + " in class " + classStruct.qualifiedName + " couldn't be written.";
         DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.WARN, t);
-        method.decompileError = t;
+        methodWrapper.decompileError = t;
       }
     }
 
-    if (method.decompileError != null) {
-      KotlinWriter.dumpError(buf, method, indent + 1);
+    if (methodWrapper.decompileError != null) {
+      KotlinWriter.dumpError(buf, methodWrapper, indent + 1);
     }
 
     buf.appendIndent(indent).append('}').appendLineSeparator();

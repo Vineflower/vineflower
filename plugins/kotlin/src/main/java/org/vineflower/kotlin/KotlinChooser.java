@@ -114,16 +114,16 @@ public class KotlinChooser implements LanguageChooser {
       StructKotlinMetadataAttribute.Metadata metadata;
       if (k == 1) { // Class file
         ProtoBuf.Class pcl = ProtoBuf.Class.parseFrom(input, EXTENSIONS);
-        metadata = new StructKotlinMetadataAttribute.Class(pcl);
+        metadata = new StructKotlinMetadataAttribute.Class(cl, pcl);
       } else if (k == 2) { // File facade
         ProtoBuf.Package pcl = ProtoBuf.Package.parseFrom(input, EXTENSIONS);
-        metadata = new StructKotlinMetadataAttribute.File(pcl);
+        metadata = new StructKotlinMetadataAttribute.File(cl, pcl);
       } else if (k == 3) { // Synthetic class
         ProtoBuf.Function func = ProtoBuf.Function.parseFrom(input, EXTENSIONS);
-        metadata = new StructKotlinMetadataAttribute.SyntheticClass(func);
+        metadata = new StructKotlinMetadataAttribute.SyntheticClass(cl, func);
       } else if (k == 5) { // Multi-file facade
         ProtoBuf.Package pcl = ProtoBuf.Package.parseFrom(input, EXTENSIONS);
-        metadata = new StructKotlinMetadataAttribute.MultifileClass(pcl);
+        metadata = new StructKotlinMetadataAttribute.MultifileClass(cl, pcl);
       } else {
         return;
       }

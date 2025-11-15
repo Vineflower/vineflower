@@ -39,7 +39,6 @@ import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.TextUtil;
 import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
 import org.vineflower.kotlin.expr.KAnnotationExprent;
-import org.vineflower.kotlin.metadata.MetadataNameResolver;
 import org.vineflower.kotlin.metadata.StructKotlinMetadataAttribute;
 import org.vineflower.kotlin.struct.*;
 import org.vineflower.kotlin.util.KTypes;
@@ -226,9 +225,9 @@ public class KotlinWriter implements StatementWriter, Flags {
 
       DecompilerContext.getLogger().startWriteClass(cl.qualifiedName);
 
-      KProperty.Data propertyData = KProperty.parse(node);
-      Map<StructMethod, KFunction> functions = KFunction.parse(node);
-      KConstructor.Data constructorData = KConstructor.parse(node);
+      KProperty.Data propertyData = KProperty.parse(cl);
+      Map<StructMethod, KFunction> functions = KFunction.parse(cl);
+      KConstructor.Data constructorData = KConstructor.parse(cl);
 
       int kotlinFlags;
       if (ktData == null) {
@@ -291,15 +290,17 @@ public class KotlinWriter implements StatementWriter, Flags {
       }
 
       for (KFunction function : functions.values()) {
-        if (function.defaultArgs().getDefaultMethod() != null) {
-          methodsToIgnore.add(function.defaultArgs().getDefaultMethod());
+        DefaultArgsMap defaultArgs = function.defaultArgsSupplier().apply(wrapper);
+        if (defaultArgs.getDefaultMethod() != null) {
+          methodsToIgnore.add(defaultArgs.getDefaultMethod());
         }
       }
 
       if (constructorData != null) {
         for (KConstructor constructor : constructorData.constructors().values()) {
-          if (constructor.defaultArgs().getDefaultMethod() != null) {
-            methodsToIgnore.add(constructor.defaultArgs().getDefaultMethod());
+          DefaultArgsMap defaultArgs = constructor.defaultArgsSupplier().apply(wrapper);
+          if (defaultArgs.getDefaultMethod() != null) {
+            methodsToIgnore.add(defaultArgs.getDefaultMethod());
           }
         }
       }
@@ -308,8 +309,8 @@ public class KotlinWriter implements StatementWriter, Flags {
         ClassNode companionNode = companion.get();
         KotlinChooser.parseMetadataFor(companionNode.classStruct);
 
-        KProperty.Data companionPropertyData = KProperty.parse(companionNode);
-        Map<StructMethod, KFunction> companionFunctions = KFunction.parse(companionNode);
+        KProperty.Data companionPropertyData = KProperty.parse(companionNode.classStruct);
+        Map<StructMethod, KFunction> companionFunctions = KFunction.parse(companionNode.classStruct);
 
         if (companionPropertyData != null) {
           fieldsToIgnore.addAll(companionPropertyData.associatedFields());
@@ -356,7 +357,7 @@ public class KotlinWriter implements StatementWriter, Flags {
             innerBuffer.appendLineSeparator();
           }
 
-          TextBuffer propBuffer = prop.stringify(indent + 1);
+          TextBuffer propBuffer = prop.stringify(wrapper, indent + 1);
 
           boolean isMultiline = propBuffer.countLines() >= 1; // countLines() counts occurrences of the newline separator, so it's one less than the actual number of lines
 
@@ -423,7 +424,7 @@ public class KotlinWriter implements StatementWriter, Flags {
             innerBuffer.appendLineSeparator();
           }
           hasContent = true;
-          innerBuffer.append(function.stringify(indent + 1));
+          innerBuffer.append(function.stringify(wrapper, indent + 1));
           continue;
         }
 
@@ -431,7 +432,7 @@ public class KotlinWriter implements StatementWriter, Flags {
           KConstructor constructor = constructorData.constructors().get(mt);
           if (constructor != null) {
             TextBuffer ctorBuffer = new TextBuffer();
-            boolean ctorSkipped = !constructor.stringify(ctorBuffer, indent + 1);
+            boolean ctorSkipped = !constructor.stringify(wrapper, ctorBuffer, indent + 1);
             if (!ctorSkipped) {
               if (hasContent) {
                 innerBuffer.appendLineSeparator();
@@ -440,7 +441,7 @@ public class KotlinWriter implements StatementWriter, Flags {
               innerBuffer.append(ctorBuffer);
             }
 
-            continue; // Skip writing the constructor as a method, even if nothing was written
+            continue; // Skip writing the constructor as a methodSupplier, even if nothing was written
           }
         }
 
@@ -506,7 +507,7 @@ public class KotlinWriter implements StatementWriter, Flags {
           buffer.appendLineSeparator();
         }
 
-        TextBuffer propBuffer = prop.stringify(indent);
+        TextBuffer propBuffer = prop.stringify(wrapper, indent);
 
         boolean isMultiline = propBuffer.countLines() >= 1;
 
@@ -548,7 +549,7 @@ public class KotlinWriter implements StatementWriter, Flags {
         }
         hasContent = true;
 
-        buffer.append(functions.get(mt).stringify(indent));
+        buffer.append(functions.get(mt).stringify(wrapper, indent));
         continue;
       }
 
@@ -630,7 +631,7 @@ public class KotlinWriter implements StatementWriter, Flags {
 
       KPropertyAccessor getter = prop.getter();
       if (getter != null) {
-        StructMethod mt = getter.underlyingMethod().methodStruct;
+        StructMethod mt = getter.methodSupplier().apply(wrapper).methodStruct;
         StructAnnDefaultAttribute paramAttr = mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_ANNOTATION_DEFAULT);
         if (paramAttr != null) {
           Exprent kExpr = KUtils.replaceExprent(paramAttr.getDefaultValue());
@@ -649,7 +650,7 @@ public class KotlinWriter implements StatementWriter, Flags {
     TextBuffer innerBuffer = new TextBuffer();
 
     for (KProperty prop : nonParameterProperties) {
-      innerBuffer.append(prop.stringify(indent + 1));
+      innerBuffer.append(prop.stringify(wrapper, indent + 1));
       appended = true;
     }
 
@@ -660,7 +661,7 @@ public class KotlinWriter implements StatementWriter, Flags {
       }
       first = false;
 
-      innerBuffer.append(function.stringify(indent + 1));
+      innerBuffer.append(function.stringify(wrapper, indent + 1));
       appended = true;
     }
 
@@ -795,7 +796,7 @@ public class KotlinWriter implements StatementWriter, Flags {
     buffer.pushNewlineGroup(indent, 1);
 
     boolean appendedColon = false;
-    if (constructorData != null && constructorData.primary() != null && constructorData.primary().writePrimaryConstructor(buffer, indent)) {
+    if (constructorData != null && constructorData.primary() != null && constructorData.primary().writePrimaryConstructor(wrapper, buffer, indent)) {
       appendedColon = true;
     } else if (!isEnum && !isInterface && cl.superClass != null) {
       VarType supertype = new VarType(cl.superClass.getString(), true);
@@ -912,7 +913,7 @@ public class KotlinWriter implements StatementWriter, Flags {
           ((ConstExprent) initializer).adjustConstType(fieldType);
         }
 
-        // FIXME: special case field initializer. Can map to more than one method (constructor) and bytecode instruction.
+        // FIXME: special case field initializer. Can map to more than one methodSupplier (constructor) and bytecode instruction.
         ExprProcessor.getCastedExprent(initializer, descriptor == null ? fieldType : descriptor.type, buffer, indent, false);
       }
     } else if (fd.hasModifier(CodeConstants.ACC_FINAL) && fd.hasModifier(CodeConstants.ACC_STATIC)) {
@@ -958,7 +959,7 @@ public class KotlinWriter implements StatementWriter, Flags {
   public boolean writeMethod(ClassNode node, StructMethod mt, int methodIndex, TextBuffer buffer, int indent) {
     ClassWrapper wrapper = node.getWrapper();
     StructClass cl = wrapper.getClassStruct();
-    // Get method by index, this keeps duplicate methods (with the same key) separate
+    // Get methodSupplier by index, this keeps duplicate methods (with the same key) separate
     MethodWrapper methodWrapper = wrapper.getMethodWrapper(methodIndex);
 
     boolean hideMethod = false;
@@ -1005,7 +1006,7 @@ public class KotlinWriter implements StatementWriter, Flags {
 
       boolean isBridge = (flags & CodeConstants.ACC_BRIDGE) != 0;
       if (isBridge) {
-        appendComment(buffer, "bridge method", indent);
+        appendComment(buffer, "bridge methodSupplier", indent);
       }
 
       if (DecompilerContext.getOption(IFernflowerPreferences.DECOMPILER_COMMENTS) && methodWrapper.addErrorComment || methodWrapper.commentLines != null) {
@@ -1048,7 +1049,7 @@ public class KotlinWriter implements StatementWriter, Flags {
       boolean didOverride = false;
       if (!CodeConstants.INIT_NAME.equals(mt.getName()) && !CodeConstants.CLINIT_NAME.equals(mt.getName()) && !mt.hasModifier(CodeConstants.ACC_STATIC) && !mt.hasModifier(CodeConstants.ACC_PRIVATE)) {
         // Search superclasses for methods that match the name and descriptor of this one.
-        // Make sure not to search the current class otherwise it will return the current method itself!
+        // Make sure not to search the current class otherwise it will return the current methodSupplier itself!
         // TODO: record overrides
         boolean isOverride = searchForMethod(cl, mt.getName(), md, false);
         if (isOverride) {
@@ -1174,7 +1175,7 @@ public class KotlinWriter implements StatementWriter, Flags {
 
         boolean hasDescriptor = descriptor != null;
         //mask should now have the Outer.this in it... so this *shouldn't* be necessary.
-        //if (init && !isEnum && ((node.access & CodeConstants.ACC_STATIC) == 0) && node.type == ClassNode.CLASS_MEMBER)
+        //if (init && !isEnum && ((classStruct.access & CodeConstants.ACC_STATIC) == 0) && classStruct.type == ClassNode.CLASS_MEMBER)
         //    index++;
 
         boolean first = true;
@@ -1263,7 +1264,7 @@ public class KotlinWriter implements StatementWriter, Flags {
         }
       }
 
-      if ((flags & (CodeConstants.ACC_ABSTRACT | CodeConstants.ACC_NATIVE)) != 0) { // native or abstract method (explicit or interface)
+      if ((flags & (CodeConstants.ACC_ABSTRACT | CodeConstants.ACC_NATIVE)) != 0) { // native or abstract methodSupplier (explicit or interface)
         buffer.appendLineSeparator();
       } else {
         if (!clInit && !dInit) {
@@ -1272,7 +1273,7 @@ public class KotlinWriter implements StatementWriter, Flags {
 
         boolean hideIfInit = (clInit || dInit || hideConstructor(node, init, throwsExceptions, paramCount, flags));
 
-        hideMethod = !writeMethodBody(node, methodWrapper, buffer, indent, hideIfInit);
+        hideMethod = !writeMethodBody(cl, methodWrapper, buffer, indent, hideIfInit);
       }
     } finally {
       DecompilerContext.setProperty(DecompilerContext.CURRENT_METHOD_WRAPPER, outerWrapper);
@@ -1285,9 +1286,8 @@ public class KotlinWriter implements StatementWriter, Flags {
     return !hideMethod;
   }
 
-  public static boolean writeMethodBody(ClassNode node, MethodWrapper methodWrapper, TextBuffer buffer, int indent, boolean hideIfInit) {
+  public static boolean writeMethodBody(StructClass cl, MethodWrapper methodWrapper, TextBuffer buffer, int indent, boolean hideIfInit) {
     boolean hideMethod = true;
-    StructClass cl = node.classStruct;
     StructMethod mt = methodWrapper.methodStruct;
 
     buffer.append('{').appendLineSeparator();
@@ -1304,7 +1304,7 @@ public class KotlinWriter implements StatementWriter, Flags {
           buffer.append(code, cl.qualifiedName, InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor()));
         }
       } catch (Throwable t) {
-        String message = "Method " + mt.getName() + " " + mt.getDescriptor() + " in class " + node.classStruct.qualifiedName + " couldn't be written.";
+        String message = "Method " + mt.getName() + " " + mt.getDescriptor() + " in class " + cl.qualifiedName + " couldn't be written.";
         DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.WARN, t);
         methodWrapper.decompileError = t;
       }
@@ -1716,7 +1716,7 @@ public class KotlinWriter implements StatementWriter, Flags {
     return false;
   }
 
-  // Returns true if a method with the given name and descriptor matches in the inheritance tree of the superclass.
+  // Returns true if a methodSupplier with the given name and descriptor matches in the inheritance tree of the superclass.
   public static boolean searchForMethod(StructClass cl, String name, MethodDescriptor md, boolean search) {
     // Didn't find the class or the library containing the class wasn't loaded, can't search
     if (cl == null) {
@@ -1728,7 +1728,7 @@ public class KotlinWriter implements StatementWriter, Flags {
     if (search) {
       // If we're allowed to search, iterate through the methods and try to find matches
       for (StructMethod method : methods) {
-        // Match against name, descriptor, and whether or not the found method is static.
+        // Match against name, descriptor, and whether or not the found methodSupplier is static.
         // TODO: We are not handling generics or superclass parameters and return types
         if (md.equals(MethodDescriptor.parseDescriptor(method.getDescriptor())) && name.equals(method.getName()) && !method.hasModifier(CodeConstants.ACC_STATIC)) {
           return true;
@@ -1747,7 +1747,7 @@ public class KotlinWriter implements StatementWriter, Flags {
       }
     }
 
-    // Search all of the interfaces implemented by this class for the method
+    // Search all of the interfaces implemented by this class for the methodSupplier
     for (String ifaceName : cl.getInterfaceNames()) {
       StructClass iface = DecompilerContext.getStructContext().getClass(ifaceName);
 
