@@ -1,0 +1,252 @@
+package pkg;
+
+public class TestNumberCompareToBoolean {
+   public static boolean testLongWithAnd(long var0) {
+      long var2;
+      return (boolean)(((var2 = var0 - 0L) == 0L ? 0 : (var2 < 0L ? -1 : 1)) & 1);// 10 11 12 13 14 15
+   }
+
+   public static boolean testLong(long var0) {
+      long var2;
+      return (boolean)((var2 = var0 - 0L) == 0L ? 0 : (var2 < 0L ? -1 : 1));// 21 22 23 24
+   }
+
+   public static boolean testFloatGreaterThanWithAnd(float var0) {
+      float var1;
+      float var2;
+      return (boolean)(((var1 = var0 - var0) == 0.0F ? 0 : (var1 < 0.0F ? -1 : 1)) ^ ((var2 = var0 - 0.0F) == 0.0F ? 0 : (var2 < 0.0F ? -1 : 1)) & 1);// 30 32 33 34 35 36 37 38 39
+   }
+
+   public static boolean testFloatLessThanWithAnd(float var0) {
+      float var1;
+      float var2;
+      return (boolean)(((var1 = var0 - var0) == 0.0F ? 0 : (var1 < 0.0F ? -1 : 1)) ^ ((var2 = var0 - 0.0F) == 0.0F ? 0 : (var2 < 0.0F ? -1 : 1)) & 1);// 45 47 48 49 50 51 52 53 54
+   }
+
+   public static boolean testFloatGreaterThan(float var0) {
+      float var1;
+      float var2;
+      return (boolean)(((var1 = var0 - var0) == 0.0F ? 0 : (var1 < 0.0F ? -1 : 1)) ^ ((var2 = var0 - 0.0F) == 0.0F ? 0 : (var2 < 0.0F ? -1 : 1)));// 60 62 63 64 65 66 67
+   }
+
+   public static boolean testFloatLessThan(float var0) {
+      float var1;
+      float var2;
+      return (boolean)(((var1 = var0 - var0) == 0.0F ? 0 : (var1 < 0.0F ? -1 : 1)) ^ ((var2 = var0 - 0.0F) == 0.0F ? 0 : (var2 < 0.0F ? -1 : 1)));// 73 75 76 77 78 79 80
+   }
+
+   public static boolean testDoubleGreaterThanWithAnd(double var0) {
+      double var2;
+      double var3;
+      return (boolean)(((var2 = var0 - var0) == 0.0 ? 0 : (var2 < 0.0 ? -1 : 1)) ^ ((var3 = var0 - 0.0) == 0.0 ? 0 : (var3 < 0.0 ? -1 : 1)) & 1);// 86 88 89 90 91 92 93 94 95
+   }
+
+   public static boolean testDoubleLessThanWithAnd(double var0) {
+      double var2;
+      double var3;
+      return (boolean)(((var2 = var0 - var0) == 0.0 ? 0 : (var2 < 0.0 ? -1 : 1)) ^ ((var3 = var0 - 0.0) == 0.0 ? 0 : (var3 < 0.0 ? -1 : 1)) & 1);// 101 103 104 105 106 107 108 109 110
+   }
+
+   public static boolean testDoubleGreaterThan(double var0) {
+      double var2;
+      double var3;
+      return (boolean)(((var2 = var0 - var0) == 0.0 ? 0 : (var2 < 0.0 ? -1 : 1)) ^ ((var3 = var0 - 0.0) == 0.0 ? 0 : (var3 < 0.0 ? -1 : 1)));// 116 118 119 120 121 122 123
+   }
+
+   public static boolean testDoubleLessThan(double var0) {
+      double var2;
+      double var3;
+      return (boolean)(((var2 = var0 - var0) == 0.0 ? 0 : (var2 < 0.0 ? -1 : 1)) ^ ((var3 = var0 - 0.0) == 0.0 ? 0 : (var3 < 0.0 ? -1 : 1)));// 129 131 132 133 134 135 136
+   }
+}
+
+class 'pkg/TestNumberCompareToBoolean' {
+   method 'testLongWithAnd (J)Z' {
+      0      5
+      1      5
+      2      5
+      3      5
+      4      5
+      5      5
+   }
+
+   method 'testLong (J)Z' {
+      0      10
+      1      10
+      2      10
+      3      10
+   }
+
+   method 'testFloatGreaterThanWithAnd (F)Z' {
+      0      16
+      2      16
+      3      16
+      4      16
+      5      16
+      6      16
+      7      16
+      8      16
+      9      16
+   }
+
+   method 'testFloatLessThanWithAnd (F)Z' {
+      0      22
+      2      22
+      3      22
+      4      22
+      5      22
+      6      22
+      7      22
+      8      22
+      9      22
+   }
+
+   method 'testFloatGreaterThan (F)Z' {
+      0      28
+      2      28
+      3      28
+      4      28
+      5      28
+      6      28
+      7      28
+   }
+
+   method 'testFloatLessThan (F)Z' {
+      0      34
+      2      34
+      3      34
+      4      34
+      5      34
+      6      34
+      7      34
+   }
+
+   method 'testDoubleGreaterThanWithAnd (D)Z' {
+      0      40
+      2      40
+      3      40
+      4      40
+      5      40
+      6      40
+      7      40
+      8      40
+      9      40
+   }
+
+   method 'testDoubleLessThanWithAnd (D)Z' {
+      0      46
+      2      46
+      3      46
+      4      46
+      5      46
+      6      46
+      7      46
+      8      46
+      9      46
+   }
+
+   method 'testDoubleGreaterThan (D)Z' {
+      0      52
+      2      52
+      3      52
+      4      52
+      5      52
+      6      52
+      7      52
+   }
+
+   method 'testDoubleLessThan (D)Z' {
+      0      58
+      2      58
+      3      58
+      4      58
+      5      58
+      6      58
+      7      58
+   }
+}
+
+Lines mapping:
+10 <-> 6
+11 <-> 6
+12 <-> 6
+13 <-> 6
+14 <-> 6
+15 <-> 6
+21 <-> 11
+22 <-> 11
+23 <-> 11
+24 <-> 11
+30 <-> 17
+32 <-> 17
+33 <-> 17
+34 <-> 17
+35 <-> 17
+36 <-> 17
+37 <-> 17
+38 <-> 17
+39 <-> 17
+45 <-> 23
+47 <-> 23
+48 <-> 23
+49 <-> 23
+50 <-> 23
+51 <-> 23
+52 <-> 23
+53 <-> 23
+54 <-> 23
+60 <-> 29
+62 <-> 29
+63 <-> 29
+64 <-> 29
+65 <-> 29
+66 <-> 29
+67 <-> 29
+73 <-> 35
+75 <-> 35
+76 <-> 35
+77 <-> 35
+78 <-> 35
+79 <-> 35
+80 <-> 35
+86 <-> 41
+88 <-> 41
+89 <-> 41
+90 <-> 41
+91 <-> 41
+92 <-> 41
+93 <-> 41
+94 <-> 41
+95 <-> 41
+101 <-> 47
+103 <-> 47
+104 <-> 47
+105 <-> 47
+106 <-> 47
+107 <-> 47
+108 <-> 47
+109 <-> 47
+110 <-> 47
+116 <-> 53
+118 <-> 53
+119 <-> 53
+120 <-> 53
+121 <-> 53
+122 <-> 53
+123 <-> 53
+129 <-> 59
+131 <-> 59
+132 <-> 59
+133 <-> 59
+134 <-> 59
+135 <-> 59
+136 <-> 59
+Not mapped:
+31
+46
+61
+74
+87
+102
+117
+130

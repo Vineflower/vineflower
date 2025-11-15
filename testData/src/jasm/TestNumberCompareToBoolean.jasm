@@ -1,0 +1,138 @@
+package pkg;
+
+super public class TestNumberCompareToBoolean
+  version 55:0
+{
+
+public static Method testLongWithAnd:"(J)Z"
+  stack 4 locals 2
+{
+  lload_0;
+  lconst_0;
+  lcmp;
+  iconst_1;
+  iand;
+  ireturn;
+}
+
+public static Method testLong:"(J)Z"
+  stack 4 locals 2
+{
+  lload_0;
+  lconst_0;
+  lcmp;
+  ireturn;
+}
+
+public static Method testFloatGreaterThanWithAnd:"(F)Z"
+  stack 3 locals 1
+{
+  fload_0;
+  dup;
+  fcmpg;
+  fload_0;
+  fconst_0;
+  fcmpg;
+  iconst_1;
+  iand;
+  ixor;
+  ireturn;
+}
+
+public static Method testFloatLessThanWithAnd:"(F)Z"
+  stack 3 locals 1
+{
+  fload_0;
+  dup;
+  fcmpl;
+  fload_0;
+  fconst_0;
+  fcmpl;
+  iconst_1;
+  iand;
+  ixor;
+  ireturn;
+}
+
+public static Method testFloatGreaterThan:"(F)Z"
+  stack 3 locals 1
+{
+  fload_0;
+  dup;
+  fcmpg;
+  fload_0;
+  fconst_0;
+  fcmpg;
+  ixor;
+  ireturn;
+}
+
+public static Method testFloatLessThan:"(F)Z"
+  stack 3 locals 1
+{
+  fload_0;
+  dup;
+  fcmpl;
+  fload_0;
+  fconst_0;
+  fcmpl;
+  ixor;
+  ireturn;
+}
+
+public static Method testDoubleGreaterThanWithAnd:"(D)Z"
+  stack 6 locals 2
+{
+  dload_0;
+  dup2;
+  dcmpg;
+  dload_0;
+  dconst_0;
+  dcmpg;
+  iconst_1;
+  iand;
+  ixor;
+  ireturn;
+}
+
+public static Method testDoubleLessThanWithAnd:"(D)Z"
+  stack 6 locals 2
+{
+  dload_0;
+  dup2;
+  dcmpl;
+  dload_0;
+  dconst_0;
+  dcmpl;
+  iconst_1;
+  iand;
+  ixor;
+  ireturn;
+}
+
+public static Method testDoubleGreaterThan:"(D)Z"
+  stack 6 locals 2
+{
+  dload_0;
+  dup2;
+  dcmpg;
+  dload_0;
+  dconst_0;
+  dcmpg;
+  ixor;
+  ireturn;
+}
+
+public static Method testDoubleLessThan:"(D)Z"
+  stack 6 locals 2
+{
+  dload_0;
+  dup2;
+  dcmpl;
+  dload_0;
+  dconst_0;
+  dcmpl;
+  ixor;
+  ireturn;
+}
+}
