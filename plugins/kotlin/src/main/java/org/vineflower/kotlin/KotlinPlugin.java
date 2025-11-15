@@ -1,6 +1,7 @@
 package org.vineflower.kotlin;
 
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.java.decompiler.api.ClassAttributeRegistry;
 import org.jetbrains.java.decompiler.api.plugin.Plugin;
 import org.jetbrains.java.decompiler.api.plugin.LanguageSpec;
 import org.jetbrains.java.decompiler.api.plugin.PluginOptions;
@@ -11,6 +12,7 @@ import org.jetbrains.java.decompiler.api.plugin.pass.WrappedPass;
 import org.jetbrains.java.decompiler.modules.decompiler.*;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.DomHelper;
 import org.jetbrains.java.decompiler.util.Pair;
+import org.vineflower.kotlin.metadata.StructKotlinMetadataAttribute;
 import org.vineflower.kotlin.pass.*;
 
 public class KotlinPlugin implements Plugin {

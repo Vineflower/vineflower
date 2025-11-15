@@ -5,8 +5,8 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
-import org.vineflower.kotlin.KotlinDecompilationContext;
 import org.vineflower.kotlin.metadata.MetadataNameResolver;
+import org.vineflower.kotlin.metadata.StructKotlinMetadataAttribute;
 import org.vineflower.kotlin.util.KTypes;
 
 import java.util.Objects;
@@ -39,7 +39,7 @@ public class KType extends VarType {
     this.typeParameterName = typeParameterName;
     this.typeAliasName = typeAliasName;
   }
-  
+
   public static KType from(ProtoBuf.Type type, MetadataNameResolver nameResolver) {
     String kotlinType = type.hasClassName() ? nameResolver.resolve(type.getClassName()) : "kotlin/Any";
     boolean isNullable = type.getNullable();
@@ -80,15 +80,21 @@ public class KType extends VarType {
     return new KType(varType, kotlinType, isNullable, typeArguments, typeParameterName, typeAliasName);
   }
 
-  public static KType from(int tableIndex, MetadataNameResolver resolver) {
-    ProtoBuf.TypeTable table = switch (KotlinDecompilationContext.getCurrentType()) {
-      case CLASS -> KotlinDecompilationContext.getCurrentClass().getTypeTable();
-      case SYNTHETIC_CLASS -> KotlinDecompilationContext.getSyntheticClass().getTypeTable();
-      case FILE -> KotlinDecompilationContext.getFilePackage().getTypeTable();
-      case MULTIFILE_CLASS -> KotlinDecompilationContext.getMultifilePackage().getTypeTable();
-    };
+  public static KType from(int tableIndex, StructKotlinMetadataAttribute ktData) {
+    ProtoBuf.TypeTable table;
+    if (ktData.metadata instanceof StructKotlinMetadataAttribute.Class cls) {
+      table = cls.proto().getTypeTable();
+    } else if (ktData.metadata instanceof StructKotlinMetadataAttribute.SyntheticClass cls) {
+      table = cls.proto().getTypeTable();
+    } else if (ktData.metadata instanceof StructKotlinMetadataAttribute.File cls) {
+      table = cls.proto().getTypeTable();
+    } else if (ktData.metadata instanceof StructKotlinMetadataAttribute.MultifileClass cls) {
+      table = cls.proto().getTypeTable();
+    } else {
+      throw new IllegalStateException("Impossible metadata value");
+    }
 
-    return from(table.getType(tableIndex), resolver);
+    return from(table.getType(tableIndex), ktData.nameResolver);
   }
 
   // stringify is for the decompiler output
