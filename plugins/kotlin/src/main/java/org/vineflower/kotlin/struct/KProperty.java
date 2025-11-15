@@ -24,10 +24,10 @@ import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
-import org.vineflower.kotlin.KotlinDecompilationContext;
 import org.vineflower.kotlin.KotlinOptions;
 import org.vineflower.kotlin.KotlinWriter;
 import org.vineflower.kotlin.metadata.MetadataNameResolver;
+import org.vineflower.kotlin.metadata.StructKotlinMetadataAttribute;
 import org.vineflower.kotlin.util.KTypes;
 import org.vineflower.kotlin.util.KUtils;
 
@@ -211,21 +211,28 @@ public record KProperty(
   }
 
   public static @Nullable Data parse(ClassesProcessor.ClassNode node) {
-    MetadataNameResolver nameResolver = KotlinDecompilationContext.getNameResolver();
+    StructKotlinMetadataAttribute ktData = node.classStruct.getAttribute(StructKotlinMetadataAttribute.KEY);
+    if (ktData == null || ktData.nameResolver == null) {
+      return null;
+    }
+
+    MetadataNameResolver nameResolver = ktData.nameResolver;
     ClassWrapper wrapper = node.getWrapper();
     StructClass structClass = wrapper.getClassStruct();
 
-    KotlinDecompilationContext.KotlinType currentType = KotlinDecompilationContext.getCurrentType();
-    if (currentType == null) return null;
+    List<ProtoBuf.Property> protoProperties;
 
-    List<ProtoBuf.Property> protoProperties = switch (currentType) {
-      case CLASS -> KotlinDecompilationContext.getCurrentClass().getPropertyList();
-      case FILE -> KotlinDecompilationContext.getFilePackage().getPropertyList();
-      case MULTIFILE_CLASS -> KotlinDecompilationContext.getMultifilePackage().getPropertyList();
-      case SYNTHETIC_CLASS -> null;
-    };
-
-    if (protoProperties == null) return null;
+    if (ktData.metadata instanceof StructKotlinMetadataAttribute.Class cls) {
+      protoProperties = cls.proto().getPropertyList();
+    } else if (ktData.metadata instanceof StructKotlinMetadataAttribute.File file) {
+      protoProperties = file.proto().getPropertyList();
+    } else if (ktData.metadata instanceof StructKotlinMetadataAttribute.MultifileClass multifileClass) {
+      protoProperties = multifileClass.proto().getPropertyList();
+    } else if (ktData.metadata instanceof StructKotlinMetadataAttribute.SyntheticClass) {
+      return null;
+    } else {
+      throw new IllegalStateException("Impossible metadata value");
+    }
 
     List<KProperty> properties = new ArrayList<>();
     Set<StructField> associatedFields = new HashSet<>();

@@ -8,6 +8,7 @@ import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.vineflower.kotlin.KotlinWriter;
 import org.vineflower.kotlin.metadata.MetadataNameResolver;
+import org.vineflower.kotlin.metadata.StructKotlinMetadataAttribute;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,8 +22,8 @@ public class KContract implements Flags {
     this.effects = effects;
   }
 
-  public static KContract from(ProtoBuf.Contract proto, List<KParameter> params, MetadataNameResolver nameResolver) {
-    return new KContract(proto.getEffectList().stream().map(it -> KEffect.from(it, params, nameResolver)).collect(Collectors.toList()));
+  public static KContract from(ProtoBuf.Contract proto, List<KParameter> params, StructKotlinMetadataAttribute ktData) {
+    return new KContract(proto.getEffectList().stream().map(it -> KEffect.from(it, params, ktData)).collect(Collectors.toList()));
   }
 
   public TextBuffer stringify(int indent) {
@@ -56,10 +57,10 @@ public class KContract implements Flags {
       this.kind = kind;
     }
 
-    static KEffect from(ProtoBuf.Effect proto, List<KParameter> params, MetadataNameResolver nameResolver) {
+    static KEffect from(ProtoBuf.Effect proto, List<KParameter> params, StructKotlinMetadataAttribute ktData) {
       ProtoBuf.Effect.EffectType type = proto.hasEffectType() ? proto.getEffectType() : null;
-      List<KExpression> expressions = proto.getEffectConstructorArgumentList().stream().map(it -> KExpression.from(it, params, nameResolver)).collect(Collectors.toList());
-      KExpression conditionalConclusion = proto.hasConclusionOfConditionalEffect() ? KExpression.from(proto.getConclusionOfConditionalEffect(), params, nameResolver) : null;
+      List<KExpression> expressions = proto.getEffectConstructorArgumentList().stream().map(it -> KExpression.from(it, params, ktData)).collect(Collectors.toList());
+      KExpression conditionalConclusion = proto.hasConclusionOfConditionalEffect() ? KExpression.from(proto.getConclusionOfConditionalEffect(), params, ktData) : null;
       ProtoBuf.Effect.InvocationKind kind = proto.hasKind() ? proto.getKind() : null;
       return new KEffect(type, expressions, conditionalConclusion, kind);
     }
@@ -120,7 +121,7 @@ public class KContract implements Flags {
     // Placeholder type for receiver type
     private static final KParameter THIS_TYPE = new KParameter(0, "this", KType.NOTHING, null, 0);
 
-    static KExpression from(ProtoBuf.Expression proto, List<KParameter> params, MetadataNameResolver nameResolver) {
+    static KExpression from(ProtoBuf.Expression proto, List<KParameter> params, StructKotlinMetadataAttribute ktData) {
       int flags = proto.getFlags();
       KParameter valueParameterReference = null;
       if (proto.hasValueParameterReference()) {
@@ -131,12 +132,12 @@ public class KContract implements Flags {
       ProtoBuf.Expression.ConstantValue constantValue = proto.hasConstantValue() ? proto.getConstantValue() : null;
       KType instanceofType = null;
       if (proto.hasIsInstanceType()) {
-        instanceofType = KType.from(proto.getIsInstanceType(), nameResolver);
+        instanceofType = KType.from(proto.getIsInstanceType(), ktData.nameResolver);
       } else if (proto.hasIsInstanceTypeId()) {
-        instanceofType = KType.from(proto.getIsInstanceTypeId(), nameResolver);
+        instanceofType = KType.from(proto.getIsInstanceTypeId(), ktData);
       }
-      List<KExpression> andArguments = proto.getAndArgumentList().stream().map(it -> from(it, params, nameResolver)).collect(Collectors.toList());
-      List<KExpression> orArguments = proto.getOrArgumentList().stream().map(it -> from(it, params, nameResolver)).collect(Collectors.toList());
+      List<KExpression> andArguments = proto.getAndArgumentList().stream().map(it -> from(it, params, ktData)).collect(Collectors.toList());
+      List<KExpression> orArguments = proto.getOrArgumentList().stream().map(it -> from(it, params, ktData)).collect(Collectors.toList());
       return new KExpression(flags, valueParameterReference, constantValue, instanceofType, andArguments, orArguments);
     }
 
