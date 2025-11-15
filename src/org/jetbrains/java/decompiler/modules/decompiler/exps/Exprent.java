@@ -292,8 +292,7 @@ public abstract class Exprent implements IMatchable {
           ret.put(GenericType.parse("T" + mtd.typeParameters.get(x) + ";"), mtd.typeParameterBounds.get(x));
         }
       }
-
-      if (class_ == null || class_.parent == null) {
+      if (class_ == null || class_.parent == null || class_.parent.getWrapper() == null) {
         break;
       }
       method = class_.enclosingMethod == null ? null : class_.parent.getWrapper().getMethods().getWithKey(class_.enclosingMethod);

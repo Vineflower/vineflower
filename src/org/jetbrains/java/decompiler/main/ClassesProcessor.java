@@ -1,6 +1,7 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.main;
 
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.api.plugin.StatementWriter;
 import org.jetbrains.java.decompiler.api.plugin.LanguageSpec;
 import org.jetbrains.java.decompiler.code.CodeConstants;
@@ -604,14 +605,14 @@ public class ClassesProcessor implements CodeConstants {
     public int access;
     public String simpleName;
     public final StructClass classStruct;
-    private ClassWrapper wrapper;
+    private @Nullable ClassWrapper wrapper;
     public String enclosingMethod;
     public InvocationExprent superInvocation;
     public final Map<String, VarVersionPair> mapFieldsToVars = new HashMap<>();
     public VarType anonymousClassType;
     public final List<ClassNode> nested = new ArrayList<>();
     public final Set<String> enclosingClasses = new HashSet<>();
-    public ClassNode parent;
+    public @Nullable ClassNode parent;
     public LambdaInformation lambdaInformation;
 
     public ClassNode(String content_class_name,
