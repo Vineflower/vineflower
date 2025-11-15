@@ -18,10 +18,10 @@ import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
-import org.vineflower.kotlin.KotlinDecompilationContext;
 import org.vineflower.kotlin.KotlinOptions;
 import org.vineflower.kotlin.KotlinWriter;
 import org.vineflower.kotlin.metadata.MetadataNameResolver;
+import org.vineflower.kotlin.metadata.StructKotlinMetadataAttribute;
 import org.vineflower.kotlin.util.KUtils;
 
 import java.util.HashMap;
@@ -40,17 +40,19 @@ public record KConstructor(
   private static final VarType DEFAULT_CONSTRUCTOR_MARKER = new VarType("kotlin/jvm/internal/DefaultConstructorMarker", true);
 
   public static Data parse(ClassesProcessor.ClassNode node) {
-    MetadataNameResolver resolver = KotlinDecompilationContext.getNameResolver();
+    StructKotlinMetadataAttribute ktData = node.classStruct.getAttribute(StructKotlinMetadataAttribute.KEY);
+    if (ktData == null || ktData.nameResolver == null || !(ktData.metadata instanceof StructKotlinMetadataAttribute.Class cls)) {
+      return null;
+    }
+
+    MetadataNameResolver resolver = ktData.nameResolver;
     ClassWrapper wrapper = node.getWrapper();
     StructClass struct = wrapper.getClassStruct();
 
-    KotlinDecompilationContext.KotlinType type = KotlinDecompilationContext.getCurrentType();
-    if (type != KotlinDecompilationContext.KotlinType.CLASS) return null;
-
-    int classFlags = KotlinDecompilationContext.getCurrentClass().getFlags();
+    int classFlags = cls.proto().getFlags();
     if (MODALITY.get(classFlags) == ProtoBuf.Modality.ABSTRACT) return null;
 
-    List<ProtoBuf.Constructor> protoConstructors = KotlinDecompilationContext.getCurrentClass().getConstructorList();
+    List<ProtoBuf.Constructor> protoConstructors = cls.proto().getConstructorList();
     if (protoConstructors.isEmpty()) return null;
 
     Map<StructMethod, KConstructor> constructors = new HashMap<>();
@@ -126,7 +128,7 @@ public record KConstructor(
     if (!isPrimary) {
       if (HAS_ANNOTATIONS.get(flags)) {
         KotlinWriter.appendAnnotations(buf, indent, method.methodStruct, TypeAnnotation.METHOD_RETURN_TYPE);
-        KotlinWriter.appendJvmAnnotations(buf, indent, method.methodStruct, false, method.classStruct.getPool(), TypeAnnotation.METHOD_RETURN_TYPE);
+        KotlinWriter.appendJvmAnnotations(buf, indent, method.methodStruct, false, false, method.classStruct.getPool(), TypeAnnotation.METHOD_RETURN_TYPE);
       }
 
       buf.appendIndent(indent);
@@ -218,7 +220,7 @@ public record KConstructor(
         buf.append(" ");
         // -1 for indent indicates inline
         KotlinWriter.appendAnnotations(buf, -1, method.methodStruct, TypeAnnotation.METHOD_RETURN_TYPE);
-        KotlinWriter.appendJvmAnnotations(buf, -1, method.methodStruct, false, method.classStruct.getPool(), TypeAnnotation.METHOD_RETURN_TYPE);
+        KotlinWriter.appendJvmAnnotations(buf, -1, method.methodStruct, false, false, method.classStruct.getPool(), TypeAnnotation.METHOD_RETURN_TYPE);
         appended = true;
       }
 

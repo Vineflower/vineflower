@@ -40,6 +40,7 @@ import org.jetbrains.java.decompiler.util.TextUtil;
 import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
 import org.vineflower.kotlin.expr.KAnnotationExprent;
 import org.vineflower.kotlin.metadata.MetadataNameResolver;
+import org.vineflower.kotlin.metadata.StructKotlinMetadataAttribute;
 import org.vineflower.kotlin.struct.*;
 import org.vineflower.kotlin.util.KTypes;
 import org.vineflower.kotlin.util.KUtils;
@@ -154,7 +155,8 @@ public class KotlinWriter implements StatementWriter, Flags {
   }
 
   public void writeClassHeader(StructClass cl, TextBuffer buffer, ImportCollector importCollector) {
-    if (KotlinDecompilationContext.getCurrentType() == KotlinDecompilationContext.KotlinType.FILE) {
+    StructKotlinMetadataAttribute ktData = cl.getAttribute(StructKotlinMetadataAttribute.KEY);
+    if (ktData != null && ktData.metadata instanceof StructKotlinMetadataAttribute.File) {
       for (Key<?> key : ANNOTATION_ATTRIBUTES) {
         StructAnnotationAttribute attr = cl.getAttribute((Key<StructAnnotationAttribute>) key);
         if (attr != null) {
@@ -186,15 +188,14 @@ public class KotlinWriter implements StatementWriter, Flags {
     KotlinImportCollector kotlinImportCollector = new KotlinImportCollector(importCollector);
     kotlinImportCollector.writeImports(buffer, true);
 
-    MetadataNameResolver nameResolver = KotlinDecompilationContext.getNameResolver();
-    if (KotlinDecompilationContext.getCurrentType() == KotlinDecompilationContext.KotlinType.CLASS) {
-      if (KotlinDecompilationContext.getCurrentClass().getTypeAliasCount() > 0) {
-        List<ProtoBuf.TypeAlias> typeAliases = KotlinDecompilationContext.getCurrentClass().getTypeAliasList();
+    if (ktData != null && ktData.metadata instanceof StructKotlinMetadataAttribute.Class cls) {
+      if (cls.proto().getTypeAliasCount() > 0) {
+        List<ProtoBuf.TypeAlias> typeAliases = cls.proto().getTypeAliasList();
         for (ProtoBuf.TypeAlias typeAlias : typeAliases) {
           buffer.append("typealias ");
-          buffer.append(toValidKotlinIdentifier(nameResolver.resolve(typeAlias.getName())));
+          buffer.append(toValidKotlinIdentifier(ktData.nameResolver.resolve(typeAlias.getName())));
           buffer.append(" = ");
-          buffer.append(toValidKotlinIdentifier(nameResolver.resolve(typeAlias.getUnderlyingType().getClassName())));
+          buffer.append(toValidKotlinIdentifier(ktData.nameResolver.resolve(typeAlias.getUnderlyingType().getClassName())));
           buffer.appendLineSeparator();
         }
 
@@ -220,8 +221,8 @@ public class KotlinWriter implements StatementWriter, Flags {
       StructClass cl = wrapper.getClassStruct();
       ConstantPool pool = cl.getPool();
 
-      KotlinChooser.setContextVariables(cl);
-      KotlinDecompilationContext.KotlinType current = KotlinDecompilationContext.getCurrentType();
+      KotlinChooser.parseMetadataFor(cl);
+      StructKotlinMetadataAttribute ktData = cl.getAttribute(StructKotlinMetadataAttribute.KEY);
 
       DecompilerContext.getLogger().startWriteClass(cl.qualifiedName);
 
@@ -229,15 +230,13 @@ public class KotlinWriter implements StatementWriter, Flags {
       Map<StructMethod, KFunction> functions = KFunction.parse(node);
       KConstructor.Data constructorData = KConstructor.parse(node);
 
-      ProtoBuf.Class proto = KotlinDecompilationContext.getCurrentClass();
-
       int kotlinFlags;
-      if (proto != null) {
-        kotlinFlags = proto.getFlags();
+      if (ktData == null) {
+        appendComment(buffer, "Class flags could not be determined", indent);
+        kotlinFlags = 0;
+      } else if (ktData.metadata instanceof StructKotlinMetadataAttribute.Class cls) {
+        kotlinFlags = cls.proto().getFlags();
       } else {
-        if (KotlinDecompilationContext.getCurrentType() == null) {
-          appendComment(buffer, "Class flags could not be determined", indent);
-        }
         kotlinFlags = 0;
       }
 
@@ -261,14 +260,14 @@ public class KotlinWriter implements StatementWriter, Flags {
         return;
       }
 
-      if (current == KotlinDecompilationContext.KotlinType.FILE) {
+      if (ktData != null && ktData.metadata instanceof StructKotlinMetadataAttribute.File) {
         writeKotlinFile(node, buffer, indent, propertyData, functions); // no constructors in top level file
         return;
       }
 
       Optional<ClassNode> companion;
-      if (current == KotlinDecompilationContext.KotlinType.CLASS && KotlinDecompilationContext.getCurrentClass().hasCompanionObjectName()) {
-        String name = KotlinDecompilationContext.getNameResolver().resolve(KotlinDecompilationContext.getCurrentClass().getCompanionObjectName());
+      if (ktData != null && ktData.metadata instanceof StructKotlinMetadataAttribute.Class cls && cls.proto().hasCompanionObjectName()) {
+        String name = ktData.nameResolver.resolve(cls.proto().getCompanionObjectName());
         companion = node.nested.stream()
           .filter(n -> n.simpleName.equals(name))
           .findAny();
@@ -307,7 +306,7 @@ public class KotlinWriter implements StatementWriter, Flags {
 
       if (companion.isPresent()) {
         ClassNode companionNode = companion.get();
-        KotlinChooser.setContextVariables(companionNode.classStruct);
+        KotlinChooser.parseMetadataFor(companionNode.classStruct);
 
         KProperty.Data companionPropertyData = KProperty.parse(companionNode);
         Map<StructMethod, KFunction> companionFunctions = KFunction.parse(companionNode);
@@ -595,7 +594,7 @@ public class KotlinWriter implements StatementWriter, Flags {
     }
 
     appendAnnotations(buffer, indent, cl, -1);
-    appendJvmAnnotations(buffer, indent, cl, true, cl.getPool(), TypeAnnotation.CLASS_TYPE_PARAMETER);
+    appendJvmAnnotations(buffer, indent, cl, true, false, cl.getPool(), TypeAnnotation.CLASS_TYPE_PARAMETER);
 
     buffer.appendIndent(indent);
     appendModifiers(buffer, cl.getAccessFlags(), CLASS_ALLOWED, true, CLASS_EXCLUDED);
@@ -725,7 +724,7 @@ public class KotlinWriter implements StatementWriter, Flags {
     }
 
     appendAnnotations(buffer, indent, cl, -1);
-    appendJvmAnnotations(buffer, indent, cl, isInterface, cl.getPool(), TypeAnnotation.CLASS_TYPE_PARAMETER);
+    appendJvmAnnotations(buffer, indent, cl, isInterface, false, cl.getPool(), TypeAnnotation.CLASS_TYPE_PARAMETER);
 
 
     buffer.appendIndent(indent);
@@ -866,7 +865,10 @@ public class KotlinWriter implements StatementWriter, Flags {
       appendJavadoc(buffer, javadocProvider.getFieldDoc(cl, fd), indent);
     }
     appendAnnotations(buffer, indent, fd, TypeAnnotation.FIELD);
-    appendJvmAnnotations(buffer, indent, fd, isInterface, cl.getPool(), TypeAnnotation.FIELD);
+
+    StructKotlinMetadataAttribute classData = cl.getAttribute(StructKotlinMetadataAttribute.KEY);
+    boolean isInFile = classData != null && classData.metadata instanceof StructKotlinMetadataAttribute.File;
+    appendJvmAnnotations(buffer, indent, fd, isInterface, isInFile, cl.getPool(), TypeAnnotation.FIELD);
 
     buffer.appendIndent(indent);
 
@@ -1024,7 +1026,9 @@ public class KotlinWriter implements StatementWriter, Flags {
 
       appendAnnotations(buffer, indent, mt, TypeAnnotation.METHOD_RETURN_TYPE);
 
-      appendJvmAnnotations(buffer, indent, mt, isInterface, cl.getPool(), TypeAnnotation.METHOD_RETURN_TYPE);
+      StructKotlinMetadataAttribute classData = node.classStruct.getAttribute(StructKotlinMetadataAttribute.KEY);
+      boolean isInFile = classData != null && classData.metadata instanceof StructKotlinMetadataAttribute.File;
+      appendJvmAnnotations(buffer, indent, mt, isInterface, isInFile, cl.getPool(), TypeAnnotation.METHOD_RETURN_TYPE);
 
       buffer.appendIndent(indent);
 
@@ -1650,7 +1654,7 @@ public class KotlinWriter implements StatementWriter, Flags {
     appendTypeAnnotations(buffer, indent, mb, targetType, -1, filter);
   }
 
-  public static void appendJvmAnnotations(TextBuffer buffer, int indent, StructMember mb, boolean isInterface, ConstantPool pool, int targetType) {
+  public static void appendJvmAnnotations(TextBuffer buffer, int indent, StructMember mb, boolean isInterface, boolean isInFile, ConstantPool pool, int targetType) {
     switch (targetType) {
       case TypeAnnotation.METHOD_RETURN_TYPE:
         if (isInterface && !mb.hasModifier(CodeConstants.ACC_ABSTRACT)) {
@@ -1691,7 +1695,7 @@ public class KotlinWriter implements StatementWriter, Flags {
         }
     }
 
-    if (mb.hasModifier(CodeConstants.ACC_STATIC) && targetType != TypeAnnotation.CLASS_TYPE_PARAMETER && KotlinDecompilationContext.getCurrentType() != KotlinDecompilationContext.KotlinType.FILE && !mb.hasModifier(CodeConstants.ACC_ENUM)) {
+    if (mb.hasModifier(CodeConstants.ACC_STATIC) && targetType != TypeAnnotation.CLASS_TYPE_PARAMETER && !isInFile && !mb.hasModifier(CodeConstants.ACC_ENUM)) {
       buffer.appendIndent(indent).append("@JvmStatic").appendLineSeparator();
     }
     if (mb.hasModifier(CodeConstants.ACC_STRICT)) {

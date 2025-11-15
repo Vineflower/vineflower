@@ -18,13 +18,12 @@ import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
-import org.vineflower.kotlin.KotlinDecompilationContext;
 import org.vineflower.kotlin.KotlinOptions;
 import org.vineflower.kotlin.KotlinWriter;
 import org.vineflower.kotlin.metadata.MetadataNameResolver;
+import org.vineflower.kotlin.metadata.StructKotlinMetadataAttribute;
 import org.vineflower.kotlin.util.KUtils;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,21 +43,28 @@ public record KFunction(
   ClassesProcessor.ClassNode node
 ) implements Flags {
   public static Map<StructMethod, KFunction> parse(ClassesProcessor.ClassNode node) {
-    MetadataNameResolver resolver = KotlinDecompilationContext.getNameResolver();
+    StructKotlinMetadataAttribute ktData = node.classStruct.getAttribute(StructKotlinMetadataAttribute.KEY);
+    if (ktData == null || ktData.nameResolver == null) {
+      return Map.of();
+    }
+
+    MetadataNameResolver resolver = ktData.nameResolver;
     ClassWrapper wrapper = node.getWrapper();
     StructClass struct = wrapper.getClassStruct();
 
+    //TODO: replace with switch once on Java 21
     List<ProtoBuf.Function> protoFunctions;
-
-    KotlinDecompilationContext.KotlinType type = KotlinDecompilationContext.getCurrentType();
-    if (type == null) return Map.of();
-
-    protoFunctions = switch (type) {
-      case CLASS -> KotlinDecompilationContext.getCurrentClass().getFunctionList();
-      case FILE -> KotlinDecompilationContext.getFilePackage().getFunctionList();
-      case MULTIFILE_CLASS -> KotlinDecompilationContext.getMultifilePackage().getFunctionList();
-      case SYNTHETIC_CLASS -> Collections.singletonList(KotlinDecompilationContext.getSyntheticClass()); // Lambdas and similar
-    };
+    if (ktData.metadata instanceof StructKotlinMetadataAttribute.Class cls) {
+      protoFunctions = cls.proto().getFunctionList();
+    } else if (ktData.metadata instanceof StructKotlinMetadataAttribute.File file) {
+      protoFunctions = file.proto().getFunctionList();
+    } else if (ktData.metadata instanceof StructKotlinMetadataAttribute.MultifileClass multifileClass) {
+      protoFunctions = multifileClass.proto().getFunctionList();
+    } else if (ktData.metadata instanceof StructKotlinMetadataAttribute.SyntheticClass syntheticClass) {
+      protoFunctions = List.of(syntheticClass.proto());
+    } else {
+      throw new IllegalStateException("Impossible metadata value");
+    }
 
     Map<StructMethod, KFunction> functions = new HashMap<>(protoFunctions.size(), 1f);
 
@@ -157,7 +163,7 @@ public record KFunction(
         && visibility != ProtoBuf.Visibility.LOCAL
         && KotlinWriter.searchForMethod(struct, method.methodStruct.getName(), method.desc(), false);
 
-      KContract contract = function.hasContract() ? KContract.from(function.getContract(), List.of(parameters), resolver) : null;
+      KContract contract = function.hasContract() ? KContract.from(function.getContract(), List.of(parameters), ktData) : null;
 
       KFunction kFunction = new KFunction(
         name,
@@ -183,7 +189,9 @@ public record KFunction(
   public TextBuffer stringify(int indent) {
     TextBuffer buf = new TextBuffer();
     KotlinWriter.appendAnnotations(buf, indent, method.methodStruct, TypeAnnotation.METHOD_RETURN_TYPE);
-    KotlinWriter.appendJvmAnnotations(buf, indent, method.methodStruct, false, method.classStruct.getPool(), TypeAnnotation.METHOD_RETURN_TYPE);
+    StructKotlinMetadataAttribute classData = node.classStruct.getAttribute(StructKotlinMetadataAttribute.KEY);
+    boolean isInFile = classData != null && classData.metadata instanceof StructKotlinMetadataAttribute.File;
+    KotlinWriter.appendJvmAnnotations(buf, indent, method.methodStruct, false, isInFile, method.classStruct.getPool(), TypeAnnotation.METHOD_RETURN_TYPE);
 
     String methodKey = InterpreterUtil.makeUniqueKey(method.methodStruct.getName(), method.methodStruct.getDescriptor());
 
