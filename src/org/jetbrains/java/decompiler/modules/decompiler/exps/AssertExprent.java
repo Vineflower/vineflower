@@ -56,7 +56,7 @@ public class AssertExprent extends Exprent {
   }
 
   @Override
-  public void getBytecodeRange(BitSet values) {
+  public void getBytecodeRange(BytecodeRange values) {
     measureBytecode(values, parameters);
     measureBytecode(values);
   }

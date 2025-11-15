@@ -80,7 +80,12 @@ public class DirectNode {
 
   @Override
   public int hashCode() {
-    return Objects.hash(type, id);
+    int res = 1;
+
+    res = 31 * res + type.hashCode();
+    res = 31 * res + id.hashCode();
+
+    return res;
   }
 
   @Override

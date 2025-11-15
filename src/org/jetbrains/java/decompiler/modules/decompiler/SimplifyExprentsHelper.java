@@ -1044,7 +1044,7 @@ public class SimplifyExprentsHelper {
     if (stat instanceof IfStatement && stat.getExprents() == null) {
       IfStatement statement = (IfStatement) stat;
       Exprent ifHeadExpr = statement.getHeadexprent();
-      BitSet ifHeadExprBytecode = (ifHeadExpr == null ? null : ifHeadExpr.bytecode);
+      Exprent.BytecodeRange ifHeadExprBytecode = (ifHeadExpr == null ? null : ifHeadExpr.bytecode);
 
       if (statement.iftype == IfStatement.IFTYPE_IFELSE) {
         Statement ifStatement = statement.getIfstat();

@@ -237,7 +237,7 @@ public class CatchStatement extends Statement {
     return cs;
   }
 
-  public void getOffset(BitSet values) {
+  public void getOffset(Exprent.BytecodeRange values) {
     super.getOffset(values);
 
     for (Exprent exp : this.getResources()) {

@@ -44,7 +44,7 @@ public class SSAUConstructorSparseEx extends SFormsConstructor {
 
     this.ssaStatements(this.dgraph, new HashSet<>(), true, mt, 999_999);
 
-    this.ssuVersions.initDominators();
+//    this.ssuVersions.initDominators();
 
     // Validation testing
     ValidationHelper.validateVarVersionsGraph(this.ssuVersions, root, this.varAssignmentMap);

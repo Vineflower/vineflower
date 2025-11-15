@@ -28,6 +28,10 @@ public class VarVersionsGraph {
 
   public boolean isDominatorSet(VarVersionNode node, Set<VarVersionNode> domnodes) {
     if (domnodes.size() == 1) {
+      if (this.engine == null) {
+        initDominators();
+      }
+
       return this.engine.isDominator(node, domnodes.iterator().next());
     } else {
       if (domnodes.contains(node)) {

@@ -66,7 +66,7 @@ public class VarExprent extends Exprent implements Pattern {
     this(index, varType, processor, null);
   }
 
-  public VarExprent(int index, VarType varType, VarProcessor processor, BitSet bytecode) {
+  public VarExprent(int index, VarType varType, VarProcessor processor, BytecodeRange bytecode) {
     super(Type.VAR);
     this.index = index;
     this.varType = varType;
@@ -347,7 +347,7 @@ public class VarExprent extends Exprent implements Pattern {
   }
 
   @Override
-  public void getBytecodeRange(BitSet values) {
+  public void getBytecodeRange(BytecodeRange values) {
     measureBytecode(values);
   }
 

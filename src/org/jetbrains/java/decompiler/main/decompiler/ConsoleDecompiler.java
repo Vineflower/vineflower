@@ -57,8 +57,7 @@ public class ConsoleDecompiler implements /* IBytecodeProvider, */ IResultSaver,
           System.out.println("error: Failed to read config file '" + path + "'");
           throw new RuntimeException(e);
         }
-      }
-      else {
+      } else {
         params.add(args[x]);
       }
     }
