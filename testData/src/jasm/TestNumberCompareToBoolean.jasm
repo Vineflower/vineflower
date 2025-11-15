@@ -4,6 +4,10 @@ super public class TestNumberCompareToBoolean
   version 55:0
 {
 
+// In boolean context, this is:
+//   return var != 0;
+// In integer context, this is:
+//   return var != 0 ? 1 : 0;
 public static Method testLongWithAnd:"(J)Z"
   stack 4 locals 2
 {
@@ -15,6 +19,9 @@ public static Method testLongWithAnd:"(J)Z"
   ireturn;
 }
 
+// In boolean return context, this is once again:
+//   return var != 0;
+// In integer context, -1 is a possible output and requires the verbose recreation.
 public static Method testLong:"(J)Z"
   stack 4 locals 2
 {
@@ -24,6 +31,10 @@ public static Method testLong:"(J)Z"
   ireturn;
 }
 
+// In boolean context, this is:
+//   return var == var && var != 0;
+// In integer context, this is:
+//   return var == var && var != 0 ? 1 : 0;
 public static Method testFloatGreaterThanWithAnd:"(F)Z"
   stack 3 locals 1
 {
@@ -39,6 +50,10 @@ public static Method testFloatGreaterThanWithAnd:"(F)Z"
   ireturn;
 }
 
+// In boolean context, this is:
+//   return var == var && var != 0;
+// In integer context, this is:
+//   return var == var && var != 0 ? 1 : 0;
 public static Method testFloatLessThanWithAnd:"(F)Z"
   stack 3 locals 1
 {
@@ -54,6 +69,9 @@ public static Method testFloatLessThanWithAnd:"(F)Z"
   ireturn;
 }
 
+// In boolean context, this is:
+//   return var == var && var != 0;
+// In integer context, -1 is a possible output and requires the verbose recreation.
 public static Method testFloatGreaterThan:"(F)Z"
   stack 3 locals 1
 {
@@ -67,6 +85,9 @@ public static Method testFloatGreaterThan:"(F)Z"
   ireturn;
 }
 
+// In boolean context, this is:
+//   return var == var && var != 0;
+// In integer context, -1 is a possible output and requires the verbose recreation.
 public static Method testFloatLessThan:"(F)Z"
   stack 3 locals 1
 {
@@ -80,6 +101,10 @@ public static Method testFloatLessThan:"(F)Z"
   ireturn;
 }
 
+// In boolean context, this is:
+//   return var == var && var != 0;
+// In integer context, this is:
+//   return var == var && var != 0 ? 1 : 0;
 public static Method testDoubleGreaterThanWithAnd:"(D)Z"
   stack 6 locals 2
 {
@@ -95,6 +120,10 @@ public static Method testDoubleGreaterThanWithAnd:"(D)Z"
   ireturn;
 }
 
+// In boolean context, this is:
+//   return var == var && var != 0;
+// In integer context, this is:
+//   return var == var && var != 0 ? 1 : 0;
 public static Method testDoubleLessThanWithAnd:"(D)Z"
   stack 6 locals 2
 {
@@ -110,6 +139,9 @@ public static Method testDoubleLessThanWithAnd:"(D)Z"
   ireturn;
 }
 
+// In boolean context, this is:
+//   return var == var && var != 0;
+// In integer context, -1 is a possible output and requires the verbose recreation.
 public static Method testDoubleGreaterThan:"(D)Z"
   stack 6 locals 2
 {
@@ -123,6 +155,9 @@ public static Method testDoubleGreaterThan:"(D)Z"
   ireturn;
 }
 
+// In boolean context, this is:
+//   return var == var && var != 0;
+// In integer context, -1 is a possible output and requires the verbose recreation.
 public static Method testDoubleLessThan:"(D)Z"
   stack 6 locals 2
 {
