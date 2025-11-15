@@ -156,7 +156,7 @@ public class KotlinWriter implements StatementWriter, Flags {
 
   public void writeClassHeader(StructClass cl, TextBuffer buffer, ImportCollector importCollector) {
     StructKotlinMetadataAttribute ktData = cl.getAttribute(StructKotlinMetadataAttribute.KEY);
-    if (ktData.metadata instanceof StructKotlinMetadataAttribute.File) {
+    if (ktData != null && ktData.metadata instanceof StructKotlinMetadataAttribute.File) {
       for (Key<?> key : ANNOTATION_ATTRIBUTES) {
         StructAnnotationAttribute attr = cl.getAttribute((Key<StructAnnotationAttribute>) key);
         if (attr != null) {
@@ -188,7 +188,7 @@ public class KotlinWriter implements StatementWriter, Flags {
     KotlinImportCollector kotlinImportCollector = new KotlinImportCollector(importCollector);
     kotlinImportCollector.writeImports(buffer, true);
 
-    if (ktData.metadata instanceof StructKotlinMetadataAttribute.Class cls) {
+    if (ktData != null && ktData.metadata instanceof StructKotlinMetadataAttribute.Class cls) {
       if (cls.proto().getTypeAliasCount() > 0) {
         List<ProtoBuf.TypeAlias> typeAliases = cls.proto().getTypeAliasList();
         for (ProtoBuf.TypeAlias typeAlias : typeAliases) {
