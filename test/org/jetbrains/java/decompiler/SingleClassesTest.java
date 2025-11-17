@@ -154,6 +154,26 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.LAMBDA_TO_ANONYMOUS_CLASS, "1",
       IFernflowerPreferences.VERIFY_PRE_POST_VARIABLE_MERGES, "1"
     );
+    registerSet("Single method", this::registerSingleMethod,
+      IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
+      IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
+      IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
+      IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
+      IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
+      IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "1",
+      IFernflowerPreferences.VERIFY_PRE_POST_VARIABLE_MERGES, "1",
+      IFernflowerPreferences.METHOD_TO_DECOMPILE, "test()V"
+    );
+    registerSet("Single method in inner class", this::registerSingleMethodInInnerClass,
+      IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
+      IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
+      IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
+      IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
+      IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
+      IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "1",
+      IFernflowerPreferences.VERIFY_PRE_POST_VARIABLE_MERGES, "1",
+      IFernflowerPreferences.METHOD_TO_DECOMPILE, "pkg/TestSingleMethodInInnerClass$Inner.test()V"
+    );
     // TODO: user renamer class test
   }
 
@@ -909,5 +929,13 @@ public class SingleClassesTest extends SingleClassesTestBase {
   private void registerLambdaToAnonymousClass() {
     register(JAVA_8, "TestLambdaToAnonymousClass");
     register(JAVA_8, "TestLambdaToAnonymousClass2");
+  }
+
+  private void registerSingleMethod() {
+    register(JAVA_8, "TestSingleMethod");
+  }
+
+  private void registerSingleMethodInInnerClass() {
+    register(JAVA_8, "TestSingleMethodInInnerClass");
   }
 }
