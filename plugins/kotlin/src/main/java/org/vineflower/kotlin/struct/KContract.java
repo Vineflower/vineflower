@@ -1,7 +1,7 @@
 package org.vineflower.kotlin.struct;
 
-import kotlin.metadata.internal.metadata.ProtoBuf;
-import kotlin.metadata.internal.metadata.deserialization.Flags;
+import org.vineflower.kt.metadata.ProtoBuf;
+import org.vineflower.kt.metadata.deserialization.Flags;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.main.DecompilerContext;

@@ -1,6 +1,6 @@
 package org.vineflower.kotlin.struct;
 
-import kotlin.metadata.internal.metadata.deserialization.Flags;
+import org.vineflower.kt.metadata.deserialization.Flags;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;

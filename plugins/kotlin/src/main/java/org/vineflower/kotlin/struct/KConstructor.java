@@ -1,8 +1,8 @@
 package org.vineflower.kotlin.struct;
 
-import kotlin.metadata.internal.metadata.ProtoBuf;
-import kotlin.metadata.internal.metadata.deserialization.Flags;
-import kotlin.metadata.internal.metadata.jvm.JvmProtoBuf;
+import org.vineflower.kt.metadata.ProtoBuf;
+import org.vineflower.kt.metadata.deserialization.Flags;
+import org.vineflower.kt.metadata.jvm.JvmProtoBuf;
 import org.jetbrains.java.decompiler.main.ClassesProcessor;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.ImportCollector;
