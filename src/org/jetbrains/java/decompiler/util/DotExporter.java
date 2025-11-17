@@ -4,6 +4,7 @@ import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
 import org.jetbrains.java.decompiler.code.cfg.ExceptionRangeCFG;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.main.rels.DecompileRecord;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
@@ -35,6 +36,7 @@ public class DotExporter {
   private static final boolean EXTENDED_MODE = false;
   private static final boolean STATEMENT_LR_MODE = false;
   private static final boolean SAME_RANK_MODE = false;
+
   // https://dreampuf.github.io/GraphvizOnline/ is a nice visualizer for the outputed dots.
 
   // Outputs a statement and as much of its information as possible into a dot formatted string.
@@ -690,7 +692,10 @@ public class DotExporter {
       root.mkdirs();
     }
 
+    int count = DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.DOT_FILE_COUNTER);
+
     return new File(root,
+      count + "_" +
       mt.getName().replace('<', '.').replace('>', '_') +
         mt.getDescriptor().replace('/', '.') +
         '_' + suffix + ".dot");
