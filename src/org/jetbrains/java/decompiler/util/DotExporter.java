@@ -35,6 +35,9 @@ public class DotExporter {
   private static final boolean EXTENDED_MODE = false;
   private static final boolean STATEMENT_LR_MODE = false;
   private static final boolean SAME_RANK_MODE = false;
+
+  private static final Map<String, Integer> counter = new HashMap<>();
+
   // https://dreampuf.github.io/GraphvizOnline/ is a nice visualizer for the outputed dots.
 
   // Outputs a statement and as much of its information as possible into a dot formatted string.
@@ -690,7 +693,10 @@ public class DotExporter {
       root.mkdirs();
     }
 
+    int count = counter.merge(InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor()), 1, Integer::sum);
+
     return new File(root,
+      count + "_" +
       mt.getName().replace('<', '.').replace('>', '_') +
         mt.getDescriptor().replace('/', '.') +
         '_' + suffix + ".dot");
