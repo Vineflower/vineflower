@@ -545,7 +545,10 @@ public class SingleClassesTest extends SingleClassesTestBase {
     registerRaw(CUSTOM, "TestEclipseSwitchString");
     registerRaw(CUSTOM, "TestStringConcatJ19");
     register(JAVA_8, "TestNestedAnonymousClass");
+    // TODO: ppmm not created in test4-5
     register(JAVA_8, "TestPPMMLoop");
+    // TODO: ppmm not created
+    register(JAVA_8, "TestPPMMIf");
     // TODO: loops not eliminated properly, foreach not created
     register(JAVA_8, "TestForeachMultipleLoops");
     register(JAVA_8, "TestLoopBreak3");
@@ -696,7 +699,10 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_21_PREVIEW, "TestFmtProcessor");
     register(JAVA_21_PREVIEW, "TestCustomProcessor");
     register(JAVA_16, "TestMissingLambdaBody");
-    register(JAVA_21_PREVIEW, "TestUnnamedVar1");
+    register(JAVA_25, "TestUnnamedVar1");
+    // TODO: if (true) construction prevents record pattern matching
+    register(JAVA_25, "TestRecordPatterns1J25");
+    register(JAVA_25, "TestSwitchPatternMatchingJ25");
     register(JAVA_8, "TestNumberCasts");
     // TODO: Disambiguate only the required parameters
     register(JAVA_8, "TestNumberDisambiguation");
