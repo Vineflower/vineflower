@@ -1,6 +1,6 @@
 package org.vineflower.kotlin;
 
-import org.jetbrains.java.decompiler.api.GraphParser;
+import org.jetbrains.java.decompiler.api.plugin.GraphParser;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.Instruction;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
@@ -9,6 +9,7 @@ import org.jetbrains.java.decompiler.modules.code.DeadCodeHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.DomHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.struct.StructMethod;
+import org.jetbrains.java.decompiler.struct.gen.CodeType;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -142,7 +143,7 @@ public class KotlinDomHelper implements GraphParser {
           instructions.addInstruction(
             i,
             Instruction.create(CodeConstants.opc_aconst_null, false, CodeConstants.GROUP_GENERAL,
-              inst.bytecodeVersion, new int[0], 1), -1);
+              inst.bytecodeVersion, new int[0], -1, 1));
         }
       }
     }
@@ -178,7 +179,7 @@ public class KotlinDomHelper implements GraphParser {
     }
 
     var lastParam = params[params.length - 1];
-    if (lastParam.type != CodeConstants.TYPE_OBJECT || !lastParam.value.equals("kotlin/coroutines/Continuation")) {
+    if (lastParam.type != CodeType.OBJECT || !lastParam.value.equals("kotlin/coroutines/Continuation")) {
       return -1;
     }
 
@@ -186,7 +187,7 @@ public class KotlinDomHelper implements GraphParser {
 
     // Is there already a method for this?
     for (var param : params) {
-      if (param.type == CodeConstants.TYPE_LONG || param.type == CodeConstants.TYPE_DOUBLE) {
+      if (param.type == CodeType.LONG || param.type == CodeType.DOUBLE) {
         index++;
       }
     }
