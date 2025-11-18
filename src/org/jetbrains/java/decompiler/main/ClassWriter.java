@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import net.fabricmc.fernflower.api.IFabricJavadocProvider;
 import org.jetbrains.java.decompiler.api.plugin.StatementWriter;
 import org.jetbrains.java.decompiler.code.CodeConstants;
+import org.jetbrains.java.decompiler.code.ExceptionHandler;
 import org.jetbrains.java.decompiler.code.FullInstructionSequence;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.collectors.ImportCollector;
@@ -1603,6 +1604,10 @@ public class ClassWriter implements StatementWriter {
         }
       }
       lines.add(sb.toString());
+    }
+
+    for (ExceptionHandler handler : instructions.exceptionTable().getHandlers()) {
+      lines.add("try (" + handler.from() + " -> " + handler.to() + "): " + handler.handler() + " " + handler.exceptionClass());
     }
   }
 
