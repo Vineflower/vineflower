@@ -24,7 +24,6 @@ import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
 import org.vineflower.kotlin.KotlinWriter;
 import org.vineflower.kotlin.metadata.MetadataNameResolver;
-import org.vineflower.kotlin.metadata.StructKotlinMetadataAttribute;
 import org.vineflower.kotlin.util.KTypes;
 import org.vineflower.kotlin.util.KUtils;
 
@@ -196,28 +195,7 @@ public record KProperty(
     return buf;
   }
 
-  public static @Nullable Data parse(StructClass classStruct) {
-    StructKotlinMetadataAttribute ktData = classStruct.getAttribute(StructKotlinMetadataAttribute.KEY);
-    if (ktData == null || ktData.nameResolver == null) {
-      return null;
-    }
-
-    MetadataNameResolver nameResolver = ktData.nameResolver;
-
-    List<ProtoBuf.Property> protoProperties;
-
-    if (ktData.metadata instanceof StructKotlinMetadataAttribute.Class cls) {
-      protoProperties = cls.proto().getPropertyList();
-    } else if (ktData.metadata instanceof StructKotlinMetadataAttribute.File file) {
-      protoProperties = file.proto().getPropertyList();
-    } else if (ktData.metadata instanceof StructKotlinMetadataAttribute.MultifileClass multifileClass) {
-      protoProperties = multifileClass.proto().getPropertyList();
-    } else if (ktData.metadata instanceof StructKotlinMetadataAttribute.SyntheticClass) {
-      return null;
-    } else {
-      throw new IllegalStateException("Impossible metadata value");
-    }
-
+  public static @NotNull Data parse(StructClass classStruct, List<ProtoBuf.Property> protoProperties, @NotNull MetadataNameResolver nameResolver) {
     List<KProperty> properties = new ArrayList<>();
     Set<StructField> associatedFields = new HashSet<>();
     Set<StructMethod> associatedMethods = new HashSet<>();

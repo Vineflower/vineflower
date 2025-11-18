@@ -44,28 +44,7 @@ public record KFunction(
   StructClass classStruct,
   StructMethod methodStruct
 ) implements Flags {
-  public static Map<StructMethod, KFunction> parse(StructClass classStruct) {
-    StructKotlinMetadataAttribute ktData = classStruct.getAttribute(StructKotlinMetadataAttribute.KEY);
-    if (ktData == null || ktData.nameResolver == null) {
-      return Map.of();
-    }
-
-    MetadataNameResolver resolver = ktData.nameResolver;
-
-    //TODO: replace with switch once on Java 21
-    List<ProtoBuf.Function> protoFunctions;
-    if (ktData.metadata instanceof StructKotlinMetadataAttribute.Class cls) {
-      protoFunctions = cls.proto().getFunctionList();
-    } else if (ktData.metadata instanceof StructKotlinMetadataAttribute.File file) {
-      protoFunctions = file.proto().getFunctionList();
-    } else if (ktData.metadata instanceof StructKotlinMetadataAttribute.MultifileClass multifileClass) {
-      protoFunctions = multifileClass.proto().getFunctionList();
-    } else if (ktData.metadata instanceof StructKotlinMetadataAttribute.SyntheticClass syntheticClass) {
-      protoFunctions = List.of(syntheticClass.proto());
-    } else {
-      throw new IllegalStateException("Impossible metadata value");
-    }
-
+  public static @NotNull Map<StructMethod, KFunction> parse(StructClass classStruct, StructKotlinMetadataAttribute ktData, @NotNull MetadataNameResolver resolver, List<ProtoBuf.Function> protoFunctions) {
     Map<StructMethod, KFunction> functions = new HashMap<>(protoFunctions.size(), 1f);
 
     for (ProtoBuf.Function function : protoFunctions) {

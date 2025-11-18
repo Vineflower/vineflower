@@ -3,6 +3,7 @@ package org.vineflower.kotlin.struct;
 import org.vineflower.kt.metadata.ProtoBuf;
 import org.vineflower.kt.metadata.deserialization.Flags;
 import org.vineflower.kt.metadata.jvm.JvmProtoBuf;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.ImportCollector;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
@@ -21,7 +22,6 @@ import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.vineflower.kotlin.KotlinOptions;
 import org.vineflower.kotlin.KotlinWriter;
 import org.vineflower.kotlin.metadata.MetadataNameResolver;
-import org.vineflower.kotlin.metadata.StructKotlinMetadataAttribute;
 import org.vineflower.kotlin.util.KUtils;
 
 import java.util.HashMap;
@@ -41,18 +41,11 @@ public record KConstructor(
 ) implements Flags {
   private static final VarType DEFAULT_CONSTRUCTOR_MARKER = new VarType("kotlin/jvm/internal/DefaultConstructorMarker", true);
 
-  public static Data parse(StructClass classStruct) {
-    StructKotlinMetadataAttribute ktData = classStruct.getAttribute(StructKotlinMetadataAttribute.KEY);
-    if (ktData == null || ktData.nameResolver == null || !(ktData.metadata instanceof StructKotlinMetadataAttribute.Class cls)) {
-      return null;
-    }
-
-    MetadataNameResolver resolver = ktData.nameResolver;
-
-    int classFlags = cls.proto().getFlags();
+  public static Data parse(StructClass classStruct, ProtoBuf.Class protoClass, @NotNull MetadataNameResolver resolver) {
+    int classFlags = protoClass.getFlags();
     if (MODALITY.get(classFlags) == ProtoBuf.Modality.ABSTRACT) return null;
 
-    List<ProtoBuf.Constructor> protoConstructors = cls.proto().getConstructorList();
+    List<ProtoBuf.Constructor> protoConstructors = protoClass.getConstructorList();
     if (protoConstructors.isEmpty()) return null;
 
     Map<StructMethod, KConstructor> constructors = new HashMap<>();
@@ -91,7 +84,7 @@ public record KConstructor(
 
       StringBuilder defaultArgsDesc = new StringBuilder("(");
       if (CLASS_KIND.get(classFlags) == ProtoBuf.Class.Kind.ENUM_CLASS) {
-        // Kotlin drops hidden name/ordinal parameters for enum constructors in its metadata
+        // Kotlin drops hidden name/ordinal parameters for enum allConstructors in its metadata
         defaultArgsDesc.append("Ljava/lang/String;").append("I");
       }
 
@@ -237,9 +230,9 @@ public record KConstructor(
         appended = true;
       }
 
-      // For cleanliness, public primary constructors are not forced public by the config option
+      // For cleanliness, public primary allConstructors are not forced public by the config option
       if ((VISIBILITY.get(flags) != ProtoBuf.Visibility.PUBLIC || (appended && DecompilerContext.getOption(KotlinOptions.SHOW_PUBLIC_VISIBILITY))) &&
-        CLASS_KIND.get(classFlags) != ProtoBuf.Class.Kind.ENUM_CLASS // Enum constructors are always private implicitly
+        CLASS_KIND.get(classFlags) != ProtoBuf.Class.Kind.ENUM_CLASS // Enum allConstructors are always private implicitly
       ) {
         buf.append(" ");
         KUtils.appendVisibility(buf, VISIBILITY.get(flags));
@@ -314,6 +307,6 @@ public record KConstructor(
     return true;
   }
 
-  public record Data(Map<StructMethod, KConstructor> constructors, KConstructor primary) {
+  public record Data(Map<StructMethod, KConstructor> allConstructors, KConstructor primary) {
   }
 }

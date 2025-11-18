@@ -225,10 +225,6 @@ public class KotlinWriter implements StatementWriter, Flags {
 
       DecompilerContext.getLogger().startWriteClass(cl.qualifiedName);
 
-      KProperty.Data propertyData = KProperty.parse(cl);
-      Map<StructMethod, KFunction> functions = KFunction.parse(cl);
-      KConstructor.Data constructorData = KConstructor.parse(cl);
-
       int kotlinFlags;
       if (ktData == null) {
         appendComment(buffer, "Class flags could not be determined", indent);
@@ -255,12 +251,12 @@ public class KotlinWriter implements StatementWriter, Flags {
 
       if (CLASS_KIND.get(kotlinFlags) == ProtoBuf.Class.Kind.ANNOTATION_CLASS || cl.hasModifier(CodeConstants.ACC_ANNOTATION)) {
         // Kotlin's annotation classes are treated quite differently from other classes
-        writeAnnotationDefinition(node, buffer, indent, propertyData, functions, constructorData);
+        writeAnnotationDefinition(node, buffer, indent, ktData);
         return;
       }
 
       if (ktData != null && ktData.metadata instanceof StructKotlinMetadataAttribute.File) {
-        writeKotlinFile(node, buffer, indent, propertyData, functions); // no constructors in top level file
+        writeKotlinFile(node, buffer, indent, ktData);
         return;
       }
 
@@ -275,7 +271,7 @@ public class KotlinWriter implements StatementWriter, Flags {
       }
 
       // write class definition
-      writeClassDefinition(node, buffer, indent, constructorData, kotlinFlags);
+      writeClassDefinition(node, buffer, indent, ktData, kotlinFlags);
 
       TextBuffer innerBuffer = new TextBuffer();
 
@@ -284,23 +280,27 @@ public class KotlinWriter implements StatementWriter, Flags {
       Set<StructField> fieldsToIgnore = new HashSet<>();
       Set<StructMethod> methodsToIgnore = new HashSet<>();
 
-      if (propertyData != null) {
-        fieldsToIgnore.addAll(propertyData.associatedFields());
-        methodsToIgnore.addAll(propertyData.associatedMethods());
-      }
-
-      for (KFunction function : functions.values()) {
-        DefaultArgsMap defaultArgs = function.defaultArgsSupplier().apply(wrapper);
-        if (defaultArgs.getDefaultMethod() != null) {
-          methodsToIgnore.add(defaultArgs.getDefaultMethod());
+      if (ktData != null) {
+        if (ktData.getProperties() != null) {
+          fieldsToIgnore.addAll(ktData.getProperties().associatedFields());
+          methodsToIgnore.addAll(ktData.getProperties().associatedMethods());
         }
-      }
 
-      if (constructorData != null) {
-        for (KConstructor constructor : constructorData.constructors().values()) {
-          DefaultArgsMap defaultArgs = constructor.defaultArgsSupplier().apply(wrapper);
-          if (defaultArgs.getDefaultMethod() != null) {
-            methodsToIgnore.add(defaultArgs.getDefaultMethod());
+        if (ktData.getFunctions() != null) {
+          for (KFunction function : ktData.getFunctions().values()) {
+            DefaultArgsMap defaultArgs = function.defaultArgsSupplier().apply(wrapper);
+            if (defaultArgs.getDefaultMethod() != null) {
+              methodsToIgnore.add(defaultArgs.getDefaultMethod());
+            }
+          }
+        }
+
+        if (ktData.getConstructors() != null) {
+          for (KConstructor constructor : ktData.getConstructors().allConstructors().values()) {
+            DefaultArgsMap defaultArgs = constructor.defaultArgsSupplier().apply(wrapper);
+            if (defaultArgs.getDefaultMethod() != null) {
+              methodsToIgnore.add(defaultArgs.getDefaultMethod());
+            }
           }
         }
       }
@@ -309,15 +309,23 @@ public class KotlinWriter implements StatementWriter, Flags {
         ClassNode companionNode = companion.get();
         KotlinChooser.parseMetadataFor(companionNode.classStruct);
 
-        KProperty.Data companionPropertyData = KProperty.parse(companionNode.classStruct);
-        Map<StructMethod, KFunction> companionFunctions = KFunction.parse(companionNode.classStruct);
+        StructKotlinMetadataAttribute companionKtData = companionNode.classStruct.getAttribute(StructKotlinMetadataAttribute.KEY);
+        if (companionKtData != null) {
+          if (companionKtData.getProperties() != null) {
+            fieldsToIgnore.addAll(companionKtData.getProperties().associatedFields());
+            methodsToIgnore.addAll(companionKtData.getProperties().associatedMethods());
+          }
 
-        if (companionPropertyData != null) {
-          fieldsToIgnore.addAll(companionPropertyData.associatedFields());
-          methodsToIgnore.addAll(companionPropertyData.associatedMethods());
+          if (companionKtData.getFunctions() != null) {
+            for (KFunction function : companionKtData.getFunctions().values()) {
+              DefaultArgsMap defaultArgs = function.defaultArgsSupplier().apply(companionNode.getWrapper());
+              if (defaultArgs.getDefaultMethod() != null) {
+                methodsToIgnore.add(defaultArgs.getDefaultMethod());
+              }
+              methodsToIgnore.add(function.methodStruct());
+            }
+          }
         }
-
-        methodsToIgnore.addAll(companionFunctions.keySet());
       }
 
       // fields
@@ -350,9 +358,9 @@ public class KotlinWriter implements StatementWriter, Flags {
         innerBuffer.append(';').appendLineSeparator();
       }
 
-      if (propertyData != null) {
+      if (ktData != null && ktData.getProperties() != null) {
         boolean addedLineAtEnd = false;
-        for (KProperty prop : propertyData.properties()) {
+        for (KProperty prop : ktData.getProperties().properties()) {
           if (hasContent) {
             innerBuffer.appendLineSeparator();
           }
@@ -382,7 +390,7 @@ public class KotlinWriter implements StatementWriter, Flags {
           hasContent = true;
         }
 
-        if (!addedLineAtEnd && !propertyData.properties().isEmpty()) {
+        if (!addedLineAtEnd && !ktData.getProperties().properties().isEmpty()) {
           innerBuffer.appendLineSeparator();
         }
       } else {
@@ -418,30 +426,32 @@ public class KotlinWriter implements StatementWriter, Flags {
           methodsToIgnore.contains(mt);
         if (hide) continue;
 
-        KFunction function = functions.get(mt);
-        if (function != null) {
-          if (hasContent) {
-            innerBuffer.appendLineSeparator();
-          }
-          hasContent = true;
-          innerBuffer.append(function.stringify(wrapper, indent + 1));
-          continue;
-        }
-
-        if (constructorData != null) {
-          KConstructor constructor = constructorData.constructors().get(mt);
-          if (constructor != null) {
-            TextBuffer ctorBuffer = new TextBuffer();
-            boolean ctorSkipped = !constructor.stringify(wrapper, ctorBuffer, indent + 1);
-            if (!ctorSkipped) {
-              if (hasContent) {
-                innerBuffer.appendLineSeparator();
-              }
-              hasContent = true;
-              innerBuffer.append(ctorBuffer);
+        if (ktData != null) {
+          KFunction function = ktData.getFunctions() == null ? null : ktData.getFunctions().get(mt);
+          if (function != null) {
+            if (hasContent) {
+              innerBuffer.appendLineSeparator();
             }
+            hasContent = true;
+            innerBuffer.append(function.stringify(wrapper, indent + 1));
+            continue;
+          }
 
-            continue; // Skip writing the constructor as a methodSupplier, even if nothing was written
+          if (ktData.getConstructors() != null) {
+            KConstructor constructor = ktData.getConstructors().allConstructors().get(mt);
+            if (constructor != null) {
+              TextBuffer ctorBuffer = new TextBuffer();
+              boolean ctorSkipped = !constructor.stringify(wrapper, ctorBuffer, indent + 1);
+              if (!ctorSkipped) {
+                if (hasContent) {
+                  innerBuffer.appendLineSeparator();
+                }
+                hasContent = true;
+                innerBuffer.append(ctorBuffer);
+              }
+
+              continue; // Skip writing the constructor as a methodSupplier, even if nothing was written
+            }
           }
         }
 
@@ -494,15 +504,15 @@ public class KotlinWriter implements StatementWriter, Flags {
     }
   }
 
-  private void writeKotlinFile(ClassNode node, TextBuffer buffer, int indent, KProperty.Data propertyData, Map<StructMethod, KFunction> functions) {
+  private void writeKotlinFile(ClassNode node, TextBuffer buffer, int indent, StructKotlinMetadataAttribute ktData) {
     ClassWrapper wrapper = node.getWrapper();
     StructClass cl = wrapper.getClassStruct();
     
     boolean hasContent = false;
 
-    if (propertyData != null && !propertyData.properties().isEmpty()) {
+    if (ktData != null && ktData.getProperties() != null && !ktData.getProperties().properties().isEmpty()) {
       boolean addedLineAtEnd = false;
-      for (KProperty prop : propertyData.properties()) {
+      for (KProperty prop : ktData.getProperties().properties()) {
         if (hasContent) {
           buffer.appendLineSeparator();
         }
@@ -536,24 +546,37 @@ public class KotlinWriter implements StatementWriter, Flags {
       }
     }
 
+    Set<StructField> fieldsToSkip = Optional.ofNullable(ktData)
+      .map(StructKotlinMetadataAttribute::getProperties)
+      .map(KProperty.Data::associatedFields)
+      .orElse(Set.of());
+
+    Set<StructMethod> methodsToSkip = new HashSet<>();
+    if (ktData != null) {
+      if (ktData.getProperties() != null) {
+        methodsToSkip.addAll(ktData.getProperties().associatedMethods());
+      }
+    }
+
     for (StructField fd : cl.getFields()) {
-      if (propertyData.associatedFields().contains(fd)) continue;
-      writeField(buffer, indent, fd, wrapper);
+      if (!fieldsToSkip.contains(fd)) {
+        writeField(buffer, indent, fd, wrapper);
+      }
     }
 
     for (int i = 0; i < cl.getMethods().size(); i++) {
       StructMethod mt = cl.getMethods().get(i);
-      if (functions.containsKey(mt)) {
+      if (ktData != null && ktData.getFunctions() != null && ktData.getFunctions().containsKey(mt)) {
         if (hasContent) {
           buffer.appendLineSeparator();
         }
         hasContent = true;
 
-        buffer.append(functions.get(mt).stringify(wrapper, indent));
+        buffer.append(ktData.getFunctions().get(mt).stringify(wrapper, indent));
         continue;
       }
 
-      if (mt.getName().equals("<clinit>") || propertyData.associatedMethods().contains(mt)) continue;
+      if (mt.getName().equals("<clinit>") || methodsToSkip.contains(mt)) continue;
 
       TextBuffer methodBuffer = new TextBuffer();
       boolean written = writeMethod(node, mt, i, methodBuffer, indent);
@@ -577,7 +600,7 @@ public class KotlinWriter implements StatementWriter, Flags {
   }
 
   //TODO update this to use Kotlin's metadata
-  private void writeAnnotationDefinition(ClassNode node, TextBuffer buffer, int indent, KProperty.Data propertyData, Map<StructMethod, KFunction> functions, KConstructor.Data constructorData) {
+  private void writeAnnotationDefinition(ClassNode node, TextBuffer buffer, int indent, StructKotlinMetadataAttribute ktData) {
     ClassWrapper wrapper = node.getWrapper();
     StructClass cl = wrapper.getClassStruct();
 
@@ -607,36 +630,41 @@ public class KotlinWriter implements StatementWriter, Flags {
       .append("(")
       .appendLineSeparator();
 
-    List<KProperty> nonParameterProperties = new ArrayList<>(propertyData.properties());
+    List<KProperty> nonParameterProperties = new ArrayList<>();
+    if (ktData != null && ktData.getProperties() != null) {
+      nonParameterProperties.addAll(ktData.getProperties().properties());
+    }
 
-    boolean first = true;
-    for (KParameter param : constructorData.primary().parameters()) {
-      if (!first) {
-        buffer.append(",").appendLineSeparator();
-      }
-      first = false;
-      buffer.appendIndent(indent + 1)
-        .append("val ")
-        .append(KotlinWriter.toValidKotlinIdentifier(param.name()))
-        .append(": ")
-        .append(param.type().stringify(indent + 1));
+    if (ktData != null && ktData.getConstructors() != null) {
+      boolean first = true;
+      for (KParameter param : ktData.getConstructors().primary().parameters()) {
+        if (!first) {
+          buffer.append(",").appendLineSeparator();
+        }
+        first = false;
+        buffer.appendIndent(indent + 1)
+          .append("val ")
+          .append(KotlinWriter.toValidKotlinIdentifier(param.name()))
+          .append(": ")
+          .append(param.type().stringify(indent + 1));
 
-      // Because Kotlin really doesn't like making this easy for us, defaults are still passed directly via attributes
-      KProperty prop = propertyData.properties().stream()
-        .filter(p -> p.name().equals(param.name()))
-        .findFirst()
-        .orElseThrow();
+        // Because Kotlin really doesn't like making this easy for us, defaults are still passed directly via attributes
+        KProperty prop = ktData.getProperties().properties().stream()
+          .filter(p -> p.name().equals(param.name()))
+          .findFirst()
+          .orElseThrow();
 
-      nonParameterProperties.remove(prop);
+        nonParameterProperties.remove(prop);
 
-      KPropertyAccessor getter = prop.getter();
-      if (getter != null) {
-        StructMethod mt = getter.methodSupplier().apply(wrapper).methodStruct;
-        StructAnnDefaultAttribute paramAttr = mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_ANNOTATION_DEFAULT);
-        if (paramAttr != null) {
-          Exprent kExpr = KUtils.replaceExprent(paramAttr.getDefaultValue());
-          Exprent expr = kExpr != null ? kExpr : paramAttr.getDefaultValue();
-          buffer.append(" = ").append(expr.toJava());
+        KPropertyAccessor getter = prop.getter();
+        if (getter != null) {
+          StructMethod mt = getter.methodSupplier().apply(wrapper).methodStruct;
+          StructAnnDefaultAttribute paramAttr = mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_ANNOTATION_DEFAULT);
+          if (paramAttr != null) {
+            Exprent kExpr = KUtils.replaceExprent(paramAttr.getDefaultValue());
+            Exprent expr = kExpr != null ? kExpr : paramAttr.getDefaultValue();
+            buffer.append(" = ").append(expr.toJava());
+          }
         }
       }
     }
@@ -654,18 +682,20 @@ public class KotlinWriter implements StatementWriter, Flags {
       appended = true;
     }
 
-    first = true;
-    for (KFunction function : functions.values()) {
-      if (!first || appended) {
-        innerBuffer.appendLineSeparator();
-      }
-      first = false;
+    if (ktData != null && ktData.getFunctions() != null){
+      boolean first = true;
+      for (KFunction function : ktData.getFunctions().values()) {
+        if (!first || appended) {
+          innerBuffer.appendLineSeparator();
+        }
+        first = false;
 
-      innerBuffer.append(function.stringify(wrapper, indent + 1));
-      appended = true;
+        innerBuffer.append(function.stringify(wrapper, indent + 1));
+        appended = true;
+      }
     }
 
-    first = true;
+    boolean first = true;
     for (ClassNode inner : node.nested) {
       if (inner.type == ClassNode.Type.MEMBER) {
         if (inner.classStruct.qualifiedName.equals(repeatableContainer)) {
@@ -694,7 +724,7 @@ public class KotlinWriter implements StatementWriter, Flags {
     buffer.appendLineSeparator();
   }
 
-  private void writeClassDefinition(ClassNode node, TextBuffer buffer, int indent, KConstructor.Data constructorData, int kotlinFlags) {
+  private void writeClassDefinition(ClassNode node, TextBuffer buffer, int indent, StructKotlinMetadataAttribute ktData, int kotlinFlags) {
     if (node.type == ClassNode.Type.ANONYMOUS) {
       buffer.append(" {").appendLineSeparator();
       return;
@@ -796,7 +826,12 @@ public class KotlinWriter implements StatementWriter, Flags {
     buffer.pushNewlineGroup(indent, 1);
 
     boolean appendedColon = false;
-    if (constructorData != null && constructorData.primary() != null && constructorData.primary().writePrimaryConstructor(wrapper, buffer, indent)) {
+    boolean wroteSupertype = Optional.ofNullable(ktData)
+      .map(StructKotlinMetadataAttribute::getConstructors)
+      .map(KConstructor.Data::primary)
+      .map(constructor -> constructor.writePrimaryConstructor(wrapper, buffer, indent))
+      .orElse(false);
+    if (wroteSupertype) {
       appendedColon = true;
     } else if (!isEnum && !isInterface && cl.superClass != null) {
       VarType supertype = new VarType(cl.superClass.getString(), true);
