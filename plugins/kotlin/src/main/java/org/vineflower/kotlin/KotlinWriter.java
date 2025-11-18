@@ -537,8 +537,10 @@ public class KotlinWriter implements StatementWriter, Flags {
     }
 
     if (representation.parameters().length > 0) {
-      buffer.append(" ->").appendLineSeparator();
+      buffer.append(" ->");
     }
+
+    buffer.appendLineSeparator();
 
     MethodWrapper methodWrapper = representation.methodSupplier().apply(node.getWrapper());
     RootStatement root = methodWrapper.root;
