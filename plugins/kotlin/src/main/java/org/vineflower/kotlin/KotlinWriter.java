@@ -260,6 +260,11 @@ public class KotlinWriter implements StatementWriter, Flags {
         return;
       }
 
+      if (ktData != null && ktData.metadata instanceof StructKotlinMetadataAttribute.SyntheticClass) {
+        writeLambda(node, buffer, indent, ktData);
+        return;
+      }
+
       Optional<ClassNode> companion;
       if (ktData != null && ktData.metadata instanceof StructKotlinMetadataAttribute.Class cls && cls.proto().hasCompanionObjectName()) {
         String name = ktData.nameResolver.resolve(cls.proto().getCompanionObjectName());
@@ -503,6 +508,61 @@ public class KotlinWriter implements StatementWriter, Flags {
     }
   }
 
+  private void writeLambda(ClassNode node, TextBuffer buffer, int indent, StructKotlinMetadataAttribute ktData) {
+    Map<StructMethod, KFunction> functions = ktData.getFunctions();
+    if (functions == null || functions.isEmpty()) {
+      DecompilerContext.getLogger().writeMessage("No Kotlin function information for lambda class " + node.simpleName, IFernflowerLogger.Severity.WARN);
+      buffer.append("{").appendLineSeparator();
+      appendComment(buffer, "Could not decompile lambda - root function was not found. Is this a suspend lambda?", indent + 1);
+      buffer.appendIndent(indent).append("}");
+      return;
+    }
+    KFunction representation = functions.values().iterator().next();
+    StructMethod mt = representation.methodStruct();
+    StructClass cl = node.classStruct;
+
+    buffer.append("{");
+
+    int index = 0;
+    for (KParameter param : representation.parameters()) {
+      if (index > 0) {
+        buffer.append(", ");
+      } else {
+        buffer.append(" ");
+      }
+
+      buffer.appendVariable(param.name(), true, true, cl.qualifiedName, mt.getName(), mt.methodDescriptor(), index, mt.getName());
+      buffer.append(": ").append(param.type().stringify(indent + 1));
+      index += param.type().stackSize;
+    }
+
+    if (representation.parameters().length > 0) {
+      buffer.append(" ->").appendLineSeparator();
+    }
+
+    MethodWrapper methodWrapper = representation.methodSupplier().apply(node.getWrapper());
+    RootStatement root = methodWrapper.root;
+
+    if (root != null && methodWrapper.decompileError == null) { // check for existence
+      try {
+        // Avoid generating imports for ObjectMethods during root.toJava(...)
+        TextBuffer code = root.toJava(indent + 1);
+        code.addBytecodeMapping(root.getDummyExit().bytecode);
+        buffer.append(code, cl.qualifiedName, InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor()));
+      } catch (Throwable t) {
+        String message = "Method " + mt.getName() + " " + mt.getDescriptor() + " in class " + cl.qualifiedName + " couldn't be written.";
+        DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.WARN, t);
+        methodWrapper.decompileError = t;
+      }
+    }
+
+    if (methodWrapper.decompileError != null) {
+      dumpError(buffer, methodWrapper, indent + 1);
+    }
+
+    buffer.appendIndent(indent).append("}");
+  }
+
   private void writeKotlinFile(ClassNode node, TextBuffer buffer, int indent, StructKotlinMetadataAttribute ktData) {
     ClassWrapper wrapper = node.getWrapper();
     StructClass cl = wrapper.getClassStruct();
@@ -725,7 +785,7 @@ public class KotlinWriter implements StatementWriter, Flags {
 
   private void writeClassDefinition(ClassNode node, TextBuffer buffer, int indent, StructKotlinMetadataAttribute ktData, int kotlinFlags) {
     if (node.type == ClassNode.Type.ANONYMOUS) {
-      if (!(ktData.metadata instanceof StructKotlinMetadataAttribute.Class cls)) {
+      if (ktData == null || !(ktData.metadata instanceof StructKotlinMetadataAttribute.Class cls)) {
         throw new IllegalStateException("Anonymous class does not have Class Kotlin metadata");
       }
 

@@ -93,6 +93,10 @@ public record KFunction(
         methodLookup = classStruct.getMethod(lookupName, desc.toString());
 
         if (methodLookup == null) {
+          if (IS_SUSPEND.get(flags) && "<anonymous>".equals(name)) {
+            //TODO suspend function support at large
+            continue;
+          }
           throw new IllegalStateException("Couldn't find methodSupplier " + name + " " + desc + " in class " + classStruct.qualifiedName);
         }
       }
