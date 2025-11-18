@@ -2,6 +2,7 @@
 package org.jetbrains.java.decompiler.main;
 
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.java.decompiler.api.java.ClassPassLocation;
 import org.jetbrains.java.decompiler.api.plugin.StatementWriter;
 import org.jetbrains.java.decompiler.api.plugin.LanguageSpec;
 import org.jetbrains.java.decompiler.code.CodeConstants;
@@ -440,6 +441,8 @@ public class ClassesProcessor implements CodeConstants {
     DecompilerContext.startClass(importCollector);
     try {
       if (!packageInfo && !moduleInfo) {
+        DecompilerContext.getCurrentContext().structContext.getPluginContext()
+          .runClassPasses(ClassPassLocation.BEFORE_PROCESSING, root);
         new LambdaProcessor().processClass(root);
 
         // add simple class names to implicit import
@@ -456,6 +459,8 @@ public class ClassesProcessor implements CodeConstants {
 
             new NestedMemberAccess().propagateMemberAccess(root);
         }
+        DecompilerContext.getCurrentContext().structContext.getPluginContext()
+          .runClassPasses(ClassPassLocation.AFTER_PROCESSING, root);
       }
     } catch (CancelationManager.CanceledException e) {
       throw e;
@@ -494,6 +499,9 @@ public class ClassesProcessor implements CodeConstants {
         LanguageSpec spec = PluginContext.getCurrentContext().getLanguageSpec(cl);
         TextBuffer classBuffer = new TextBuffer(AVERAGE_CLASS_SIZE);
         StatementWriter writer = spec != null ? spec.writer : new ClassWriter();
+
+        DecompilerContext.getCurrentContext().structContext.getPluginContext()
+          .runClassPasses(ClassPassLocation.BEFORE_WRITING, root);
 
         writer.writeClass(root, classBuffer, 0);
         classBuffer.reformat();

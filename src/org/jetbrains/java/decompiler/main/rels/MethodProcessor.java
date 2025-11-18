@@ -101,6 +101,8 @@ public class MethodProcessor implements Runnable {
     debugCurrentCFG.set(graph);
     DotExporter.toDotFile(graph, mt, "cfgConstructed", true);
 
+    DecompilerContext.getCounterContainer().setCounter(CounterContainer.VAR_COUNTER, mt.getLocalVariables());
+
     DeadCodeHelper.removeDeadBlocks(graph);
 
     if (mt.getBytecodeVersion().hasJsr() || DecompilerContext.getOption(IFernflowerPreferences.FORCE_JSR_INLINE)) {
@@ -111,6 +113,24 @@ public class MethodProcessor implements Runnable {
     DeadCodeHelper.connectDummyExitBlock(graph);
 
     DeadCodeHelper.removeGotos(graph);
+
+    DecompileRecord decompileRecord = new DecompileRecord(mt);
+
+    if (spec != null) {
+      PassContext pctx = new PassContext(null, graph, mt, cl, varProc, decompileRecord);
+      spec.cfgPass.run(pctx);
+
+      RootStatement root = spec.graphParser.createStatement(graph, mt);
+
+      pctx = new PassContext(root, graph, mt, cl, varProc, decompileRecord);
+      spec.pass.run(pctx);
+
+      return root;
+    }
+
+    PassContext pctx = new PassContext(null, graph, mt, cl, varProc, decompileRecord);
+
+    pluginContext.runPasses(JavaPassLocation.CFG_CONSTRUCTION, pctx);
 
     ExceptionDeobfuscator.removeCircularRanges(graph);
 
@@ -135,8 +155,6 @@ public class MethodProcessor implements Runnable {
 
     DeadCodeHelper.mergeBasicBlocks(graph);
 
-    DecompilerContext.getCounterContainer().setCounter(CounterContainer.VAR_COUNTER, mt.getLocalVariables());
-
     if (ExceptionDeobfuscator.hasObfuscatedExceptions(graph)) {
       DotExporter.toDotFile(graph, mt, "cfgExceptionsPre", true);
 
@@ -151,21 +169,11 @@ public class MethodProcessor implements Runnable {
       DotExporter.toDotFile(graph, mt, "cfgMultipleExceptionDummyHandlers", true);
     }
 
-    if (spec != null) {
-      DecompileRecord decompileRecord = new DecompileRecord(mt);
-
-      RootStatement root = spec.graphParser.createStatement(graph, mt);
-
-      PassContext pctx = new PassContext(root, graph, mt, cl, varProc, decompileRecord);
-      spec.pass.run(pctx);
-
-      return root;
-    }
+    pluginContext.runPasses(JavaPassLocation.CFG_PRE_STATEMENT, pctx);
 
     DotExporter.toDotFile(graph, mt, "cfgParsed", true);
     RootStatement root = DomHelper.parseGraph(graph, mt, 0);
 
-    DecompileRecord decompileRecord = new DecompileRecord(mt);
     debugCurrentDecompileRecord.set(decompileRecord);
 
     decompileRecord.add("Initial", root);
@@ -235,7 +243,7 @@ public class MethodProcessor implements Runnable {
       decompileRecord.add("SetVarVersions_PPMM_" + stackVarsProcessed, root);
     } while (new PPandMMHelper(varProc).findPPandMM(root));
 
-    PassContext pctx = new PassContext(root, graph, mt, cl, varProc, decompileRecord);
+    pctx = new PassContext(root, graph, mt, cl, varProc, decompileRecord);
 
     // Inline ppi/mmi that we may have missed
     if (PPandMMHelper.inlinePPIandMMIIf(root)) {
