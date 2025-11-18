@@ -190,6 +190,10 @@ public final class SwitchExpressionHelper {
           }
         }
 
+        // Re-add control flow from switch to basic block successor
+        // TODO: this is required for validation, but causes certain switches to have an unreferenced label
+        //stat.addSuccessor(new StatEdge(StatEdge.TYPE_REGULAR, stat, suc, seq));
+
         // Control flow from new basic block to the next one
         suc.addSuccessor(new StatEdge(StatEdge.TYPE_REGULAR, suc, oldSuc, seq));
       }
@@ -309,10 +313,10 @@ public final class SwitchExpressionHelper {
       List<Exprent> exprents = breakJump.getExprents();
 
       if (exprents != null && !exprents.isEmpty()) {
-        if (exprents.size() == 1 && exprents.get(0) instanceof ExitExprent) {
-          ExitExprent exit = ((ExitExprent) exprents.get(0));
+        if (exprents.size() > 0 && exprents.get(exprents.size() - 1) instanceof ExitExprent) {
+          ExitExprent exit = (ExitExprent) exprents.get(exprents.size() - 1);
 
-          // Special case throws
+          // Last exprent throws instead of storing a value
           if (exit.getExitType() == ExitExprent.Type.THROW) {
             map.put(breakJump, null);
             continue;
@@ -325,13 +329,16 @@ public final class SwitchExpressionHelper {
         // Iterate in reverse, as we want the last assignment to be the one that we set the switch expression to
         for (int i = exprents.size() - 1; i >= 0; i--) {
           Exprent exprent = exprents.get(i);
-          if (exprent instanceof AssignmentExprent) {
-            AssignmentExprent assign = (AssignmentExprent) exprent;
+          if (exprent instanceof AssignmentExprent assign) {
 
-            if (assign.getLeft() instanceof VarExprent) {
-              VarExprent var = ((VarExprent) assign.getLeft());
+            if (assign.getLeft() instanceof VarExprent var) {
 
               list.add(var.getVarVersionPair());
+
+              // Found a stack variable at the end? This is probably our candidate, return it.
+              if (var.getIndex() >= VarExprent.STACK_BASE) {
+                break;
+              }
               continue;
             }
           }

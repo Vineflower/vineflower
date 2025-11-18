@@ -1,0 +1,181 @@
+package pkg;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Scanner;
+
+public class TestTryWithResourcesMulti {
+   public void testMulti(File file) throws IOException {
+      try (
+         Scanner scanner = new Scanner(file);// 10
+         FileWriter writer = new FileWriter(file);
+      ) {
+         scanner.next();// 11
+         writer.write("hello");// 12
+      }
+   }// 14
+
+   public void testMulti2(File file) throws IOException {
+      try (
+         Scanner scanner = new Scanner(file);// 17
+         FileWriter writer = new FileWriter(file);// 18
+      ) {
+         scanner.next();// 19
+         writer.write("hello");// 20
+      }
+   }// 23
+
+   public void testMulti2Fake(File file) throws IOException {
+      try (Scanner scanner = new Scanner(file)) {// 26
+         try (FileWriter writer = new FileWriter(file)) {// 27
+            scanner.next();// 28
+            writer.write("hello");// 29
+         } catch (Exception var34) {// 30
+         }
+      } catch (IOException var37) {// 32
+      }
+   }// 34
+
+   public void testMulti3(File file) throws IOException {
+      try (
+         Scanner scanner = new Scanner(file);// 37
+         FileWriter writer = new FileWriter(file);// 38
+      ) {
+         scanner.next();// 39
+         writer.write("hello");// 40
+         if (file == null) {// 42
+            System.out.println("??");// 43
+         }
+      }
+   }// 47
+}
+
+class 'pkg/TestTryWithResourcesMulti' {
+   method 'testMulti (Ljava/io/File;)V' {
+      4      10
+      8      10
+      f      11
+      13      11
+      14      11
+      18      13
+      19      13
+      1a      13
+      1b      13
+      1d      14
+      1e      14
+      1f      14
+      20      14
+      21      14
+      22      14
+      23      14
+      c7      16
+   }
+
+   method 'testMulti2 (Ljava/io/File;)V' {
+      4      20
+      8      20
+      f      21
+      13      21
+      14      21
+      18      23
+      19      23
+      1a      23
+      1b      23
+      1d      24
+      1e      24
+      1f      24
+      20      24
+      21      24
+      22      24
+      23      24
+      c7      26
+   }
+
+   method 'testMulti2Fake (Ljava/io/File;)V' {
+      4      29
+      8      29
+      f      30
+      13      30
+      14      30
+      18      31
+      19      31
+      1a      31
+      1b      31
+      1d      32
+      1e      32
+      1f      32
+      20      32
+      21      32
+      22      32
+      23      32
+      7e      33
+      cf      35
+      d0      37
+   }
+
+   method 'testMulti3 (Ljava/io/File;)V' {
+      4      41
+      8      41
+      f      42
+      13      42
+      14      42
+      18      44
+      19      44
+      1a      44
+      1b      44
+      1d      45
+      1e      45
+      1f      45
+      20      45
+      21      45
+      22      45
+      23      45
+      24      46
+      25      46
+      26      46
+      27      46
+      28      47
+      29      47
+      2a      47
+      2b      47
+      2c      47
+      2d      47
+      2e      47
+      2f      47
+      d3      50
+   }
+}
+
+Lines mapping:
+10 <-> 11
+11 <-> 14
+12 <-> 15
+14 <-> 17
+17 <-> 21
+18 <-> 22
+19 <-> 24
+20 <-> 25
+23 <-> 27
+26 <-> 30
+27 <-> 31
+28 <-> 32
+29 <-> 33
+30 <-> 34
+32 <-> 36
+34 <-> 38
+37 <-> 42
+38 <-> 43
+39 <-> 45
+40 <-> 46
+42 <-> 47
+43 <-> 48
+47 <-> 51
+Not mapped:
+13
+21
+22
+31
+33
+45
+46

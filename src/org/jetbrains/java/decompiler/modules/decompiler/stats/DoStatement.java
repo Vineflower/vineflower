@@ -6,6 +6,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.Pattern;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
@@ -14,7 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 
 // Loop statement
-public final class DoStatement extends Statement {
+public class DoStatement extends Statement {
   public enum Type {
     INFINITE, DO_WHILE, WHILE, FOR, FOR_EACH
   }
@@ -29,7 +30,7 @@ public final class DoStatement extends Statement {
   // constructors
   // *****************************************************************************
 
-  private DoStatement() {
+  protected DoStatement() {
     super(StatementType.DO);
     looptype = Type.INFINITE;
 
@@ -38,7 +39,7 @@ public final class DoStatement extends Statement {
     incExprent.add(null);
   }
 
-  private DoStatement(Statement head) {
+  protected DoStatement(Statement head) {
 
     this();
 
@@ -153,9 +154,8 @@ public final class DoStatement extends Statement {
   }
 
   @Override
-  public List<Object> getSequentialObjects() {
-
-    List<Object> lst = new ArrayList<>();
+  public List<Exprent> getStatExprents() {
+    List<Exprent> lst = new ArrayList<>();
 
     switch (looptype) {
       case FOR:
@@ -169,8 +169,6 @@ public final class DoStatement extends Statement {
         lst.add(getInitExprent());
         lst.add(getIncExprent());
     }
-
-    lst.add(first);
 
     switch (looptype) {
       case DO_WHILE:
@@ -208,12 +206,11 @@ public final class DoStatement extends Statement {
     List<Exprent> conditionList = getConditionExprent().getAllExprents(true, true);
 
     for (Exprent condition : conditionList) {
-      if (condition instanceof FunctionExprent) {
-        FunctionExprent func = ((FunctionExprent)condition);
+      if (condition instanceof FunctionExprent func) {
 
         // Pattern match variable is implicitly defined
         if (func.getFuncType() == FunctionType.INSTANCEOF && func.getLstOperands().size() > 2) {
-          vars.add((VarExprent) func.getLstOperands().get(2));
+          vars.addAll(((Pattern) func.getLstOperands().get(2)).getPatternVars());
         }
       }
     }

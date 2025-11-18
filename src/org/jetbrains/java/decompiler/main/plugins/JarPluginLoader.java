@@ -13,15 +13,11 @@ public class JarPluginLoader {
 
   public static void init() {
     try {
-      File myFile = new File(JarPluginLoader.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+      Path myFile = Paths.get(JarPluginLoader.class.getProtectionDomain().getCodeSource().getLocation().toURI());
 
       // Ensure we are running out of a file
-      if (myFile.exists() && !myFile.isDirectory() && myFile.getPath().endsWith(".jar")) {
-        URI uri = URI.create("jar:" + myFile.toURI());
-
-        Map<String, String> env = new HashMap<>();
-
-        FileSystem zipfs = FileSystems.newFileSystem(uri, env);
+      if (Files.isRegularFile(myFile) && myFile.getFileName().toString().endsWith(".jar")) {
+        FileSystem zipfs = FileSystems.newFileSystem(myFile, (ClassLoader) null);
 
         Path pluginsDir = zipfs.getPath("META-INF", "plugins");
         if (!Files.exists(pluginsDir)) {
@@ -35,7 +31,7 @@ public class JarPluginLoader {
           for (Path pluginJar : plugins) {
             FileSystem pluginfs = FileSystems.newFileSystem(pluginJar, (ClassLoader) null);
 
-            Path file = pluginfs.getPath("META-INF", "services", "org.jetbrains.java.decompiler.api.Plugin");
+            Path file = pluginfs.getPath("META-INF", "services", "org.jetbrains.java.decompiler.api.plugin.Plugin");
             if (!Files.exists(file)) {
               pluginfs.close();
               continue;

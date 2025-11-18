@@ -75,6 +75,8 @@ class 'pkg/TestIterationOverGenericsWithoutLvt' {
       21      10
       22      10
       23      10
+      24      10
+      25      10
       26      11
       27      11
       28      11
@@ -186,6 +188,8 @@ class 'pkg/TestIterationOverGenericsWithoutLvt' {
       1c      35
       1d      36
       1e      36
+      1f      36
+      20      36
       21      37
       22      37
       23      37
@@ -202,8 +206,11 @@ class 'pkg/TestIterationOverGenericsWithoutLvt' {
       31      40
       32      40
       33      40
+      34      40
+      35      40
       36      40
       3a      40
+      3b      40
       3c      40
       40      44
       41      44

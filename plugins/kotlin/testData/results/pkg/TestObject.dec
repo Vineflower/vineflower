@@ -1,66 +1,50 @@
 package pkg
 
-object TestObject {
-   @JvmStatic
-   public TestObject INSTANCE = new TestObject();
-   @JvmStatic
-   private int objectVar = 42;
-   @JvmStatic
-   private Regex objectVal = new Regex("");
-   @JvmStatic
-   public int objectConstVal = 926;
+public object TestObject {
+   private final var objectVar: Int = 42// 8
+   public final val objectVal: Regex = new Regex("")// 10
+   public const val objectConstVal: Int = 926
 
-   fun TestObject() {
-   }// 3
-
-   fun objectFun() {
-      objectVar += -1;// 5
+   public fun objectFun() {
+      objectVar += -1// 5
    }// 6
 
-   fun getObjectVal(): Regex {
-      return objectVal;// 10
-   }
-
    @JvmStatic
-   fun objectJvmStaticFun() {
-      var var0: Int = objectVar++;// 16
+   public fun objectJvmStaticFun() {
+      val var0: Int = objectVar++// 16
    }// 17
 }
 
 class 'pkg/TestObject' {
-   method '<init> ()V' {
-      4      13
+   method '<clinit> ()V' {
+      a      3
+      b      3
+      13      4
+      14      4
    }
 
    method 'objectFun ()V' {
-      5      16
-      7      16
-      8      16
-      9      16
-      a      17
-   }
-
-   method 'getObjectVal ()Lkotlin/text/Regex;' {
-      0      20
-      1      20
-      2      20
-      3      20
+      5      8
+      7      8
+      8      8
+      9      8
+      a      9
    }
 
    method 'objectJvmStaticFun ()V' {
-      4      25
-      5      25
-      6      25
-      7      25
-      a      25
-      e      26
+      0      13
+      1      13
+      2      13
+      3      13
+      a      13
+      e      14
    }
 }
 
 Lines mapping:
-3 <-> 14
-5 <-> 17
-6 <-> 18
-10 <-> 21
-16 <-> 26
-17 <-> 27
+5 <-> 9
+6 <-> 10
+8 <-> 4
+10 <-> 5
+16 <-> 14
+17 <-> 15

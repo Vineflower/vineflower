@@ -1,24 +1,26 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.struct;
 
+import org.jetbrains.java.decompiler.main.ClassWriter;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.decompiler.CancelationManager;
 import org.jetbrains.java.decompiler.main.extern.IContextSource;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.extern.IResultSaver;
+import org.jetbrains.java.decompiler.util.TextBuffer;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class ContextUnit {
+  private static AtomicInteger THREAD_ID = new AtomicInteger(0);
   private final IContextSource source;
   private final boolean own;
   private final boolean root;
@@ -126,57 +128,110 @@ public class ContextUnit {
 
     sink.begin();
 
+    final DecompilerContext rootContext = DecompilerContext.getCurrentContext();
+
+    Set<String> otherNames = otherEntries.stream().map(IContextSource.Entry::path).collect(Collectors.toSet());
+
     // directory entries
     for (String dirEntry : dirEntries) {
-      sink.acceptDirectory(dirEntry);
+      boolean write = true;
+      if (!rootContext.classProcessor.isWhitelisted(dirEntry)) {
+        // not allowed? check if an other entry starts with this path
+        write = otherNames.stream().anyMatch(s -> s.startsWith(dirEntry));
+      }
+
+      if (write) {
+        sink.acceptDirectory(dirEntry);
+      }
     }
 
     // non-class entries
-    for (IContextSource.Entry otherEntry : otherEntries) {
-      sink.acceptOther(otherEntry.path());
+    for (String otherEntry : otherNames) {
+      sink.acceptOther(otherEntry);
     }
 
     //Whooo threads!
-    final List<Future<?>> futures = new LinkedList<>();
-    final ExecutorService decompileExecutor = Executors.newFixedThreadPool(Integer.parseInt((String) DecompilerContext.getProperty(IFernflowerPreferences.THREADS)));
-    final DecompilerContext rootContext = DecompilerContext.getCurrentContext();
-    final ClassContext[] toDump = new ClassContext[classEntries.size()];
+    List<Future<?>> futures = new ArrayList<>();
+    int threads = Integer.parseInt((String) DecompilerContext.getProperty(IFernflowerPreferences.THREADS));
+    if (threads <= 0) {
+      threads = Runtime.getRuntime().availableProcessors();
+    }
+    ForkJoinPool pool = new ForkJoinPool(threads, namingScheme(), null, true);
+    final List<ClassContext> toDump = new ArrayList<>(classEntries.size());
+    Set<String> seen = new LinkedHashSet<>();
 
-    // classes
+    // collect classes
     for (int i = 0; i < classEntries.size(); i++) {
       StructClass cl = loader.apply(classEntries.get(i));
       String entryName = decompiledData.getClassEntryName(cl, classEntries.get(i));
       if (entryName != null) {
-        final int finalI = i;
-        futures.add(decompileExecutor.submit(() -> {
-          setContext(rootContext);
-          String content = decompiledData.getClassContent(cl);
-          int[] mapping = null;
-          if (DecompilerContext.getOption(IFernflowerPreferences.BYTECODE_SOURCE_MAPPING)) {
-            mapping = DecompilerContext.getBytecodeSourceMapper().getOriginalLinesMapping();
-          }
-          toDump[finalI] = new ClassContext(cl.qualifiedName, entryName, content, mapping);
-        }));
+        if (seen.add(cl.qualifiedName)) {
+          toDump.add(new ClassContext(cl, entryName));
+        } else {
+          DecompilerContext.getLogger().writeMessage("Skipping writing already existing class: " + cl.qualifiedName, IFernflowerLogger.Severity.ERROR);
+        }
       }
     }
 
-    decompileExecutor.shutdown();
-
-    for (Future<?> future : futures) {
-      try {
-        future.get();
-      } catch (InterruptedException | ExecutionException e) {
-        throw new RuntimeException(e);
-      }
+    // pre-process
+    for (final ClassContext classCtx : toDump) {
+      futures.add(pool.submit(() -> {
+        setContext(rootContext);
+        classCtx.ctx = DecompilerContext.getCurrentContext();
+        try {
+          decompiledData.processClass(classCtx.cl);
+        } catch (final Throwable thr) {
+          DecompilerContext.getLogger().writeMessage("Class " + classCtx.cl.qualifiedName + " couldn't be fully decompiled.", thr);
+          classCtx.onError(thr);
+        } finally {
+          DecompilerContext.setCurrentContext(null);
+        }
+      }));
     }
 
+    waitForAll(futures);
+    futures.clear();
+
+    // emit
+    for (final ClassContext classCtx : toDump) {
+      if (classCtx.pendingError != null) {
+        TextBuffer buf = new TextBuffer();
+        ClassWriter.writeException(buf, classCtx.pendingError);
+        classCtx.classContent = buf.convertToStringAndAllowDataDiscard();
+        continue;
+      }
+
+      futures.add(pool.submit(() -> {
+        DecompilerContext.setCurrentContext(classCtx.ctx);
+        classCtx.classContent = decompiledData.getClassContent(classCtx.cl);
+        if (DecompilerContext.getOption(IFernflowerPreferences.BYTECODE_SOURCE_MAPPING)) {
+          classCtx.mapping = DecompilerContext.getBytecodeSourceMapper().getOriginalLinesMapping();
+        }
+      }));
+    }
+
+    waitForAll(futures);
+    futures.clear();
+    pool.shutdown();
+    THREAD_ID.set(0);
+
+    // write to file
     for (final ClassContext cls : toDump) {
-      if (cls != null) {
-        sink.acceptClass(cls.qualifiedName, cls.entryName, cls.classContent, cls.mapping);
+      if (cls.classContent != null) {
+        sink.acceptClass(cls.cl.qualifiedName, cls.entryName, cls.classContent, cls.mapping);
       }
     }
 
     sink.close();
+  }
+
+  private static ForkJoinPool.ForkJoinWorkerThreadFactory namingScheme() {
+    return pool -> {
+      ForkJoinWorkerThread thread = new ForkJoinWorkerThread(pool) {};
+      thread.setName("Vineflower-DecompilerThread-" + THREAD_ID.getAndIncrement());
+
+      return thread;
+    };
   }
 
   public void setContext(DecompilerContext rootContext) {
@@ -187,10 +242,28 @@ public class ContextUnit {
         rootContext.logger,
         rootContext.structContext,
         rootContext.classProcessor,
-        rootContext.poolInterceptor,
-        rootContext.renamerFactory
+        rootContext.poolInterceptor
       );
+      current.renamerFactory = rootContext.renamerFactory;
       DecompilerContext.setCurrentContext(current);
+    }
+  }
+
+  private static void waitForAll(final List<Future<?>> futures) {
+    for (int i = futures.size() - 1; i >= 0; i--) {
+      Future<?> future = futures.get(i);
+
+      try {
+        future.get();
+      } catch (ExecutionException e) {
+        if (e.getCause() instanceof CancelationManager.CanceledException) {
+          throw (CancelationManager.CanceledException) e.getCause();
+        } else {
+          throw new RuntimeException(e);
+        }
+      } catch (InterruptedException e) {
+        throw new RuntimeException(e);
+      }
     }
   }
 
@@ -214,16 +287,25 @@ public class ContextUnit {
   }
 
   static final class ClassContext {
-    private final String qualifiedName;
+    private final StructClass cl;
+    DecompilerContext ctx;
     private final String entryName;
-    private final String classContent;
-    private final int /* @Nullable */[] mapping;
+    String classContent;
+    int /* @Nullable */[] mapping;
+    private Throwable pendingError;
 
-    ClassContext(final String qualifiedName, final String entryName, final String classContent, final int[] mapping) {
-      this.qualifiedName = qualifiedName;
+    ClassContext(final StructClass cl, final String entryName) {
+      this.cl = cl;
       this.entryName = entryName;
-      this.classContent = classContent;
-      this.mapping = mapping;
+    }
+
+    void onError(final Throwable thr) {
+      if (this.pendingError == null) {
+        this.pendingError = thr;
+        return;
+      }
+
+      this.pendingError.addSuppressed(thr);
     }
   }
 }

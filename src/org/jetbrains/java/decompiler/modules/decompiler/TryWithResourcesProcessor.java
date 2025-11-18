@@ -7,16 +7,17 @@ import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
  * Processes try catch statements to turns them into try-with-resources statements wherever possible.
  * Including the entire classpath is generally needed for this to work as it needs to know which classes implement AutoCloseable.
- *
- * @author ForgeFlower devs, SuperCoder79
  */
 public final class TryWithResourcesProcessor {
   // Make try with resources with the old style bytecode (J8)
@@ -257,6 +258,14 @@ public final class TryWithResourcesProcessor {
       // Destroy catch block
       tryStatement.getStats().remove(1);
 
+      // Check for synthetic variable in the case that the resource is just a variable or field
+      if (assignment.getLeft() instanceof VarExprent declaration
+          && (assignment.getRight() instanceof VarExprent
+              || assignment.getRight() instanceof FieldExprent)
+          && !declaration.isVarReferenced(tryStatement)) {
+        tryStatement.getResources().set(0, assignment.getRight());
+      }
+
       return true;
     }
 
@@ -348,14 +357,22 @@ public final class TryWithResourcesProcessor {
   }
 
   public static void findEdgesLeaving(Statement curr, Statement check, Set<StatEdge> edges, boolean allowExit) {
+    findEdgesLeaving(curr, check, edges, allowExit, new HashMap<>());
+  }
+
+  private static void findEdgesLeaving(Statement curr, Statement check, Set<StatEdge> edges, boolean allowExit, Map<Statement, Set<Statement>> found) {
     for (StatEdge edge : curr.getAllSuccessorEdges()) {
       if (!check.containsStatement(edge.getDestination()) && (allowExit || !(edge.getDestination() instanceof DummyExitStatement))) {
-        edges.add(edge);
+        // Check if the edge is either explicit or isn't implicit to an already found edge
+        if (edge.explicit || found.entrySet().stream().allMatch(e -> !e.getKey().containsStatement(curr) || !e.getValue().contains(edge.getDestination()))) {
+          edges.add(edge);
+          found.computeIfAbsent(curr, stat -> new HashSet<>()).add(edge.getDestination());
+        }
       }
     }
 
     for (Statement stat : curr.getStats()) {
-      findEdgesLeaving(stat, check, edges, allowExit);
+      findEdgesLeaving(stat, check, edges, allowExit, found);
     }
   }
 

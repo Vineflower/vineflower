@@ -14,7 +14,7 @@ public class TestSynchronizedTrySharing {
       try {
          is = new FileInputStream(name);// 13
          name = name.substring(50);// 14
-      } catch (Exception var4) {// 15
+      } catch (Exception e) {// 15
          is.close();// 16
       }
    }// 18
@@ -32,7 +32,7 @@ public class TestSynchronizedTrySharing {
             System.out.println(name);// 29
             name = name.substring(50);// 30
          }// 31
-      } catch (Exception var6) {// 32
+      } catch (Exception e) {// 32
          is.close();// 33
       }
    }// 35
@@ -64,6 +64,8 @@ class 'pkg/TestSynchronizedTrySharing' {
       2a      16
       2b      17
       2c      17
+      2d      17
+      2e      17
       2f      19
    }
 
@@ -102,6 +104,8 @@ class 'pkg/TestSynchronizedTrySharing' {
       41      34
       42      35
       43      35
+      44      35
+      45      35
       46      37
    }
 }

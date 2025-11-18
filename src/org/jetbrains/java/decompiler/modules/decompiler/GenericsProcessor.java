@@ -88,7 +88,7 @@ public final class GenericsProcessor {
     VarType retType = last.getDescriptor().ret;
 
     for (InvocationExprent expr : chain) {
-      if (!expr.getDescriptor().ret.isSuperset(retType)) {
+      if (!expr.getDescriptor().ret.higherEqualInLatticeThan(retType)) {
         return false;
       }
     }

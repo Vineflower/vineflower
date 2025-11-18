@@ -15,8 +15,8 @@ public class TestTryLoop2 {
             }
 
             new Scanner(file);// 14
-         } catch (FileNotFoundException var3) {// 20
-            var3.printStackTrace();// 21
+         } catch (FileNotFoundException e) {// 20
+            e.printStackTrace();// 21
          }
       }
    }
@@ -29,6 +29,8 @@ class 'pkg/TestTryLoop2' {
       2      12
       3      12
       4      12
+      5      12
+      6      12
       b      16
       16      17
       17      18

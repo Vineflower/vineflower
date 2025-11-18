@@ -23,6 +23,8 @@ class 'pkg/TestLoopBreakException' {
       1      4
       2      4
       3      4
+      4      4
+      5      4
       6      5
       7      5
       8      5
@@ -30,6 +32,8 @@ class 'pkg/TestLoopBreakException' {
       a      5
       b      5
       c      5
+      d      5
+      e      5
       12      6
       13      6
       14      6
@@ -42,6 +46,8 @@ class 'pkg/TestLoopBreakException' {
       1b      11
       1c      11
       1d      11
+      1e      11
+      1f      11
       20      12
       21      12
       29      14

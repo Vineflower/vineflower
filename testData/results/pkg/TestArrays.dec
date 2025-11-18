@@ -1,9 +1,9 @@
 package pkg;
 
 public class TestArrays {
-   private static final int[] array1 = new int[]{1, 2, 3, 4};
-   private static int[] array2 = new int[]{2, 3, 4, 5};
-   private int[] array3 = new int[]{3, 4, 5, 6};
+   private static final int[] array1 = new int[]{1, 2, 3, 4};// 4
+   private static int[] array2 = new int[]{2, 3, 4, 5};// 5
+   private int[] array3 = new int[]{3, 4, 5, 6};// 6
 
    void test() {
       int a = this.array3[3];// 9
@@ -13,6 +13,25 @@ public class TestArrays {
 }
 
 class 'pkg/TestArrays' {
+   method '<clinit> ()V' {
+      5      3
+      9      3
+      d      3
+      11      3
+      1b      4
+      1f      4
+      23      4
+      27      4
+   }
+
+   method '<init> ()V' {
+      a      5
+      e      5
+      12      5
+      16      5
+      17      5
+   }
+
    method 'test ()V' {
       0      8
       1      8
@@ -40,7 +59,12 @@ class 'pkg/TestArrays' {
 }
 
 Lines mapping:
+4 <-> 4
+5 <-> 5
+6 <-> 6
 9 <-> 9
 10 <-> 10
 11 <-> 11
 12 <-> 12
+Not mapped:
+3

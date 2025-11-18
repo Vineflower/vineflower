@@ -11,6 +11,29 @@ class TestWhen {
     }
   }
 
+  fun testStatement2(a: Any, b: Any): Unit {
+    when {
+      a == 15 -> println("a == 15")
+      a == "!!" -> println("a == !!")
+      a is Int -> println("a is Int")
+      a is String -> println("a is String")
+      b is Double -> println("b is Double")
+      a is Unit -> println("a is Unit")
+      else -> println("else")
+    }
+  }
+
+  fun testStatement3(obj: Any?) {
+    when (obj) {
+      1 -> {}
+      is Double -> println("Double")
+      null -> println("null")
+      is String -> {}
+      is Int -> println(obj + 1)
+      else -> {}
+    }
+  }
+
   fun testExpression(obj: Any): Int {
     return when (obj) {
       1 -> 1
@@ -21,15 +44,56 @@ class TestWhen {
     }
   }
 
-  fun testStatement2(a: Any, b: Any): Unit {
-    when {
-      a == 15 -> println("a == 15")
-      a == "!!" -> println("a == !!")
-      a is Int -> println("a is Int")
-      a is String -> println("a is String")
-      b is Double -> println("b is Double")
-      a is Unit -> println("a is Unit")
-      else -> println("else")
+  fun testExpression2(obj: Any): Int {
+    val text = when (obj) {
+      1 -> "one"
+      is Double -> "double"
+      "4" -> "four"
+      !is Long -> "not long"
+      else -> "something"
+    }
+    println(text)
+    return text.length
+  }
+
+  fun testSwitchExpression(a: Int) {
+    val text = when (a) {
+      1 -> "one"
+      2, 3, 5 -> "prime"
+      else -> "something"
+    }
+    println(text)
+  }
+
+  fun testCompilesToTableSwitch(a: Int) {
+    when (a) {
+      1 -> println("The loneliest number")
+      2, 3 -> println("Small prime")
+      else -> println("Number")
+    }
+  }
+  
+  fun testCompilesToLookupSwitch(a: Int) {
+    when (a) {
+      1 -> println("Go for gold")
+      9 -> println("The cat's meow")
+      42 -> println("The answer")
+      else -> println("Number")
+    }
+  }
+
+  fun testSwitchWithEmptyCases(a: Int) {
+    when (a) {
+      1 -> {}
+      2, 3 -> println(a + 4)
+      4, 8, 1000 -> println("even")
+      else -> {}
+    }
+  }
+  
+  fun testNoBranches(a: Any): Int {
+    return when (a) {
+      else -> 0
     }
   }
 

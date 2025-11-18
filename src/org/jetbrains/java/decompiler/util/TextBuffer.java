@@ -10,6 +10,9 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.extern.TextTokenVisitor;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.AnnotationExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.TypeAnnotation;
+import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.FieldDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
@@ -86,12 +89,21 @@ public class TextBuffer {
     return this;
   }
 
+  public TextBuffer appendCastTypeName(VarType type, List<Pair<Queue<TypeAnnotation.PathValue>, AnnotationExprent>> typeAnnotations, Set<String> filter) {
+    return appendCastTypeName(type, typeAnnotations, filter, false, true);
+  }
+
+  public TextBuffer appendCastTypeName(VarType type, List<Pair<Queue<TypeAnnotation.PathValue>, AnnotationExprent>> typeAnnotations, Set<String> filter, boolean vararg, boolean flush) {
+    TypeAnnotation.appendCastTypeName(this, type, typeAnnotations, filter, vararg, flush);
+    return this;
+  }
+
   public TextBuffer appendCastTypeName(VarType type) {
     return appendCastTypeName(ExprProcessor.getCastTypeName(type), type);
   }
 
   public TextBuffer appendCastTypeName(String castName, VarType type) {
-    if (type.type == CodeConstants.TYPE_OBJECT) {
+    if (type.type == CodeType.OBJECT) {
       if (type.arrayDim > 0) {
         String name = castName.substring(0, castName.length() - type.arrayDim * 2);
         appendAllClasses(name, type.value);
@@ -113,7 +125,7 @@ public class TextBuffer {
   }
 
   public TextBuffer appendTypeName(String name, VarType type) {
-    if (type.type == CodeConstants.TYPE_OBJECT) {
+    if (type.type == CodeType.OBJECT) {
       appendAllClasses(name, type.value);
       addGenericTypeTokens(length() - name.length(), name, type);
 
@@ -124,7 +136,7 @@ public class TextBuffer {
   }
 
   public TextBuffer addTypeNameToken(VarType type, int index) {
-    if (type.type == CodeConstants.TYPE_OBJECT) {
+    if (type.type == CodeType.OBJECT) {
       String name = ExprProcessor.getTypeName(type);
       addAllClassTokens(index, name, type.value);
       addGenericTypeTokens(index, name, type);
@@ -184,14 +196,14 @@ public class TextBuffer {
         }
 
         String name = GenericMain.getGenericCastTypeName(gt);
-        if (gt.type == CodeConstants.TYPE_OBJECT) {
+        if (gt.type == CodeType.OBJECT) {
           addAllClassTokens(index + offset, name, gt.value);
         }
 
         addGenericTypeTokens(index + offset, name, gt);
         offset += name.length();
       } else {
-        if (t.type == CodeConstants.TYPE_OBJECT) {
+        if (t.type == CodeType.OBJECT) {
           addTypeNameToken(t, index + offset);
         }
 
@@ -432,10 +444,13 @@ public class TextBuffer {
 
       // add extra indent after newlines
       if (pos + offset + myLineSeparator.length() < myStringBuilder.length() && myStringBuilder.substring(pos + offset, pos + offset + myLineSeparator.length()).equals(myLineSeparator)) {
-        for (int i = 0; i < extraIndent; i++) {
-          myStringBuilder.insert(pos + offset + myLineSeparator.length(), myIndent);
+        // not for blank lines
+        if (!(pos + offset + myLineSeparator.length() * 2 < myStringBuilder.length()) || !myStringBuilder.substring(pos + offset + myLineSeparator.length(), pos + offset + myLineSeparator.length() * 2).equals(myLineSeparator)) {
+          for (int i = 0; i < extraIndent; i++) {
+            myStringBuilder.insert(pos + offset + myLineSeparator.length(), myIndent);
+          }
+          offset += myIndent.length() * extraIndent;
         }
-        offset += myIndent.length() * extraIndent;
       }
 
       // do multiple passes in an inner loop, as there could be arbitrarily many with the same offset
@@ -676,14 +691,6 @@ public class TextBuffer {
 
   public TextBuffer append(TextBuffer buffer) {
     return append(buffer, null, null);
-  }
-
-  public TextBuffer appendText(TextBuffer buffer) {
-    NewlineGroup otherRoot = buffer.myRootGroup.copy();
-    otherRoot.shift(myStringBuilder.length());
-    myCurrentGroup.myTokens.addAll(otherRoot.myTokens);
-    myStringBuilder.append(buffer.myStringBuilder);
-    return this;
   }
 
   private void shiftMapping(int shiftOffset) {

@@ -9,8 +9,6 @@ import java.util.HashMap;
 
 /**
  * Sets up enough data for statements to work outside of a decompiler setting.
- *
- * @author SuperCoder79
  */
 public final class MinimalFernflowerEnvironment {
   public static void setup() {
@@ -20,7 +18,6 @@ public final class MinimalFernflowerEnvironment {
       new PrintStreamLogger(System.out),
       sc,
       new ClassesProcessor(sc),
-      null,
       null);
     DecompilerContext.setCurrentContext(context);
   }

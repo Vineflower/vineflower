@@ -42,7 +42,11 @@ public final class BytecodeVersion implements Comparable<BytecodeVersion> {
   }
 
   public boolean hasSwitchPatternMatch() {
-    return previewFrom(MAJOR_17);
+    return previewReleased(MAJOR_17, MAJOR_21);
+  }
+
+  public boolean hasRecordPatternMatching() {
+    return major >= MAJOR_21;
   }
 
   public boolean hasSealedClasses() {
@@ -112,4 +116,8 @@ public final class BytecodeVersion implements Comparable<BytecodeVersion> {
   public static final int MAJOR_15 = 59;
   public static final int MAJOR_16 = 60;
   public static final int MAJOR_17 = 61;
+  public static final int MAJOR_18 = 62;
+  public static final int MAJOR_19 = 63;
+  public static final int MAJOR_20 = 64;
+  public static final int MAJOR_21 = 65;
 }

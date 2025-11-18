@@ -1,6 +1,7 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.main;
 
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.main.collectors.BytecodeSourceMapper;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.main.collectors.ImportCollector;
@@ -25,7 +26,6 @@ public class DecompilerContext {
   public static final Key<ClassesProcessor.ClassNode> CURRENT_CLASS_NODE = Key.of("CURRENT_CLASS_NODE");
   public static final Key<MethodWrapper> CURRENT_METHOD_WRAPPER = Key.of("CURRENT_METHOD_WRAPPER");
   public static final Key<VarProcessor> CURRENT_VAR_PROCESSOR = Key.of("CURRENT_VAR_PROCESSOR");
-  public static final Key<String> RENAMER_FACTORY = Key.of("RENAMER_FACTORY");
 
   public final Map<Key<?>, Object> staticProps = new HashMap<>();
   public final Map<String, Object> properties;
@@ -33,7 +33,7 @@ public class DecompilerContext {
   public final StructContext structContext;
   public final ClassesProcessor classProcessor;
   public final PoolInterceptor poolInterceptor;
-  public final IVariableNamingFactory renamerFactory;
+  public IVariableNamingFactory renamerFactory;
   private ImportCollector importCollector;
   private VarProcessor varProcessor;
   private CounterContainer counterContainer;
@@ -43,8 +43,7 @@ public class DecompilerContext {
                            IFernflowerLogger logger,
                            StructContext structContext,
                            ClassesProcessor classProcessor,
-                           PoolInterceptor interceptor,
-                           IVariableNamingFactory renamerFactory) {
+                           PoolInterceptor interceptor) {
     Objects.requireNonNull(properties);
     Objects.requireNonNull(logger);
     Objects.requireNonNull(structContext);
@@ -55,7 +54,6 @@ public class DecompilerContext {
     this.structContext = structContext;
     this.classProcessor = classProcessor;
     this.poolInterceptor = interceptor;
-    this.renamerFactory = renamerFactory;
     this.counterContainer = new CounterContainer();
   }
 
@@ -70,7 +68,11 @@ public class DecompilerContext {
   }
 
   public static void setCurrentContext(DecompilerContext context) {
-    currentContext.set(context);
+    if (context == null) {
+      currentContext.remove();
+    } else {
+      currentContext.set(context);
+    }
   }
 
   public static <T> void setProperty(Key<T> key, T value) {
@@ -94,11 +96,21 @@ public class DecompilerContext {
     context.counterContainer = new CounterContainer();
   }
 
+  public static void resetMethod(MethodWrapper wrapper) {
+    DecompilerContext context = getCurrentContext();
+    context.varProcessor = wrapper.varproc;
+    context.counterContainer = wrapper.counter;
+  }
+
+  public static void setImportCollector(ImportCollector importCollector) {
+    getCurrentContext().importCollector = importCollector;
+  }
+
   // *****************************************************************************
   // context access
   // *****************************************************************************
 
-  public static <T> T getContextProperty(Key<T> key) {
+  public static <T> @Nullable T getContextProperty(Key<T> key) {
     return (T) getCurrentContext().staticProps.get(key);
   }
 

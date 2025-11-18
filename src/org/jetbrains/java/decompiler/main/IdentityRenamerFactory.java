@@ -21,6 +21,8 @@ import org.jetbrains.java.decompiler.main.extern.IVariableNameProvider;
 import org.jetbrains.java.decompiler.main.extern.IVariableNamingFactory;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.StructMethod;
+import org.jetbrains.java.decompiler.struct.gen.VarType;
+import org.jetbrains.java.decompiler.util.Pair;
 
 public class IdentityRenamerFactory implements IVariableNamingFactory, IVariableNameProvider {
   @Override
@@ -29,12 +31,7 @@ public class IdentityRenamerFactory implements IVariableNamingFactory, IVariable
   }
 
   @Override
-  public String renameAbstractParameter(String abstractParam, int index) {
-    return abstractParam;
-  }
-
-  @Override
-  public Map<VarVersionPair, String> rename(Map<VarVersionPair, String> variables) {
+  public Map<VarVersionPair, String> rename(Map<VarVersionPair, Pair<VarType, String>> variables) {
     return null;
   }
 

@@ -8,6 +8,9 @@ import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.SFormsConstructor;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.VarMapHolder;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
@@ -39,6 +42,7 @@ public abstract class Exprent implements IMatchable {
     INVOCATION,
     MONITOR,
     NEW,
+    PATTERN,
     SWITCH,
     SWITCH_HEAD,
     VAR,
@@ -48,6 +52,7 @@ public abstract class Exprent implements IMatchable {
     OTHER
   }
 
+  @Deprecated
   protected static ThreadLocal<Map<String, VarType>> inferredLambdaTypes = ThreadLocal.withInitial(HashMap::new);
 
   public final Type type;
@@ -268,7 +273,7 @@ public abstract class Exprent implements IMatchable {
     buf.append(">");
   }
 
-  protected Map<VarType, List<VarType>> getNamedGenerics() {
+  public Map<VarType, List<VarType>> getNamedGenerics() {
     Map<VarType, List<VarType>> ret = new HashMap<>();
     ClassNode class_ = (ClassNode)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
     MethodWrapper method = (MethodWrapper)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
@@ -287,8 +292,7 @@ public abstract class Exprent implements IMatchable {
           ret.put(GenericType.parse("T" + mtd.typeParameters.get(x) + ";"), mtd.typeParameterBounds.get(x));
         }
       }
-
-      if (class_ == null || class_.parent == null) {
+      if (class_ == null || class_.parent == null || class_.parent.getWrapper() == null) {
         break;
       }
       method = class_.enclosingMethod == null ? null : class_.parent.getWrapper().getMethods().getWithKey(class_.enclosingMethod);
@@ -303,6 +307,16 @@ public abstract class Exprent implements IMatchable {
 
   public boolean allowNewlineAfterQualifier() {
     return true;
+  }
+
+  // processes exprents, much like section 16.1. of the java language specifications
+  // (Definite Assignment and Expressions).
+  public void processSforms(SFormsConstructor sFormsConstructor, VarMapHolder varMaps, Statement stat, boolean calcLiveVars) {
+
+    for (Exprent ex : this.getAllExprents()) {
+      ex.processSforms(sFormsConstructor, varMaps, stat, calcLiveVars);
+      varMaps.toNormal();
+    }
   }
 
   // *****************************************************************************
@@ -350,6 +364,8 @@ public abstract class Exprent implements IMatchable {
 
   @Override
   public String toString() {
-    return toJava(0).convertToStringAndAllowDataDiscard();
+    try (var v = DecompilerContext.getImportCollector().lock()) {
+      return toJava(0).convertToStringAndAllowDataDiscard();
+    }
   }
 }

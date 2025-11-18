@@ -1,7 +1,7 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.decompose;
 
-import org.jetbrains.java.decompiler.api.GraphParser;
+import org.jetbrains.java.decompiler.api.plugin.GraphParser;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
 import org.jetbrains.java.decompiler.code.cfg.ExceptionRangeCFG;
@@ -183,9 +183,12 @@ public final class DomHelper implements GraphParser {
         lstPosts.add(stt.id);
       }
 
+      // The postdom list for this statement must be sorted based on the post reverse postorder of the general statement that it's contained in
+      // This should lead to proper iteration during general statement creation.
       lstPosts.sort(Comparator.comparing(mapSortOrder::get));
 
-      if (lstPosts.size() > 1 && (int) lstPosts.get(0) == st.id) {
+      // After sorting, ensure that the statement that owns this postdominance list comes last, if it comes first.
+      if (lstPosts.size() > 1 && lstPosts.get(0) == st.id) {
         lstPosts.add(lstPosts.remove(0));
       }
 
@@ -237,10 +240,10 @@ public final class DomHelper implements GraphParser {
   }
 
 
-  private static void buildSynchronized(Statement stat) {
-
+  public static boolean buildSynchronized(Statement stat) {
+    boolean res = false;
     for (Statement st : stat.getStats()) {
-      buildSynchronized(st);
+      res |= buildSynchronized(st);
     }
 
     if (stat instanceof SequenceStatement) {
@@ -262,14 +265,23 @@ public final class DomHelper implements GraphParser {
               next = next.getFirst();
             }
 
-            if (next instanceof CatchAllStatement) {
+            if (next instanceof CatchAllStatement ca) {
 
-              CatchAllStatement ca = (CatchAllStatement) next;
-
+              // See if the head of the synchronized is suitable.
+              // In most cases, the synchronized block will contain a monitorexit in the exit block of the catchall.
+              // If the synchronized statement ends in a throw expression, check for that too.
               boolean headOk = ca.getFirst().containsMonitorExitOrAthrow();
 
+              // In case the statement has no exit points, it will not have a monitorexit on the exit block because
+              // there is no exit block. Consider it ok too.
               if (!headOk) {
                 headOk = hasNoExits(ca.getFirst());
+              }
+
+              // In the final case, we may have incorporated all the monitorexits into a finally block, which should be
+              // semantically identical. Handle that too.
+              if (!headOk) {
+                headOk = ca.isFinally();
               }
 
               // If the body of the monitor ends in a throw, it won't have a monitor exit as the catch handler will call it.
@@ -280,6 +292,15 @@ public final class DomHelper implements GraphParser {
                 // remove monitorexit
                 ca.getFirst().markMonitorexitDead();
                 ca.getHandler().markMonitorexitDead();
+
+                // Sometimes trailing monitorexits occur in our or our parent's successor edges too, remove them too.
+                for (StatEdge edge : ca.getSuccessorEdgeView(StatEdge.TYPE_REGULAR)) {
+                  edge.getDestination().markMonitorexitDead();
+                }
+
+                for (StatEdge edge : ca.getParent().getSuccessorEdgeView(StatEdge.TYPE_REGULAR)) {
+                  edge.getDestination().markMonitorexitDead();
+                }
 
                 // remove the head block from sequence
                 current.removeSuccessor(current.getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL).get(0));
@@ -305,6 +326,7 @@ public final class DomHelper implements GraphParser {
 
                 ca.getParent().replaceStatement(ca, sync);
                 found = true;
+                res = true;
                 break;
               }
             }
@@ -316,6 +338,8 @@ public final class DomHelper implements GraphParser {
         }
       }
     }
+
+    return res;
   }
 
   // Checks if a statement has no exits (disregarding exceptions) that lead outside the statement.
@@ -432,7 +456,7 @@ public final class DomHelper implements GraphParser {
 
             tracer.info(general, "Find simple statements");
 
-            // Find statements in this subgraph from the basicblocks that comprise it
+            // Find statements in this subgraph from the basic blocks that comprise it
             if (findSimpleStatements(general, mapExtPost, tracer)) {
               tracer.success(general, "Found some simple statements");
               reducibility = 0;
@@ -448,7 +472,7 @@ public final class DomHelper implements GraphParser {
             Statement stat = findGeneralStatement(general, forceall, mapExtPost/*, finallyInfos*/);
 
             if (stat != null) {
-              tracer.success(general, "Found general statement: " + stat, stat);
+              tracer.successCreated(general, "Found general statement: " + stat + " (" + stat.getStats() + ")", stat);
               // Recurse on the subgraph general statement that we found, and inherit the postdominator set if it's the first statement in the current general
               boolean complete = processStatement(stat, root, general.getFirst() == stat ? mapExtPost : new HashMap<>(), tracer /*, finallyInfos*/);
 
@@ -522,7 +546,15 @@ public final class DomHelper implements GraphParser {
         if (set != null) {
           List<Integer> element = new ArrayList<>(set.size());
           for (Integer integer : set) {
-            if (!stats.containsKey(integer) || !stats.getWithKey(integer).hasSuccessor(StatEdge.TYPE_FINALLYEXIT)) {
+            Statement s = stats.getWithKey(integer);
+            boolean isSame = true;
+            if (s != null) {
+              if (s.hasSuccessor(StatEdge.TYPE_FINALLYEXIT)) {
+                isSame = doesFinallyExitMatch(st, s);
+              }
+            }
+
+            if (s == null || isSame) {
               element.add(integer);
             }
           }
@@ -633,9 +665,12 @@ public final class DomHelper implements GraphParser {
         }
         setHandlers.removeAll(setNodes);
 
+        // Make sure that all the nodes that we're trying to create a new subgraph from are found in any relevant exception handlers
+        // This serves to avoid breaking the statement finder by having a subgraph only contain part of an exception handler
         boolean exceptionsOk = true;
         for (Statement handler : setHandlers) {
-          if (!handler.getNeighbours(StatEdge.TYPE_EXCEPTION, EdgeDirection.BACKWARD).containsAll(setNodes)) {
+          List<Statement> exceptionRange = handler.getNeighbours(StatEdge.TYPE_EXCEPTION, EdgeDirection.BACKWARD);
+          if (!exceptionRange.containsAll(setNodes)) {
             exceptionsOk = false;
             break;
           }
@@ -663,6 +698,26 @@ public final class DomHelper implements GraphParser {
     }
 
     return null;
+  }
+
+  // st: statement that we are checking postdominance for
+  // s: statement that is being considered for addition to st's postdominance set
+  private static boolean doesFinallyExitMatch(Statement st, Statement s) {
+    List<StatEdge> finallyExits = s.getSuccessorEdgeView(StatEdge.TYPE_FINALLYEXIT);
+    ValidationHelper.validateTrue(finallyExits.size() == 1, "Must have just one exit from a finally end block");
+    for (StatEdge edge : finallyExits) {
+      Statement finallyEnd = edge.getSource(); // The last (postdominating) block in a finally construct
+
+      // Find entrypoints to the dominating exit
+      for (StatEdge pred : finallyEnd.getAllPredecessorEdges()) {
+        // Does the current statement have a path to the finally end?
+        if (pred.getSource() == st) {
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 
   private static boolean checkSynchronizedCompleteness(Set<Statement> setNodes) {
@@ -698,7 +753,7 @@ public final class DomHelper implements GraphParser {
         Statement result = detectStatement(st);
 
         if (result != null) {
-          tracer.success(stat, "Transformed " + st + " to " + result, st);
+//          tracer.successCreated(stat, "Detected " + st + " to " + result + " (" + result.getStats() + ")", st);
 
           // If the statement we created contains the first statement of the general statement as it's first, we know that we've completed iteration to the point where every statment in the subgraph has been explored at least once, due to how the post order is created.
           // More iteration still happens to discover higher level structures (such as the case where basicblock -> if -> loop)
@@ -710,7 +765,7 @@ public final class DomHelper implements GraphParser {
 
           stat.collapseNodesToStatement(result);
 
-          tracer.success(stat, "Transformed " + st + " to " + result, result);
+          tracer.successCreated(stat, "Transformed " + st + " to " + result + " (" + result.getStats() + ")", result);
 
           // update the postdominator map
           if (!mapExtPost.isEmpty()) {

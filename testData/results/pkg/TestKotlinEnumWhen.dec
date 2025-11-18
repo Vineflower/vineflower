@@ -3,13 +3,30 @@ package pkg;
 import kotlin.DeprecationLevel;
 import kotlin.Metadata;
 import kotlin.NoWhenBranchMatchedException;
+import kotlin.enums.EnumEntries;
+import org.jetbrains.annotations.NotNull;
 
 @Metadata(
-   mv = {1, 6, 0},
+   mv = {2, 0, 0},
    k = 1,
    xi = 48,
-   d1 = {"\u0000\u0014\n\u0002\u0018\u0002\n\u0002\u0010\u0010\n\u0002\b\u0002\n\u0002\u0010\u0002\n\u0002\b\b\b\u0086\u0001\u0018\u00002\b\u0012\u0004\u0012\u00020\u00000\u0001B\u0007\b\u0002¢\u0006\u0002\u0010\u0002J\u0006\u0010\u0003\u001a\u00020\u0004J\u0006\u0010\u0005\u001a\u00020\u0004J\u0006\u0010\u0006\u001a\u00020\u0004J\u0006\u0010\u0007\u001a\u00020\u0004J\u0006\u0010\b\u001a\u00020\u0004j\u0002\b\tj\u0002\b\nj\u0002\b\u000b¨\u0006\f"},
-   d2 = {"Lpkg/TestKotlinEnumWhen;", "", "(Ljava/lang/String;I)V", "testAnotherEnum", "", "testConsecutive", "testConsecutiveMixed", "testExpression", "testStatement", "FIRST", "SECOND", "THIRD", "vineflower_testDataKotlin"}
+   d1 = "\u0000\u0014\n\u0002\u0018\u0002\n\u0002\u0010\u0010\n\u0002\b\u0006\n\u0002\u0010\u0002\n\u0002\b\u0005\b\u0086\u0081\u0002\u0018\u00002\b\u0012\u0004\u0012\u00020\u00000\u0001B\t\b\u0002¢\u0006\u0004\b\u0002\u0010\u0003J\u0006\u0010\u0007\u001a\u00020\bJ\u0006\u0010\t\u001a\u00020\bJ\u0006\u0010\n\u001a\u00020\bJ\u0006\u0010\u000b\u001a\u00020\bJ\u0006\u0010\f\u001a\u00020\bj\u0002\b\u0004j\u0002\b\u0005j\u0002\b\u0006¨\u0006\r",
+   d2 = {
+         "Lpkg/TestKotlinEnumWhen;",
+         "",
+         "<init>",
+         "(Ljava/lang/String;I)V",
+         "FIRST",
+         "SECOND",
+         "THIRD",
+         "testStatement",
+         "",
+         "testExpression",
+         "testAnotherEnum",
+         "testConsecutive",
+         "testConsecutiveMixed",
+         "vineflower_testDataKotlin"
+   }
 )
 public enum TestKotlinEnumWhen {
    FIRST,
@@ -26,26 +43,19 @@ public enum TestKotlinEnumWhen {
             break;
          case THIRD:
             System.out.println("third!");// 10
-      }
-   }// 12
-
-   public final void testExpression() {
-      String var10000;
-      switch (this) {// 16
-         case FIRST:
-            var10000 = "first!";// 17
-            break;
-         case SECOND:
-            var10000 = "second!";// 18
-            break;
-         case THIRD:
-            var10000 = "third!";// 19
             break;
          default:
             throw new NoWhenBranchMatchedException();
       }
+   }// 12
 
-      String var1 = var10000;
+   public final void testExpression() {
+      String var1 = switch (this) {// 16
+         case FIRST -> "first!";// 17
+         case SECOND -> "second!";// 18
+         case THIRD -> "third!";// 19
+         default -> throw new NoWhenBranchMatchedException();
+      };
       System.out.println(var1);// 15
    }// 22
 
@@ -60,6 +70,9 @@ public enum TestKotlinEnumWhen {
             break;
          case HIDDEN:
             System.out.println("hidden " + level);// 31
+            break;
+         default:
+            throw new NoWhenBranchMatchedException();
       }
    }// 33
 
@@ -73,6 +86,9 @@ public enum TestKotlinEnumWhen {
             break;
          case THIRD:
             System.out.println("third!");// 39
+            break;
+         default:
+            throw new NoWhenBranchMatchedException();
       }
 
       switch (this) {// 42
@@ -84,11 +100,14 @@ public enum TestKotlinEnumWhen {
             break;
          case THIRD:
             System.out.println("third, again!");// 45
+            break;
+         default:
+            throw new NoWhenBranchMatchedException();
       }
    }// 47
 
    public final void testConsecutiveMixed() {
-      DeprecationLevel level = testConsecutiveMixed$getLevel-0();// 53
+      DeprecationLevel level = testConsecutiveMixed$getLevel$0();// 53
       switch (level) {
          case WARNING:
             System.out.println("warning " + level);// 54
@@ -98,6 +117,9 @@ public enum TestKotlinEnumWhen {
             break;
          case HIDDEN:
             System.out.println("hidden " + level);// 56
+            break;
+         default:
+            throw new NoWhenBranchMatchedException();
       }
 
       switch (this) {// 59
@@ -109,297 +131,518 @@ public enum TestKotlinEnumWhen {
             break;
          case THIRD:
             System.out.println("third!");// 62
+            break;
+         default:
+            throw new NoWhenBranchMatchedException();
       }
    }// 64
+
+   @NotNull
+   public static EnumEntries<TestKotlinEnumWhen> getEntries() {
+      return $ENTRIES;// 65
+   }
 
    private static final DeprecationLevel testAnotherEnum$getLevel() {
       throw new Exception();// 26
    }
 
-   private static final DeprecationLevel testConsecutiveMixed$getLevel_0/* $VF was: testConsecutiveMixed$getLevel-0*/() {
+   private static final DeprecationLevel testConsecutiveMixed$getLevel$0() {
       throw new Exception();// 51
    }
 }
 
 class 'pkg/TestKotlinEnumWhen' {
    method 'testStatement ()V' {
-      0      19
-      8      19
-      9      19
-      24      21
-      25      21
-      26      21
-      27      21
-      28      21
-      2a      21
-      2b      21
-      2c      21
-      2d      22
-      30      24
-      31      24
-      32      24
-      33      24
-      34      24
-      36      24
-      37      24
-      38      24
-      39      25
-      3c      27
-      3d      27
-      3e      27
-      3f      27
-      40      27
-      42      27
-      45      29
+      0      36
+      8      36
+      9      36
+      a      36
+      b      36
+      c      36
+      d      36
+      e      36
+      f      36
+      10      36
+      11      36
+      12      36
+      13      36
+      14      36
+      15      36
+      16      36
+      17      36
+      18      36
+      19      36
+      1a      36
+      1b      36
+      1c      36
+      1d      36
+      1e      36
+      1f      36
+      20      36
+      21      36
+      22      36
+      23      36
+      24      38
+      25      38
+      26      38
+      27      38
+      28      38
+      2a      38
+      2b      38
+      2c      38
+      2d      39
+      30      41
+      31      41
+      32      41
+      33      41
+      34      41
+      36      41
+      37      41
+      38      41
+      39      42
+      3c      44
+      3d      44
+      3e      44
+      3f      44
+      40      44
+      42      44
+      43      44
+      44      44
+      45      45
+      4f      47
+      50      49
    }
 
    method 'testExpression ()V' {
-      0      33
-      8      33
-      9      33
-      24      35
-      25      35
-      26      36
-      29      38
-      2a      38
-      2b      39
-      2e      41
-      2f      41
-      30      42
-      3a      44
-      3b      47
-      3c      48
-      3d      48
-      3e      48
-      3f      48
-      40      48
-      41      48
-      42      48
-      43      49
-   }
-
-   method 'testAnotherEnum ()V' {
       0      52
-      1      52
-      2      52
-      3      52
-      7      53
-      b      53
-      c      53
-      28      55
-      29      55
-      2a      55
-      2b      55
-      2c      55
-      2d      55
+      8      52
+      9      52
+      a      52
+      b      52
+      c      52
+      d      52
+      e      52
+      f      52
+      10      52
+      11      52
+      12      52
+      13      52
+      14      52
+      15      52
+      16      52
+      17      52
+      18      52
+      19      52
+      1a      52
+      1b      52
+      1c      52
+      1d      52
+      1e      52
+      1f      52
+      20      52
+      21      52
+      22      52
+      23      52
+      24      53
+      25      53
+      29      54
+      2a      54
       2e      55
       2f      55
-      30      55
-      32      55
-      33      55
-      34      55
-      35      56
-      38      58
-      39      58
-      3a      58
-      3b      58
+      3a      56
+      3b      52
       3c      58
       3d      58
       3e      58
       3f      58
       40      58
+      41      58
       42      58
-      43      58
-      44      58
-      45      59
-      48      61
-      49      61
-      4a      61
-      4b      61
-      4c      61
-      4d      61
-      4e      61
-      4f      61
-      50      61
-      52      61
-      55      63
+      43      59
+   }
+
+   method 'testAnotherEnum ()V' {
+      0      62
+      1      62
+      2      62
+      3      62
+      7      63
+      b      63
+      c      63
+      d      63
+      e      63
+      f      63
+      10      63
+      11      63
+      12      63
+      13      63
+      14      63
+      15      63
+      16      63
+      17      63
+      18      63
+      19      63
+      1a      63
+      1b      63
+      1c      63
+      1d      63
+      1e      63
+      1f      63
+      20      63
+      21      63
+      22      63
+      23      63
+      24      63
+      25      63
+      26      63
+      27      63
+      28      65
+      29      65
+      2a      65
+      2b      65
+      2c      65
+      2d      65
+      2e      65
+      2f      65
+      30      65
+      32      65
+      33      65
+      34      65
+      35      66
+      38      68
+      39      68
+      3a      68
+      3b      68
+      3c      68
+      3d      68
+      3e      68
+      3f      68
+      40      68
+      42      68
+      43      68
+      44      68
+      45      69
+      48      71
+      49      71
+      4a      71
+      4b      71
+      4c      71
+      4d      71
+      4e      71
+      4f      71
+      50      71
+      52      71
+      53      71
+      54      71
+      55      72
+      5f      74
+      60      76
    }
 
    method 'testConsecutive ()V' {
-      0      66
-      8      66
-      9      66
-      24      68
-      25      68
-      26      68
-      27      68
-      28      68
-      2a      68
-      2b      68
-      2c      68
-      2d      69
-      30      71
-      31      71
-      32      71
-      33      71
-      34      71
-      36      71
-      37      71
-      38      71
-      39      72
-      3c      74
-      3d      74
-      3e      74
-      3f      74
-      40      74
-      42      74
-      45      77
-      4d      77
-      4e      77
-      68      79
-      69      79
-      6a      79
-      6b      79
-      6c      79
-      6e      79
-      6f      79
-      70      79
-      71      80
-      74      82
-      75      82
-      76      82
-      77      82
-      78      82
-      7a      82
-      7b      82
-      7c      82
-      7d      83
-      80      85
-      81      85
-      82      85
-      83      85
-      84      85
-      86      85
-      89      87
+      0      79
+      8      79
+      9      79
+      a      79
+      b      79
+      c      79
+      d      79
+      e      79
+      f      79
+      10      79
+      11      79
+      12      79
+      13      79
+      14      79
+      15      79
+      16      79
+      17      79
+      18      79
+      19      79
+      1a      79
+      1b      79
+      1c      79
+      1d      79
+      1e      79
+      1f      79
+      20      79
+      21      79
+      22      79
+      23      79
+      24      81
+      25      81
+      26      81
+      27      81
+      28      81
+      2a      81
+      2b      81
+      2c      81
+      2d      82
+      30      84
+      31      84
+      32      84
+      33      84
+      34      84
+      36      84
+      37      84
+      38      84
+      39      85
+      3c      87
+      3d      87
+      3e      87
+      3f      87
+      40      87
+      42      87
+      43      87
+      44      87
+      45      88
+      4f      90
+      50      93
+      58      93
+      59      93
+      5a      93
+      5b      93
+      5c      93
+      5d      93
+      5e      93
+      5f      93
+      60      93
+      61      93
+      62      93
+      63      93
+      64      93
+      65      93
+      66      93
+      67      93
+      68      93
+      69      93
+      6a      93
+      6b      93
+      6c      93
+      6d      93
+      6e      93
+      6f      93
+      70      93
+      71      93
+      72      93
+      73      93
+      74      95
+      75      95
+      76      95
+      77      95
+      78      95
+      7a      95
+      7b      95
+      7c      95
+      7d      96
+      80      98
+      81      98
+      82      98
+      83      98
+      84      98
+      86      98
+      87      98
+      88      98
+      89      99
+      8c      101
+      8d      101
+      8e      101
+      8f      101
+      90      101
+      92      101
+      93      101
+      94      101
+      95      102
+      9f      104
+      a0      106
    }
 
    method 'testConsecutiveMixed ()V' {
-      0      90
-      1      90
-      2      90
-      3      90
-      7      91
-      b      91
-      c      91
-      28      93
-      29      93
-      2a      93
-      2b      93
-      2c      93
-      2d      93
-      2e      93
-      2f      93
-      30      93
-      32      93
-      33      93
-      34      93
-      35      94
-      38      96
-      39      96
-      3a      96
-      3b      96
-      3c      96
-      3d      96
-      3e      96
-      3f      96
-      40      96
-      42      96
-      43      96
-      44      96
-      45      97
-      48      99
-      49      99
-      4a      99
-      4b      99
-      4c      99
-      4d      99
-      4e      99
-      4f      99
-      50      99
-      52      99
-      55      102
-      5d      102
-      5e      102
-      78      104
-      79      104
-      7a      104
-      7b      104
-      7c      104
-      7e      104
-      7f      104
-      80      104
-      81      105
-      84      107
-      85      107
-      86      107
-      87      107
-      88      107
-      8a      107
-      8b      107
-      8c      107
-      8d      108
-      90      110
-      91      110
-      92      110
-      93      110
-      94      110
-      96      110
-      99      112
+      0      109
+      1      109
+      2      109
+      3      109
+      7      110
+      b      110
+      c      110
+      d      110
+      e      110
+      f      110
+      10      110
+      11      110
+      12      110
+      13      110
+      14      110
+      15      110
+      16      110
+      17      110
+      18      110
+      19      110
+      1a      110
+      1b      110
+      1c      110
+      1d      110
+      1e      110
+      1f      110
+      20      110
+      21      110
+      22      110
+      23      110
+      24      110
+      25      110
+      26      110
+      27      110
+      28      112
+      29      112
+      2a      112
+      2b      112
+      2c      112
+      2d      112
+      2e      112
+      2f      112
+      30      112
+      32      112
+      33      112
+      34      112
+      35      113
+      38      115
+      39      115
+      3a      115
+      3b      115
+      3c      115
+      3d      115
+      3e      115
+      3f      115
+      40      115
+      42      115
+      43      115
+      44      115
+      45      116
+      48      118
+      49      118
+      4a      118
+      4b      118
+      4c      118
+      4d      118
+      4e      118
+      4f      118
+      50      118
+      52      118
+      53      118
+      54      118
+      55      119
+      5f      121
+      60      124
+      68      124
+      69      124
+      6a      124
+      6b      124
+      6c      124
+      6d      124
+      6e      124
+      6f      124
+      70      124
+      71      124
+      72      124
+      73      124
+      74      124
+      75      124
+      76      124
+      77      124
+      78      124
+      79      124
+      7a      124
+      7b      124
+      7c      124
+      7d      124
+      7e      124
+      7f      124
+      80      124
+      81      124
+      82      124
+      83      124
+      84      126
+      85      126
+      86      126
+      87      126
+      88      126
+      8a      126
+      8b      126
+      8c      126
+      8d      127
+      90      129
+      91      129
+      92      129
+      93      129
+      94      129
+      96      129
+      97      129
+      98      129
+      99      130
+      9c      132
+      9d      132
+      9e      132
+      9f      132
+      a0      132
+      a2      132
+      a3      132
+      a4      132
+      a5      133
+      af      135
+      b0      137
+   }
+
+   method 'getEntries ()Lkotlin/enums/EnumEntries;' {
+      0      141
+      1      141
+      2      141
+      3      141
    }
 
    method 'testAnotherEnum$getLevel ()Lkotlin/DeprecationLevel;' {
-      7      115
+      7      145
    }
 
-   method 'testConsecutiveMixed$getLevel-0 ()Lkotlin/DeprecationLevel;' {
-      7      119
+   method 'testConsecutiveMixed$getLevel$0 ()Lkotlin/DeprecationLevel;' {
+      7      149
    }
 }
 
 Lines mapping:
-7 <-> 20
-8 <-> 22
-9 <-> 25
-10 <-> 28
-12 <-> 30
-15 <-> 49
-16 <-> 34
-17 <-> 36
-18 <-> 39
-19 <-> 42
-22 <-> 50
-26 <-> 116
-28 <-> 53
-29 <-> 56
-30 <-> 59
-31 <-> 62
-33 <-> 64
-36 <-> 67
-37 <-> 69
-38 <-> 72
-39 <-> 75
-42 <-> 78
-43 <-> 80
-44 <-> 83
-45 <-> 86
-47 <-> 88
-51 <-> 120
-53 <-> 91
-54 <-> 94
-55 <-> 97
-56 <-> 100
-59 <-> 103
-60 <-> 105
-61 <-> 108
-62 <-> 111
-64 <-> 113
+7 <-> 37
+8 <-> 39
+9 <-> 42
+10 <-> 45
+12 <-> 50
+15 <-> 59
+16 <-> 53
+17 <-> 54
+18 <-> 55
+19 <-> 56
+22 <-> 60
+26 <-> 146
+28 <-> 63
+29 <-> 66
+30 <-> 69
+31 <-> 72
+33 <-> 77
+36 <-> 80
+37 <-> 82
+38 <-> 85
+39 <-> 88
+42 <-> 94
+43 <-> 96
+44 <-> 99
+45 <-> 102
+47 <-> 107
+51 <-> 150
+53 <-> 110
+54 <-> 113
+55 <-> 116
+56 <-> 119
+59 <-> 125
+60 <-> 127
+61 <-> 130
+62 <-> 133
+64 <-> 138
+65 <-> 142

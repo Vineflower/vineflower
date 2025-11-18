@@ -43,6 +43,8 @@ class 'pkg/TestArrayDoWhile' {
       1a      10
       1b      10
       1c      10
+      1d      10
+      1e      10
       1f      12
       20      12
    }

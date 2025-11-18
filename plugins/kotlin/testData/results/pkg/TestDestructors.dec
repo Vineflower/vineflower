@@ -1,357 +1,338 @@
 package pkg
 
-import java.util.List
 import kotlin.jvm.functions.Function0
+import kotlin.jvm.internal.SourceDebugExtension
 
-class TestDestructors {
-   fun destructDataClasses(x: Pair<String, Integer>, y: Triple<? extends Number, Boolean, String>) {
-      System.out.println(x.component1() as String + " " + x.component2() as Integer);// 8 9
-      System.out.println(y.component1() as Number + " " + y.component2() as Boolean + " " + y.component3() as String);// 11 12
+@SourceDebugExtension(["SMAP\nTestDestructors.kt\nKotlin\n*S Kotlin\n*F\n+ 1 TestDestructors.kt\npkg/TestDestructors\n*L\n1#1,71:1\n68#1,3:72\n68#1,3:75\n*S KotlinDebug\n*F\n+ 1 TestDestructors.kt\npkg/TestDestructors\n*L\n49#1:72,3\n54#1:75,3\n*E\n"])
+public class TestDestructors {
+   public fun destructDataClasses(x: Pair<String, Int?>, y: Triple<Number, Boolean?, String>) {
+      System.out.println("${x.component1() as java.lang.String} ${x.component2() as Int}")// 8 9
+      System.out.println("${y.component1() as java.lang.Number} ${y.component2() as java.lang.Boolean} ${y.component3() as java.lang.String}")// 11 12
    }// 13
 
-   fun destructDataClassesSpecial(x: Pair<Integer, String>, y: Triple) {
-      System.out.println((x.component1() as Number).intValue() + " " + x.component2() as String);// 19 20
-      var c: List = y.component1() as List;// 22
-      var d: Void = y.component2() as Void;
-      y.component3();
-      System.out.println(c + " " + d + " " + Unit.INSTANCE);// 23
+   public fun destructDataClassesSpecial(x: Pair<Int, String>, y: Triple<List<Int>, Nothing?, Unit>) {
+      System.out.println("${(x.component1() as java.lang.Number).intValue()} ${x.component2() as java.lang.String}")// 19 20
+      val c: java.util.List = y.component1() as java.util.List// 22
+      val d: Void = y.component2() as Void
+      y.component3()
+      System.out.println("$c $d ${Unit.INSTANCE}")// 23
    }// 24
 
-   fun destructDataClassesSkip(x: Triple<String, Integer, String>, y: Triple<? extends Number, Boolean, String>) {
-      System.out.println(x.component2() as Integer);// 30 31
-      System.out.println(y.component1() as Number + " " + y.component3() as String);// 33 34
+   public fun destructDataClassesSkip(x: Triple<String, Int?, String>, y: Triple<Number, Boolean?, String>) {
+      System.out.println(x.component2() as Int)// 30 31
+      System.out.println("${y.component1() as java.lang.Number} ${y.component3() as java.lang.String}")// 33 34
    }// 35
 
-   fun destructorImpossible(x: Pair): String {
-      var a: String = x.component1() as String;// 38
-      x.component2();
-      throw new KotlinNothingValueException();
+   public fun destructorImpossible(x: Pair<String, Nothing>): String {
+      val a: java.lang.String = x.component1() as java.lang.String// 38
+      x.component2()
+      throw new KotlinNothingValueException()
    }
 
-   fun destructExtensionFunction(x: Int) {
-      System.out.println("" + this.component1(x) + this.component2(x) + this.component3(x));// 44 45
+   public fun destructExtensionFunction(x: Int) {
+      System.out.println("${this.component1(x)}${this.component2(x)}${this.component3(x)}")// 44 45
    }// 46
 
-   fun destructInlineLambda(x: () -> Int) {
+   public fun destructInlineLambdaNoInline(x: () -> Int) {
       System.out
          .println(
-            ""
-               + this.component1((x.invoke() as Number).intValue())// 49 50 85
-               + this.component2((x.invoke() as Number).intValue())// 86
-               + this.component3((x.invoke() as Number).intValue())// 87
-         );
-   }// 51
+            "${this.component1((x.invoke() as java.lang.Number).intValue())}${this.component2((x.invoke() as java.lang.Number).intValue())}${this.component3(// 49 50 72 73 74
+               (x.invoke() as java.lang.Number).intValue()
+            )}"
+         )
+      }// 51
 
-   fun callDestructInlineLambda() {
-      System.out.println("" + this.component1(123) + this.component2(123) + this.component3(123));// 54 88 89 90 91 92
-   }// 55
-
-   fun callDestructInlineLambdaWithControlFlow(x: Int) {
-      if (100 <= x && x < 1000) {
-         var `a$iv`: Int = this.component1(x);// 95
-         if (100 <= x && x < 1000) {// 96
-            var `b$iv`: Int = this.component2(x);
-            if (100 <= x && x < 1000) {// 58 97
-               System.out.println("" + `a$iv` + `b$iv` + this.component3(x));// 94 98
-            }
-         }
-      }
-   }// 99
-
-   fun destructInlineLambdaNoInline(x: () -> Int) {
+   public fun destructLambdaInline(x: Int) {
+      val var2: Function0 = TestDestructors::destructLambdaInline$lambda$0
       System.out
          .println(
-            ""
-               + this.component1((x.invoke() as Number).intValue())// 62 63 100
-               + this.component2((x.invoke() as Number).intValue())// 101
-               + this.component3((x.invoke() as Number).intValue())// 102
-         );
-   }// 64
+            "${this.component1((var2.invoke() as java.lang.Number).intValue())}${this.component2((var2.invoke() as java.lang.Number).intValue())}${this.component3(// 55 75 76 77
+               (var2.invoke() as java.lang.Number).intValue()
+            )}"
+         )
+      }// 56
 
-   fun destructLambdaInline(x: Int) {
-      var var2: Function0 = new <undefinedtype>(x);// 67
-      System.out
-         .println(
-            ""
-               + this.component1((var2.invoke() as Number).intValue())// 68 103
-               + this.component2((var2.invoke() as Number).intValue())// 104
-               + this.component3((var2.invoke() as Number).intValue())// 105
-         );
-   }// 69
-
-   fun Int.component1(): Int {
-      return String.valueOf(`$this$component1`).charAt(0) - 48;// 77
+   public operator fun Int.component1(): Int {
+      return java.lang.String.valueOf(`$this$component1`).charAt(0) - 48// 64
    }
 
-   fun Int.component2(): Int {
-      return String.valueOf(`$this$component2`).charAt(1) - 48;// 78
+   public operator fun Int.component2(): Int {
+      return java.lang.String.valueOf(`$this$component2`).charAt(1) - 48// 65
    }
 
-   fun Int.component3(): Int {
-      return String.valueOf(`$this$component3`).charAt(2) - 48;// 79
+   public operator fun Int.component3(): Int {
+      return java.lang.String.valueOf(`$this$component3`).charAt(2) - 48// 66
    }
 
-   fun (() -> Int).component1(): Int {
-      return this.component1((`$this$component1`.invoke() as Number).intValue());// 81
+   public inline operator fun (() -> Int).component1(): Int {
+      return this.component1((`$this$component1`.invoke() as java.lang.Number).intValue())// 68
    }
 
-   fun (() -> Int).component2(): Int {
-      return this.component2((`$this$component2`.invoke() as Number).intValue());// 82
+   public inline operator fun (() -> Int).component2(): Int {
+      return this.component2((`$this$component2`.invoke() as java.lang.Number).intValue())// 69
    }
 
-   fun (() -> Int).component3(): Int {
-      return this.component3((`$this$component3`.invoke() as Number).intValue());// 83
+   public inline operator fun (() -> Int).component3(): Int {
+      return this.component3((`$this$component3`.invoke() as java.lang.Number).intValue())// 70
+   }
+
+   @JvmStatic
+   fun `destructLambdaInline$lambda$0`(`$x`: Int): Int {
+      return `$x`// 54
    }
 }
 
 class 'pkg/TestDestructors' {
    method 'destructDataClasses (Lkotlin/Pair;Lkotlin/Triple;)V' {
-      c      7
-      d      7
-      e      7
-      f      7
-      10      7
-      11      7
-      12      7
-      14      7
-      15      7
-      16      7
-      17      7
-      18      7
-      19      7
-      1a      7
-      1d      7
-      1e      7
-      1f      7
-      20      7
-      21      7
-      22      7
-      23      7
-      24      7
-      25      7
-      26      7
-      27      7
-      29      7
-      2a      7
-      2b      7
-      2c      8
-      2d      8
-      2e      8
-      2f      8
-      30      8
-      31      8
-      32      8
-      35      8
-      36      8
-      37      8
-      38      8
-      39      8
-      3a      8
-      3b      8
-      3e      8
-      3f      8
-      40      8
-      41      8
-      42      8
-      43      8
-      44      8
-      47      8
-      48      8
-      49      8
-      4a      8
-      4b      8
-      4c      8
-      4d      8
-      4e      8
-      4f      8
-      50      8
-      51      8
-      52      8
-      53      8
-      54      8
-      56      8
-      57      8
-      58      8
-      59      9
+      c      8
+      d      8
+      e      8
+      f      8
+      10      8
+      11      8
+      12      8
+      14      8
+      15      8
+      16      8
+      17      8
+      18      8
+      19      8
+      1a      8
+      1d      8
+      1e      8
+      1f      8
+      20      8
+      21      8
+      22      8
+      23      8
+      24      8
+      25      8
+      26      8
+      27      8
+      29      8
+      2a      8
+      2b      8
+      2c      9
+      2d      9
+      2e      9
+      2f      9
+      30      9
+      31      9
+      32      9
+      35      9
+      36      9
+      37      9
+      38      9
+      39      9
+      3a      9
+      3b      9
+      3e      9
+      3f      9
+      40      9
+      41      9
+      42      9
+      43      9
+      44      9
+      47      9
+      48      9
+      49      9
+      4a      9
+      4b      9
+      4c      9
+      4d      9
+      4e      9
+      4f      9
+      50      9
+      51      9
+      52      9
+      53      9
+      54      9
+      56      9
+      57      9
+      58      9
+      59      10
    }
 
    method 'destructDataClassesSpecial (Lkotlin/Pair;Lkotlin/Triple;)V' {
-      c      12
-      d      12
-      e      12
-      f      12
-      10      12
-      11      12
-      12      12
-      13      12
-      14      12
-      15      12
-      17      12
-      18      12
-      19      12
-      1a      12
-      1b      12
-      1c      12
-      1d      12
-      20      12
-      21      12
-      22      12
-      23      12
-      24      12
-      25      12
-      26      12
-      27      12
-      28      12
-      29      12
-      2a      12
-      2c      12
-      2d      12
-      2e      12
-      2f      13
-      30      13
-      31      13
-      32      13
-      33      13
-      34      13
-      35      13
-      36      13
-      37      13
-      38      14
-      39      14
-      3a      14
-      3b      14
-      3c      14
-      3d      14
-      3e      14
-      3f      14
-      40      14
-      41      15
-      42      15
-      43      15
-      44      15
-      46      16
-      47      16
-      48      16
-      4b      16
-      4c      16
-      4d      16
-      4e      16
-      4f      16
-      50      16
-      51      16
-      52      16
-      53      16
-      54      16
-      55      16
-      56      16
-      57      16
-      58      16
-      5a      16
-      5b      16
-      5c      16
-      5d      17
+      c      13
+      d      13
+      e      13
+      f      13
+      10      13
+      11      13
+      12      13
+      13      13
+      14      13
+      15      13
+      17      13
+      18      13
+      19      13
+      1a      13
+      1b      13
+      1c      13
+      1d      13
+      20      13
+      21      13
+      22      13
+      23      13
+      24      13
+      25      13
+      26      13
+      27      13
+      28      13
+      29      13
+      2a      13
+      2c      13
+      2d      13
+      2e      13
+      2f      14
+      30      14
+      31      14
+      32      14
+      33      14
+      34      14
+      35      14
+      36      14
+      37      14
+      38      15
+      39      15
+      3a      15
+      3b      15
+      3c      15
+      3d      15
+      3e      15
+      3f      15
+      40      15
+      41      16
+      42      16
+      43      16
+      44      16
+      46      17
+      47      17
+      48      17
+      4b      17
+      4c      17
+      4d      17
+      4e      17
+      4f      17
+      50      17
+      51      17
+      52      17
+      53      17
+      54      17
+      55      17
+      56      17
+      57      17
+      58      17
+      5a      17
+      5b      17
+      5c      17
+      5d      18
    }
 
    method 'destructDataClassesSkip (Lkotlin/Triple;Lkotlin/Triple;)V' {
-      c      20
-      d      20
-      e      20
-      f      20
-      10      20
-      11      20
-      12      20
-      14      20
-      15      20
-      16      20
-      17      20
-      18      20
-      19      20
-      1a      20
-      1b      21
-      1c      21
-      1d      21
-      1e      21
-      1f      21
-      20      21
-      21      21
-      24      21
-      25      21
-      26      21
-      27      21
-      28      21
-      29      21
-      2a      21
-      2d      21
-      2e      21
-      2f      21
-      30      21
-      31      21
-      32      21
-      33      21
-      34      21
-      35      21
-      36      21
-      37      21
-      38      21
-      3a      21
-      3b      21
-      3c      21
-      3d      22
+      c      21
+      d      21
+      e      21
+      f      21
+      10      21
+      11      21
+      12      21
+      14      21
+      15      21
+      16      21
+      17      21
+      18      21
+      19      21
+      1a      21
+      1b      22
+      1c      22
+      1d      22
+      1e      22
+      1f      22
+      20      22
+      21      22
+      24      22
+      25      22
+      26      22
+      27      22
+      28      22
+      29      22
+      2a      22
+      2d      22
+      2e      22
+      2f      22
+      30      22
+      31      22
+      32      22
+      33      22
+      34      22
+      35      22
+      36      22
+      37      22
+      38      22
+      3a      22
+      3b      22
+      3c      22
+      3d      23
    }
 
    method 'destructorImpossible (Lkotlin/Pair;)Ljava/lang/String;' {
-      6      25
-      7      25
-      8      25
-      9      25
-      a      25
-      b      25
-      c      25
-      d      25
-      e      26
-      f      26
-      10      26
-      11      26
-      1a      27
+      6      26
+      7      26
+      8      26
+      9      26
+      a      26
+      b      26
+      c      26
+      d      26
+      e      27
+      f      27
+      10      27
+      11      27
+      1a      28
    }
 
    method 'destructExtensionFunction (I)V' {
-      0      31
-      1      31
-      2      31
-      3      31
-      4      31
-      6      31
-      7      31
-      8      31
-      9      31
-      a      31
-      c      31
-      d      31
-      e      31
-      f      31
-      10      31
-      13      31
-      14      31
-      15      31
-      16      31
-      17      31
-      18      31
-      19      31
-      1a      31
-      1b      31
-      1c      31
-      1d      31
-      1e      31
-      20      31
-      21      31
-      22      31
-      23      32
+      0      32
+      1      32
+      2      32
+      3      32
+      4      32
+      6      32
+      7      32
+      8      32
+      9      32
+      a      32
+      c      32
+      d      32
+      e      32
+      f      32
+      10      32
+      13      32
+      14      32
+      15      32
+      16      32
+      17      32
+      18      32
+      19      32
+      1a      32
+      1b      32
+      1c      32
+      1d      32
+      1e      32
+      20      32
+      21      32
+      22      32
+      23      33
    }
 
-   method 'destructInlineLambda (Lkotlin/jvm/functions/Function0;)V' {
+   method 'destructInlineLambdaNoInline (Lkotlin/jvm/functions/Function0;)V' {
+      6      38
       8      38
-      b      38
+      e      38
+      f      38
+      10      38
       11      38
       12      38
       13      38
@@ -366,544 +347,291 @@ class 'pkg/TestDestructors' {
       1c      38
       1d      38
       1e      38
-      1f      38
       20      38
-      21      38
-      22      38
-      24      39
-      27      39
-      2d      39
-      2e      39
-      2f      39
-      30      39
-      31      39
-      32      39
-      33      39
-      34      39
-      35      39
-      36      39
-      37      39
-      38      39
-      39      39
-      3a      39
-      3b      39
-      3c      39
-      3d      39
-      3e      39
-      41      40
-      44      40
-      4a      40
-      4b      40
-      4c      40
-      4d      40
-      4e      40
-      4f      40
-      50      40
-      51      40
-      52      40
-      53      40
-      54      40
-      55      40
-      56      40
-      57      40
-      58      40
-      59      40
-      5a      40
-      5b      40
+      23      38
+      29      38
+      2a      38
+      2b      38
+      2c      38
+      2d      38
+      2e      38
+      2f      38
+      30      38
+      31      38
+      32      38
+      33      38
+      34      38
+      35      38
+      36      38
+      37      38
+      38      38
+      39      38
+      3a      38
+      3c      38
+      3f      39
+      45      38
+      46      38
+      47      39
+      48      39
+      49      39
+      4a      39
+      4b      39
+      4c      39
+      4d      39
+      4e      39
+      4f      39
+      50      39
+      51      39
+      52      39
+      53      39
+      54      38
+      55      38
+      56      38
+      59      38
+      5a      38
+      5b      38
+      5c      38
+      5d      38
       5e      38
-      5f      39
-      60      39
-      61      40
-      62      40
-      63      37
-      64      37
-      65      37
+      5f      38
+      60      38
+      61      38
+      62      36
+      63      36
+      64      36
       66      37
       67      37
-      68      35
-      69      35
-      6a      35
-      6c      36
-      6d      36
-      6e      36
-      6f      42
-   }
-
-   method 'callDestructInlineLambda ()V' {
-      0      45
-      4      45
-      9      45
-      f      45
-      10      45
-      13      45
-      14      45
-      15      45
-      16      45
-      17      45
-      18      45
-      19      45
-      1c      45
-      22      45
-      23      45
-      29      45
-      2a      45
-      2d      45
-      2e      45
-      2f      45
-      30      45
-      31      45
-      32      45
-      33      45
-      35      45
-      3b      45
-      3c      45
-      42      45
-      43      45
-      46      45
-      47      45
-      48      45
-      49      45
-      4a      45
-      4b      45
-      4c      45
-      4f      45
-      50      45
-      51      45
-      52      45
-      53      45
-      54      45
-      55      45
-      56      45
-      57      45
-      58      45
-      59      45
-      5a      45
-      5b      45
-      5d      45
-      5e      45
-      5f      45
-      61      46
-   }
-
-   method 'callDestructInlineLambdaWithControlFlow (I)V' {
-      0      50
-      4      50
-      a      50
-      b      50
-      11      49
-      12      49
-      13      49
-      14      49
-      17      49
-      18      49
-      19      49
-      1a      49
-      1b      49
-      27      49
-      2a      50
-      2e      58
-      2f      50
-      30      50
-      31      50
-      32      50
-      33      50
-      34      50
-      35      50
-      36      50
-      37      50
-      38      52
-      39      52
-      3e      52
-      3f      52
-      45      51
-      46      51
-      47      51
-      48      51
-      49      51
-      4d      51
-      4e      51
-      4f      51
-      50      51
-      51      51
-      5d      51
-      60      52
-      64      58
-      65      52
-      66      52
-      67      52
-      68      52
-      69      52
-      6a      52
-      6b      52
-      6c      52
-      6d      52
-      6e      54
-      6f      54
-      74      54
-      75      54
-      7b      53
-      7c      53
-      7d      53
-      7e      53
-      7f      53
-      83      53
-      84      53
-      85      53
-      86      53
-      87      53
-      93      53
-      96      54
-      9a      58
-      9b      54
-      9c      54
-      9d      54
-      9e      54
-      9f      54
-      a0      54
-      a4      54
-      a5      54
-      a6      54
-      a7      54
-      a8      54
-      a9      54
-      aa      54
-      ab      54
-      ac      54
-      ad      54
-      ae      54
-      af      54
-      b0      54
-      b4      54
-      b8      58
-   }
-
-   method 'destructInlineLambdaNoInline (Lkotlin/jvm/functions/Function0;)V' {
-      6      64
-      8      64
-      e      64
-      f      64
-      10      64
-      11      64
-      12      64
-      13      64
-      14      64
-      15      64
-      16      64
-      17      64
-      18      64
-      19      64
-      1a      64
-      1b      64
-      1c      64
-      1d      64
-      1e      64
-      20      65
-      23      65
-      29      65
-      2a      65
-      2b      65
-      2c      65
-      2d      65
-      2e      65
-      2f      65
-      30      65
-      31      65
-      32      65
-      33      65
-      34      65
-      35      65
-      36      65
-      37      65
-      38      65
-      39      65
-      3a      65
-      3c      66
-      3f      66
-      45      66
-      46      66
-      47      66
-      48      66
-      49      66
-      4a      66
-      4b      66
-      4c      66
-      4d      66
-      4e      66
-      4f      66
-      50      66
-      51      66
-      52      66
-      53      66
-      54      66
-      55      66
-      56      66
-      59      64
-      5a      65
-      5b      66
-      5c      66
-      5d      63
-      5e      63
-      5f      63
-      60      63
-      61      63
-      62      61
-      63      61
-      64      61
-      66      62
-      67      62
-      68      62
-      69      68
+      68      37
+      69      42
    }
 
    method 'destructLambdaInline (I)V' {
-      4      71
+      6      45
+      7      48
+      a      48
+      10      48
+      11      48
+      12      48
+      13      48
+      14      48
+      15      48
+      16      48
+      17      48
+      18      48
+      19      48
+      1a      48
+      1b      48
+      1c      48
+      1d      48
+      1e      48
+      1f      48
+      20      48
+      21      48
+      23      48
+      26      48
+      2c      48
+      2d      48
+      2e      48
+      2f      48
+      30      48
+      31      48
+      32      48
+      33      48
+      34      48
+      35      48
+      36      48
+      37      48
+      38      48
+      39      48
+      3a      48
+      3b      48
+      3c      48
+      3d      48
+      40      48
+      43      49
+      49      48
+      4a      48
+      4b      49
+      4c      49
+      4d      49
+      4e      49
+      4f      49
+      50      49
+      51      49
+      52      49
+      53      49
+      54      49
+      55      49
+      56      49
+      57      49
+      58      48
+      59      48
+      5a      48
+      5d      48
+      5e      48
+      5f      48
+      60      48
+      61      48
+      62      48
+      63      48
+      64      48
+      65      48
+      66      48
+      67      46
+      68      46
+      69      46
+      6b      47
+      6c      47
+      6d      47
+      6e      52
+   }
+
+   method 'component1 (I)I' {
+      0      55
+      1      55
+      2      55
+      3      55
+      4      55
+      5      55
+      6      55
+      7      55
+      8      55
+      9      55
+      a      55
+      b      55
+   }
+
+   method 'component2 (I)I' {
+      0      59
+      1      59
+      2      59
+      3      59
+      4      59
+      5      59
+      6      59
+      7      59
+      8      59
+      9      59
+      a      59
+      b      59
+   }
+
+   method 'component3 (I)I' {
+      0      63
+      1      63
+      2      63
+      3      63
+      4      63
+      5      63
+      6      63
+      7      63
+      8      63
+      9      63
+      a      63
+      b      63
+   }
+
+   method 'component1 (Lkotlin/jvm/functions/Function0;)I' {
+      8      67
+      9      67
+      a      67
+      b      67
+      c      67
+      d      67
+      e      67
+      f      67
+      10      67
+      11      67
+      12      67
+      13      67
+      14      67
+      15      67
+      16      67
+      17      67
+      18      67
+   }
+
+   method 'component2 (Lkotlin/jvm/functions/Function0;)I' {
       8      71
       9      71
       a      71
       b      71
+      c      71
+      d      71
+      e      71
+      f      71
+      10      71
+      11      71
+      12      71
+      13      71
+      14      71
+      15      71
+      16      71
+      17      71
+      18      71
+   }
+
+   method 'component3 (Lkotlin/jvm/functions/Function0;)I' {
+      8      75
+      9      75
+      a      75
+      b      75
       c      75
+      d      75
+      e      75
       f      75
+      10      75
+      11      75
+      12      75
+      13      75
+      14      75
       15      75
       16      75
       17      75
       18      75
-      19      75
-      1a      75
-      1b      75
-      1c      75
-      1d      75
-      1e      75
-      1f      75
-      20      75
-      21      75
-      22      75
-      23      75
-      24      75
-      25      75
-      26      75
-      28      76
-      2b      76
-      31      76
-      32      76
-      33      76
-      34      76
-      35      76
-      36      76
-      37      76
-      38      76
-      39      76
-      3a      76
-      3b      76
-      3c      76
-      3d      76
-      3e      76
-      3f      76
-      40      76
-      41      76
-      42      76
-      45      77
-      48      77
-      4e      77
-      4f      77
-      50      77
-      51      77
-      52      77
-      53      77
-      54      77
-      55      77
-      56      77
-      57      77
-      58      77
-      59      77
-      5a      77
-      5b      77
-      5c      77
-      5d      77
-      5e      77
-      5f      77
-      62      75
-      63      76
-      64      76
-      65      77
-      66      77
-      67      74
-      68      74
-      69      74
-      6a      74
-      6b      74
-      6c      72
-      6d      72
-      6e      72
-      70      73
-      71      73
-      72      73
-      73      79
    }
 
-   method 'component1 (I)I' {
-      0      82
-      1      82
-      2      82
-      3      82
-      4      82
-      5      82
-      6      82
-      7      82
-      8      82
-      9      82
-      a      82
-      b      82
-   }
-
-   method 'component2 (I)I' {
-      0      86
-      1      86
-      2      86
-      3      86
-      4      86
-      5      86
-      6      86
-      7      86
-      8      86
-      9      86
-      a      86
-      b      86
-   }
-
-   method 'component3 (I)I' {
-      0      90
-      1      90
-      2      90
-      3      90
-      4      90
-      5      90
-      6      90
-      7      90
-      8      90
-      9      90
-      a      90
-      b      90
-   }
-
-   method 'component1 (Lkotlin/jvm/functions/Function0;)I' {
-      8      94
-      9      94
-      a      94
-      b      94
-      c      94
-      d      94
-      e      94
-      f      94
-      10      94
-      11      94
-      12      94
-      13      94
-      14      94
-      15      94
-      16      94
-      17      94
-      18      94
-   }
-
-   method 'component2 (Lkotlin/jvm/functions/Function0;)I' {
-      8      98
-      9      98
-      a      98
-      b      98
-      c      98
-      d      98
-      e      98
-      f      98
-      10      98
-      11      98
-      12      98
-      13      98
-      14      98
-      15      98
-      16      98
-      17      98
-      18      98
-   }
-
-   method 'component3 (Lkotlin/jvm/functions/Function0;)I' {
-      8      102
-      9      102
-      a      102
-      b      102
-      c      102
-      d      102
-      e      102
-      f      102
-      10      102
-      11      102
-      12      102
-      13      102
-      14      102
-      15      102
-      16      102
-      17      102
-      18      102
+   method 'destructLambdaInline$lambda$0 (I)I' {
+      0      80
+      1      80
    }
 }
 
 Lines mapping:
-8 <-> 8
-9 <-> 8
-11 <-> 9
-12 <-> 9
-13 <-> 10
-19 <-> 13
-20 <-> 13
-22 <-> 14
-23 <-> 17
-24 <-> 18
-30 <-> 21
-31 <-> 21
-33 <-> 22
-34 <-> 22
-35 <-> 23
-38 <-> 26
-44 <-> 32
-45 <-> 32
-46 <-> 33
+8 <-> 9
+9 <-> 9
+11 <-> 10
+12 <-> 10
+13 <-> 11
+19 <-> 14
+20 <-> 14
+22 <-> 15
+23 <-> 18
+24 <-> 19
+30 <-> 22
+31 <-> 22
+33 <-> 23
+34 <-> 23
+35 <-> 24
+38 <-> 27
+44 <-> 33
+45 <-> 33
+46 <-> 34
 49 <-> 39
 50 <-> 39
 51 <-> 43
-54 <-> 46
-55 <-> 47
-58 <-> 54
-62 <-> 65
-63 <-> 65
-64 <-> 69
-67 <-> 72
-68 <-> 76
-69 <-> 80
-77 <-> 83
-78 <-> 87
-79 <-> 91
-81 <-> 95
-82 <-> 99
-83 <-> 103
-85 <-> 39
-86 <-> 40
-87 <-> 41
-88 <-> 46
-89 <-> 46
-90 <-> 46
-91 <-> 46
-92 <-> 46
-94 <-> 55
-95 <-> 51
-96 <-> 52
-97 <-> 54
-98 <-> 55
-99 <-> 59
-100 <-> 65
-101 <-> 66
-102 <-> 67
-103 <-> 76
-104 <-> 77
-105 <-> 78
-Not mapped:
-59
-93
+54 <-> 81
+55 <-> 49
+56 <-> 53
+64 <-> 56
+65 <-> 60
+66 <-> 64
+68 <-> 68
+69 <-> 72
+70 <-> 76
+72 <-> 39
+73 <-> 39
+74 <-> 39
+75 <-> 49
+76 <-> 49
+77 <-> 49

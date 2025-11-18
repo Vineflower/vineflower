@@ -64,28 +64,6 @@ public class DirectNode {
     }
   }
 
-  @Deprecated
-  public List<DirectNode> succs() {
-    List<DirectNode> list = new ArrayList<>();
-    for (DirectEdge edge : getSuccessors(DirectEdgeType.REGULAR)) {
-      DirectNode destination = edge.getDestination();
-      list.add(destination);
-    }
-
-    return list;
-  }
-
-  @Deprecated
-  public List<DirectNode> preds() {
-    List<DirectNode> list = new ArrayList<>();
-    for (DirectEdge edge : getPredecessors(DirectEdgeType.REGULAR)) {
-      DirectNode source = edge.getSource();
-      list.add(source);
-    }
-
-    return list;
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {

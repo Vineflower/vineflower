@@ -1,8 +1,8 @@
 package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
-import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
+import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
@@ -34,9 +34,9 @@ public class YieldExprent extends Exprent {
   public CheckTypesResult checkExprTypeBounds() {
     CheckTypesResult result = new CheckTypesResult();
 
-    if (retType.type != CodeConstants.TYPE_VOID) {
-      result.addMinTypeExprent(this.content, VarType.getMinTypeInFamily(retType.typeFamily));
-      result.addMaxTypeExprent(this.content, retType);
+    if (retType.type != CodeType.VOID) {
+      result.addExprLowerBound(this.content, VarType.findFamilyBottom(retType.typeFamily));
+      result.addExprUpperBound(this.content, retType);
     }
 
     return result;

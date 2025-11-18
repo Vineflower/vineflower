@@ -33,7 +33,7 @@ public class ArrayExprent extends Exprent {
   public VarType getExprType() {
     VarType exprType = array.getExprType();
     if (exprType.equals(VarType.VARTYPE_NULL)) {
-      return hardType.copy();
+      return hardType;
     }
     else {
       return exprType.decreaseArrayDim();
@@ -44,7 +44,7 @@ public class ArrayExprent extends Exprent {
   public VarType getInferredExprType(VarType upperBound) {
     VarType exprType = array.getInferredExprType(upperBound);
     if (exprType.equals(VarType.VARTYPE_NULL)) {
-      return hardType.copy();
+      return hardType;
     }
     else {
       return exprType.decreaseArrayDim();
@@ -59,8 +59,8 @@ public class ArrayExprent extends Exprent {
   @Override
   public CheckTypesResult checkExprTypeBounds() {
     CheckTypesResult result = new CheckTypesResult();
-    result.addMinTypeExprent(index, VarType.VARTYPE_BYTECHAR);
-    result.addMaxTypeExprent(index, VarType.VARTYPE_INT);
+    result.addExprLowerBound(index, VarType.VARTYPE_BYTECHAR);
+    result.addExprUpperBound(index, VarType.VARTYPE_INT);
     return result;
   }
 

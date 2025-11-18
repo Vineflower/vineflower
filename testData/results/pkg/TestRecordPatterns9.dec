@@ -1,0 +1,76 @@
+package pkg;
+
+import java.io.File;
+
+public class TestRecordPatterns9 {
+   public Object test1(File f) {
+      TestRecordPatterns9.Sealed i = this.get("aaaa");// 14
+      if (i instanceof TestRecordPatterns9.Sealed.R1(int v)) {// 15
+         return v;// 16
+      } else {
+         return i instanceof TestRecordPatterns9.Sealed.R2(String var11) ? var11 : null;// 17 21
+      }
+   }
+
+   private TestRecordPatterns9.Sealed get(String s) {
+      return null;// 25
+   }
+
+   sealed interface Sealed permits TestRecordPatterns9.Sealed.R1, TestRecordPatterns9.Sealed.R2 {
+      record R1(int x) implements TestRecordPatterns9.Sealed {
+      }
+
+      record R2(String s) implements TestRecordPatterns9.Sealed {
+      }
+   }
+}
+
+class 'pkg/TestRecordPatterns9' {
+   method 'test1 (Ljava/io/File;)Ljava/lang/Object;' {
+      0      6
+      1      6
+      2      6
+      3      6
+      4      6
+      5      6
+      6      6
+      7      7
+      8      7
+      9      7
+      a      7
+      b      7
+      c      7
+      d      7
+      1b      7
+      1c      7
+      1d      8
+      1e      8
+      1f      8
+      20      8
+      21      8
+      22      8
+      23      10
+      24      10
+      25      10
+      26      10
+      27      10
+      28      10
+      29      10
+      3e      10
+   }
+
+   method 'get (Ljava/lang/String;)Lpkg/TestRecordPatterns9$Sealed;' {
+      0      15
+      1      15
+   }
+}
+
+Lines mapping:
+14 <-> 7
+15 <-> 8
+16 <-> 9
+17 <-> 11
+21 <-> 11
+25 <-> 16
+Not mapped:
+18

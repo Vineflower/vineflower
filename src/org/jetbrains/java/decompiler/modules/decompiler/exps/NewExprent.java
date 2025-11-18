@@ -9,8 +9,11 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
+import org.jetbrains.java.decompiler.modules.decompiler.DecHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.SFormsConstructor;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.VarMapHolder;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.DummyExitStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
@@ -18,6 +21,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
+import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericClassDescriptor;
@@ -54,7 +58,7 @@ public class NewExprent extends Exprent {
 
     anonymous = false;
     lambda = false;
-    if (newType.type == CodeConstants.TYPE_OBJECT && newType.arrayDim == 0) {
+    if (newType.type == CodeType.OBJECT && newType.arrayDim == 0) {
       ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(newType.value);
       if (node != null && (node.type == ClassNode.Type.ANONYMOUS || node.type == ClassNode.Type.LAMBDA)) {
         anonymous = true;
@@ -84,7 +88,7 @@ public class NewExprent extends Exprent {
   @Override
   public VarType getInferredExprType(VarType upperBound) {
     genericArgs.clear();
-    if (!lambda && newType.type == CodeConstants.TYPE_OBJECT) {
+    if (!lambda && newType.type == CodeType.OBJECT) {
       StructClass node = DecompilerContext.getStructContext().getClass(newType.value);
 
       if (node != null && node.getSignature() != null) {
@@ -98,7 +102,7 @@ public class NewExprent extends Exprent {
           GenericClassDescriptor sig = node.getSignature();
           if (constructor != null) {
             VarType ret = constructor.getInferredExprType(upperBound);
-            return ret.type != CodeConstants.TYPE_VOID ? ret : getExprType();
+            return ret.type != CodeType.VOID ? ret : getExprType();
           }
           else {
             Map<VarType, VarType> genericsMap = new HashMap<>();
@@ -113,7 +117,7 @@ public class NewExprent extends Exprent {
       }
       else if (newType.arrayDim > 0 && !lstArrayElements.isEmpty() && newType.value.equals(VarType.VARTYPE_OBJECT.value)) {
         VarType first = lstArrayElements.get(0).getInferredExprType(null);
-        if (first.type == CodeConstants.TYPE_GENVAR) {
+        if (first.type == CodeType.GENVAR) {
           boolean matches = true;
           for (int i = 1; i < lstArrayElements.size(); ++i) {
             VarType type = lstArrayElements.get(i).getInferredExprType(null);
@@ -164,7 +168,7 @@ public class NewExprent extends Exprent {
                 for (int i = 0; i < method.getSignature().parameterTypes.size(); ++i) {
                   VarType mtype = method.getSignature().parameterTypes.get(i);
                   VarType rtype = refMethod.getSignature().parameterTypes.get(i);
-                  if (mtype.type == CodeConstants.TYPE_GENVAR && rtype.type == CodeConstants.TYPE_GENVAR) {
+                  if (mtype.type == CodeType.GENVAR && rtype.type == CodeType.GENVAR) {
                     if (genericsMap.containsKey(rtype)) {
                       instanceMap.put(mtype, genericsMap.get(rtype));
                     }
@@ -176,19 +180,20 @@ public class NewExprent extends Exprent {
             // generated lambda methods have no generic info, so only map to generic var parameters
             List<VarType> types = method.getSignature() != null ? method.getSignature().parameterTypes : Arrays.asList(desc.params);
             for (int i = 0; i < types.size(); ++i) {
-              if (refMethod.getSignature().parameterTypes.get(i).type == CodeConstants.TYPE_GENVAR) {
-                if (!genericsMap.containsKey(refMethod.getSignature().parameterTypes.get(i))) {
+              List<VarType> parameterTypes = refMethod.getSignature().parameterTypes;
+              if (i < parameterTypes.size() && parameterTypes.get(i).type == CodeType.GENVAR) {
+                if (!genericsMap.containsKey(parameterTypes.get(i))) {
                   VarType realType = types.get(i);
                   StructClass typeCls = DecompilerContext.getStructContext().getClass(realType.value);
                   if (typeCls != null && typeCls.getSignature() != null && !realType.equals(typeCls.getSignature().genericType)) {
                     realType = typeCls.getSignature().genericType.resizeArrayDim(realType.arrayDim);
                   }
-                  genericsMap.put(refMethod.getSignature().parameterTypes.get(i), realType);
+                  genericsMap.put(parameterTypes.get(i), realType);
                 }
               }
             }
 
-            if (refMethod.getSignature().returnType.type == CodeConstants.TYPE_GENVAR) {
+            if (refMethod.getSignature().returnType.type == CodeType.GENVAR) {
               VarType key = refMethod.getSignature().returnType;
               if (method.getName().equals(CodeConstants.INIT_NAME)) {
                 if (methodCls.getSignature() != null) {
@@ -212,9 +217,19 @@ public class NewExprent extends Exprent {
                 }
 
                 boolean add = current == null || returnType == null || returnType.isGeneric() ||
-                  (!returnType.equals(genericsMap.get(key)) && (current.type != CodeConstants.TYPE_GENVAR || !named.containsKey(current)));
+                  (!returnType.equals(genericsMap.get(key)) && (current.type != CodeType.GENVAR || !named.containsKey(current)));
                 if (add) {
-                  genericsMap.put(key, returnType);
+                  VarType prior = genericsMap.get(key);
+                  boolean addToMap = true;
+                  if (prior != null) {
+                    if (prior.isGeneric() && !((GenericType)prior).isTypeUnfinished() && DecompilerContext.getStructContext().instanceOf(returnType.value, prior.value)) {
+                      addToMap = false;
+                    }
+                  }
+
+                  if (addToMap) {
+                    genericsMap.put(key, returnType);
+                  }
                 }
               }
             }
@@ -249,15 +264,15 @@ public class NewExprent extends Exprent {
 
     if (newType.arrayDim != 0) {
       for (Exprent dim : lstDims) {
-        result.addMinTypeExprent(dim, VarType.VARTYPE_BYTECHAR);
-        result.addMaxTypeExprent(dim, VarType.VARTYPE_INT);
+        result.addExprLowerBound(dim, VarType.VARTYPE_BYTECHAR);
+        result.addExprUpperBound(dim, VarType.VARTYPE_INT);
       }
 
       if (newType.arrayDim == 1) {
         VarType leftType = newType.decreaseArrayDim();
         for (Exprent element : lstArrayElements) {
-          result.addMinTypeExprent(element, VarType.getMinTypeInFamily(leftType.typeFamily));
-          result.addMaxTypeExprent(element, leftType);
+          result.addExprLowerBound(element, VarType.findFamilyBottom(leftType.typeFamily));
+          result.addExprUpperBound(element, leftType);
         }
       }
     }
@@ -294,7 +309,7 @@ public class NewExprent extends Exprent {
 
     NewExprent ret = new NewExprent(newType, lst, bytecode);
     ret.setConstructor(constructor == null ? null : (InvocationExprent)constructor.copy());
-    ret.setLstArrayElements(lstArrayElements);
+    ret.setLstArrayElements(DecHelper.copyExprentList(lstArrayElements));
     ret.setDirectArrayInit(directArrayInit);
     ret.setAnonymous(anonymous);
     ret.setEnumConst(enumConst);
@@ -466,7 +481,7 @@ public class NewExprent extends Exprent {
       // if there is just one element of Object[] type it needs to be casted to resolve ambiguity
       if (lstArrayElements.size() == 1) {
         VarType elementType = lstArrayElements.get(0).getExprType();
-        if (elementType.type == CodeConstants.TYPE_OBJECT && elementType.value.equals("java/lang/Object") && elementType.arrayDim >= 1) {
+        if (elementType.type == CodeType.OBJECT && elementType.value.equals("java/lang/Object") && elementType.arrayDim >= 1) {
           buf.prepend("(Object)");
           buf.addClassToken(1, 6, "java/lang/Object");
         }
@@ -650,7 +665,7 @@ public class NewExprent extends Exprent {
               VarType curType = methodWrapper.varproc.getVarType(vpp);
               VarType infType = desc.getSignature().parameterTypes.get(j++).remap(tempMap);
 
-              if (infType != null && !infType.equals(VarType.VARTYPE_VOID)) {
+              if (infType != null && !infType.equals(VarType.VARTYPE_VOID) && curType != null) {
                 if (!curType.equals(infType) || (infType.isGeneric() && !((GenericType)infType).equalsExact(curType))) {
                   methodWrapper.varproc.setVarType(vpp, infType);
                   String paramName = methodWrapper.varproc.getVarName(vpp);
@@ -812,6 +827,10 @@ public class NewExprent extends Exprent {
     this.isVarArgParam = isVarArgParam;
   }
 
+  public boolean isVarArgParam() {
+    return this.isVarArgParam;
+  }
+
   public boolean isLambda() {
     return lambda;
   }
@@ -844,6 +863,15 @@ public class NewExprent extends Exprent {
   public void setInvocationInstance() {
     if (constructor != null) {
       constructor.setInvocationInstance();
+    }
+  }
+
+  @Override
+  public void processSforms(SFormsConstructor sFormsConstructor, VarMapHolder varMaps, Statement stat, boolean calcLiveVars) {
+    super.processSforms(sFormsConstructor, varMaps, stat, calcLiveVars);
+
+    if (sFormsConstructor.trackFieldVars && this.getNewType().type == CodeType.OBJECT) {
+      varMaps.getNormal().removeAllFields();
     }
   }
 }

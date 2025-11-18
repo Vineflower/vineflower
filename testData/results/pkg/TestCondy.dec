@@ -6,8 +6,8 @@ import java.lang.invoke.MethodHandles.Lookup;
 import java.nio.file.StandardOpenOption;
 
 public class TestCondy {
-   public static final Integer field = 1;
-   public static final TestCondy selfField = null;
+   public static final Integer field = 1;// 13 14
+   public static final TestCondy selfField = null;// 17
 
    public static String testNull() {
       return /* $VF: constant dynamic */ null;// 25
@@ -51,6 +51,14 @@ public class TestCondy {
 }
 
 class 'pkg/TestCondy' {
+   method '<clinit> ()V' {
+      0      8
+      1      8
+      2      8
+      3      8
+      7      9
+   }
+
    method 'testNull ()Ljava/lang/String;' {
       2      12
    }
@@ -107,6 +115,9 @@ class 'pkg/TestCondy' {
 }
 
 Lines mapping:
+13 <-> 9
+14 <-> 9
+17 <-> 10
 25 <-> 13
 32 <-> 17
 39 <-> 21
@@ -125,6 +136,8 @@ Lines mapping:
 99 <-> 49
 100 <-> 49
 Not mapped:
+15
+18
 24
 31
 38

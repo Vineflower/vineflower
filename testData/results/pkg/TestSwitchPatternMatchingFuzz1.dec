@@ -41,6 +41,23 @@ class 'pkg/TestSwitchPatternMatchingFuzz1' {
       c      8
       f      9
       16      9
+      17      9
+      18      9
+      19      9
+      1a      9
+      1b      9
+      1c      9
+      1d      9
+      1e      9
+      1f      9
+      20      9
+      21      9
+      22      9
+      23      9
+      24      9
+      25      9
+      26      9
+      27      9
       2f      30
       30      11
       31      11
@@ -63,6 +80,8 @@ class 'pkg/TestSwitchPatternMatchingFuzz1' {
       44      15
       45      15
       46      15
+      47      15
+      48      15
       49      16
       4a      16
       4b      16

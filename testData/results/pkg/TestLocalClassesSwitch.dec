@@ -89,9 +89,29 @@ class 'pkg/TestLocalClassesSwitch' {
    method 'test (I)V' {
       0      4
       1      4
+      2      4
+      3      4
+      4      4
+      5      4
+      6      4
+      7      4
+      8      4
+      9      4
+      a      4
+      b      4
+      c      4
+      d      4
+      e      4
+      f      4
+      10      4
+      11      4
+      12      4
+      13      4
       1c      12
       1d      13
       1e      13
+      1f      13
+      20      13
       29      22
       2a      23
       2b      23
@@ -103,6 +123,32 @@ class 'pkg/TestLocalClassesSwitch' {
    method 'test1 (I)V' {
       0      29
       1      29
+      2      29
+      3      29
+      4      29
+      5      29
+      6      29
+      7      29
+      8      29
+      9      29
+      a      29
+      b      29
+      c      29
+      d      29
+      e      29
+      f      29
+      10      29
+      11      29
+      12      29
+      13      29
+      14      29
+      15      29
+      16      29
+      17      29
+      18      29
+      19      29
+      1a      29
+      1b      29
       24      37
       25      38
       26      38
@@ -125,6 +171,16 @@ class 'pkg/TestLocalClassesSwitch' {
    method 'test2 (I)V' {
       0      64
       1      64
+      2      64
+      3      64
+      4      64
+      5      64
+      6      64
+      7      64
+      8      64
+      9      64
+      a      64
+      b      64
       14      72
       15      73
       16      73

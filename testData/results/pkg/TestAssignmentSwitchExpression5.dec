@@ -2,16 +2,16 @@ package pkg;
 
 public class TestAssignmentSwitchExpression5 {
    public void test(String directionStr, int i) {
-      String axis;
-      for (axis = directionStr; i > 0; --i) {// 5 6 20
-         String var4 = directionStr.toLowerCase();// 7
+      String axis = directionStr;// 5
 
-         axis = switch (var4) {
+      while (i > 0) {// 6
+         axis = switch (directionStr.toLowerCase()) {// 7
             case "north", "south" -> "y";// 10
             case "east", "west" -> "x";// 13
             case "up", "down" -> "z";// 16
             default -> throw new IllegalStateException("Unexpected value: " + directionStr);// 18
          };
+         i--;// 20
       }
 
       System.out.println(axis);// 22
@@ -20,48 +20,82 @@ public class TestAssignmentSwitchExpression5 {
 
 class 'pkg/TestAssignmentSwitchExpression5' {
    method 'test (Ljava/lang/String;I)V' {
-      0      5
-      1      5
-      2      5
-      3      5
-      6      6
-      7      6
-      8      6
-      9      6
-      a      6
-      b      6
-      f      8
-      10      8
-      52      9
-      53      9
-      62      9
-      63      9
-      72      10
-      73      10
-      82      10
-      83      10
-      92      11
-      93      11
-      a2      11
-      a3      11
-      af      8
-      d4      9
-      d5      9
-      d9      10
-      da      10
-      de      11
-      df      11
-      e7      12
-      e8      12
-      e9      12
-      ea      12
-      eb      12
-      ec      12
-      f0      12
-      f1      8
-      f2      5
-      f3      5
-      f4      5
+      0      4
+      1      4
+      2      6
+      3      6
+      4      6
+      5      6
+      6      7
+      7      7
+      8      7
+      9      7
+      52      8
+      53      8
+      62      8
+      63      8
+      72      9
+      73      9
+      82      9
+      83      9
+      92      10
+      93      10
+      a2      10
+      a3      10
+      af      7
+      b0      7
+      b1      7
+      b2      7
+      b3      7
+      b4      7
+      b5      7
+      b6      7
+      b7      7
+      b8      7
+      b9      7
+      ba      7
+      bb      7
+      bc      7
+      bd      7
+      be      7
+      bf      7
+      c0      7
+      c1      7
+      c2      7
+      c3      7
+      c4      7
+      c5      7
+      c6      7
+      c7      7
+      c8      7
+      c9      7
+      ca      7
+      cb      7
+      cc      7
+      cd      7
+      ce      7
+      cf      7
+      d0      7
+      d1      7
+      d2      7
+      d3      7
+      d4      8
+      d5      8
+      d9      9
+      da      9
+      de      10
+      df      10
+      e7      11
+      e8      11
+      e9      11
+      ea      11
+      eb      11
+      ec      11
+      f0      11
+      f1      7
+      f2      13
+      f3      13
+      f4      13
       f8      16
       f9      16
       fa      16
@@ -74,13 +108,13 @@ class 'pkg/TestAssignmentSwitchExpression5' {
 }
 
 Lines mapping:
-5 <-> 6
-6 <-> 6
-7 <-> 7
-10 <-> 10
-13 <-> 11
-16 <-> 12
-18 <-> 13
-20 <-> 6
+5 <-> 5
+6 <-> 7
+7 <-> 8
+10 <-> 9
+13 <-> 10
+16 <-> 11
+18 <-> 12
+20 <-> 14
 22 <-> 17
 23 <-> 18

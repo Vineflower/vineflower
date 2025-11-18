@@ -1,7 +1,7 @@
 package org.vineflower.kotlin.pass;
 
-import org.jetbrains.java.decompiler.api.passes.Pass;
-import org.jetbrains.java.decompiler.api.passes.PassContext;
+import org.jetbrains.java.decompiler.api.plugin.pass.Pass;
+import org.jetbrains.java.decompiler.api.plugin.pass.PassContext;
 import org.jetbrains.java.decompiler.modules.decompiler.StackVarsProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
@@ -11,9 +11,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionsGraph;
 import org.jetbrains.java.decompiler.struct.StructMethod;
-import org.jetbrains.java.decompiler.util.collections.SFormsFastMapDirect;
 
-import java.util.HashMap;
 import java.util.List;
 
 public class EliminateDeadVarsPass implements Pass {
@@ -42,17 +40,14 @@ public class EliminateDeadVarsPass implements Pass {
         for (int i = 0; i < exprents.size(); i++) {
           Exprent ex = exprents.get(i);
 
-          if (ex instanceof AssignmentExprent) {
-            AssignmentExprent aex = (AssignmentExprent) ex;
+          if (ex instanceof AssignmentExprent aex) {
             Exprent left = aex.getLeft();
             Exprent right = aex.getRight();
 
-            if (left instanceof VarExprent) {
-              VarExprent var = (VarExprent) left;
-
+            if (left instanceof VarExprent var) {
               VarVersionPair vvp = var.getVarVersionPair();
               if (isPureToReplace(right)) {
-                if (ssu.nodes.getWithKey(vvp).succs.isEmpty()) {
+                if (!ssu.nodes.getWithKey(vvp).hasAnySuccessors()) {
                   exprents.remove(i);
                   changed = true;
                   changedAny = true;
@@ -77,9 +72,7 @@ public class EliminateDeadVarsPass implements Pass {
       return true;
     }
 
-    if (expr instanceof FieldExprent) {
-      FieldExprent field = (FieldExprent) expr;
-
+    if (expr instanceof FieldExprent field) {
       return field.isStatic() && field.getClassname().equals("kotlin/Unit");
     }
 

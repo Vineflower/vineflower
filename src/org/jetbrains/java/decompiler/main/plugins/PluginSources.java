@@ -1,6 +1,6 @@
 package org.jetbrains.java.decompiler.main.plugins;
 
-import org.jetbrains.java.decompiler.api.PluginSource;
+import org.jetbrains.java.decompiler.api.plugin.PluginSource;
 
 import java.util.ArrayList;
 import java.util.List;

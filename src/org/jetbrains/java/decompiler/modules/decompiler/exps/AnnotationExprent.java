@@ -5,12 +5,15 @@ package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
+import org.jetbrains.java.decompiler.struct.StructClass;
+import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
+import java.util.Optional;
 
 public class AnnotationExprent extends Exprent {
   public enum Type {
@@ -20,6 +23,7 @@ public class AnnotationExprent extends Exprent {
   private final String className;
   private final List<String> parNames;
   private final List<? extends Exprent> parValues;
+  private boolean didWriteAlready;
 
   public AnnotationExprent(String className, List<String> parNames, List<? extends Exprent> parValues) {
     super(Exprent.Type.ANNOTATION);
@@ -56,34 +60,52 @@ public class AnnotationExprent extends Exprent {
 
     if (type != Type.MARKER) {
       buffer.append('(');
-
-      boolean oneLiner = type == Type.SINGLE_ELEMENT || indent < 0;
-
+      buffer.pushNewlineGroup(indent, 1);
+      buffer.appendPossibleNewline();
       for (int i = 0; i < parNames.size(); i++) {
-        if (!oneLiner) {
-          buffer.appendLineSeparator().appendIndent(indent + 1);
-        }
-
         if (type != Type.SINGLE_ELEMENT) {
-          buffer.append(parNames.get(i));
+          String name = parNames.get(i);
+
+          // make sure the attribute name ends up as a token
+          StructClass structClass = DecompilerContext.getStructContext().getClass(className);
+          if (structClass != null) {
+            Optional<StructMethod> method = structClass.getMethods().stream().filter(m -> m.getName().equals(name)).findAny();
+            if (method.isPresent()) {
+              buffer.appendMethod(name, false, className, name, method.get().getDescriptor());
+            } else {
+              buffer.appendMethod(name, false, className, name, "()" + parValues.get(i).getExprType());
+            }
+          } else {
+            buffer.appendMethod(name, false, className, name, "()" + parValues.get(i).getExprType());
+          }
+
           buffer.append(" = ");
         }
 
-        buffer.append(parValues.get(i).toJava(indent + 1));
+        Exprent parValue = parValues.get(i);
+
+        if (isArrayValue(parValue) && ((NewExprent) parValue).getLstArrayElements().size() == 1 && !isArrayValue(((NewExprent) parValue).getLstArrayElements().get(0))) {
+          buffer.append(((NewExprent) parValue).getLstArrayElements().get(0).toJava(indent));
+        } else {
+          buffer.append(parValue.toJava(indent));
+        }
 
         if (i < parNames.size() - 1) {
-          buffer.append(',');
+          buffer.append(",");
+          buffer.appendPossibleNewline(" ");
+        } else {
+          buffer.appendPossibleNewline("", true);
         }
       }
-
-      if (!oneLiner) {
-        buffer.appendLineSeparator().appendIndent(indent);
-      }
-
       buffer.append(')');
+      buffer.popNewlineGroup();
     }
 
     return buffer;
+  }
+
+  private static boolean isArrayValue(Exprent parValue) {
+    return parValue instanceof NewExprent newExpr && newExpr.isDirectArrayInit();
   }
 
   public String getClassName() {
@@ -119,6 +141,14 @@ public class AnnotationExprent extends Exprent {
 
   public List<? extends Exprent> getParValues() {
     return parValues;
+  }
+
+  public boolean didWriteAlready() {
+    return didWriteAlready;
+  }
+
+  public void setDidWriteAlready(boolean didWriteAlready) {
+    this.didWriteAlready = didWriteAlready;
   }
 
   @Override

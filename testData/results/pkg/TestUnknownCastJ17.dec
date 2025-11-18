@@ -1,21 +1,12 @@
 package pkg;
 
 import java.lang.annotation.ElementType;
-import java.util.Objects;
 
 public class TestUnknownCastJ17 {
-   // $VF: Could not properly define all variable types!
    public void test() {
       ElementType vvv1 = ElementType.METHOD;// 8
       synchronized (this) {// 9
-         label91: {
-            System.out.println(vvv1);// 10
-            Object var23;
-            Objects.requireNonNull(var23);// 11
-            Object vvv5 = var23;
-
-            <unknown> var10000_1 = (<unknown>)(new Object());
-         }
+         System.out.println(vvv1);// 10
       }
 
       try {
@@ -29,13 +20,8 @@ public class TestUnknownCastJ17 {
       synchronized (this) {// 35
          System.out.println(vvv1);// 36
          System.out.println(vvv1);// 37
-         Object var10000;
-         Objects.requireNonNull(var10000);// 38
-         Object vvv5 = var10000;
 
-         new Object();
-
-         for (int var9 = switch (vvv5) {
+         for (int var9 = switch (new Object()) {// 38
             default -> {
                ElementType var5 = ElementType.METHOD;// 40
                System.out.println(vvv1);// 42
@@ -56,120 +42,122 @@ public class TestUnknownCastJ17 {
 
 class 'pkg/TestUnknownCastJ17' {
    method 'test ()V' {
-      0      8
-      1      8
-      2      8
-      3      8
-      4      9
-      7      9
-      8      11
-      9      11
-      a      11
-      b      11
-      c      11
-      d      11
-      e      11
-      17      13
-      18      13
-      19      13
-      1b      14
-      a8      21
-      a9      22
-      aa      24
+      0      6
+      1      6
+      2      6
+      3      6
+      4      7
+      7      7
+      8      8
+      9      8
+      a      8
+      b      8
+      c      8
+      d      8
+      e      8
+      a8      12
+      a9      13
+      aa      15
    }
 
    method 'test2 ()V' {
-      0      27
-      1      27
-      2      27
-      3      27
-      4      28
-      7      28
-      8      29
-      9      29
-      a      29
-      b      29
-      c      29
-      d      29
-      e      29
-      f      30
-      10      30
-      11      30
-      12      30
-      13      30
-      14      30
-      15      30
-      1e      32
-      1f      32
-      20      32
-      22      33
-      26      37
-      2e      37
-      38      39
-      39      39
-      3a      39
-      3b      39
-      3c      39
-      3d      40
-      3e      40
-      3f      40
-      40      40
-      41      40
-      42      40
-      43      40
-      44      41
-      45      41
-      46      41
-      48      43
-      49      43
-      4a      43
-      4b      43
-      4c      43
-      4d      43
-      4e      43
-      4f      43
-      52      44
-      53      44
-      54      44
-      55      44
-      56      45
-      57      45
-      58      45
-      59      45
-      5a      45
-      5b      45
-      5c      45
-      5d      43
-      5e      43
-      5f      43
-      76      50
-      77      51
-      78      53
+      0      18
+      1      18
+      2      18
+      3      18
+      4      19
+      7      19
+      8      20
+      9      20
+      a      20
+      b      20
+      c      20
+      d      20
+      e      20
+      f      21
+      10      21
+      11      21
+      12      21
+      13      21
+      14      21
+      15      21
+      2e      23
+      2f      23
+      30      23
+      31      23
+      32      23
+      33      23
+      34      23
+      35      23
+      36      23
+      37      23
+      38      25
+      39      25
+      3a      25
+      3b      25
+      3c      25
+      3d      26
+      3e      26
+      3f      26
+      40      26
+      41      26
+      42      26
+      43      26
+      44      27
+      45      27
+      46      27
+      48      29
+      49      29
+      4a      29
+      4b      29
+      4c      29
+      4d      29
+      4e      29
+      4f      29
+      50      29
+      51      29
+      52      30
+      53      30
+      54      30
+      55      30
+      56      31
+      57      31
+      58      31
+      59      31
+      5a      31
+      5b      31
+      5c      31
+      5d      29
+      5e      29
+      5f      29
+      76      36
+      77      37
+      78      39
    }
 }
 
 Lines mapping:
-8 <-> 9
-9 <-> 10
-10 <-> 12
-11 <-> 14
-28 <-> 22
-29 <-> 23
-31 <-> 25
-34 <-> 28
-35 <-> 29
-36 <-> 30
-37 <-> 31
-38 <-> 33
-40 <-> 40
-42 <-> 41
-43 <-> 44
-44 <-> 45
-45 <-> 46
-51 <-> 51
-52 <-> 52
-54 <-> 54
+8 <-> 7
+9 <-> 8
+10 <-> 9
+28 <-> 13
+29 <-> 14
+31 <-> 16
+34 <-> 19
+35 <-> 20
+36 <-> 21
+37 <-> 22
+38 <-> 24
+40 <-> 26
+42 <-> 27
+43 <-> 30
+44 <-> 31
+45 <-> 32
+51 <-> 37
+52 <-> 38
+54 <-> 40
 Not mapped:
+11
 13
 15
 16

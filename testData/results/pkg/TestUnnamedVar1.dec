@@ -1,0 +1,160 @@
+package pkg;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.Scanner;
+
+public class TestUnnamedVar1 {
+   public void test(Object o) {
+      if (o instanceof TestUnnamedVar1.Point var2) {
+         TestUnnamedVar1.Point var10000 = var2;
+
+         try {
+            var7 = var10000.x();
+         } catch (Throwable var6) {// 12
+            throw new MatchException(var6.toString(), var6);
+         }
+
+         int var4 = var7;
+         int x = var4;
+         var10000 = var2;
+
+         try {
+            var10000.y();
+         } catch (Throwable var5) {
+            throw new MatchException(var5.toString(), var5);
+         }
+
+         System.out.println(x);// 13
+      }
+   }// 15
+
+   public void test1(Object o) {
+      if (o instanceof TestUnnamedVar1.Point(int x, Object var8)) {// 18
+         System.out.println(x);// 19
+      }
+   }// 21
+
+   public List<String> stream(List<String> in) {
+      return in.stream().map(var0 -> "val").toList();// 24
+   }
+
+   public void trycatch(File file) {
+      try {
+         new Scanner(file);// 29
+      } catch (IOException var3) {// 30
+      }
+   }// 33
+
+   record Point(int x, Object y) {
+   }
+}
+
+class 'pkg/TestUnnamedVar1' {
+   method 'test (Ljava/lang/Object;)V' {
+      0      9
+      1      9
+      2      9
+      3      9
+      4      9
+      5      9
+      6      9
+      b      9
+      c      10
+      d      13
+      e      13
+      f      13
+      10      18
+      11      18
+      12      19
+      13      19
+      14      19
+      15      20
+      16      23
+      17      23
+      18      23
+      1b      28
+      1c      28
+      1d      28
+      1e      28
+      1f      28
+      20      28
+      21      28
+      25      14
+      2a      15
+      2b      15
+      2c      15
+      2d      15
+      2e      15
+      32      15
+      33      30
+   }
+
+   method 'test1 (Ljava/lang/Object;)V' {
+      0      33
+      1      33
+      2      33
+      3      33
+      4      33
+      5      33
+      6      33
+      14      33
+      1b      33
+      1c      33
+      23      34
+      24      34
+      25      34
+      26      34
+      27      34
+      28      34
+      29      34
+      3b      36
+   }
+
+   method 'stream (Ljava/util/List;)Ljava/util/List;' {
+      0      39
+      1      39
+      2      39
+      3      39
+      4      39
+      5      39
+      b      39
+      c      39
+      d      39
+      e      39
+      f      39
+      10      39
+      11      39
+      12      39
+      13      39
+      14      39
+      15      39
+   }
+
+   method 'lambda$stream$0 (Ljava/lang/String;)Ljava/lang/String;' {
+      0      39
+      1      39
+      2      39
+   }
+
+   method 'trycatch (Ljava/io/File;)V' {
+      4      44
+      c      45
+      d      47
+   }
+}
+
+Lines mapping:
+12 <-> 15
+13 <-> 29
+15 <-> 31
+18 <-> 34
+19 <-> 35
+21 <-> 37
+24 <-> 40
+29 <-> 45
+30 <-> 46
+33 <-> 48
+Not mapped:
+32

@@ -4,9 +4,11 @@ package org.jetbrains.java.decompiler.modules.decompiler;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.struct.consts.PooledConstant;
 import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
+import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 
@@ -21,8 +23,8 @@ public final class ConcatenationHelper {
   private static final String bufferClass = "java/lang/StringBuffer";
   private static final String stringClass = "java/lang/String";
 
-  private static final VarType builderType = new VarType(CodeConstants.TYPE_OBJECT, 0, "java/lang/StringBuilder");
-  private static final VarType bufferType = new VarType(CodeConstants.TYPE_OBJECT, 0, "java/lang/StringBuffer");
+  private static final VarType builderType = new VarType(CodeType.OBJECT, 0, "java/lang/StringBuilder");
+  private static final VarType bufferType = new VarType(CodeType.OBJECT, 0, "java/lang/StringBuffer");
 
   public static void simplifyStringConcat(Statement stat) {
     for (Statement s : stat.getStats()) {
@@ -31,7 +33,7 @@ public final class ConcatenationHelper {
 
     if (stat.getExprents() != null) {
       for (int i = 0; i < stat.getExprents().size(); ++i) {
-        Exprent ret = simplifyStringConcat(stat.getExprents().get(i));
+        Exprent ret = simplifyStringConcat(stat.getTopParent(), stat.getExprents().get(i));
         if (ret != null) {
           stat.getExprents().set(i, ret);
         }
@@ -39,9 +41,9 @@ public final class ConcatenationHelper {
     }
   }
 
-  private static Exprent simplifyStringConcat(Exprent exprent) {
+  private static Exprent simplifyStringConcat(RootStatement root, Exprent exprent) {
     for (Exprent cexp : exprent.getAllExprents()) {
-      Exprent ret = simplifyStringConcat(cexp);
+      Exprent ret = simplifyStringConcat(root, cexp);
       if (ret != null) {
         exprent.replaceExprent(cexp, ret);
         ret.addBytecodeOffsets(cexp.bytecode);
@@ -49,7 +51,7 @@ public final class ConcatenationHelper {
     }
 
     if (exprent instanceof InvocationExprent) {
-      Exprent ret = ConcatenationHelper.contractStringConcat(exprent);
+      Exprent ret = ConcatenationHelper.contractStringConcat(root, exprent);
       if (!exprent.equals(ret)) {
         return ret;
       }
@@ -58,7 +60,7 @@ public final class ConcatenationHelper {
     return null;
   }
 
-  public static Exprent contractStringConcat(Exprent expr) {
+  public static Exprent contractStringConcat(RootStatement root, Exprent expr) {
 
     Exprent exprTmp = null;
     VarType cltype = null;
@@ -77,7 +79,7 @@ public final class ConcatenationHelper {
           exprTmp = iex.getInstance();
         }
       } else if ("makeConcatWithConstants".equals(iex.getName()) || "makeConcat".equals(iex.getName())) { // java 9 style
-        List<Exprent> parameters = extractParameters(iex.getBootstrapArguments(), iex);
+        List<Exprent> parameters = extractParameters(root, iex.getBootstrapArguments(), iex);
 
         // Check if we need to add an empty string to the param list to convert from objects or primitives to strings.
         boolean addEmptyString = true;
@@ -90,8 +92,9 @@ public final class ConcatenationHelper {
         }
 
         // If we need to add an empty string to the param list, do so here
-        if (addEmptyString) {
+        if (addEmptyString || parameters.size() == 1) {
           // Make single variable concat nicer by appending the string at the end
+          // TODO: remove this
           int index = parameters.size() == 1 ? 1 : 0;
 
           parameters.add(index, new ConstExprent(VarType.VARTYPE_STRING, "", expr.bytecode));
@@ -182,7 +185,11 @@ public final class ConcatenationHelper {
     Exprent func = lstOperands.get(0);
 
     for (int i = 1; i < lstOperands.size(); i++) {
-      func = new FunctionExprent(FunctionType.STR_CONCAT, Arrays.asList(func, lstOperands.get(i)), bytecode);
+      Exprent oper = lstOperands.get(i);
+      FunctionExprent tmp = new FunctionExprent(FunctionType.STR_CONCAT, Arrays.asList(func, oper), bytecode);
+      // Try to pick the non-string type. One is guaranteed to be string.
+      tmp.setImplicitType(VarType.VARTYPE_STRING.equals(func.getExprType()) ? oper.getExprType() : func.getExprType());
+      func = tmp;
     }
 
     return func;
@@ -193,7 +200,7 @@ public final class ConcatenationHelper {
   private static final String TAG_ARG_S = "\u0001";
   private static final char TAG_CONST = '\u0002';
 
-  private static List<Exprent> extractParameters(List<PooledConstant> bootstrapArguments, InvocationExprent expr) {
+  private static List<Exprent> extractParameters(RootStatement root, List<PooledConstant> bootstrapArguments, InvocationExprent expr) {
     List<Exprent> parameters = expr.getLstParameters();
 
     // Remove unnecessary String.valueOf() calls to resolve Vineflower#151
@@ -208,9 +215,7 @@ public final class ConcatenationHelper {
           recipe = ((PrimitiveConstant) constant).getString();
         }
       } else if (bootstrapArguments.isEmpty()) { // makeConcat has no recipe, need to fake it (see StringConcatFactory#makeConcat)
-        // Horrific code to have string.repeat() in Java 8
-        // Replace null terminators with \1
-        recipe = new String(new char[parameters.size()]).replace("\0", TAG_ARG_S);
+        recipe = TAG_ARG_S.repeat(parameters.size());
       }
 
       if (recipe != null) {
@@ -232,6 +237,10 @@ public final class ConcatenationHelper {
               // skip for now
             }
             if (c == TAG_ARG) {
+              if (parameterId >= parameters.size()) {
+                root.addComment("$VF: Could not fully resugar string concatentation!");
+                continue;
+              }
               res.add(parameters.get(parameterId++));
             }
           } else {
@@ -260,17 +269,17 @@ public final class ConcatenationHelper {
       if (md.ret.equals(cltype) && md.params.length == 1) {
         VarType param = md.params[0];
         switch (param.type) {
-          case CodeConstants.TYPE_OBJECT:
+          case OBJECT:
             if (!param.equals(VarType.VARTYPE_STRING) &&
                 !param.equals(VarType.VARTYPE_OBJECT)) {
               break;
             }
-          case CodeConstants.TYPE_BOOLEAN:
-          case CodeConstants.TYPE_CHAR:
-          case CodeConstants.TYPE_DOUBLE:
-          case CodeConstants.TYPE_FLOAT:
-          case CodeConstants.TYPE_INT:
-          case CodeConstants.TYPE_LONG:
+          case BOOLEAN:
+          case CHAR:
+          case DOUBLE:
+          case FLOAT:
+          case INT:
+          case LONG:
             return true;
           default:
         }
@@ -298,16 +307,16 @@ public final class ConcatenationHelper {
         if (md.params.length == 1) {
           VarType param = md.params[0];
           switch (param.type) {
-            case CodeConstants.TYPE_OBJECT:
+            case OBJECT:
               if (!param.equals(VarType.VARTYPE_OBJECT)) {
                 break;
               }
-            case CodeConstants.TYPE_BOOLEAN:
-            case CodeConstants.TYPE_CHAR:
-            case CodeConstants.TYPE_DOUBLE:
-            case CodeConstants.TYPE_FLOAT:
-            case CodeConstants.TYPE_INT:
-            case CodeConstants.TYPE_LONG:
+            case BOOLEAN:
+            case CHAR:
+            case DOUBLE:
+            case FLOAT:
+            case INT:
+            case LONG:
               return iex.getLstParameters().get(0);
           }
         }

@@ -30,10 +30,14 @@ class 'pkg/TestTryLoopRecompile' {
       2      12
       3      12
       4      12
+      5      12
+      6      12
       b      13
       16      16
       17      17
       18      17
+      19      17
+      1a      17
       1b      20
    }
 }

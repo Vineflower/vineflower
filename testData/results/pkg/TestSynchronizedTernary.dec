@@ -12,6 +12,8 @@ class 'pkg/TestSynchronizedTernary' {
    method 'test (ZLjava/lang/Object;Ljava/lang/Object;)V' {
       0      4
       1      4
+      2      4
+      3      4
       4      4
       8      4
       a      4

@@ -32,6 +32,21 @@ public class PrintStreamLogger extends IFernflowerLogger {
     }
   }
 
+  public void startProcessingClass(String className) {
+    if (accepts(Severity.INFO)) {
+      writeMessage("Preprocessing class " + className, Severity.INFO);
+      indent.get().incrementAndGet();
+    }
+  }
+
+  @Override
+  public void endProcessingClass() {
+    if (accepts(Severity.INFO)) {
+      indent.get().decrementAndGet();
+      writeMessage("... done", Severity.INFO);
+    }
+  }
+
   @Override
   public void startReadingClass(String className) {
     if (accepts(Severity.INFO)) {

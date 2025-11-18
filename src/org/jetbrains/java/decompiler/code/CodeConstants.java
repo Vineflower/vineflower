@@ -33,18 +33,6 @@ public interface CodeConstants {
   int TYPE_GENVAR = 18;
 
   // ----------------------------------------------------------------------
-  // VARIABLE TYPE FAMILIES
-  // ----------------------------------------------------------------------
-
-  int TYPE_FAMILY_UNKNOWN = 0;
-  int TYPE_FAMILY_BOOLEAN = 1;
-  int TYPE_FAMILY_INTEGER = 2;
-  int TYPE_FAMILY_FLOAT = 3;
-  int TYPE_FAMILY_LONG = 4;
-  int TYPE_FAMILY_DOUBLE = 5;
-  int TYPE_FAMILY_OBJECT = 6;
-
-  // ----------------------------------------------------------------------
   // ACCESS FLAGS
   // ----------------------------------------------------------------------
 

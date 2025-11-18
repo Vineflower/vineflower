@@ -217,6 +217,8 @@ class 'pkg/TestCompoundAssignment' {
       1      43
       2      43
       3      43
+      4      43
+      5      43
       6      43
       a      43
       b      43
@@ -226,6 +228,8 @@ class 'pkg/TestCompoundAssignment' {
       11      44
       12      44
       13      44
+      14      44
+      15      44
       16      44
       1a      44
       1b      44
@@ -235,6 +239,8 @@ class 'pkg/TestCompoundAssignment' {
       21      45
       22      45
       23      45
+      24      45
+      25      45
       26      45
       2a      45
       2b      45
@@ -244,6 +250,8 @@ class 'pkg/TestCompoundAssignment' {
       31      46
       32      46
       33      46
+      34      46
+      35      46
       36      46
       3a      46
       3b      46
@@ -253,6 +261,8 @@ class 'pkg/TestCompoundAssignment' {
       41      47
       42      47
       43      47
+      44      47
+      45      47
       46      47
       4a      47
       4b      47
@@ -262,6 +272,8 @@ class 'pkg/TestCompoundAssignment' {
       51      48
       52      48
       53      48
+      54      48
+      55      48
       56      48
       5a      48
       5b      48
@@ -271,6 +283,8 @@ class 'pkg/TestCompoundAssignment' {
       61      49
       62      49
       63      49
+      64      49
+      65      49
       66      49
       6a      49
       6b      49
@@ -280,6 +294,8 @@ class 'pkg/TestCompoundAssignment' {
       71      50
       72      50
       73      50
+      74      50
+      75      50
       76      50
       7a      50
       7b      50
@@ -289,6 +305,8 @@ class 'pkg/TestCompoundAssignment' {
       81      51
       82      51
       83      51
+      84      51
+      85      51
       86      51
       8a      51
       8b      51
@@ -299,6 +317,8 @@ class 'pkg/TestCompoundAssignment' {
       91      52
       92      52
       93      52
+      94      52
+      95      52
       96      52
       9a      52
       9b      52

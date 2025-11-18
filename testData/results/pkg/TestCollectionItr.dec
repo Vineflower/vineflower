@@ -5,7 +5,7 @@ import java.util.List;
 
 public class TestCollectionItr {
    public <T extends TestCollectionItr> List<T> method() {
-      return this.list();// 8
+      return (List<T>)this.list();// 8
    }
 
    private List<TestCollectionItr> list() {

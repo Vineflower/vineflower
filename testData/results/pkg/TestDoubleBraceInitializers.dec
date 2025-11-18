@@ -25,7 +25,7 @@ public class TestDoubleBraceInitializers {
       System.out.println(date);// 21
    }// 22
 
-   public static enum TestEnum {
+   public enum TestEnum {
       A {
          {
             System.out.println("A");// 26
@@ -37,11 +37,11 @@ public class TestDoubleBraceInitializers {
          }// 30
       };
 
-      private TestEnum() {
+      TestEnum() {
       }// 24
    }
 
-   public static enum TestEnum1 {
+   public enum TestEnum1 {
       A {
          {
             System.out.println("A");// 35
@@ -57,7 +57,7 @@ public class TestDoubleBraceInitializers {
 
       public int field;
 
-      private TestEnum1() {
+      TestEnum1() {
       }// 46
    }
 }

@@ -13,8 +13,8 @@ import java.util.List;
 
 public class StructBootstrapMethodsAttribute extends StructGeneralAttribute {
 
-  private final List<LinkConstant> methodRefs = new ArrayList<>();
-  private final List<List<PooledConstant>> methodArguments = new ArrayList<>();
+  public final List<LinkConstant> methodRefs = new ArrayList<>();
+  public final List<List<PooledConstant>> methodArguments = new ArrayList<>();
 
   @Override
   public void initContent(DataInputFullStream data, ConstantPool pool, BytecodeVersion version) throws IOException {
@@ -48,4 +48,6 @@ public class StructBootstrapMethodsAttribute extends StructGeneralAttribute {
   public List<PooledConstant> getMethodArguments(int index) {
     return methodArguments.get(index);
   }
+
+
 }

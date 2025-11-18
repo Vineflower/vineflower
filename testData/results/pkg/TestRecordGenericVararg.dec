@@ -2,25 +2,13 @@ package pkg;
 
 public record TestRecordGenericVararg<T>(T first, T... other) {
    @SafeVarargs
-   public TestRecordGenericVararg(T first, T... other) {
-      this.first = first;// 5
-      this.other = other;
-   }
+   public TestRecordGenericVararg {
+   }// 5
 }
 
 class 'pkg/TestRecordGenericVararg' {
    method '<init> (Ljava/lang/Object;[Ljava/lang/Object;)V' {
-      4      5
-      5      5
-      6      5
-      7      5
-      8      5
-      9      6
-      a      6
-      b      6
-      c      6
-      d      6
-      e      7
+      e      5
    }
 }
 

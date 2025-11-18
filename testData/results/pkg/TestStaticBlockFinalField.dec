@@ -1,0 +1,51 @@
+package pkg;
+
+public class TestStaticBlockFinalField {
+   static final String field;
+   static final String dum;
+
+   static {
+      String something = String.valueOf(1);// 9
+      field = something.length() + "dum";// 10
+      dum = field.substring(1);// 11
+   }// 12
+}
+
+class 'pkg/TestStaticBlockFinalField' {
+   method '<clinit> ()V' {
+      0      7
+      1      7
+      2      7
+      3      7
+      4      7
+      c      8
+      d      8
+      e      8
+      f      8
+      13      8
+      14      8
+      18      8
+      19      8
+      1a      8
+      1b      8
+      1c      8
+      1d      8
+      1e      9
+      1f      9
+      20      9
+      21      9
+      22      9
+      23      9
+      24      9
+      25      9
+      26      9
+      27      9
+      28      10
+   }
+}
+
+Lines mapping:
+9 <-> 8
+10 <-> 9
+11 <-> 10
+12 <-> 11

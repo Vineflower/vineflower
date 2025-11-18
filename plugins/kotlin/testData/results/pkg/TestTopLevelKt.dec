@@ -1,56 +1,64 @@
 package pkg
 
-private int topLevelVar = 42;
-private Regex topLevelVal = new Regex("");
-public int topLevelConstVal = 926;
+public final var topLevelVar: Int = 42// 7
+   internal set
 
-fun topLevelFun() {
+public final val topLevelVal: Regex = new Regex("")// 9
+public const val topLevelConstVal: Int = 926
+
+public fun topLevelFun() {
 }// 5
 
-fun getTopLevelVar(): Int {
-   return topLevelVar;
-}
-
-fun setTopLevelVar(var0: Int) {
-   topLevelVar = var0;// 7
-}
-
-fun getTopLevelVal(): Regex {
-   return topLevelVal;// 9
-}
-
+public fun interpolateTopLevel() {
+   System.out.println("topLevelVar = ${topLevelVar}")// 14
+   System.out.println("topLevelConstVal = 926")// 15
+}// 16
 
 class 'pkg/TestTopLevelKt' {
+   method '<clinit> ()V' {
+      0      2
+      1      2
+      9      5
+      a      5
+   }
+
    method 'topLevelFun ()V' {
-      2      7
+      2      9
    }
 
-   method 'getTopLevelVar ()I' {
-      0      10
-      1      10
-      2      10
-      3      10
-   }
-
-   method 'setTopLevelVar (I)V' {
-      0      14
-      1      14
-      2      14
-      3      14
-      4      15
-   }
-
-   method 'getTopLevelVal ()Lkotlin/text/Regex;' {
-      0      18
-      1      18
-      2      18
-      3      18
+   method 'interpolateTopLevel ()V' {
+      0      12
+      1      12
+      2      12
+      3      12
+      4      12
+      5      12
+      6      12
+      7      12
+      8      12
+      9      12
+      a      12
+      c      12
+      d      12
+      e      12
+      f      13
+      10      13
+      11      13
+      12      13
+      13      13
+      15      13
+      16      13
+      17      13
+      18      14
    }
 }
 
 Lines mapping:
-5 <-> 8
-7 <-> 15
-9 <-> 19
+5 <-> 10
+7 <-> 3
+9 <-> 6
+14 <-> 13
+15 <-> 14
+16 <-> 15
 Not mapped:
 4

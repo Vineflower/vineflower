@@ -8,13 +8,18 @@ import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.SFormsConstructor;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.VarMapHolder;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute;
 import org.jetbrains.java.decompiler.struct.consts.LinkConstant;
+import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.FieldDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
+import org.jetbrains.java.decompiler.struct.gen.generics.GenericFieldDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.struct.match.MatchEngine;
 import org.jetbrains.java.decompiler.struct.match.MatchNode;
@@ -74,32 +79,39 @@ public class FieldExprent extends Exprent {
       cl = cl.superClass == null ? null : DecompilerContext.getStructContext().getClass((String)cl.superClass.value);
     }
 
-    if (ft != null && ft.getSignature() != null) {
-      VarType ret =  ft.getSignature().type.remap(types.getOrDefault(cl.qualifiedName, Collections.emptyMap()));
+    if (ft != null) {
+      GenericFieldDescriptor signature = ft.getSignature();
+      if (signature != null) {
+        signature.verifyType(cl.getSignature(), descriptor.type);
 
-      if (instance != null && cl.getSignature() != null) {
-        VarType instType = instance.getInferredExprType(null);
+        VarType ret = signature.type.remap(types.getOrDefault(cl.qualifiedName, Collections.emptyMap()));
 
-        if (instType.isGeneric() && instType.type != CodeConstants.TYPE_GENVAR) {
-          GenericType ginstance = (GenericType)instType;
+        if (instance != null && cl.getSignature() != null) {
+          VarType instType = instance.getInferredExprType(null);
 
-          cl = DecompilerContext.getStructContext().getClass(instType.value);
-          if (cl != null && cl.getSignature() != null) {
-            Map<VarType, VarType> tempMap = new HashMap<>();
-            cl.getSignature().genericType.mapGenVarsTo(ginstance, tempMap);
-            VarType _new = ret.remap(tempMap);
+          if (instType.isGeneric() && instType.type != CodeType.GENVAR) {
+            GenericType ginstance = (GenericType) instType;
 
-            if (_new != null) {
-              ret = _new;
+            cl = DecompilerContext.getStructContext().getClass(instType.value);
+            if (cl != null && cl.getSignature() != null) {
+              Map<VarType, VarType> tempMap = new HashMap<>();
+              cl.getSignature().genericType.mapGenVarsTo(ginstance, tempMap);
+              VarType _new = ret.remap(tempMap);
+
+              if (_new != null) {
+                ret = _new;
+              } else {
+                ret = descriptor.type;
+              }
             }
           }
         }
-      }
 
-      return ret;
+        return ret;
+      }
     }
 
-    return getExprType();
+    return descriptor.type;
   }
 
   @Override
@@ -109,8 +121,11 @@ public class FieldExprent extends Exprent {
     //+            int[] aint = this.field_225230_a;
     //+            int j1 = l + i1 * this.field_225231_b;
     //+            aint[j1] &= 16777215;
-    //return 0; // multiple references to a field considered dangerous in a multithreaded environment, thus no Exprent.MULTIPLE_USES set here
+//    return 0; // multiple references to a field considered dangerous in a multithreaded environment, thus no Exprent.MULTIPLE_USES set here
     return instance == null ? Exprent.MULTIPLE_USES : instance.getExprentUse() & Exprent.MULTIPLE_USES;
+    // getting a field could trigger classloading, so it's technically not pure.
+    // TODO: add a decompiler option?
+//    return instance == null ? Exprent.SIDE_EFFECTS_FREE : instance.getExprentUse() & Exprent.SIDE_EFFECTS_FREE;
   }
 
   @Override
@@ -188,7 +203,7 @@ public class FieldExprent extends Exprent {
           instance.setIsQualifier();
         }
         TextBuffer buff = new TextBuffer();
-        boolean casted = ExprProcessor.getCastedExprent(instance, new VarType(CodeConstants.TYPE_OBJECT, 0, classname), buff, indent, true);
+        boolean casted = ExprProcessor.getCastedExprent(instance, new VarType(CodeType.OBJECT, 0, classname), buff, indent, true);
 
         if (casted || instance.getPrecedence() > getPrecedence()) {
           buff.encloseWithParens();
@@ -285,6 +300,14 @@ public class FieldExprent extends Exprent {
       return false;
     }
     return super.allowNewlineAfterQualifier();
+  }
+
+  @Override
+  public void processSforms(SFormsConstructor sFormsConstructor, VarMapHolder varMaps, Statement stat, boolean calcLiveVars) {
+    if(this.instance != null) {
+      this.instance.processSforms(sFormsConstructor, varMaps, stat, calcLiveVars);
+    }
+    sFormsConstructor.fieldRead(this, varMaps.getNormal());
   }
 
   // *****************************************************************************

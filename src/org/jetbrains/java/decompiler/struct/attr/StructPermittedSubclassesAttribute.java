@@ -21,7 +21,7 @@ public class StructPermittedSubclassesAttribute extends StructGeneralAttribute {
   private final List<String> classes = new ArrayList<>();
 
   public List<String> getClasses() {
-    return Collections.unmodifiableList(classes);
+    return classes;
   }
 
   @Override

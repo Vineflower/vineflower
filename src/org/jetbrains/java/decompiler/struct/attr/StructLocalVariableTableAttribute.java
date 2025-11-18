@@ -120,7 +120,7 @@ public class StructLocalVariableTableAttribute extends StructGeneralAttribute {
     private String signature;
     private VarVersionPair version;
 
-    private LocalVariable(int start_pc, int length, String name, String descriptor, int index) {
+    public LocalVariable(int start_pc, int length, String name, String descriptor, int index) {
       this.start_pc = start_pc;
       this.length = length;
       this.name = name;

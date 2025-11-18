@@ -1,8 +1,8 @@
 package pkg
 
-class TestKt {
-   fun test() {
-      System.out.println("Hello, world!");// 5
+public class TestKt {
+   public fun test() {
+      System.out.println("Hello, world!")// 5
    }// 6
 }
 

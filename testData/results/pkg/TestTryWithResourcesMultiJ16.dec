@@ -8,13 +8,47 @@ import java.util.Scanner;
 public class TestTryWithResourcesMultiJ16 {
    public void testMulti(File file) throws IOException {
       try (
-         Scanner scanner = new Scanner(file);
+         Scanner scanner = new Scanner(file);// 10
          FileWriter writer = new FileWriter(file);
       ) {
          scanner.next();// 11
          writer.write("hello");// 12
       }
-   }// 10 13
+   }// 13
+
+   public void testMulti2(File file) throws IOException {
+      try (
+         Scanner scanner = new Scanner(file);// 17
+         FileWriter writer = new FileWriter(file);// 18
+      ) {
+         scanner.next();// 19
+         writer.write("hello");// 20
+      }
+   }// 22
+
+   public void testMulti2Fake(File file) throws IOException {
+      try (Scanner scanner = new Scanner(file)) {// 26
+         try (FileWriter writer = new FileWriter(file)) {// 27
+            scanner.next();// 28
+            writer.write("hello");// 29
+         } catch (Exception var9) {// 30
+         }
+      } catch (IOException var11) {// 32
+      }
+   }// 34
+
+   public void testMulti3(File file) throws IOException {
+      try (
+         Scanner scanner = new Scanner(file);// 37
+         FileWriter writer = new FileWriter(file);// 38
+      ) {
+         scanner.next();// 39
+         writer.write("hello");// 40
+         if (file == null) {// 42
+            System.out.println("??");// 43
+         }
+      }
+   }// 46
 }
 
 class 'pkg/TestTryWithResourcesMultiJ16' {
@@ -31,34 +65,109 @@ class 'pkg/TestTryWithResourcesMultiJ16' {
       18      14
       19      14
       1a      14
+      1b      14
+      1c      14
       3d      16
-      3e      16
-      3f      16
-      40      16
-      41      16
-      42      16
-      43      16
-      44      16
-      45      16
-      46      16
-      47      16
-      48      16
-      49      16
-      4a      16
-      4b      16
-      4c      16
-      4d      16
-      4e      16
-      4f      16
-      50      16
-      51      16
+   }
+
+   method 'testMulti2 (Ljava/io/File;)V' {
+      4      20
+      8      20
+      d      21
+      11      21
+      12      23
+      13      23
+      14      23
+      15      23
+      17      24
+      18      24
+      19      24
+      1a      24
+      1b      24
+      1c      24
+      3d      26
+   }
+
+   method 'testMulti2Fake (Ljava/io/File;)V' {
+      4      29
+      8      29
+      d      30
+      11      30
+      12      31
+      13      31
+      14      31
+      15      31
+      17      32
+      18      32
+      19      32
+      1a      32
+      1b      32
+      1c      32
+      3c      33
+      59      35
+      5a      37
+   }
+
+   method 'testMulti3 (Ljava/io/File;)V' {
+      4      41
+      8      41
+      d      42
+      11      42
+      12      44
+      13      44
+      14      44
+      15      44
+      17      45
+      18      45
+      19      45
+      1a      45
+      1b      45
+      1c      45
+      1d      46
+      1e      46
+      1f      46
+      20      46
+      21      47
+      22      47
+      23      47
+      24      47
+      25      47
+      26      47
+      27      47
+      28      47
+      49      50
    }
 }
 
 Lines mapping:
-10 <-> 17
+10 <-> 11
 11 <-> 14
 12 <-> 15
 13 <-> 17
+17 <-> 21
+18 <-> 22
+19 <-> 24
+20 <-> 25
+22 <-> 27
+26 <-> 30
+27 <-> 31
+28 <-> 32
+29 <-> 33
+30 <-> 34
+32 <-> 36
+34 <-> 38
+37 <-> 42
+38 <-> 43
+39 <-> 45
+40 <-> 46
+42 <-> 47
+43 <-> 48
+46 <-> 51
 Not mapped:
 14
+21
+23
+31
+33
+45
+47

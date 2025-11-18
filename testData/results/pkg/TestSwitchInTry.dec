@@ -1,0 +1,133 @@
+package pkg;
+
+import java.util.Arrays;
+import java.util.List;
+
+public class TestSwitchInTry {
+   public static List<String> method(String[] args) {
+      String ret = "";// 13
+
+      for (String arg : args) {// 14
+         try {
+            String var6 = arg;// 16
+            byte var7 = -1;
+            switch (var6.hashCode()) {
+               case 97:
+                  if (var6.equals("a")) {
+                     var7 = 0;
+                  }
+               default:
+                  switch (var7) {
+                     case 0:
+                        ret = "a";// 18
+                        return Arrays.asList(ret);// 24
+                     default:
+                        return Arrays.asList(ret);
+                  }
+            }
+         } catch (Exception var8) {// 21
+         }
+      }
+
+      return Arrays.asList(ret);
+   }
+}
+
+class 'pkg/TestSwitchInTry' {
+   method 'method ([Ljava/lang/String;)Ljava/util/List;' {
+      0      7
+      1      7
+      2      7
+      3      9
+      4      9
+      5      9
+      7      9
+      9      9
+      a      9
+      15      9
+      16      9
+      17      11
+      18      11
+      19      11
+      1a      11
+      1b      12
+      1c      12
+      1d      12
+      1e      13
+      1f      13
+      20      13
+      21      13
+      22      13
+      23      13
+      24      13
+      25      13
+      26      13
+      27      13
+      28      13
+      29      13
+      2a      13
+      2b      13
+      2c      13
+      2d      13
+      2e      13
+      2f      13
+      30      13
+      31      13
+      32      13
+      33      13
+      34      15
+      35      15
+      36      15
+      37      15
+      38      15
+      39      15
+      3a      15
+      3b      15
+      3c      15
+      3d      15
+      3e      16
+      3f      16
+      40      16
+      41      19
+      42      19
+      43      19
+      44      19
+      45      19
+      46      19
+      47      19
+      48      19
+      49      19
+      4a      19
+      4b      19
+      4c      19
+      4d      19
+      4e      19
+      4f      19
+      50      19
+      51      19
+      52      19
+      53      19
+      54      21
+      55      21
+      56      21
+      5a      27
+      5c      9
+      5d      9
+      5e      9
+      68      22
+      6a      22
+      6b      22
+      6c      22
+      6d      22
+   }
+}
+
+Lines mapping:
+13 <-> 8
+14 <-> 10
+16 <-> 12
+18 <-> 22
+21 <-> 28
+24 <-> 23
+Not mapped:
+20

@@ -13,10 +13,11 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.AssignmentExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.ExitExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectEdge;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectEdgeType;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNode;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
-import org.jetbrains.java.decompiler.modules.decompiler.sforms.SFormsConstructor;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.SSAConstructorSparseEx;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.SSAUConstructorSparseEx;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.SimpleSSAReassign;
@@ -142,7 +143,7 @@ public class FinallyProcessor {
 
       StackVarsProcessor.setVersionsToNull(root);
 
-      SFormsConstructor ssau = new SSAUConstructorSparseEx();
+      SSAUConstructorSparseEx ssau = new SSAUConstructorSparseEx();
       ssau.splitVariables(root, mt);
 
       this.ssuversions = ssau.getSsuVersions();
@@ -153,6 +154,11 @@ public class FinallyProcessor {
 
     BasicBlockStatement firstBlockStatement = fstat.getHandler().getBasichead();
     BasicBlock firstBasicBlock = firstBlockStatement.getBlock();
+
+    if (firstBasicBlock.getSeq().isEmpty()) {
+      return null;
+    }
+
     Instruction instrFirst = firstBasicBlock.getInstruction(0);
 
     int firstcode = 0;
@@ -191,8 +197,8 @@ public class FinallyProcessor {
       BasicBlockStatement blockStatement = null;
       if (node.block != null) {
         blockStatement = node.block;
-      } else if (node.preds().size() == 1) {
-        blockStatement = node.preds().get(0).block;
+      } else if (node.getPredecessors(DirectEdgeType.REGULAR).size() == 1) {
+        blockStatement = node.getPredecessors(DirectEdgeType.REGULAR).get(0).getSource().block;
       }
 
       boolean isTrueExit = true;
@@ -201,7 +207,18 @@ public class FinallyProcessor {
 
         isTrueExit = false;
 
-        for (int i = 0; i < node.exprents.size(); i++) {
+        // Try to find the "true path" of the finally block by searching for a relevant 'athrow <var>'.
+        // We should search from the initial expression of each block, except in the case where the block we're searching
+        // contains the relevant var itself, in which case we should search from the 2nd or 3rd expression, depending on
+        // the firstcode. This is because we might accidentally stumble into the same expression we were searching from,
+        // leading to a false failure of finally processing.
+        int startIdx = 0;
+        if (firstBlockStatement == node.block) {
+          // firstcode (only 0 or 2 here) determines which instruction to start from.
+          startIdx = firstcode == 2 ? 2 : 1;
+        }
+
+        for (int i = startIdx; i < node.exprents.size(); i++) {
           Exprent exprent = node.exprents.get(i);
 
           if (firstcode == 0) {
@@ -240,8 +257,8 @@ public class FinallyProcessor {
 
                 Exprent next = null;
                 if (i == node.exprents.size() - 1) {
-                  if (node.succs().size() == 1) {
-                    DirectNode nd = node.succs().get(0);
+                  if (node.getSuccessors(DirectEdgeType.REGULAR).size() == 1) {
+                    DirectNode nd = node.getSuccessors(DirectEdgeType.REGULAR).get(0).getDestination();
                     if (!nd.exprents.isEmpty()) {
                       next = nd.exprents.get(0);
                     }
@@ -286,7 +303,9 @@ public class FinallyProcessor {
         }
       }
 
-      stack.addAll(node.succs());
+      for (DirectEdge suc : node.getSuccessors(DirectEdgeType.REGULAR)) {
+        stack.add(suc.getDestination());
+      }
     }
 
     // empty finally block?
@@ -347,9 +366,9 @@ public class FinallyProcessor {
         // break out
         if (dest != graph.getLast() && !setCopy.contains(dest)) {
           // disable semaphore
-          SimpleInstructionSequence seq = new SimpleInstructionSequence();
-          seq.addInstruction(Instruction.create(CodeConstants.opc_bipush, false, CodeConstants.GROUP_GENERAL, bytecode_version, new int[]{0}, 1), -1);
-          seq.addInstruction(Instruction.create(CodeConstants.opc_istore, false, CodeConstants.GROUP_GENERAL, bytecode_version, new int[]{var}, store_length), -1);
+          InstructionSequence seq = new InstructionSequence();
+          seq.addInstruction(Instruction.create(CodeConstants.opc_bipush, false, CodeConstants.GROUP_GENERAL, bytecode_version, new int[]{0}, -1, 1));
+          seq.addInstruction(Instruction.create(CodeConstants.opc_istore, false, CodeConstants.GROUP_GENERAL, bytecode_version, new int[]{var}, -1, store_length));
 
           // build a separate block
           BasicBlock newblock = new BasicBlock(++graph.last_id);
@@ -377,9 +396,9 @@ public class FinallyProcessor {
     }
 
     // enable semaphore at the statement entrance
-    SimpleInstructionSequence seq = new SimpleInstructionSequence();
-    seq.addInstruction(Instruction.create(CodeConstants.opc_bipush, false, CodeConstants.GROUP_GENERAL, bytecode_version, new int[]{1}, 1), -1);
-    seq.addInstruction(Instruction.create(CodeConstants.opc_istore, false, CodeConstants.GROUP_GENERAL, bytecode_version, new int[]{var}, store_length), -1);
+    InstructionSequence seq = new InstructionSequence();
+    seq.addInstruction(Instruction.create(CodeConstants.opc_bipush, false, CodeConstants.GROUP_GENERAL, bytecode_version, new int[]{1}, -1, 1));
+    seq.addInstruction(Instruction.create(CodeConstants.opc_istore, false, CodeConstants.GROUP_GENERAL, bytecode_version, new int[]{var}, -1, store_length));
 
     BasicBlock newhead = new BasicBlock(++graph.last_id);
     newhead.setSeq(seq);
@@ -387,9 +406,9 @@ public class FinallyProcessor {
     insertBlockBefore(graph, head, newhead);
 
     // initialize semaphor with false
-    seq = new SimpleInstructionSequence();
-    seq.addInstruction(Instruction.create(CodeConstants.opc_bipush, false, CodeConstants.GROUP_GENERAL, bytecode_version, new int[]{0}, 1), -1);
-    seq.addInstruction(Instruction.create(CodeConstants.opc_istore, false, CodeConstants.GROUP_GENERAL, bytecode_version, new int[]{var}, store_length), -1);
+    seq = new InstructionSequence();
+    seq.addInstruction(Instruction.create(CodeConstants.opc_bipush, false, CodeConstants.GROUP_GENERAL, bytecode_version, new int[]{0}, -1, 1));
+    seq.addInstruction(Instruction.create(CodeConstants.opc_istore, false, CodeConstants.GROUP_GENERAL, bytecode_version, new int[]{var}, -1, store_length));
 
     BasicBlock newheadinit = new BasicBlock(++graph.last_id);
     newheadinit.setSeq(seq);
@@ -792,6 +811,7 @@ public class FinallyProcessor {
                                        List<int[]> lstStoreVars) {
     InstructionSequence seqPattern = pattern.getSeq();
     InstructionSequence seqSample = sample.getSeq();
+    List<Integer> instrOldOffsetsSample = sample.getInstrOldOffsets();
 
     if (type != 0) {
       seqPattern = seqPattern.clone();
@@ -828,12 +848,15 @@ public class FinallyProcessor {
     }
 
     if (seqPattern.length() < seqSample.length()) { // split in two blocks
-      SimpleInstructionSequence seq = new SimpleInstructionSequence();
+      InstructionSequence seq = new InstructionSequence();
       LinkedList<Integer> oldOffsets = new LinkedList<>();
       for (int i = seqSample.length() - 1; i >= seqPattern.length(); i--) {
-        seq.addInstruction(0, seqSample.getInstr(i), -1);
+        seq.addInstruction(0, seqSample.getInstr(i));
         oldOffsets.addFirst(sample.getOldOffset(i));
         seqSample.removeInstruction(i);
+        if (i < instrOldOffsetsSample.size()) {
+          instrOldOffsetsSample.remove(i);
+        }
       }
 
       BasicBlock newblock = new BasicBlock(++graph.last_id);
@@ -1020,25 +1043,30 @@ public class FinallyProcessor {
 
   private static void removeExceptionInstructionsEx(BasicBlock block, int blocktype, int finallytype) {
     InstructionSequence seq = block.getSeq();
+    List<Integer> instrOldOffsets = block.getInstrOldOffsets();
 
     if (finallytype == 3) { // empty finally handler
       for (int i = seq.length() - 1; i >= 0; i--) {
         seq.removeInstruction(i);
+        instrOldOffsets.remove(i);
       }
     } else {
       if ((blocktype & 1) > 0) { // first
         if (finallytype == 2 || finallytype == 1) { // astore or pop
           seq.removeInstruction(0);
+          instrOldOffsets.remove(0);
         }
       }
 
       if ((blocktype & 2) > 0) { // last
         if (finallytype == 2 || finallytype == 0) {
           seq.removeLast();
+          instrOldOffsets.remove(instrOldOffsets.size() - 1);
         }
 
         if (finallytype == 2) { // astore
           seq.removeLast();
+          instrOldOffsets.remove(instrOldOffsets.size() - 1);
         }
       }
     }
@@ -1137,7 +1165,7 @@ public class FinallyProcessor {
                 // remove store
                 exit.getSeq().removeLast();
                 // add return
-                exit.getSeq().addInstruction(nextSeq.getInstr(1), -1);
+                exit.getSeq().addInstruction(nextSeq.getInstr(1));
 
                 // Clear next exception range, mergeBasicBlocks will take care of it
                 nextSeq.clear();

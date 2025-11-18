@@ -8,7 +8,7 @@ public class TestLambdaGenericCall {
 
    public void test(List<String> list, Map<String, Number[]> map) {
       list.forEach(s -> {// 9
-         Number[] numbers = (Number[])map.get(s);// 10
+         Number[] numbers = map.get(s);// 10
          System.out.println(numbers[0]);// 12
       });// 13
    }// 14
@@ -19,7 +19,7 @@ public class TestLambdaGenericCall {
 
    public void test(List<String> list) {
       list.forEach(s -> {// 25
-         Number[] numbers = (Number[])this.map.get(s);// 26
+         Number[] numbers = this.map.get(s);// 26
          System.out.println(numbers[0]);// 28
       });// 29
    }// 30

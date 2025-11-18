@@ -13,8 +13,13 @@ public final class InlineSingleBlockHelper {
 
 
   public static boolean inlineSingleBlocks(RootStatement root) {
-
-    boolean res = inlineSingleBlocksRec(root);
+    // Make as much progress as possible
+    boolean res = false;
+    boolean progress = true;
+    while (progress) {
+      progress = inlineSingleBlocksRec(root);
+      res |= progress;
+    }
 
     if (res) {
       SequenceHelper.condenseSequences(root);

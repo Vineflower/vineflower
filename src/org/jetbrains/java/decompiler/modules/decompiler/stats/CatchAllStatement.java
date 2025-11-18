@@ -8,6 +8,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.DecHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
+import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
@@ -16,7 +17,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-public final class CatchAllStatement extends Statement {
+public class CatchAllStatement extends Statement {
 
   private Statement handler;
 
@@ -30,11 +31,11 @@ public final class CatchAllStatement extends Statement {
   // constructors
   // *****************************************************************************
 
-  private CatchAllStatement() {
+  protected CatchAllStatement() {
     super(StatementType.CATCH_ALL);
   }
 
-  private CatchAllStatement(Statement head, Statement handler) {
+  protected CatchAllStatement(Statement head, Statement handler) {
 
     this();
 
@@ -53,7 +54,7 @@ public final class CatchAllStatement extends Statement {
     }
     
     vars.add(new VarExprent(DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.VAR_COUNTER),
-                            new VarType(CodeConstants.TYPE_OBJECT, 0, "java/lang/Throwable"),
+                            new VarType(CodeType.OBJECT, 0, "java/lang/Throwable"),
                             DecompilerContext.getVarProcessor()));
   }
 
@@ -170,7 +171,7 @@ public final class CatchAllStatement extends Statement {
 
     if (!this.vars.isEmpty()) {
       cas.vars.add(new VarExprent(DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.VAR_COUNTER),
-                              new VarType(CodeConstants.TYPE_OBJECT, 0, "java/lang/Throwable"),
+                              new VarType(CodeType.OBJECT, 0, "java/lang/Throwable"),
                               DecompilerContext.getVarProcessor()));
     }
 

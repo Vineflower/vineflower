@@ -32,10 +32,6 @@ public class ConsoleDecompiler implements /* IBytecodeProvider, */ IResultSaver,
 
   @SuppressWarnings("UseOfSystemOutOrSystemErr")
   public static void main(String[] args) {
-//    if (GuiHelp.check()) {
-//      return;
-//    }
-
     List<String> params = new ArrayList<String>();
     for (int x = 0; x < args.length; x++) {
       if (args[x].startsWith("-cfg")) {
@@ -73,10 +69,16 @@ public class ConsoleDecompiler implements /* IBytecodeProvider, */ IResultSaver,
       return;
     }
 
+    if (Arrays.stream(args).anyMatch(arg -> arg.equals("--list-plugins"))) {
+      ConsoleHelp.printPlugins();
+      return;
+    }
+
     if (args.length < 1) {
       System.out.println(
-        "Usage: java -jar vineflower.jar [--<option>=<value>]* [<source>]+ <destination>\n" +
-        "Example: java -jar vineflower.jar --decompile-generics c:\\my\\source\\ c:\\my.jar d:\\decompiled\\\n" +
+        "=== Vineflower Decompiler " + version() + " ===\n\n" +
+        "Usage: java -jar vineflower.jar --<option>=<value>... <source>... <destination>\n" +
+        "Example: java -jar vineflower.jar --decompile-generics ./MyJar.jar ./out_files\n\n" +
         "Use -h or --help for more information.");
       return;
     }
@@ -88,7 +90,7 @@ public class ConsoleDecompiler implements /* IBytecodeProvider, */ IResultSaver,
 
     SaveType userSaveType = null;
     boolean isOption = true;
-    int nonOption = 0;
+    String lastPath = null;
     for (int i = 0; i < args.length; ++i) { // last parameter - destination
       String arg = args[i];
 
@@ -120,26 +122,33 @@ public class ConsoleDecompiler implements /* IBytecodeProvider, */ IResultSaver,
       if (isOption && arg.length() > 5 && arg.startsWith("-")) {
         parsed = OptionParser.parse(arg, mapOptions);
       }
-      if (!parsed) {
-        nonOption++;
-        // Don't process this, as it is the output
-        if (nonOption > 1 && i == args.length - 1) {
-          break;
-        }
 
+      if (!parsed) {
         isOption = false;
 
-        if (arg.startsWith("-e=") || arg.startsWith("--add-external=")) {
-          addPath(libraries, arg.substring(arg.indexOf('=') + 1));
-        }
-        else if (arg.startsWith("-only=") || arg.startsWith("--only=")) {
-          whitelist.add(arg.substring(arg.indexOf('=') + 1));
-        }
-        else {
-          addPath(sources, arg);
+        if (arg.equals("-s") || arg.equals("--silent")) {
+          mapOptions.put(IFernflowerPreferences.LOG_LEVEL, "error");
+        } else if (arg.startsWith("-e=") || arg.startsWith("--add-external=")) {
+          for (String path : arg.substring(arg.indexOf('=') + 1).split(",")) {
+            addPath(libraries, path);
+          }
+        } else if (arg.startsWith("-only=") || arg.startsWith("--only=")) {
+          whitelist.addAll(Arrays.asList(arg.substring(arg.indexOf('=') + 1).split(",")));
+        } else {
+          if (lastPath != null) {
+            addPath(sources, lastPath);
+          }
+          lastPath = arg;
         }
       }
     }
+
+    if (sources.isEmpty() && lastPath != null) {
+      // Only one path given; must be the source
+      addPath(sources, lastPath);
+      lastPath = null;
+    }
+    // Otherwise, the last path given is the destination
 
     if (sources.isEmpty()) {
       System.out.println("error: no sources given");
@@ -149,11 +158,9 @@ public class ConsoleDecompiler implements /* IBytecodeProvider, */ IResultSaver,
     SaveType saveType = SaveType.CONSOLE;
 
     File destination = new File("."); // Dummy value, when '.' we will be printing to console
-    if (nonOption > 1) {
-      String name = args[args.length - 1];
-
+    if (lastPath != null) {
       saveType = SaveType.FOLDER;
-      destination = new File(name);
+      destination = new File(lastPath);
 
       if (userSaveType == null) {
         if (destination.getName().contains(".zip") || destination.getName().contains(".jar")) {
@@ -184,7 +191,11 @@ public class ConsoleDecompiler implements /* IBytecodeProvider, */ IResultSaver,
       decompiler.addWhitelist(prefix);
     }
 
-    decompiler.decompileContext();
+    try {
+      decompiler.decompileContext();
+    } catch (CancelationManager.CanceledException e) {
+      System.out.println("Decompilation canceled");
+    }
   }
 
   @SuppressWarnings("UseOfSystemOutOrSystemErr")
@@ -429,5 +440,10 @@ public class ConsoleDecompiler implements /* IBytecodeProvider, */ IResultSaver,
     public Function<File, IResultSaver> getSaver() {
       return saver;
     }
+  }
+
+  public static String version() {
+    String ver = ConsoleDecompiler.class.getPackage().getImplementationVersion();
+    return ver == null ? "<UNK>" : ver;
   }
 }

@@ -30,13 +30,17 @@ public abstract class StructMember {
     return accessFlags;
   }
 
-  public <T extends StructGeneralAttribute> T getAttribute(Key<?> attribute) {
+  public <T extends StructGeneralAttribute> T getAttribute(Key<T> attribute) {
     @SuppressWarnings("unchecked") T t = (T)attributes.get(attribute.name);
     return t;
   }
 
   public boolean hasAttribute(Key<?> attribute) {
     return attributes.containsKey(attribute.name);
+  }
+
+  public Map<String, StructGeneralAttribute> getAttributes() {
+    return attributes;
   }
 
   public boolean hasModifier(int modifier) {

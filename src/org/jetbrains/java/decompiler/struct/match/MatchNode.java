@@ -58,12 +58,15 @@ public class MatchNode {
 
   public boolean iterateRules(BiFunction<MatchProperties, RuleValue, Boolean> consumer) {
     // Make sure that the iterator succeeds for every rule in the map
-    return rules
-      .entrySet()
-      .stream()
-      .allMatch(e -> e.getValue()
-        .stream()
-        .allMatch(rule -> consumer.apply(e.getKey(), rule)));
+    for (Map.Entry<MatchProperties, List<RuleValue>> e : rules.entrySet()) {
+      for (RuleValue rule : e.getValue()) {
+        if (!consumer.apply(e.getKey(), rule)) {
+          return false;
+        }
+      }
+    }
+
+    return true;
   }
 
   public RuleValue getRawRule(MatchProperties property) {

@@ -1,15 +1,13 @@
 package org.vineflower.kotlin.pass;
 
-import org.jetbrains.java.decompiler.api.passes.Pass;
-import org.jetbrains.java.decompiler.api.passes.PassContext;
-import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
+import org.jetbrains.java.decompiler.api.plugin.pass.Pass;
+import org.jetbrains.java.decompiler.api.plugin.pass.PassContext;
 import org.jetbrains.java.decompiler.modules.decompiler.PPandMMHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.StackVarsProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructMethod;
-import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 
 public class StackVarInitialPass implements Pass {
   @Override

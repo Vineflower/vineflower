@@ -4,9 +4,9 @@ public class TestNestedFor {
    public int test(int x) {
       int out = x;
 
-      for (int j = x; j < 20; ++j) {// 7
-         for (int i = out = this.accept(0); i < 10; ++i) {// 8
-            ++out;// 9
+      for (int j = x; j < 20; j++) {// 7
+         for (int i = out = this.accept(0); i < 10; i++) {// 8
+            out++;// 9
          }
       }
 
@@ -27,6 +27,8 @@ class 'pkg/TestNestedFor' {
       5      6
       6      6
       7      6
+      8      6
+      9      6
       a      7
       b      7
       c      7
@@ -40,6 +42,8 @@ class 'pkg/TestNestedFor' {
       15      7
       16      7
       17      7
+      18      7
+      19      7
       1a      8
       1b      8
       1c      8

@@ -1,6 +1,7 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.struct;
 
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.code.BytecodeVersion;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
@@ -206,9 +207,17 @@ public class StructClass extends StructMember {
   /**
    * @return list of record components; null if this class is not a record
    */
-  public List<StructRecordComponent> getRecordComponents() {
+  public @Nullable List<StructRecordComponent> getRecordComponents() {
     StructRecordAttribute recordAttr = getAttribute(StructGeneralAttribute.ATTRIBUTE_RECORD);
-    if (recordAttr == null) return null;
+    if (recordAttr == null) {
+      // If our class extends j.l.Record but also has no components, it's probably malformed.
+      // Force processing as a record anyway, in the hopes that we can come to a better result.
+      if (this.superClass != null && this.superClass.getString().equals("java/lang/Record")) {
+        return new ArrayList<>();
+      }
+
+      return null;
+    }
     return recordAttr.getComponents();
   }
 
@@ -337,29 +346,5 @@ public class StructClass extends StructMember {
 
     this.genericHiarachy = ret.isEmpty() ? Collections.emptyMap() : ret;
     return this.genericHiarachy;
-  }
-
-  private List<StructClass> superClasses;
-  public List<StructClass> getAllSuperClasses() {
-    if (superClasses != null) {
-      return superClasses;
-    }
-
-    List<StructClass> classList = new ArrayList<>();
-    StructContext context = DecompilerContext.getStructContext();
-
-    if (this.superClass != null) {
-      StructClass cl = context.getClass(this.superClass.getString());
-      while (cl != null) {
-        classList.add(cl);
-        if (cl.superClass == null) {
-          break;
-        }
-        cl = context.getClass(cl.superClass.getString());
-      }
-    }
-
-    superClasses = classList;
-    return superClasses;
   }
 }

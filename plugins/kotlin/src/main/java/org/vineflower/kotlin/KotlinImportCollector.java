@@ -1,12 +1,21 @@
 package org.vineflower.kotlin;
 
+import org.jetbrains.java.decompiler.main.ClassesProcessor;
+import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.ImportCollector;
+import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
+import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
+import org.jetbrains.java.decompiler.struct.StructContext;
 import org.jetbrains.java.decompiler.util.TextBuffer;
+import org.vineflower.kotlin.util.KTypes;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-public class KotlinImportCollector {
-  private static final String[] AUTO_KOTLIN_IMPORTS = {
+public class KotlinImportCollector extends ImportCollector {
+  public static final String[] AUTO_KOTLIN_IMPORTS = {
     "annotation",
     "collections",
     "comparisons",
@@ -17,45 +26,48 @@ public class KotlinImportCollector {
     "text",
   };
 
-  private final ImportCollector parent;
-
   public KotlinImportCollector(ImportCollector parent) {
-    this.parent = parent;
+    super(parent);
+
+    // Any class that Kotlin "overrides" requires explicit non-imported references
+    for (String className : KTypes.KOTLIN_TO_JAVA_LANG.keySet()) {
+      String simpleName = className.substring(className.lastIndexOf('/') + 1);
+      String packageName = className.substring(0, className.lastIndexOf('/')).replace('/', '.');
+      if (!mapSimpleNames.containsKey(simpleName)) {
+        mapSimpleNames.put(simpleName, packageName);
+      }
+    }
+
+    for (String className : KTypes.KOTLIN_TO_JAVA_UTIL.keySet()) {
+      String simpleName = className.substring(className.lastIndexOf('/') + 1);
+      String packageName = className.substring(0, className.lastIndexOf('/')).replace('/', '.');
+      if (!mapSimpleNames.containsKey(simpleName)) {
+        mapSimpleNames.put(simpleName, packageName);
+      }
+    }
   }
 
-  public void writeImports(TextBuffer buffer, boolean addSeparator) {
-    TextBuffer buf = new TextBuffer();
-    parent.writeImports(buf, false);
-    String[] imports = buf.convertToStringAndAllowDataDiscard().split("\n");
-    boolean imported = false;
-    for (String line : imports) {
-      if (line.isBlank()) {
-        continue;
-      }
-      line = line.trim();
-      String importLine = line.substring(7, line.length() - 1);
-      String[] parts = importLine.split("\\.");
-
-      // Don't include automatic kotlin imports
-      if (parts.length == 2 && parts[0].equals("kotlin")) {
-        continue;
-      } else if (parts.length == 3 && parts[0].equals("kotlin") && Arrays.binarySearch(AUTO_KOTLIN_IMPORTS, parts[1]) >= 0) {
-        continue;
-      }
-
-      buffer.append("import ");
-      boolean first = true;
-      for (String part : parts) {
-        if (!first) {
-          buffer.append(".");
-        }
-        first = false;
-        buffer.append(KotlinWriter.toValidKotlinIdentifier(part));
-      }
-      buffer.appendLineSeparator();
-      imported = true;
+  @Override
+  protected boolean keepImport(Map.Entry<String, String> ent) {
+    if (!super.keepImport(ent)) return false;
+    if (ent.getValue().equals("kotlin")) return false;
+    for (String autoImport : AUTO_KOTLIN_IMPORTS) {
+      if (ent.getValue().equals("kotlin." + autoImport)) return false;
     }
-    if (imported && addSeparator) {
+    return true;
+  }
+
+  @Override
+  public void writeImports(TextBuffer buffer, boolean addSeparator) {
+    if (DecompilerContext.getOption(IFernflowerPreferences.REMOVE_IMPORTS)) {
+      return;
+    }
+
+    List<String> imports = packImports();
+    for (String imp : imports) {
+      buffer.append("import ").append(imp).appendLineSeparator();
+    }
+    if (addSeparator && !imports.isEmpty()) {
       buffer.appendLineSeparator();
     }
   }

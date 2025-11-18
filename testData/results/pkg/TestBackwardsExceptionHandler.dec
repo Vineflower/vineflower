@@ -27,6 +27,8 @@ public class TestBackwardsExceptionHandler {
 class 'pkg/TestBackwardsExceptionHandler' {
    method 'testExtraReturn (I)V' {
       3      9
+      4      9
+      5      9
       6      6
       7      6
       8      6
@@ -38,6 +40,8 @@ class 'pkg/TestBackwardsExceptionHandler' {
 
    method 'test (I)V' {
       3      20
+      4      20
+      5      20
       6      17
       7      17
       8      17

@@ -19,4 +19,8 @@ public class StructConstantValueAttribute extends StructGeneralAttribute {
   public int getIndex() {
     return index;
   }
+
+  public void setIndex(int index) {
+    this.index = index;
+  }
 }

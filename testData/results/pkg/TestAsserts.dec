@@ -19,12 +19,18 @@ class 'pkg/TestAsserts' {
       8      6
       9      6
       a      6
+      b      6
+      c      6
       1b      8
       1c      8
       1d      8
+      1e      8
+      1f      8
       20      8
       21      8
       22      8
+      23      8
+      24      8
       2d      10
       2e      10
    }

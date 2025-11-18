@@ -12,7 +12,7 @@ public class TestWhileIterator {
 
       while (it1.hasNext() && it2.hasNext()) {// 13
          if (it1.next().equals(it2.next())) {// 14
-            ++i;// 15
+            i++;// 15
          }
       }
 
@@ -47,6 +47,8 @@ class 'pkg/TestWhileIterator' {
       16      12
       17      12
       18      12
+      19      12
+      1a      12
       1b      12
       1c      12
       1d      12
@@ -55,6 +57,8 @@ class 'pkg/TestWhileIterator' {
       20      12
       21      12
       22      12
+      23      12
+      24      12
       25      13
       26      13
       27      13
@@ -72,6 +76,8 @@ class 'pkg/TestWhileIterator' {
       33      13
       34      13
       35      13
+      36      13
+      37      13
       38      14
       39      14
       3a      14

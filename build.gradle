@@ -1,12 +1,15 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 
-import org.jetbrains.java.decompiler.build.JasmCompile
+import org.vineflower.build.JasmCompile
+import org.vineflower.build.TestDataRuntimesProvider
+
+import java.time.Duration
 
 plugins {
   id 'jacoco'
-  id 'com.github.johnrengelman.shadow' version '7.1.2'
-  id 'org.jetbrains.kotlin.jvm' version '1.6.21'
-  id("io.github.gradle-nexus.publish-plugin") version '1.3.0'
+  id 'com.gradleup.shadow' version '8.3.8'
+  id 'org.jetbrains.kotlin.jvm' version '2.0.0'
+  id 'io.github.gradle-nexus.publish-plugin' version '2.0.0'
 }
 
 apply plugin: 'jacoco'
@@ -17,17 +20,19 @@ apply plugin: 'maven-publish'
 apply plugin: 'signing'
 
 allprojects {
+  apply plugin: 'com.gradleup.shadow'
   apply plugin: 'java'
+  ext.isArm = System.getProperty('os.arch') == 'aarch64'
 
-  group = 'org.quiltmc'
+  group = 'org.vineflower'
 
   compileJava {
-    sourceCompatibility = '11'
-    targetCompatibility = '11'
+    sourceCompatibility = '17'
+    targetCompatibility = '17'
   }
 
   java.toolchain {
-    languageVersion = JavaLanguageVersion.of(11)
+    languageVersion = JavaLanguageVersion.of(17)
   }
 
   repositories {
@@ -37,6 +42,7 @@ allprojects {
   dependencies {
     implementation 'org.jetbrains:annotations:24.0.0'
     testImplementation("org.junit.jupiter:junit-jupiter-api:${project.junit_bom}")
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${project.junit_bom}")
   }
 
@@ -50,9 +56,9 @@ allprojects {
 }
 
 group = 'org.vineflower'
-archivesBaseName = 'vineflower'
+base.archivesName = 'vineflower'
 
-version = '1.10.0'
+version = '1.12.0'
 
 def ENV = System.getenv()
 version = version + (ENV.GITHUB_ACTIONS ? "" : "+local")
@@ -113,9 +119,19 @@ void createJavaTestDataSet(int version, String suffix = "", List<String> compile
   }
   tasks.getByName("compileTestDataJava${version}${suffix}Java") {
     destinationDirectory = file("testData/classes/java${version}${suffix.toLowerCase()}")
-    javaCompiler = javaToolchains.compilerFor {
-      languageVersion = JavaLanguageVersion.of(version)
+    if (project.isArm && version > 8 && version < 11) {
+      // On ARM systems, a more limited set of JVM versions are available
+      // We'll accept the `--release` flag so development is at least somewhat possible
+      javaCompiler = javaToolchains.compilerFor {
+        languageVersion = JavaLanguageVersion.of(11)
+      }
+      options.release = version
+    } else {
+      javaCompiler = javaToolchains.compilerFor {
+        languageVersion = JavaLanguageVersion.of(version)
+      }
     }
+
     options.compilerArgs = compilerArgs
   }
   testDataClasses.dependsOn("testDataJava${version}${suffix}Classes")
@@ -123,13 +139,14 @@ void createJavaTestDataSet(int version, String suffix = "", List<String> compile
 
 def testJavaRuntimes = [:]
 
-[8, 9, 11, 16, 17].forEach { version -> 
+[8, 9, 11, 16, 17, 21].forEach { version ->
+    def runtimeVersion = isArm && version > 8 && version < 11 ? 11 : version
     createJavaTestDataSet(version)
     testJavaRuntimes[version] = javaToolchains.launcherFor {
-        languageVersion = JavaLanguageVersion.of(version)
+        languageVersion = JavaLanguageVersion.of(runtimeVersion)
     }
 }
-[16, 17, 19].forEach { version -> createJavaTestDataSet(version, "Preview", ["--enable-preview"]) }
+[16, 17, 21].forEach { version -> createJavaTestDataSet(version, "Preview", ["--enable-preview"]) }
 [8, 16].forEach { version -> createJavaTestDataSet(version, "NoDebug", ["-g:none"])}
 
 task compileTestDataJasm(type: JasmCompile) {
@@ -158,25 +175,6 @@ compileTestDataScalaScala {
 }
 testDataClasses.dependsOn(testDataScalaClasses)
 
-class TestDataRuntimesProvider implements CommandLineArgumentProvider {
-    @Nested
-    final MapProperty<String, JavaLauncher> launchers
-    
-    @Inject
-    TestDataRuntimesProvider(final ObjectFactory objects) {
-        this.launchers = objects.mapProperty(Integer, JavaLauncher)
-    }
-     
-    @Override
-    Iterable<String> asArguments() {
-        def result = []
-        this.launchers.get().each { k, v ->
-            result << "-Djava.${k}.home=${v.metadata.installationPath.asFile.absolutePath}"
-        }
-        return result
-    }
-}
-
 test {
   maxHeapSize = "512M"
 
@@ -189,6 +187,9 @@ test {
       provider.launchers.put(k, v)
   }
   jvmArgumentProviders << provider
+
+  // Always run tests
+  outputs.upToDateWhen { false }
 }
 
 jar {
@@ -204,13 +205,16 @@ jar {
   }
 }
 
-task sourceJar(type:Jar) {
-  archiveClassifier = "sources"
-  from sourceSets.main.allSource
+// If testFixtures can't be inferred from the build path, it'll need to be manually specified to be able to find
+// the test fixtures class. Put it in a unique place to mark it as such.
+testFixturesJar {
+  destinationDirectory = file("$rootDir/build/extralibs")
 }
 
-tasks.withType(Javadoc) {
-  failOnError false
+tasks.withType(Javadoc).configureEach {
+  failOnError = false
+  include 'org/jetbrains/java/decompiler/api/**'
+  include 'org/jetbrains/java/decompiler/main/extern/**'
   options.addStringOption('Xdoclint:none', '-quiet')
   options.addStringOption('encoding', 'UTF-8')
   options.addStringOption('charSet', 'UTF-8')
@@ -221,12 +225,13 @@ java {
   withJavadocJar()
 }
 
-tasks.withType(Jar) {
+tasks.withType(Jar).configureEach {
   reproducibleFileOrder = true
   preserveFileTimestamps = false
 }
 
 def allJar = tasks.register('allJar', Jar) {allJar ->
+  group = 'build'
   archiveClassifier.set('')
   from sourceSets.main.output
 
@@ -239,9 +244,21 @@ def allJar = tasks.register('allJar', Jar) {allJar ->
   }
 
   subprojects.each {
-    allJar.from(it.tasks.named(it.plugins.hasPlugin('com.github.johnrengelman.shadow') ? 'shadowJar' : 'jar').get().outputs) {
+    // Check if gradle.properties has 'does_shadow=true', and use the shadowJar configuration if so
+    Task buildTask = it.tasks.named("true".equals(it.does_shadow) ? 'shadowJar' : 'jar').get()
+    // Make sure the task is defined as a dependency
+    dependsOn buildTask
+    // Relocate the jar into META-INF/plugins
+    allJar.from(buildTask.outputs) {
       into 'META-INF/plugins/'
     }
+  }
+}
+
+subprojects {
+  Jar buildTask = it.tasks.named("true".equals(it.does_shadow) ? 'shadowJar' : 'jar').get() as Jar
+  buildTask.configure {
+    entryCompression = ZipEntryCompression.STORED
   }
 }
 
@@ -279,7 +296,12 @@ publishing {
         }
       }
 
-      from components.java
+      // VF-only jar
+      artifact jar
+      // Jar with included plugins
+      artifact allJar
+      artifact sourcesJar
+      artifact javadocJar
     }
   }
 }
@@ -290,16 +312,23 @@ nexusPublishing {
       username = ENV.SONATYPE_USER
       password = ENV.SONATYPE_PASS
 
-      nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
-      snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
+      nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
+      snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
     }
   }
+
+  // nexus is eepy, give her time to respond
+  def timeout = Duration.ofMinutes(6)
+  clientTimeout = timeout
+  connectTimeout = timeout
 }
 
 signing {
-  def signingKey = ENV.SIGNING_KEY
-  def signingPassword = ENV.SIGNING_KEY_PASSPHRASE
+  if (ENV.SIGNING_KEY) {
+    def signingKey = ENV.SIGNING_KEY
+    def signingPassword = ENV.SIGNING_KEY_PASSPHRASE
 
-  useInMemoryPgpKeys(signingKey, signingPassword)
-  sign publishing.publications.mavenJava
+    useInMemoryPgpKeys(signingKey, signingPassword)
+    sign publishing.publications.mavenJava
+  }
 }

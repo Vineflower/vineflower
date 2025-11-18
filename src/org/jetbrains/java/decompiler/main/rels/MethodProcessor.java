@@ -2,13 +2,15 @@
 package org.jetbrains.java.decompiler.main.rels;
 
 import org.jetbrains.java.decompiler.api.java.JavaPassLocation;
-import org.jetbrains.java.decompiler.api.language.LanguageSpec;
-import org.jetbrains.java.decompiler.api.passes.PassContext;
+import org.jetbrains.java.decompiler.api.plugin.LanguageSpec;
+import org.jetbrains.java.decompiler.api.plugin.pass.PassContext;
 import org.jetbrains.java.decompiler.code.CodeConstants;
-import org.jetbrains.java.decompiler.code.InstructionSequence;
+import org.jetbrains.java.decompiler.code.FullInstructionSequence;
 import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
+import org.jetbrains.java.decompiler.code.cfg.ExceptionRangeCFG;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
+import org.jetbrains.java.decompiler.main.decompiler.CancelationManager;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.plugins.PluginContext;
@@ -67,6 +69,9 @@ public class MethodProcessor implements Runnable {
       DecompilerContext.setCurrentContext(parentContext);
       root = codeToJava(klass, method, methodDescriptor, varProc, spec);
     }
+    catch (CancelationManager.CanceledException e) {
+      throw e;
+    }
     catch (Throwable t) {
       error = t;
     }
@@ -81,6 +86,8 @@ public class MethodProcessor implements Runnable {
   }
 
   public static RootStatement codeToJava(StructClass cl, StructMethod mt, MethodDescriptor md, VarProcessor varProc, LanguageSpec spec) throws IOException {
+    CancelationManager.checkCanceled();
+
     debugCurrentlyDecompiling.set(null);
     debugCurrentCFG.set(null);
     debugCurrentDecompileRecord.set(null);
@@ -89,7 +96,7 @@ public class MethodProcessor implements Runnable {
     PluginContext pluginContext = PluginContext.getCurrentContext();
 
     mt.expandData(cl);
-    InstructionSequence seq = mt.getInstructionSequence();
+    FullInstructionSequence seq = mt.getInstructionSequence();
     ControlFlowGraph graph = new ControlFlowGraph(seq);
     debugCurrentCFG.set(graph);
     DotExporter.toDotFile(graph, mt, "cfgConstructed", true);
@@ -131,7 +138,6 @@ public class MethodProcessor implements Runnable {
     DecompilerContext.getCounterContainer().setCounter(CounterContainer.VAR_COUNTER, mt.getLocalVariables());
 
     if (ExceptionDeobfuscator.hasObfuscatedExceptions(graph)) {
-      DecompilerContext.getLogger().writeMessage("Heavily obfuscated exception ranges found!", IFernflowerLogger.Severity.WARN);
       DotExporter.toDotFile(graph, mt, "cfgExceptionsPre", true);
 
       if (!ExceptionDeobfuscator.handleMultipleEntryExceptionRanges(graph)) {
@@ -184,7 +190,14 @@ public class MethodProcessor implements Runnable {
       debugCurrentlyDecompiling.set(root);
     }
 
-    decompileRecord.add("ProcessFinally_Post", root);
+    // In rare cases, the final round of finally processing can reveal another synchronized statement. Try to parse it now.
+    if (DomHelper.buildSynchronized(root)) {
+      decompileRecord.add("BuildFinallySynchronized", root);
+    }
+
+    if (finallyProcessed > 0) {
+      decompileRecord.add("ProcessFinally_Post", root);
+    }
 
     // remove synchronized exception handler
     // not until now because of comparison between synchronized statements in the finally cycle
@@ -292,10 +305,21 @@ public class MethodProcessor implements Runnable {
       LabelHelper.identifyLabels(root);
       decompileRecord.add("IdentifyLabels", root);
 
+      // Apply post processing transformations
+      if (SecondaryFunctionsHelper.identifySecondaryFunctions(root, varProc)) {
+        decompileRecord.add("IdentifySecondary", root);
+        continue;
+      }
+
+      if (IntersectionCastProcessor.makeIntersectionCasts(root)) {
+        decompileRecord.add("intersectionCasts", root);
+        continue;
+      }
+
       if (DecompilerContext.getOption(IFernflowerPreferences.PATTERN_MATCHING)) {
         if (cl.getVersion().hasIfPatternMatching()) {
           if (IfPatternMatchProcessor.matchInstanceof(root)) {
-            decompileRecord.add("MatchIfInstanceof", root);
+            decompileRecord.add("MatchIfPatterns", root);
             continue;
           }
         }
@@ -345,16 +369,17 @@ public class MethodProcessor implements Runnable {
       }
 
       // initializer may have at most one return point, so no transformation of method exits permitted
-      if (isInitializer || !ExitHelper.condenseExits(root)) {
-        break;
-      } else {
+      if (!isInitializer && ExitHelper.condenseExits(root)) {
         decompileRecord.add("CondenseExits", root);
+        continue;
       }
 
       // FIXME: !!
-      //if(!EliminateLoopsHelper.eliminateLoops(root)) {
-      //  break;
+      //if(EliminateLoopsHelper.eliminateLoops(root)) {
+      //  continue;
       //}
+
+      break;
     }
     decompileRecord.resetMainLoop();
     decompileRecord.add("MainLoopEnd", root);

@@ -35,4 +35,8 @@ public class StructExceptionsAttribute extends StructGeneralAttribute {
   public List<Integer> getThrowsExceptions() {
     return throwsExceptions;
   }
+
+  public void setThrowsExceptions(List<Integer> throwsExceptions) {
+    this.throwsExceptions = throwsExceptions;
+  }
 }

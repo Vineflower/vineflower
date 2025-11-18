@@ -1,7 +1,6 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
-import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
@@ -10,6 +9,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.struct.attr.StructExceptionsAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
+import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.match.MatchEngine;
@@ -51,9 +51,9 @@ public class ExitExprent extends Exprent {
   public CheckTypesResult checkExprTypeBounds() {
     CheckTypesResult result = new CheckTypesResult();
 
-    if (exitType == Type.RETURN && retType.type != CodeConstants.TYPE_VOID) {
-      result.addMinTypeExprent(value, VarType.getMinTypeInFamily(retType.typeFamily));
-      result.addMaxTypeExprent(value, retType);
+    if (exitType == Type.RETURN && retType.type != CodeType.VOID) {
+      result.addExprLowerBound(value, VarType.findFamilyBottom(retType.typeFamily));
+      result.addExprUpperBound(value, retType);
     }
 
     return result;
@@ -75,7 +75,7 @@ public class ExitExprent extends Exprent {
     if (exitType == Type.RETURN) {
       buf.append("return");
 
-      if (retType.type != CodeConstants.TYPE_VOID) {
+      if (retType.type != CodeType.VOID) {
         VarType ret = retType;
         if (methodDescriptor != null && methodDescriptor.genericInfo != null && methodDescriptor.genericInfo.returnType != null) {
           ret = methodDescriptor.genericInfo.returnType;
@@ -88,8 +88,8 @@ public class ExitExprent extends Exprent {
       return buf;
     }
     else {
-      MethodWrapper method = (MethodWrapper)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
-      ClassNode node = ((ClassNode)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE));
+      MethodWrapper method = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
+      ClassNode node = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
 
       if (method != null && node != null) {
         StructExceptionsAttribute attr = method.methodStruct.getAttribute(StructGeneralAttribute.ATTRIBUTE_EXCEPTIONS);

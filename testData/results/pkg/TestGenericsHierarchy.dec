@@ -14,9 +14,9 @@ public class TestGenericsHierarchy<T extends Number> {
          list2 = list;// 15
       }
 
-      V v1 = list.get(0);// 18
-      T v2 = list2.get(0);// 19
-      list3.add(list2.get(0));// 21
+      V v1 = (V)list.get(0);// 18
+      T v2 = (T)list2.get(0);// 19
+      list3.add((T)list2.get(0));// 21
       this.field = (T)v;// 23
       this.setField((T)v);// 24
    }// 25
@@ -34,6 +34,8 @@ class 'pkg/TestGenericsHierarchy' {
       18      11
       19      12
       1a      12
+      1b      12
+      1c      12
       1d      13
       1e      13
       1f      16

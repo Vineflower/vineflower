@@ -4,7 +4,7 @@ import java.util.function.Supplier;
 
 public class TestTryReturnNoDebug {
    public String test1(Supplier<Boolean> var1) {
-      Object var2 = null;
+      String var2 = null;
 
       try {
          var2 = var1.toString();
@@ -12,7 +12,7 @@ public class TestTryReturnNoDebug {
          throw new RuntimeException("Catch");
       }
 
-      return this.process((String)var2);
+      return this.process(var2);
    }
 
    public String test2(Supplier<Boolean> var1) {
@@ -72,6 +72,8 @@ class 'pkg/TestTryReturnNoDebug' {
       1b      22
       1c      22
       1d      22
+      1e      22
+      1f      22
       23      23
       2f      24
       30      24

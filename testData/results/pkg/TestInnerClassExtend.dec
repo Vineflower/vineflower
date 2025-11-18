@@ -6,10 +6,9 @@ public class TestInnerClassExtend {
       }// 7
    }
 
-   public static class Inner2 extends TestInnerClassExtend.Inner {
-      public Inner2(TestInnerClassExtend outer, String s) {
-         outer.getClass();// 12
-         super(s);
+   public class Inner2 extends TestInnerClassExtend.Inner {
+      public Inner2(String s) {
+         super(s);// 12
       }// 13
    }
 }
@@ -22,21 +21,18 @@ class 'pkg/TestInnerClassExtend$Inner' {
 
 class 'pkg/TestInnerClassExtend$Inner2' {
    method '<init> (Lpkg/TestInnerClassExtend;Ljava/lang/String;)V' {
-      1      10
-      3      10
-      4      10
-      5      10
-      7      11
-      8      11
-      9      11
-      a      11
-      b      12
+      7      10
+      8      10
+      9      10
+      a      10
+      b      11
    }
 }
 
 Lines mapping:
 7 <-> 6
 12 <-> 11
-13 <-> 13
+13 <-> 12
 Not mapped:
 5
+11

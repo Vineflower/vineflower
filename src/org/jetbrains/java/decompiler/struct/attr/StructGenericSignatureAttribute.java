@@ -20,4 +20,8 @@ public class StructGenericSignatureAttribute extends StructGeneralAttribute {
   public String getSignature() {
     return signature;
   }
+
+  public void setSignature(String signature) {
+    this.signature = signature;
+  }
 }

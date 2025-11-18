@@ -23,6 +23,15 @@ public class TestTextTokens {
   }
 
   @Deprecated
+  @MoreAnnotations(
+    intValue = 25,
+    enumValue = MoreAnnotations.TestEnum.SecondValue,
+    annotationValue = @MoreAnnotations.NestedAnnotation("Bee"),
+    classValue = String.class,
+    booleanArray = false,
+    enumArray = { MoreAnnotations.TestEnum.FirstValue, MoreAnnotations.TestEnum.SecondValue },
+    classArray = { String.class, StringBuilder.class }
+  )
   private class Bee {
     private String bee = "bee";
     private Bee parentThis = TestTextTokens.this.bee;

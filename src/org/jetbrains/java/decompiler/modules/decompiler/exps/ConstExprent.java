@@ -4,7 +4,9 @@ package org.jetbrains.java.decompiler.modules.decompiler.exps;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
+import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.FieldDescriptor;
+import org.jetbrains.java.decompiler.struct.gen.TypeFamily;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.struct.match.MatchEngine;
@@ -160,12 +162,8 @@ public class ConstExprent extends Exprent {
   }
 
   private static VarType guessType(int val, boolean boolPermitted) {
-    if (boolPermitted) {
-      VarType constType = VarType.VARTYPE_BOOLEAN;
-      if (val != 0 && val != 1) {
-        constType = constType.copy(true);
-      }
-      return constType;
+    if (boolPermitted && (val == 0 || val == 1)) {
+      return VarType.VARTYPE_BOOLEAN;
     }
     else if (0 <= val && val <= 127) {
       return VarType.VARTYPE_BYTECHAR;
@@ -223,17 +221,17 @@ public class ConstExprent extends Exprent {
       buf.append("/* $VF: constant dynamic */ ");
     }
 
-    if (constType.type != CodeConstants.TYPE_NULL && value == null) {
+    if (constType.type != CodeType.NULL && value == null) {
       return buf.appendCastTypeName(constType);
     }
 
     VarType unboxed = VarType.UNBOXING_TYPES.getOrDefault(constType, constType);
 
     switch (unboxed.type) {
-      case CodeConstants.TYPE_BOOLEAN:
+      case BOOLEAN:
         return buf.append(Boolean.toString((Integer)value != 0));
 
-      case CodeConstants.TYPE_CHAR:
+      case CHAR:
         Integer val = (Integer)value;
         String ret = CHAR_ESCAPES.get(val);
         if (ret == null) {
@@ -247,11 +245,12 @@ public class ConstExprent extends Exprent {
         }
         return buf.append(ret).enclose("'", "'");
 
-      case CodeConstants.TYPE_BYTE:
-      case CodeConstants.TYPE_BYTECHAR:
-      case CodeConstants.TYPE_SHORT:
-      case CodeConstants.TYPE_SHORTCHAR:
-      case CodeConstants.TYPE_INT:
+      case BYTECHAR:
+      case SHORTCHAR:
+        // TODO: assert here, we should not be writing higher order types
+      case BYTE:
+      case SHORT:
+      case INT:
         int intVal = (Integer)value;
         if (!literal) {
           if (intVal == Integer.MAX_VALUE) {
@@ -263,7 +262,7 @@ public class ConstExprent extends Exprent {
         }
         return buf.append(value.toString());
 
-      case CodeConstants.TYPE_LONG:
+      case LONG:
 
         long longVal = (Long)value;
 
@@ -277,7 +276,7 @@ public class ConstExprent extends Exprent {
         }
         return buf.append(value.toString()).append('L');
 
-      case CodeConstants.TYPE_FLOAT:
+      case FLOAT:
         float floatVal = (Float)value;
         if (!literal) {
           if (Float.isNaN(floatVal)) {
@@ -300,9 +299,9 @@ public class ConstExprent extends Exprent {
             return buf.append("-1.0F / 0.0F");
           }
         }
-        return buf.append(trimZeros(Float.toString(floatVal))).append('F');
+        return buf.append(trimFloat(Float.toString(floatVal), floatVal)).append('F');
 
-      case CodeConstants.TYPE_DOUBLE:
+      case DOUBLE:
         double doubleVal = (Double)value;
         if (!literal) {
           if (Double.isNaN(doubleVal)) {
@@ -316,13 +315,13 @@ public class ConstExprent extends Exprent {
           // This patch is based on work in ForgeFlower submitted by Pokechu22.
           float floatRepresentation = (float) doubleVal;
           if (floatRepresentation == doubleVal) {
-            if (Float.toString(floatRepresentation).length() < Double.toString(doubleVal).length()) {
+            if (trimFloat(Float.toString(floatRepresentation), floatRepresentation).length() < trimDouble(Double.toString(doubleVal), doubleVal).length()) {
               // Check the uninlined values to see if we have one of those
               if (UNINLINED_FLOATS.containsKey(floatRepresentation)) {
                 return buf.append(UNINLINED_FLOATS.get(floatRepresentation).apply(bytecode));
               } else {
                 // Return the standard representation if the value is not able to be uninlined
-                return buf.append(Float.toString(floatRepresentation)).append("F");
+                return buf.append(trimFloat(Float.toString(floatRepresentation), floatRepresentation)).append("F");
               }
             }
           }
@@ -336,12 +335,12 @@ public class ConstExprent extends Exprent {
         else if (doubleVal == Double.NEGATIVE_INFINITY) {
           return buf.append("-1.0 / 0.0");
         }
-        return buf.append(trimZeros(value.toString()));
+        return buf.append(trimDouble(Double.toString(doubleVal), doubleVal));
 
-      case CodeConstants.TYPE_NULL:
+      case NULL:
         return buf.append("null");
 
-      case CodeConstants.TYPE_OBJECT:
+      case OBJECT:
         if (constType.equals(VarType.VARTYPE_STRING)) {
           return buf.append(convertStringToJava(value.toString(), ascii)).enclose("\"", "\"");
         }
@@ -368,14 +367,14 @@ public class ConstExprent extends Exprent {
     // FIXME: this entire system is terrible, and pi constants need to be fixed to not create field exprents
 
     switch (unboxed.type) {
-      case CodeConstants.TYPE_FLOAT:
+      case FLOAT:
         float floatVal = (Float)value;
 
         if (UNINLINED_FLOATS.containsKey(floatVal) && !NO_PAREN_VALUES.contains(floatVal) && UNINLINED_FLOATS.get(floatVal).apply(bytecode).countChars('(') < 2) {
           return 4;
         }
         break;
-      case CodeConstants.TYPE_DOUBLE:
+      case DOUBLE:
         double doubleVal = (Double)value;
 
         if (UNINLINED_DOUBLES.containsKey(doubleVal) && !NO_PAREN_VALUES.contains(doubleVal) && UNINLINED_DOUBLES.get(doubleVal).apply(bytecode).countChars('(') < 2) {
@@ -401,18 +400,94 @@ public class ConstExprent extends Exprent {
 
   // Different JVM implementations/version display Floats and Doubles with different number of trailing zeros.
   // This trims them all down to only the necessary amount.
-  private static String trimZeros(String value) {
-      int i = value.length() - 1;
-      while (i >= 0 && value.charAt(i) == '0') {
-          i--;
+  private static String trimFloat(String value, float start) {
+    // Includes NaN and simple numbers
+    if (value.length() <= 3) {
+      return value;
+    }
+
+    String exp = "";
+    int eIdx = value.indexOf('E');
+    if (eIdx != -1) {
+      exp = value.substring(eIdx);
+      value = value.substring(0, eIdx);
+    }
+
+    // Cut off digits that don't affect the value
+    String temp = value;
+    int dotIdx = value.indexOf('.');
+    do {
+      value = temp;
+      temp = value.substring(0, value.length() - 1);
+    } while (!temp.isEmpty() && !"-".equals(temp) && Float.parseFloat(temp + exp) == start);
+
+    if (dotIdx != -1 && value.indexOf('.') == -1) {
+      value += ".0";
+    } else if (dotIdx != -1) {
+      String integer = value.substring(0, dotIdx);
+      String decimal = value.substring(dotIdx + 1);
+
+      String rounded = (Integer.parseInt(integer) + 1) + ".0" + exp;
+      if (Float.parseFloat(rounded) == start)
+        return rounded;
+
+      long decimalVal = 1;
+      for (int i = 0; i < decimal.length() - 1; i++) {
+        decimalVal = (decimalVal - 1) * 10 + decimal.charAt(i) - '0' + 1;
+        rounded = integer + '.' + decimalVal + exp;
+        if (Float.parseFloat(rounded) == start)
+          return rounded;
       }
-      if (value.charAt(i) == '.')
-        i++;
-      return value.substring(0, i + 1);
+    }
+
+    return value + exp;
+  }
+
+  private static String trimDouble(String value, double start) {
+    // Includes NaN and simple numbers
+    if (value.length() <= 3) {
+      return value;
+    }
+
+    String exp = "";
+    int eIdx = value.indexOf('E');
+    if (eIdx != -1) {
+      exp = value.substring(eIdx);
+      value = value.substring(0, eIdx);
+    }
+
+    // Cut off digits that don't affect the value
+    String temp = value;
+    int dotIdx = value.indexOf('.');
+    do {
+      value = temp;
+      temp = value.substring(0, value.length() - 1);
+    } while (!temp.isEmpty() && !"-".equals(temp) && Double.parseDouble(temp) == start);
+
+    if (dotIdx != -1 && value.indexOf('.') == -1) {
+      value += ".0";
+    } else if (dotIdx != -1) {
+      String integer = value.substring(0, dotIdx);
+      String decimal = value.substring(dotIdx + 1);
+
+      String rounded = (Long.parseLong(integer) + 1) + ".0" + exp;
+      if (Double.parseDouble(rounded) == start)
+        return rounded;
+
+      long decimalVal = 1;
+      for (int i = 0; i < decimal.length() - 1; i++) {
+        decimalVal = (decimalVal - 1) * 10 + decimal.charAt(i) - '0' + 1;
+        rounded = integer + '.' + decimalVal + exp;
+        if (Double.parseDouble(rounded) == start)
+          return rounded;
+      }
+    }
+
+    return value + exp;
   }
 
   public boolean isNull() {
-    return CodeConstants.TYPE_NULL == constType.type;
+    return CodeType.NULL == constType.type;
   }
 
   public static String convertStringToJava(String value, boolean ascii) {
@@ -477,13 +552,13 @@ public class ConstExprent extends Exprent {
 
   public boolean hasBooleanValue() {
     switch (constType.type) {
-      case CodeConstants.TYPE_BOOLEAN:
-      case CodeConstants.TYPE_CHAR:
-      case CodeConstants.TYPE_BYTE:
-      case CodeConstants.TYPE_BYTECHAR:
-      case CodeConstants.TYPE_SHORT:
-      case CodeConstants.TYPE_SHORTCHAR:
-      case CodeConstants.TYPE_INT:
+      case BOOLEAN:
+      case CHAR:
+      case BYTE:
+      case BYTECHAR:
+      case SHORT:
+      case SHORTCHAR:
+      case INT:
         int value = (Integer)this.value;
         return value == 0 || (DecompilerContext.getOption(IFernflowerPreferences.BOOLEAN_TRUE_ONE) && value == 1);
     }
@@ -493,31 +568,31 @@ public class ConstExprent extends Exprent {
 
   public boolean hasValueOne() {
     switch (constType.type) {
-      case CodeConstants.TYPE_BOOLEAN:
-      case CodeConstants.TYPE_CHAR:
-      case CodeConstants.TYPE_BYTE:
-      case CodeConstants.TYPE_BYTECHAR:
-      case CodeConstants.TYPE_SHORT:
-      case CodeConstants.TYPE_SHORTCHAR:
-      case CodeConstants.TYPE_INT:
-      case CodeConstants.TYPE_LONG:
-      case CodeConstants.TYPE_DOUBLE:
-      case CodeConstants.TYPE_FLOAT:
+      case BOOLEAN:
+      case CHAR:
+      case BYTE:
+      case BYTECHAR:
+      case SHORT:
+      case SHORTCHAR:
+      case INT:
+      case LONG:
+      case DOUBLE:
+      case FLOAT:
         return ((Number)value).intValue() == 1;
     }
 
     return false;
   }
 
-  public static ConstExprent getZeroConstant(int type) {
+  public static ConstExprent getZeroConstant(CodeType type) {
     switch (type) {
-      case CodeConstants.TYPE_INT:
+      case INT:
         return new ConstExprent(VarType.VARTYPE_INT, 0, null);
-      case CodeConstants.TYPE_LONG:
+      case LONG:
         return new ConstExprent(VarType.VARTYPE_LONG, 0L, null);
-      case CodeConstants.TYPE_DOUBLE:
+      case DOUBLE:
         return new ConstExprent(VarType.VARTYPE_DOUBLE, 0d, null);
-      case CodeConstants.TYPE_FLOAT:
+      case FLOAT:
         return new ConstExprent(VarType.VARTYPE_FLOAT, 0f, null);
     }
 
@@ -543,7 +618,7 @@ public class ConstExprent extends Exprent {
     }
     // BYTE, BYTECHAR, SHORTCHAR, SHORT, CHAR => INT in the INT context
     else if ((expectedType.equals(VarType.VARTYPE_INT) || expectedType.equals(VarType.VARTYPE_INTEGER)) &&
-            constType.typeFamily == CodeConstants.TYPE_FAMILY_INTEGER) {
+            constType.typeFamily == TypeFamily.INTEGER) {
       setConstType(VarType.VARTYPE_INT);
     }
   }
@@ -576,7 +651,9 @@ public class ConstExprent extends Exprent {
 
   @Override
   public String toString() {
-    return "const(" + toJava(0).convertToStringAndAllowDataDiscard() + ")";
+    try (var v = DecompilerContext.getImportCollector().lock()) {
+      return "const(" + toJava(0).convertToStringAndAllowDataDiscard() + ")";
+    }
   }
 
   // *****************************************************************************

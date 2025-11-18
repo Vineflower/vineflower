@@ -263,7 +263,9 @@ public final class SequenceHelper {
       }
     }
 
-    sequence.setFirst(sequence.getStats().get(0));
+    if (!sequence.getStats().isEmpty()) {
+      sequence.setFirst(sequence.getStats().get(0));
+    }
   }
 
   private static void mergeFlatStatements(SequenceStatement sequence) {

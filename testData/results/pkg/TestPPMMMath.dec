@@ -12,7 +12,7 @@ public class TestPPMMMath {
    }// 14
 
    public void test2(int i, int j) {
-      ++i;// 17
+      i++;// 17
       int b = i * j / i;// 18
       System.out.println(b);// 19
    }// 20

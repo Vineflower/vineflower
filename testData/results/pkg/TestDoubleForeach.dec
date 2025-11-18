@@ -22,18 +22,18 @@ public class TestDoubleForeach {
    }// 24
 
    public void myMethod2() {
-      String[] oneArr = (String[])this.one.toArray(x$0 -> new String[x$0]);// 27
-      String[] twoArr = (String[])this.two.toArray(x$0 -> new String[x$0]);// 28
+      String[] oneArr = (String[])this.one.toArray(String[]::new);// 27
+      String[] twoArr = (String[])this.two.toArray(String[]::new);// 28
       String[] x = oneArr;// 32
       String[] x2 = twoArr;// 33
-      int l = oneArr.length;// 34
-      int l2 = twoArr.length;// 35
+      int l = x.length;// 34
+      int l2 = x2.length;// 35
 
-      for (int i = 0; i < l; ++i) {// 37
+      for (int i = 0; i < l; i++) {// 37
          String myString = x[i];// 38
       }
 
-      for (int i = 0; i < l2; ++i) {// 41
+      for (int i = 0; i < l2; i++) {// 41
          String myString = x2[i];// 42
       }
    }// 44
@@ -147,6 +147,8 @@ class 'pkg/TestDoubleForeach' {
       39      31
       3a      31
       3b      31
+      3c      31
+      3d      31
       3e      32
       3f      32
       40      32
@@ -164,6 +166,8 @@ class 'pkg/TestDoubleForeach' {
       4f      35
       50      35
       51      35
+      52      35
+      53      35
       54      36
       55      36
       56      36
@@ -174,16 +178,6 @@ class 'pkg/TestDoubleForeach' {
       5b      35
       5c      35
       60      38
-   }
-
-   method 'lambda$myMethod2$0 (I)[Ljava/lang/String;' {
-      0      24
-      4      24
-   }
-
-   method 'lambda$myMethod2$1 (I)[Ljava/lang/String;' {
-      0      25
-      4      25
    }
 }
 

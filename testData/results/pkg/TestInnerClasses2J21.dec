@@ -1,0 +1,43 @@
+package pkg;
+
+public class TestInnerClasses2J21 {
+   private void test() {
+      new TestInnerClasses2J21.Inner().new Inner2(true, true);// 5
+   }// 6
+
+   private class Inner {
+      private class Inner2 {
+         private Inner2(boolean nonFinal, final boolean finalB) {
+            TestInnerClasses2J21.this.test();// 11
+         }// 12
+      }
+   }
+}
+
+class 'pkg/TestInnerClasses2J21' {
+   method 'test ()V' {
+      c      4
+      d      4
+      12      5
+   }
+}
+
+class 'pkg/TestInnerClasses2J21$Inner$Inner2' {
+   method '<init> (Lpkg/TestInnerClasses2J21$Inner;ZZ)V' {
+      5      10
+      6      10
+      7      10
+      8      10
+      9      10
+      a      10
+      b      11
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 6
+11 <-> 11
+12 <-> 12
+Not mapped:
+10

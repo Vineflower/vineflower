@@ -1,6 +1,7 @@
 // Copyright 2000-2017 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.main.rels;
 
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
@@ -9,6 +10,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructMethod;
+import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 
 import java.util.*;
 
@@ -25,6 +27,7 @@ public class MethodWrapper {
   public Throwable decompileError;
   public Set<String> commentLines = null;
   public boolean addErrorComment = false;
+  public boolean isCompactRecordConstructor = false;
 
   public MethodWrapper(RootStatement root, VarProcessor varproc, StructMethod methodStruct, StructClass classStruct, CounterContainer counter) {
     this.root = root;
@@ -41,7 +44,7 @@ public class MethodWrapper {
     }
   }
 
-  public DirectGraph getOrBuildGraph() {
+  public @Nullable DirectGraph getOrBuildGraph() {
     if (graph == null && root != null) {
       graph = new FlattenStatementsHelper().buildDirectGraph(root);
     }
@@ -57,8 +60,12 @@ public class MethodWrapper {
     commentLines.add(comment);
   }
 
+  public MethodDescriptor desc() {
+    return MethodDescriptor.parseDescriptor(methodStruct, null);
+  }
+
   @Override
   public String toString() {
-    return methodStruct.getName();
+    return "{" + classStruct.qualifiedName + ": " + methodStruct.getName() + "}";
   }
 }

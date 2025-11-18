@@ -196,6 +196,10 @@ public class ConstantPool implements NewClassNameBuilder {
     return null;
   }
 
+  public List<PooledConstant> getPool() {
+    return pool;
+  }
+
   private String buildNewDescriptor(boolean isField, String descriptor) {
     if (isField) {
       return FieldDescriptor.parseDescriptor(descriptor).buildNewDescriptor(this);

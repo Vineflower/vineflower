@@ -24,6 +24,8 @@ class 'cfrtest/Java14Test' {
    method '<init> ()V' {
       4      6
       8      6
+      9      6
+      a      6
       1a      6
       1b      6
       1c      6
@@ -39,6 +41,8 @@ class 'cfrtest/Java14Test' {
 
    method 'instance ()Lcfrtest/Java14Test;' {
       3      14
+      4      14
+      5      14
       15      14
       16      14
       17      14
@@ -47,6 +51,8 @@ class 'cfrtest/Java14Test' {
 
    method 'getAClass ()Ljava/lang/Class;' {
       3      18
+      4      18
+      5      18
       15      18
    }
 }

@@ -1,0 +1,94 @@
+import java.util.Iterator;
+
+public class TestJadLvtCollision implements Iterable<TestJadLvtCollision> {
+   public void test(TestJadLvtCollision testjadlvtcollision) {
+      TestJadLvtCollision testjadlvtcollisionx = new TestJadLvtCollision();// 8
+      System.out.println(testjadlvtcollision.toString() + testjadlvtcollisionx.toString());// 9
+   }// 10
+
+   public void testLoop(TestJadLvtCollision testjadlvtcollision) {
+      for (TestJadLvtCollision testjadlvtcollisionx : testjadlvtcollision) {// 13
+         System.out.println(testjadlvtcollision.toString() + testjadlvtcollisionx.toString());// 14
+      }
+   }// 16
+
+   public Iterator<TestJadLvtCollision> iterator() {
+      return null;// 20
+   }
+}
+
+class 'TestJadLvtCollision' {
+   method 'test (LTestJadLvtCollision;)V' {
+      7      4
+      8      5
+      9      5
+      a      5
+      12      5
+      13      5
+      14      5
+      15      5
+      19      5
+      1a      5
+      1b      5
+      1c      5
+      20      5
+      21      5
+      22      5
+      23      5
+      24      5
+      25      5
+      26      6
+   }
+
+   method 'testLoop (LTestJadLvtCollision;)V' {
+      0      9
+      1      9
+      2      9
+      3      9
+      4      9
+      e      9
+      f      9
+      10      9
+      11      9
+      12      9
+      13      9
+      14      9
+      15      9
+      16      9
+      17      9
+      18      10
+      19      10
+      1a      10
+      22      10
+      23      10
+      24      10
+      25      10
+      29      10
+      2a      10
+      2b      10
+      2c      10
+      30      10
+      31      10
+      32      10
+      33      10
+      34      10
+      35      10
+      39      12
+   }
+
+   method 'iterator ()Ljava/util/Iterator;' {
+      0      15
+      1      15
+   }
+}
+
+Lines mapping:
+8 <-> 5
+9 <-> 6
+10 <-> 7
+13 <-> 10
+14 <-> 11
+16 <-> 13
+20 <-> 16
+Not mapped:
+15

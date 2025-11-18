@@ -1,8 +1,8 @@
 package pkg;
 
 public class TestCastPrimitiveToObject {
-   private static int i = 0;
-   private static Object o = null;
+   private static int i = 0;// 4
+   private static Object o = null;// 5
 
    public void test() {
       o = (long)i;// 8
@@ -18,6 +18,11 @@ public class TestCastPrimitiveToObject {
 }
 
 class 'pkg/TestCastPrimitiveToObject' {
+   method '<clinit> ()V' {
+      0      3
+      4      4
+   }
+
    method 'test ()V' {
       0      7
       1      7
@@ -113,6 +118,8 @@ class 'pkg/TestCastPrimitiveToObject' {
 }
 
 Lines mapping:
+4 <-> 4
+5 <-> 5
 8 <-> 8
 9 <-> 9
 10 <-> 10

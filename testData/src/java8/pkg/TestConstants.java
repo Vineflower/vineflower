@@ -46,6 +46,8 @@ public class TestConstants {
   static final double DPos = Double.POSITIVE_INFINITY;
   static final double DMin = Double.MIN_VALUE;
   static final double DMax = Double.MAX_VALUE;
+  static final double D10 = 1.0E10;
+  static final double DN10 = 1.0E-10;
 
   static @interface A {
     Class<?> value();

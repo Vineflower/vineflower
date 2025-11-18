@@ -69,7 +69,7 @@ public final class TextUtil {
     return true;
   }
 
-  private static boolean isKeyword(String id, BytecodeVersion version, StructMethod mt) {
+  public static boolean isKeyword(String id, BytecodeVersion version, StructMethod mt) {
     return KEYWORDS.contains(id) || (version.hasEnums() && "enum".equals(id)) || ((mt.getAccessFlags() & CodeConstants.ACC_STATIC) != 0 && "this".equals(id));
   }
 

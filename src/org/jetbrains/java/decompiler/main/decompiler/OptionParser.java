@@ -14,6 +14,8 @@ public class OptionParser {
     "--add-external=",
     "-only=",
     "--only=",
+    "-s",
+    "--silent"
   };
 
   public static boolean parse(String arg, Map<String, Object> options) {
@@ -75,5 +77,9 @@ public class OptionParser {
         }
       }
     }
+
+    // Hardcode old JAD varnaming from the plugin
+    SHORT_TO_LONG_NAME_MAP.put("jvn", "jad-style-variable-naming");
+    SHORT_TO_LONG_NAME_MAP.put("jpr", "jad-style-parameter-naming");
   }
 }

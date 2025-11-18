@@ -4,14 +4,11 @@ package org.jetbrains.java.decompiler.modules.decompiler.stats;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.Instruction;
 import org.jetbrains.java.decompiler.code.InstructionSequence;
-import org.jetbrains.java.decompiler.code.SimpleInstructionSequence;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.util.StartEndPair;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
@@ -97,9 +94,9 @@ public final class BasicBlockStatement extends Statement {
     BasicBlock newblock = new BasicBlock(
       DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.STATEMENT_COUNTER));
 
-    SimpleInstructionSequence seq = new SimpleInstructionSequence();
-    for (int i = 0; i < block.getSeq().length(); i++) {
-      seq.addInstruction(block.getSeq().getInstr(i).clone(), -1);
+    InstructionSequence seq = new InstructionSequence();
+    for (var instr : block.getSeq()) {
+      seq.addInstruction(instr.clone());
     }
 
     newblock.setSeq(seq);
@@ -119,9 +116,9 @@ public final class BasicBlockStatement extends Statement {
         inner.add(exp);
 
         for (Exprent exprent : inner) {
-          if (exprent instanceof FunctionExprent && ((FunctionExprent) exprent).getFuncType() == FunctionExprent.FunctionType.INSTANCEOF) {
-            if (((FunctionExprent) exprent).getLstOperands().size() > 2) {
-              vars.add((VarExprent) ((FunctionExprent) exprent).getLstOperands().get(2));
+          if (exprent instanceof FunctionExprent func && func.getFuncType() == FunctionExprent.FunctionType.INSTANCEOF) {
+            if (func.getLstOperands().size() > 2) {
+              vars.addAll(((Pattern) func.getLstOperands().get(2)).getPatternVars());
             }
           }
         }

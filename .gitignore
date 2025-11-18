@@ -1,12 +1,25 @@
-/.idea/
+## Gradle
 /.gradle/
 /buildSrc/.gradle/
 /build/
 /buildSrc/build/
+
+## IDEA
+/.idea/
 /out/
+
+## Eclipse
+.settings/
+.classpath
+.project
+bin
+
+## VSCode
+.vscode
+
+## Common
 /testData/classes/java*/
 /testData/classes/jasm/
 /testData/classes/groovy/
 /testData/classes/kt/
 /testData/classes/scala/
-bin

@@ -15,7 +15,7 @@ import java.util.*;
 
 public class SwitchExprent extends Exprent {
   private final SwitchStatement backing;
-  private final VarType type;
+  private VarType type;
   // TODO: is needed?
   private final boolean fallthrough;
   // Whether the switch expression returns a value, for case type coercion
@@ -94,12 +94,13 @@ public class SwitchExprent extends Exprent {
           buf.appendField(field.getName(), false, field.getClassname(), field.getName(), field.getDescriptor());
         } else if (value instanceof FunctionExprent && ((FunctionExprent) value).getFuncType() == FunctionExprent.FunctionType.INSTANCEOF) {
           // Pattern matching variables
-          List<Exprent> operands = ((FunctionExprent) value).getLstOperands();
-          buf.append(operands.get(1).toJava(indent));
-          buf.append(" ");
-          // We're pasting the var type, don't do it again
-          ((VarExprent)operands.get(2)).setDefinition(false);
-          buf.append(operands.get(2).toJava(indent));
+
+          Pattern pattern = (Pattern) value.getAllExprents().get(2);
+          for (VarExprent var : pattern.getPatternVars()) {
+            var.setWritingPattern();
+          }
+
+          buf.append(value.getAllExprents().get(2).toJava(indent));
         } else {
           buf.append(value.toJava(indent));
         }
@@ -113,6 +114,11 @@ public class SwitchExprent extends Exprent {
 
       if (hasDefault) {
         if (!hasEdge) {
+          // Don't write 'default -> {}'
+          if (stat instanceof BasicBlockStatement && isEmptyDefault(((BasicBlockStatement)stat), backing)) {
+            continue;
+          }
+
           buf.appendIndent(indent + 1).append("default");
         } else {
           buf.append(", default");
@@ -143,17 +149,17 @@ public class SwitchExprent extends Exprent {
             ((ConstExprent)content).setConstType(this.type);
           }
 
-          buf.append(content.toJava(indent).append(";"));
+          buf.append(content.toJava(indent + 1).append(";"));
         } else if (exprent instanceof ExitExprent) {
           ExitExprent exit = (ExitExprent) exprent;
 
           if (exit.getExitType() == ExitExprent.Type.THROW) {
-            buf.append(exit.toJava(indent).append(";"));
+            buf.append(exit.toJava(indent + 1).append(";"));
           } else {
             throw new IllegalStateException("Can't have return in switch expression");
           }
         } else { // Catchall
-          buf.append(exprent.toJava(indent).append(";"));
+          buf.append(exprent.toJava(indent + 1).append(";"));
         }
       } else {
         buf.append("{");
@@ -169,6 +175,16 @@ public class SwitchExprent extends Exprent {
     buf.appendIndent(indent).append("}");
 
     return buf;
+  }
+
+  private static boolean isEmptyDefault(BasicBlockStatement block, SwitchStatement head) {
+    if (!block.getExprents().isEmpty()) {
+      return false;
+    }
+
+    List<StatEdge> edges = block.getSuccessorEdgeView(StatEdge.TYPE_BREAK);
+
+    return edges.size() == 1;
   }
 
   private boolean isExhaustive() {
@@ -200,9 +216,14 @@ public class SwitchExprent extends Exprent {
       Exprent targetExpr = targetExprs.get(0);
       return targetExpr instanceof ExitExprent
         && ((ExitExprent) targetExpr).getExitType() == ExitExprent.Type.THROW
-        && ((ExitExprent) targetExpr).getValue().getExprType().value.equals("java/lang/IncompatibleClassChangeError");
+        && (((ExitExprent) targetExpr).getValue().getExprType().value.equals("java/lang/IncompatibleClassChangeError")
+            || ((ExitExprent) targetExpr).getValue().getExprType().value.equals("java/lang/MatchException"));
     }
     return false;
+  }
+
+  public void setType(VarType type) {
+    this.type = type;
   }
 
   @Override
@@ -218,6 +239,10 @@ public class SwitchExprent extends Exprent {
   @Override
   public Exprent copy() {
     return new SwitchExprent(this.backing, this.type, this.fallthrough, this.standalone);
+  }
+
+  public SwitchStatement getBacking() {
+    return backing;
   }
 
   @Override

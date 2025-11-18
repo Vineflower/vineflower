@@ -94,6 +94,8 @@ class 'pkg/TestSynchronizedThrow' {
       3      18
       4      19
       5      19
+      6      19
+      7      19
       f      20
       1a      23
    }
@@ -119,6 +121,8 @@ class 'pkg/TestSynchronizedThrow' {
       13      28
       14      29
       15      29
+      16      29
+      17      29
       1f      30
       20      33
       21      33
@@ -159,6 +163,8 @@ class 'pkg/TestSynchronizedThrow' {
       3      50
       4      51
       5      51
+      6      51
+      7      51
       8      53
       9      53
       a      53

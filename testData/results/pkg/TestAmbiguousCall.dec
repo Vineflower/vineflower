@@ -116,6 +116,8 @@ class 'pkg/TestAmbiguousCall' {
       2      31
       3      31
       4      31
+      5      31
+      6      31
       7      32
       8      32
       9      32
@@ -133,6 +135,8 @@ class 'pkg/TestAmbiguousCall' {
       18      34
       19      34
       1a      34
+      1b      34
+      1c      34
       1d      36
    }
 
@@ -142,6 +146,8 @@ class 'pkg/TestAmbiguousCall' {
       2      39
       3      39
       4      39
+      5      39
+      6      39
       7      40
       8      40
       9      40
@@ -159,6 +165,8 @@ class 'pkg/TestAmbiguousCall' {
       18      42
       19      42
       1a      42
+      1b      42
+      1c      42
       1d      44
    }
 

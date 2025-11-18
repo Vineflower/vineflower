@@ -111,13 +111,12 @@ class 'pkg/TestSwitchPatternMatching22' {
       4f      14
       54      9
       55      9
-      61      17
-      62      17
       63      17
       64      17
       65      17
       66      17
       67      17
+      68      17
       6e      19
    }
 
@@ -143,9 +142,7 @@ class 'pkg/TestSwitchPatternMatching22' {
       4b      31
       50      27
       51      27
-      60      34
-      61      34
-      62      34
+      63      34
    }
 
    method 'test1Null ()V' {
@@ -170,13 +167,12 @@ class 'pkg/TestSwitchPatternMatching22' {
       4f      49
       54      44
       55      44
-      61      52
-      62      52
       63      52
       64      52
       65      52
       66      52
       67      52
+      68      52
       6e      54
    }
 
@@ -202,9 +198,7 @@ class 'pkg/TestSwitchPatternMatching22' {
       4b      66
       50      62
       51      62
-      60      69
-      61      69
-      62      69
+      63      69
    }
 
    method 'testNonPattern ()V' {
@@ -226,9 +220,7 @@ class 'pkg/TestSwitchPatternMatching22' {
       32      81
       33      81
       3b      82
-      49      85
-      4a      85
-      4b      85
+      4c      85
    }
 }
 

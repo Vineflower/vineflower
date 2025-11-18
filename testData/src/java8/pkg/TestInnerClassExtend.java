@@ -7,9 +7,9 @@ public class TestInnerClassExtend {
     }
   }
 
-  public static class Inner2 extends Inner {
-    public Inner2(TestInnerClassExtend outer, String s) {
-      outer.super(s);
+  public class Inner2 extends Inner {
+    public Inner2(String s) {
+      super(s);
     }
   }
 }

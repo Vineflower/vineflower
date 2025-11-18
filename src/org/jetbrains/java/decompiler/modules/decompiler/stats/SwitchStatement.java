@@ -9,6 +9,7 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.DecHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
+import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
@@ -18,7 +19,7 @@ import org.jetbrains.java.decompiler.util.TextBuffer;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public final class SwitchStatement extends Statement {
+public class SwitchStatement extends Statement {
 
   // *****************************************************************************
   // private fields
@@ -42,13 +43,13 @@ public final class SwitchStatement extends Statement {
   // constructors
   // *****************************************************************************
 
-  private SwitchStatement() {
+  protected SwitchStatement() {
     super(StatementType.SWITCH);
 
     headexprent.add(null);
   }
 
-  private SwitchStatement(Statement head, Statement poststat) {
+  protected SwitchStatement(Statement head, Statement poststat) {
 
     this();
 
@@ -145,9 +146,6 @@ public final class SwitchStatement extends Statement {
           buf.appendLineSeparator();
         } else {
           Exprent value = values.get(j);
-          if (value == null) { // TODO: how can this be null? Is it trying to inject a synthetic case value in switch-on-string processing? [TestSwitchDefaultBefore]
-            continue;
-          }
 
           buf.appendIndent(indent + 1).append("case ");
 
@@ -159,12 +157,13 @@ public final class SwitchStatement extends Statement {
             buf.appendField(field.getName(), false, field.getClassname(), field.getName(), field.getDescriptor());
           } else if (value instanceof FunctionExprent && ((FunctionExprent) value).getFuncType() == FunctionType.INSTANCEOF) {
             // Pattern matching variables
-            List<Exprent> operands = ((FunctionExprent) value).getLstOperands();
-            buf.append(operands.get(1).toJava(indent));
-            buf.append(" ");
-            // We're pasting the var type, don't do it again
-            ((VarExprent)operands.get(2)).setDefinition(false);
-            buf.append(operands.get(2).toJava(indent));
+
+            Pattern pattern = (Pattern) value.getAllExprents().get(2);
+            for (VarExprent var : pattern.getPatternVars()) {
+              var.setWritingPattern();
+            }
+
+            buf.append(value.getAllExprents().get(2).toJava(indent));
           } else {
             buf.append(value.toJava(indent));
           }
@@ -208,10 +207,8 @@ public final class SwitchStatement extends Statement {
   }
 
   @Override
-  public List<Object> getSequentialObjects() {
-
-    List<Object> lst = new ArrayList<>(stats);
-    lst.add(1, headexprent.get(0));
+  public List<Exprent> getStatExprents() {
+    List<Exprent> lst = new ArrayList<>(headexprent);
     // make sure guards can be simplified by other helpers
     for (Exprent caseGuard : getCaseGuards()) {
       if (caseGuard != null) {
@@ -220,7 +217,11 @@ public final class SwitchStatement extends Statement {
     }
 
     for (List<Exprent> caseList : this.caseValues) {
-      lst.addAll(caseList);
+      for (Exprent exp : caseList) {
+        if (exp != null) {
+          lst.add(exp);
+        }
+      }
     }
 
     return lst;
@@ -265,12 +266,11 @@ public final class SwitchStatement extends Statement {
         continue;
       }
 
-      if (caseContent instanceof FunctionExprent) {
-        FunctionExprent func = ((FunctionExprent) caseContent);
+      if (caseContent instanceof FunctionExprent func) {
 
         // Pattern match variable is implicitly defined
         if (func.getFuncType() == FunctionType.INSTANCEOF && func.getLstOperands().size() > 2) {
-          vars.add((VarExprent) func.getLstOperands().get(2));
+          vars.addAll(((Pattern) func.getLstOperands().get(2)).getPatternVars());
         }
       }
     }
@@ -293,11 +293,15 @@ public final class SwitchStatement extends Statement {
   @Override
   public void replaceStatement(Statement oldstat, Statement newstat) {
 
+    boolean changedAny = false;
     for (int i = 0; i < caseStatements.size(); i++) {
       if (caseStatements.get(i) == oldstat) {
         caseStatements.set(i, newstat);
+        changedAny = true;
       }
     }
+
+    ValidationHelper.assertTrue(changedAny, "Replaced statement in switch without changing any case statements!");
 
     super.replaceStatement(oldstat, newstat);
   }
@@ -526,5 +530,9 @@ public final class SwitchStatement extends Statement {
     }
 
     this.scopedCaseStatements.add(stat);
+  }
+
+  public void setDefaultEdge(StatEdge edge) {
+    this.defaultEdge = edge;
   }
 }

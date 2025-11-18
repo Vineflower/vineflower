@@ -17,6 +17,15 @@ class 'pkg/TestConstructorSwitchExpression2' {
    method '<init> (I)V' {
       1      4
       2      4
+      3      4
+      4      4
+      5      4
+      6      4
+      7      4
+      8      4
+      9      4
+      a      4
+      b      4
       c      6
       d      6
       e      6

@@ -20,7 +20,7 @@ import java.util.List;
   }
  */
 public class StructRecordAttribute extends StructGeneralAttribute {
-  List<StructRecordComponent> components;
+  private List<StructRecordComponent> components;
   
   @Override
   public void initContent(DataInputFullStream data, ConstantPool pool, BytecodeVersion version) throws IOException {
@@ -33,6 +33,10 @@ public class StructRecordAttribute extends StructGeneralAttribute {
   }
 
   public List<StructRecordComponent> getComponents() {
-    return Collections.unmodifiableList(components);
+    return components;
+  }
+
+  public void setComponents(List<StructRecordComponent> components) {
+    this.components = components;
   }
 }

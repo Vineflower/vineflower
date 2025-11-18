@@ -1,12 +1,17 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler;
 
+import org.jetbrains.java.decompiler.api.Decompiler;
+import org.jetbrains.java.decompiler.api.plugin.LanguageSpec;
+import org.jetbrains.java.decompiler.api.plugin.StatementWriter;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.Instruction;
 import org.jetbrains.java.decompiler.code.InstructionSequence;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.plugins.PluginContext;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectEdgeType;
+import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.util.collections.ListStack;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
@@ -84,9 +89,9 @@ public class ExprProcessor implements CodeConstants {
   private static final IfExprent.Type[] func7 = {IfExprent.Type.NULL, IfExprent.Type.NONNULL};
   private static final MonitorExprent.Type[] func8 = {MonitorExprent.Type.ENTER, MonitorExprent.Type.EXIT};
 
-  private static final int[] arrTypeIds = {
-    CodeConstants.TYPE_BOOLEAN, CodeConstants.TYPE_CHAR, CodeConstants.TYPE_FLOAT, CodeConstants.TYPE_DOUBLE,
-    CodeConstants.TYPE_BYTE, CodeConstants.TYPE_SHORT, CodeConstants.TYPE_INT, CodeConstants.TYPE_LONG
+  private static final CodeType[] arrTypeIds = {
+    CodeType.BOOLEAN, CodeType.CHAR, CodeType.FLOAT, CodeType.DOUBLE,
+    CodeType.BYTE, CodeType.SHORT, CodeType.INT, CodeType.LONG
   };
 
   private static final String[] typeNames = {"byte", "char", "double", "float", "int", "long", "short", "boolean"};
@@ -210,11 +215,7 @@ public class ExprProcessor implements CodeConstants {
       BitSet bytecode_offsets = null;
       if (bytecode_offset >= 0) {
         bytecode_offsets = new BitSet();
-        bytecode_offsets.set(bytecode_offset);
-        int end_offset = block.getOldOffset(i+1);
-        if (end_offset > bytecode_offset) {
-          bytecode_offsets.set(bytecode_offset, end_offset);
-        }
+        bytecode_offsets.set(bytecode_offset, bytecode_offset + instr.length);
       }
 
       switch (instr.opcode) {
@@ -256,7 +257,7 @@ public class ExprProcessor implements CodeConstants {
             }
 
             InvocationExprent exprinv = new InvocationExprent(instr.opcode, invoke_constant, bootstrapMethod, bootstrap_arguments, stack, bytecode_offsets);
-            if (exprinv.getDescriptor().ret.type == CodeConstants.TYPE_VOID) {
+            if (exprinv.getDescriptor().ret.type == CodeType.VOID) {
               exprlist.add(exprinv);
             }
             else {
@@ -490,7 +491,7 @@ public class ExprProcessor implements CodeConstants {
             }
 
             InvocationExprent exprinv = new InvocationExprent(instr.opcode, invoke_constant, bootstrapMethod, bootstrap_arguments, stack, bytecode_offsets);
-            if (exprinv.getDescriptor().ret.type == CodeConstants.TYPE_VOID) {
+            if (exprinv.getDescriptor().ret.type == CodeType.VOID) {
               exprlist.add(exprinv);
             }
             else {
@@ -695,11 +696,9 @@ public class ExprProcessor implements CodeConstants {
 
   public static void markExprOddities(RootStatement root) {
     // We shouldn't have to do this, but turns out getting cast names is not pure. Sigh.
-    DecompilerContext.getImportCollector().setWriteLocked(true);
-
-    markExprOddities(root, root);
-
-    DecompilerContext.getImportCollector().setWriteLocked(false);
+    try (var lock = DecompilerContext.getImportCollector().lock()) {
+      markExprOddities(root, root);
+    }
   }
 
   private static void markExprOddities(RootStatement root, Statement stat) {
@@ -753,23 +752,23 @@ public class ExprProcessor implements CodeConstants {
   }
 
   public static String getTypeName(VarType type, boolean getShort) {
-    int tp = type.type;
-    if (tp <= CodeConstants.TYPE_BOOLEAN) {
-      return typeNames[tp];
+    CodeType tp = type.type;
+    if (tp.ordinal() <= CodeType.BOOLEAN.ordinal()) {
+      return typeNames[tp.ordinal()];
     }
-    else if (tp == CodeConstants.TYPE_UNKNOWN) {
+    else if (tp == CodeType.UNKNOWN) {
       return UNKNOWN_TYPE_STRING; // INFO: should not occur
     }
-    else if (tp == CodeConstants.TYPE_NULL) {
+    else if (tp == CodeType.NULL) {
       return NULL_TYPE_STRING; // INFO: should not occur
     }
-    else if (tp == CodeConstants.TYPE_VOID) {
+    else if (tp == CodeType.VOID) {
       return "void";
     }
-    else if (tp == CodeConstants.TYPE_GENVAR && type.isGeneric()) {
+    else if (tp == CodeType.GENVAR && type.isGeneric()) {
       return type.value;
     }
-    else if (tp == CodeConstants.TYPE_OBJECT) {
+    else if (tp == CodeType.OBJECT) {
       if (type.isGeneric()) {
         return ((GenericType)type).getCastName();
       }
@@ -782,6 +781,15 @@ public class ExprProcessor implements CodeConstants {
         ret = UNDEFINED_TYPE_STRING;
       }
       return ret;
+    }
+
+    // Unrepresentable: only for debugging
+    if (tp == CodeType.BYTECHAR) {
+      return "<bytechar>";
+    }
+
+    if (tp == CodeType.SHORTCHAR) {
+      return "<shortchar>";
     }
 
     throw new RuntimeException("invalid type: " + tp);
@@ -806,7 +814,9 @@ public class ExprProcessor implements CodeConstants {
     VarExprent vartmp = new VarExprent(VarExprent.STACK_BASE, var.getExprType(), var.getProcessor());
     vartmp.setStack(true);
 
-    prlst.getLstExprents().add(new AssignmentExprent(vartmp, var.copy(), null));
+    VarExprent catchVar = (VarExprent) var.copy();
+    catchVar.setCatchTempVar(true);
+    prlst.getLstExprents().add(new AssignmentExprent(vartmp, catchVar, null));
     prlst.getStack().push(vartmp.copy());
     return prlst;
   }
@@ -818,7 +828,7 @@ public class ExprProcessor implements CodeConstants {
              (expr instanceof VarExprent && ((VarExprent)expr).isClassDef()));
   }
 
-  private static void addDeletedGotoInstructionMapping(Statement stat, TextBuffer buffer) {
+  public static void addDeletedGotoInstructionMapping(Statement stat, TextBuffer buffer) {
     if (stat instanceof BasicBlockStatement) {
       BasicBlock block = ((BasicBlockStatement)stat).getBlock();
       List<Integer> offsets = block.getInstrOldOffsets();
@@ -881,6 +891,9 @@ public class ExprProcessor implements CodeConstants {
       return new TextBuffer();
     }
 
+    StructClass cl = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS);
+    LanguageSpec spec = PluginContext.getCurrentContext().getLanguageSpec(cl);
+
     TextBuffer buf = new TextBuffer();
     lst = Exprent.sortIndexed(lst);
 
@@ -902,8 +915,14 @@ public class ExprProcessor implements CodeConstants {
         if (expr instanceof MonitorExprent && ((MonitorExprent)expr).getMonType() == MonitorExprent.Type.ENTER) {
           buf.append("{} // $VF: monitorenter "); // empty synchronized block
         }
-        if (endsWithSemicolon(expr)) {
-          buf.append(";");
+        if (spec != null) {
+          if (spec.writer.endsWithSemicolon(expr)) {
+            buf.append(';');
+          }
+        } else {
+          if (endsWithSemicolon(expr)) {
+            buf.append(';');
+          }
         }
         buf.appendLineSeparator();
       }
@@ -914,16 +933,16 @@ public class ExprProcessor implements CodeConstants {
 
   public static ConstExprent getDefaultArrayValue(VarType arrType) {
     ConstExprent defaultVal;
-    if (arrType.type == CodeConstants.TYPE_OBJECT || arrType.arrayDim > 0) {
+    if (arrType.type == CodeType.OBJECT || arrType.arrayDim > 0) {
       defaultVal = new ConstExprent(VarType.VARTYPE_NULL, null, null);
     }
-    else if (arrType.type == CodeConstants.TYPE_FLOAT) {
+    else if (arrType.type == CodeType.FLOAT) {
       defaultVal = new ConstExprent(VarType.VARTYPE_FLOAT, 0f, null);
     }
-    else if (arrType.type == CodeConstants.TYPE_LONG) {
+    else if (arrType.type == CodeType.LONG) {
       defaultVal = new ConstExprent(VarType.VARTYPE_LONG, 0L, null);
     }
-    else if (arrType.type == CodeConstants.TYPE_DOUBLE) {
+    else if (arrType.type == CodeType.DOUBLE) {
       defaultVal = new ConstExprent(VarType.VARTYPE_DOUBLE, 0d, null);
     }
     else { // integer types
@@ -955,7 +974,7 @@ public class ExprProcessor implements CodeConstants {
         InvocationExprent invocationExprent = (InvocationExprent) exprent;
         if (invocationExprent.isBoxingCall() && !invocationExprent.shouldForceBoxing()) {
           exprent = invocationExprent.getLstParameters().get(0);
-          int paramType = invocationExprent.getDescriptor().params[0].type;
+          CodeType paramType = invocationExprent.getDescriptor().params[0].type;
           if (exprent instanceof ConstExprent && ((ConstExprent) exprent).getConstType().type != paramType) {
             leftType = new VarType(paramType);
           }
@@ -966,14 +985,14 @@ public class ExprProcessor implements CodeConstants {
     VarType rightType = exprent.getInferredExprType(leftType);
     exprent = narrowGenericCastType(exprent, leftType);
 
-    boolean doCast = (!leftType.isSuperset(rightType) && (rightType.equals(VarType.VARTYPE_OBJECT) || leftType.type != CodeConstants.TYPE_OBJECT));
-    boolean doCastNull = (castNull.cast && rightType.type == CodeConstants.TYPE_NULL && !UNDEFINED_TYPE_STRING.equals(getTypeName(leftType)));
+    boolean doCast = (!leftType.higherEqualInLatticeThan(rightType) && (rightType.equals(VarType.VARTYPE_OBJECT) || leftType.type != CodeType.OBJECT));
+    boolean doCastNull = (castNull.cast && rightType.type == CodeType.NULL && !UNDEFINED_TYPE_STRING.equals(getTypeName(leftType)));
     boolean doCastNarrowing = (castNarrowing && isIntConstant(exprent) && isNarrowedIntType(leftType));
-    boolean doCastGenerics = doesContravarianceNeedCast(leftType, rightType);
+    boolean doCastGenerics = doGenericTypesCast(exprent, leftType, rightType);
 
     boolean cast = castAlways || doCast || doCastNull || doCastNarrowing || doCastGenerics;
 
-    if (castNull == NullCastType.DONT_CAST_AT_ALL && rightType.type == CodeConstants.TYPE_NULL) {
+    if (castNull == NullCastType.DONT_CAST_AT_ALL && rightType.type == CodeType.NULL) {
       cast = castAlways;
     }
 
@@ -1006,6 +1025,13 @@ public class ExprProcessor implements CodeConstants {
 
     if (exprent instanceof ConstExprent) {
       ((ConstExprent) exprent).adjustConstType(leftType);
+    }
+
+    if (cast) {
+      // Don't cast vararg array creation! Force regular array creation instead
+      if (exprent instanceof NewExprent && ((NewExprent)exprent).isVarArgParam()) {
+        ((NewExprent) exprent).setVarArgParam(false);
+      }
     }
 
     buffer.append(exprent.toJava(indent));
@@ -1050,9 +1076,21 @@ public class ExprProcessor implements CodeConstants {
     return expr;
   }
 
-  // Obj<T> var = type; -> Obj<T> var = (Obj<T>) type; Where type is Obj<? super T>
-  public static boolean doesContravarianceNeedCast(VarType left, VarType right) {
-    if (left != null && right != null && left.isGeneric() && right.isGeneric()) {
+  // Checks if two generic types should cast based on their type parameters.
+  // If both the left and the right types are generics, compare the type parameters based on a set of rules to see if
+  // the types are compatible. If a matching rule is identified, return and inform the type processor that the types
+  // should cast.
+  private static boolean doGenericTypesCast(Exprent ex, VarType left, VarType right) {
+    Map<VarType, List<VarType>> named = ex.getNamedGenerics();
+    if (left == null || right == null) {
+      return false;
+    }
+
+    if (left.isGeneric() && right.isGeneric()) {
+      if (shouldGenericTypesCast(named, left, right)) {
+        return true;
+      }
+
       GenericType leftGeneric = (GenericType) left;
       GenericType rightGeneric = (GenericType) right;
 
@@ -1063,19 +1101,93 @@ public class ExprProcessor implements CodeConstants {
       for (int i = 0; i < leftGeneric.getArguments().size(); i++) {
         VarType leftType = leftGeneric.getArguments().get(i);
         VarType rightType = rightGeneric.getArguments().get(i);
-        // Casting Clazz<?> to Clazz<T> or Clazz<Concrete>
         if (rightType == null && leftType != null) {
           return true;
         }
 
         if (leftType != null) {
-          if (leftType.isGeneric() && rightType.isGeneric()) {
-            if (leftType.isSuperset(rightType) &&
-              (((GenericType) leftType).getWildcard() == GenericType.WILDCARD_NO || ((GenericType) leftType).getWildcard() == GenericType.WILDCARD_EXTENDS) &&
-              ((GenericType) rightType).getWildcard() == GenericType.WILDCARD_SUPER) {
+          if (shouldGenericTypesCast(named, leftType, rightType)) {
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
+  }
+
+  private static boolean shouldGenericTypesCast(Map<VarType, List<VarType>> named, VarType leftType, VarType rightType) {
+    if (leftType.isGeneric()) {
+      GenericType genLeft = (GenericType) leftType;
+      if (rightType.isGeneric()) {
+        GenericType genRight = (GenericType) rightType;
+
+        if (leftType.higherEqualInLatticeThan(rightType)) {
+          // Casting Clazz<?> to Clazz<T> or Clazz<Concrete>
+          if ((genLeft.getWildcard() == GenericType.WILDCARD_NO || genLeft.getWildcard() == GenericType.WILDCARD_EXTENDS) &&
+            genRight.getWildcard() == GenericType.WILDCARD_SUPER) {
+
+            boolean ok = true;
+            if (genLeft.getWildcard() == GenericType.WILDCARD_EXTENDS) {
+              // Equals, ignoring wildcards
+              if (!genLeft.getArguments().isEmpty() && !genRight.getArguments().isEmpty() &&
+                leftType.equals(rightType)) {
+                ok = false;
+              }
+            }
+
+            if (ok) {
               return true;
             }
           }
+        } else {
+          if (genLeft.getWildcard() == GenericType.WILDCARD_EXTENDS && genRight.getWildcard() == GenericType.WILDCARD_SUPER) {
+            return true;
+          }
+          // Trying to cast two independent generics to each other? Check if they're both the base generic type (i.e. Object)
+          // and force a cast if so.
+          if (leftType.type == CodeType.GENVAR && rightType.type == CodeType.GENVAR
+            && genLeft.getWildcard() == GenericType.WILDCARD_NO && genLeft.getWildcard() == GenericType.WILDCARD_NO) {
+
+            if (named.containsKey(leftType) && named.containsKey(rightType) && named.get(leftType).contains(VarType.VARTYPE_OBJECT) && named.get(rightType).contains(VarType.VARTYPE_OBJECT)) {
+              return true;
+            }
+          }
+        }
+
+        if ((genLeft.getWildcard() == GenericType.WILDCARD_NO || genLeft.getWildcard() == GenericType.WILDCARD_SUPER) &&
+          genRight.getWildcard() == GenericType.WILDCARD_EXTENDS) {
+          return true;
+        }
+
+        // Recurse on the type
+        // Notably, *only* recurse if the current wildcard types are the same- otherwise we may run into incorrect casting behavior
+        if (genLeft.getArguments().size() != genRight.getArguments().size()) {
+          return false;
+        }
+
+        if (genLeft.getWildcard() == genRight.getWildcard()) {
+          for (int i = 0; i < genLeft.getArguments().size(); i++) {
+            VarType lt = genLeft.getArguments().get(i);
+            VarType rt = genRight.getArguments().get(i);
+            // Subset of Type<?> -> Type<T> check: Only check for genvars. If T is concrete, then don't force casting.
+            if (rt == null && lt != null && lt.type == CodeType.GENVAR) {
+              return true;
+            }
+
+            if (lt != null && rt != null) {
+              if (shouldGenericTypesCast(named, lt, rt)) {
+                return true;
+              }
+            }
+          }
+        }
+      } else {
+        // Right is not generic
+        // Check for casting a concrete rightType to a specific left generic
+        // e.g. (List<T>)list where 'list' is List<Object>
+        if (genLeft.getWildcard() == GenericType.WILDCARD_NO && genLeft.getArguments().isEmpty()) {
+          return true;
         }
       }
     }
@@ -1086,11 +1198,11 @@ public class ExprProcessor implements CodeConstants {
   private static boolean isIntConstant(Exprent exprent) {
     if (exprent instanceof ConstExprent) {
       switch (((ConstExprent)exprent).getConstType().type) {
-        case CodeConstants.TYPE_BYTE:
-        case CodeConstants.TYPE_BYTECHAR:
-        case CodeConstants.TYPE_SHORT:
-        case CodeConstants.TYPE_SHORTCHAR:
-        case CodeConstants.TYPE_INT:
+        case BYTE:
+        case BYTECHAR:
+        case SHORT:
+        case SHORTCHAR:
+        case INT:
           return true;
       }
     }
@@ -1099,7 +1211,7 @@ public class ExprProcessor implements CodeConstants {
   }
 
   private static boolean isNarrowedIntType(VarType type) {
-    return VarType.VARTYPE_INT.isStrictSuperset(type) ||
+    return VarType.VARTYPE_INT.higherInLatticeThan(type) ||
            type.equals(VarType.VARTYPE_BYTE_OBJ) || type.equals(VarType.VARTYPE_SHORT_OBJ);
   }
 

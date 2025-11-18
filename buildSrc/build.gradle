@@ -1,9 +1,13 @@
-apply plugin: 'java'
+plugins {
+  id 'java'
+  id 'groovy-gradle-plugin'
+}
 
 repositories {
   mavenCentral()
 }
 
 dependencies {
+  implementation gradleApi()
   implementation 'org.openjdk.asmtools:asmtools-core:7.0.b10-ea'
 }

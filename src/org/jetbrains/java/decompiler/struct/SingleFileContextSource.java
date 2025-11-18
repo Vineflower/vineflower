@@ -84,7 +84,8 @@ class SingleFileContextSource implements IContextSource {
 
       @Override
       public void acceptClass(String qualifiedName, String fileName, String content, int[] mapping) {
-        saver.saveClassFile("", qualifiedName, file.getName().substring(0, file.getName().length() - CLASS_SUFFIX.length()) + ".java", content, mapping);
+        String entryName = fileName.substring(fileName.lastIndexOf('/') + 1);
+        saver.saveClassFile("", qualifiedName, entryName, content, mapping);
       }
     };
   }

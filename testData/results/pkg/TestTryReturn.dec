@@ -55,20 +55,20 @@ public class TestTryReturn {
    public boolean testFinally3(boolean b, boolean c, int a, Supplier<Boolean> supplier) {
       boolean var5;
       try {
-         if (b) {// 50
-            return c && supplier.get();// 51
-         }
+         if (!b) {// 50
+            if (a > 0) {// 54
+               return a == 1;// 55
+            }
 
-         if (a <= 0) {// 54
             return supplier.get();// 58
          }
 
-         var5 = a == 1;
+         var5 = c && supplier.get();
       } finally {
          System.out.println("Finally");// 60
       }
 
-      return var5;// 55
+      return var5;// 51
    }
 
    public boolean testFinally4(Supplier<Boolean> supplier) {
@@ -88,7 +88,7 @@ public class TestTryReturn {
 
       try {
          b = supplier.get();// 78
-      } catch (Exception var7) {// 79
+      } catch (Exception e) {// 79
          System.out.println("Catch");// 80
          b = supplier.get();// 81
       } finally {
@@ -108,7 +108,7 @@ public class TestTryReturn {
          }
 
          b = supplier.get();// 97
-      } catch (Exception var8) {// 98
+      } catch (Exception e) {// 98
          System.out.println("Catch");// 99
          b = supplier.get();// 100
       } finally {
@@ -166,6 +166,10 @@ public class TestTryReturn {
       // 37: iload 1
       // 38: invokevirtual java/io/PrintStream.println (C)V
       // 3b: return
+      // try (5 -> 8): 12 java/lang/Exception
+      // try (5 -> 8): 17 null
+      // try (2 -> 8): 26 null
+      // try (26 -> 27): 26 null
    }
 
    public void testPostdomFailure() {
@@ -175,13 +179,13 @@ public class TestTryReturn {
          try {
             try {
                System.out.println(2);// 148
-            } catch (Exception var14) {// 149
+            } catch (Exception var9) {// 149
                System.out.println(3);// 150
             } finally {
-               continue;// 153
+               continue;
             }
          } finally {
-            boolean var7 = true;// 156
+            byte var7 = 28;// 156
          }
       }
    }// 159
@@ -190,9 +194,9 @@ public class TestTryReturn {
       try {
          System.out.println("Hi");// 164
          return;// 174
-      } catch (Exception var8) {// 165
-         if (var8 == null) {// 166
-            System.out.println(var8);// 169
+      } catch (Exception var2) {// 165
+         if (var2 == null) {// 166
+            System.out.println(var2);// 169
             return;// 170
          }
       } finally {
@@ -216,7 +220,7 @@ public class TestTryReturn {
          try {
             System.out.println(var4);// 185
             return;// 195
-         } catch (Exception var16) {// 186
+         } catch (Exception var5) {// 186
          } finally {
             System.out.println(var15);// 190
          }
@@ -224,6 +228,23 @@ public class TestTryReturn {
          System.out.println(var3);// 194
       }
    }// 187
+
+   public void returnInCatch() {
+      label27: {
+         try {
+            System.out.println("Hi!");// 200
+            break label27;
+         } catch (Exception e) {// 201
+            System.out.println("hello");// 202
+         } finally {
+            System.out.println("finally");// 205
+         }
+
+         return;// 203
+      }
+
+      System.out.println("post");// 206 208
+   }
 }
 
 class 'pkg/TestTryReturn' {
@@ -256,12 +277,14 @@ class 'pkg/TestTryReturn' {
       c      17
       15      22
       16      22
-      17      19
       18      19
       19      19
       1a      19
       1b      19
       1c      19
+      1d      19
+      1e      19
+      1f      19
    }
 
    method 'testFinally1 (Ljava/util/function/Supplier;)V' {
@@ -271,6 +294,8 @@ class 'pkg/TestTryReturn' {
       3      26
       4      26
       5      26
+      6      26
+      7      26
       8      30
       9      30
       a      30
@@ -281,27 +306,25 @@ class 'pkg/TestTryReturn' {
       12      30
       13      30
       14      30
+      15      30
+      16      30
       1f      37
       28      40
       29      40
       2a      40
-      2b      34
       2c      34
       2d      34
       2e      34
       2f      34
       30      34
-      31      40
-      32      40
-      33      40
-      34      40
-      35      40
+      31      34
+      32      34
+      33      34
       36      40
       37      40
-      38      40
       39      40
       3a      40
-      3b      41
+      3b      40
    }
 
    method 'testFinally2 (Ljava/util/function/Supplier;)Z' {
@@ -316,49 +339,54 @@ class 'pkg/TestTryReturn' {
       b      46
       c      46
       15      51
-      16      51
-      17      51
-      18      48
       19      48
       1a      48
       1b      48
       1c      48
       1d      48
-      1e      51
-      1f      51
-      20      51
-      21      51
-      22      51
+      1e      48
+      1f      48
+      20      48
       23      51
    }
 
    method 'testFinally3 (ZZILjava/util/function/Supplier;)Z' {
       0      57
       1      57
-      4      58
-      5      58
-      8      58
-      9      58
-      a      58
-      b      58
-      c      58
-      d      58
-      e      58
-      12      58
-      13      58
-      14      58
-      15      58
-      29      58
-      2a      61
-      2b      61
-      2e      65
-      2f      65
-      30      65
-      38      65
-      39      65
-      42      70
-      43      70
-      44      70
+      2      57
+      3      57
+      4      65
+      5      65
+      6      65
+      7      65
+      8      65
+      9      65
+      a      65
+      b      65
+      c      65
+      d      65
+      e      65
+      12      65
+      13      65
+      14      65
+      15      65
+      16      65
+      17      65
+      1d      65
+      1e      65
+      27      70
+      28      70
+      29      70
+      2a      58
+      2b      58
+      2c      58
+      2d      58
+      2e      59
+      2f      59
+      30      59
+      31      59
+      32      59
+      44      59
       45      62
       46      62
       47      62
@@ -370,13 +398,14 @@ class 'pkg/TestTryReturn' {
       50      62
       51      62
       5e      62
-      5f      67
-      60      67
       61      67
       62      67
       63      67
       64      67
       65      67
+      66      67
+      67      67
+      68      67
    }
 
    method 'testFinally4 (Ljava/util/function/Supplier;)Z' {
@@ -393,19 +422,14 @@ class 'pkg/TestTryReturn' {
       d      77
       e      77
       17      82
-      18      82
-      19      82
-      1a      79
       1b      79
       1c      79
       1d      79
       1e      79
       1f      79
-      20      82
-      21      82
-      22      82
-      23      82
-      24      82
+      20      79
+      21      79
+      22      79
       25      82
    }
 
@@ -441,13 +465,14 @@ class 'pkg/TestTryReturn' {
       2d      92
       2e      92
       2f      92
-      3b      94
-      3c      94
       3d      94
       3e      94
       3f      94
       40      94
       41      94
+      42      94
+      43      94
+      44      94
       48      97
       49      97
    }
@@ -457,6 +482,8 @@ class 'pkg/TestTryReturn' {
       1      101
       2      104
       3      104
+      4      104
+      5      104
       6      105
       7      105
       8      106
@@ -465,6 +492,8 @@ class 'pkg/TestTryReturn' {
       b      106
       c      106
       d      106
+      e      106
+      f      106
       10      109
       11      109
       12      109
@@ -494,13 +523,14 @@ class 'pkg/TestTryReturn' {
       3c      112
       3d      112
       3e      112
-      4a      114
-      4b      114
       4c      114
       4d      114
       4e      114
       4f      114
       50      114
+      51      114
+      52      114
+      53      114
       57      117
       58      117
    }
@@ -510,100 +540,158 @@ class 'pkg/TestTryReturn' {
       1      121
       2      125
       3      125
+      4      125
+      5      125
       e      126
-      1a      129
       1b      129
       1c      129
       1d      129
       1e      129
       1f      129
+      20      129
+      21      129
+      22      129
    }
 
    method 'testPostdomFailure ()V' {
-      0      171
-      1      171
-      2      171
-      3      171
-      4      171
-      e      173
-      f      173
-      10      173
-      14      176
-      15      176
-      16      176
-      17      176
-      18      176
-      21      177
-      22      178
-      23      178
-      24      178
-      25      178
-      26      178
-      2f      180
-      38      183
-      39      183
-      3a      183
-      3b      183
-      41      186
+      0      175
+      1      175
+      2      175
+      3      175
+      4      175
+      5      175
+      6      175
+      e      177
+      f      177
+      10      177
+      14      180
+      15      180
+      16      180
+      17      180
+      18      180
+      19      180
+      1a      180
+      21      181
+      22      182
+      23      182
+      24      182
+      25      182
+      26      182
+      27      182
+      28      182
+      3a      187
+      3b      187
+      3c      187
+      3d      187
+      41      190
    }
 
    method 'testVarWrong ()V' {
-      0      190
-      1      190
-      2      190
-      3      190
-      4      190
-      5      190
-      b      191
-      e      192
-      f      193
-      10      193
-      16      200
-      17      194
-      18      194
-      19      194
-      1a      194
-      1b      194
-      21      195
-      22      198
-      23      198
-      24      198
-      25      198
+      0      194
+      1      194
+      2      194
+      3      194
+      4      194
+      5      194
+      6      194
+      7      194
+      b      195
+      e      196
+      f      197
+      10      197
+      11      197
+      12      197
+      16      204
+      17      198
+      18      198
+      19      198
+      1a      198
+      1b      198
+      1c      198
+      1d      198
+      21      199
+      24      202
+      25      202
+      26      202
+      27      202
    }
 
    method 'testInvalidUse ()V' {
-      0      203
-      1      203
-      2      204
-      3      204
-      4      204
-      5      209
-      6      209
-      7      209
-      8      209
-      9      209
-      13      210
-      14      211
-      15      216
-      16      216
-      17      216
-      18      216
-      19      216
-      26      218
-      36      225
-      37      220
-      38      220
-      39      220
-      3a      220
-      3b      220
-      3c      220
-      4a      217
-      4d      223
-      4e      223
-      4f      223
-      50      223
-      51      223
-      52      223
+      0      207
+      1      207
+      2      208
+      3      208
+      4      208
+      5      213
+      6      213
+      7      213
+      8      213
+      9      213
+      a      213
+      b      213
+      13      214
+      14      215
+      15      220
+      16      220
+      17      220
+      18      220
+      19      220
+      1a      220
+      1b      220
+      26      222
+      36      229
+      39      224
+      3a      224
+      3b      224
+      3c      224
+      3d      224
+      3e      224
+      3f      224
+      4a      221
+      4f      227
+      50      227
+      51      227
+      52      227
+      53      227
+      54      227
+      55      227
+   }
+
+   method 'returnInCatch ()V' {
+      0      234
+      1      234
+      2      234
+      3      234
+      4      234
+      5      234
+      6      234
+      7      234
+      10      245
+      11      245
+      12      245
+      13      236
+      14      237
+      15      237
+      16      237
+      17      237
+      18      237
+      19      237
+      1a      237
+      1b      237
+      24      242
+      26      239
+      27      239
+      28      239
+      29      239
+      2a      239
+      2b      239
+      2c      239
+      2d      239
+      30      245
+      31      245
+      33      245
+      34      245
+      35      245
    }
 }
 
@@ -624,9 +712,9 @@ Lines mapping:
 43 <-> 52
 45 <-> 52
 50 <-> 58
-51 <-> 59
-54 <-> 62
-55 <-> 71
+51 <-> 71
+54 <-> 59
+55 <-> 60
 58 <-> 63
 60 <-> 68
 65 <-> 75
@@ -655,33 +743,39 @@ Lines mapping:
 113 <-> 126
 114 <-> 127
 117 <-> 130
-143 <-> 172
-145 <-> 174
-148 <-> 177
-149 <-> 178
-150 <-> 179
-153 <-> 181
-156 <-> 184
-159 <-> 187
-164 <-> 191
-165 <-> 193
-166 <-> 194
-167 <-> 201
-169 <-> 195
-170 <-> 196
-173 <-> 199
-174 <-> 192
-178 <-> 204
-179 <-> 205
-181 <-> 210
-182 <-> 211
-183 <-> 212
-185 <-> 217
-186 <-> 219
-187 <-> 226
-190 <-> 221
-194 <-> 224
-195 <-> 218
+143 <-> 176
+145 <-> 178
+148 <-> 181
+149 <-> 182
+150 <-> 183
+156 <-> 188
+159 <-> 191
+164 <-> 195
+165 <-> 197
+166 <-> 198
+167 <-> 205
+169 <-> 199
+170 <-> 200
+173 <-> 203
+174 <-> 196
+178 <-> 208
+179 <-> 209
+181 <-> 214
+182 <-> 215
+183 <-> 216
+185 <-> 221
+186 <-> 223
+187 <-> 230
+190 <-> 225
+194 <-> 228
+195 <-> 222
+200 <-> 235
+201 <-> 237
+202 <-> 238
+203 <-> 243
+205 <-> 240
+206 <-> 246
+208 <-> 246
 Not mapped:
 20
 35
@@ -689,7 +783,9 @@ Not mapped:
 84
 103
 118
+153
 157
 175
 191
 196
+209

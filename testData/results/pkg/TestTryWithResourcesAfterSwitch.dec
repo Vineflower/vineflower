@@ -8,19 +8,18 @@ public class TestTryWithResourcesAfterSwitch {
       ElementType vvv3 = ElementType.METHOD;// 8
       if (vvv3 != null) {// 9
          throw new RuntimeException();// 10
-      } else {
-         String vvv25 = "default";// 14
-         switch (vvv25) {
-            case "HYxSY":
-            default:
-               ElementType vvv25x = ElementType.METHOD;// 19
+      }
 
-               try (Scanner vvv26 = new Scanner(System.in)) {// 20
-                  System.out.println("hi");// 21
-               } finally {
-                  System.out.println("f");// 23
-               }
-         }
+      switch ("default") {// 14
+         case "HYxSY":
+         default:
+            ElementType vvv25 = ElementType.METHOD;// 19
+
+            try (Scanner vvv26 = new Scanner(System.in)) {// 20
+               System.out.println("hi");// 21
+            } finally {
+               System.out.println("f");// 23
+            }
       }
    }// 24
 
@@ -28,17 +27,16 @@ public class TestTryWithResourcesAfterSwitch {
       ElementType vvv3 = ElementType.METHOD;// 28
       if (vvv3 != null) {// 29
          throw new RuntimeException();// 30
-      } else {
-         String vvv26 = "default";// 34
-         switch (vvv26) {
-            case "HYxSY":
-            default:
-               try (Scanner vvv26x = new Scanner(System.in)) {// 39
-                  System.out.println("hi");// 40
-               } finally {
-                  System.out.println("f");// 42
-               }
-         }
+      }
+
+      switch ("default") {// 34
+         case "HYxSY":
+         default:
+            try (Scanner vvv26 = new Scanner(System.in)) {// 39
+               System.out.println("hi");// 40
+            } finally {
+               System.out.println("f");// 42
+            }
       }
    }// 43
 }
@@ -51,14 +49,33 @@ class 'pkg/TestTryWithResourcesAfterSwitch' {
       3      7
       4      8
       5      8
+      6      8
+      7      8
       f      9
-      10      11
-      11      11
-      12      11
-      15      12
+      10      12
+      11      12
       2d      13
       2e      13
       38      12
+      39      12
+      3a      12
+      3b      12
+      3c      12
+      3d      12
+      3e      12
+      3f      12
+      40      12
+      41      12
+      42      12
+      43      12
+      44      12
+      45      12
+      46      12
+      47      12
+      48      12
+      49      12
+      4a      12
+      4b      12
       4c      15
       4d      15
       4e      15
@@ -73,49 +90,74 @@ class 'pkg/TestTryWithResourcesAfterSwitch' {
       61      18
       62      18
       63      18
-      bf      24
-      c2      20
-      c3      20
+      64      18
+      65      18
+      bf      23
       c4      20
       c5      20
       c6      20
       c7      20
       c8      20
+      c9      20
+      ca      20
+      cb      20
    }
 
    method 'test2 ()V' {
-      0      27
-      1      27
-      2      27
-      3      27
-      4      28
-      5      28
-      f      29
+      0      26
+      1      26
+      2      26
+      3      26
+      4      27
+      5      27
+      6      27
+      7      27
+      f      28
       10      31
       11      31
-      12      31
-      15      32
-      2d      33
-      2e      33
-      38      32
-      50      35
-      51      35
-      52      35
-      56      35
-      59      36
-      5a      36
-      5b      36
-      5c      36
-      5d      36
-      5e      36
-      b5      42
-      b8      38
-      b9      38
-      ba      38
-      bb      38
-      bc      38
-      bd      38
-      be      38
+      2d      32
+      2e      32
+      38      31
+      39      31
+      3a      31
+      3b      31
+      3c      31
+      3d      31
+      3e      31
+      3f      31
+      40      31
+      41      31
+      42      31
+      43      31
+      44      31
+      45      31
+      46      31
+      47      31
+      48      31
+      49      31
+      4a      31
+      4b      31
+      50      34
+      51      34
+      52      34
+      56      34
+      59      35
+      5a      35
+      5b      35
+      5c      35
+      5d      35
+      5e      35
+      5f      35
+      60      35
+      b5      40
+      ba      37
+      bb      37
+      bc      37
+      bd      37
+      be      37
+      bf      37
+      c0      37
+      c1      37
    }
 }
 
@@ -123,20 +165,20 @@ Lines mapping:
 8 <-> 8
 9 <-> 9
 10 <-> 10
-14 <-> 12
+14 <-> 13
 19 <-> 16
 20 <-> 18
 21 <-> 19
 23 <-> 21
-24 <-> 25
-28 <-> 28
-29 <-> 29
-30 <-> 30
+24 <-> 24
+28 <-> 27
+29 <-> 28
+30 <-> 29
 34 <-> 32
-39 <-> 36
-40 <-> 37
-42 <-> 39
-43 <-> 43
+39 <-> 35
+40 <-> 36
+42 <-> 38
+43 <-> 41
 Not mapped:
 22
 25

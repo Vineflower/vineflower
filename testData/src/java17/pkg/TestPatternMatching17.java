@@ -177,4 +177,12 @@ public class TestPatternMatching17 {
       }
       return s;
   }
+
+  public void testInLoop(Object[] a) {
+    for (Object o : a) {
+      if (o instanceof String s && !s.isEmpty()) {
+        System.out.println(s);
+      }
+    }
+  }
 }

@@ -10,14 +10,14 @@ import java.util.Arrays;
 import java.util.List;
 
 
-public final class SequenceStatement extends Statement {
+public class SequenceStatement extends Statement {
 
 
   // *****************************************************************************
   // constructors
   // *****************************************************************************
 
-  private SequenceStatement() {
+  protected SequenceStatement() {
     super(StatementType.SEQUENCE);
   }
 
@@ -38,7 +38,7 @@ public final class SequenceStatement extends Statement {
     first = stats.get(0);
   }
 
-  private SequenceStatement(Statement head, Statement tail) {
+  protected SequenceStatement(Statement head, Statement tail) {
 
     this(Arrays.asList(head, tail));
 

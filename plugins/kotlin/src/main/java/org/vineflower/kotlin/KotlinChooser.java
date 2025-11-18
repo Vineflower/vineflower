@@ -1,13 +1,11 @@
 package org.vineflower.kotlin;
 
-import kotlin.reflect.jvm.internal.impl.metadata.ProtoBuf;
-import kotlin.reflect.jvm.internal.impl.metadata.jvm.JvmProtoBuf;
-import kotlin.reflect.jvm.internal.impl.protobuf.ExtensionRegistryLite;
-import org.jetbrains.java.decompiler.api.LanguageChooser;
+import org.vineflower.kt.metadata.ProtoBuf;
+import org.vineflower.kt.metadata.jvm.JvmProtoBuf;
+import org.vineflower.kt.protobuf.ExtensionRegistryLite;
+import org.jetbrains.java.decompiler.api.plugin.LanguageChooser;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
-import org.jetbrains.java.decompiler.util.Key;
-import org.vineflower.kotlin.metadata.BitEncoding;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.AnnotationExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.ConstExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
@@ -15,9 +13,12 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.NewExprent;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.attr.StructAnnotationAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
+import org.jetbrains.java.decompiler.util.Key;
+import org.vineflower.kotlin.metadata.BitEncoding;
 import org.vineflower.kotlin.metadata.MetadataNameResolver;
 
 import java.io.ByteArrayInputStream;
+import java.util.Objects;
 
 public class KotlinChooser implements LanguageChooser {
   private static final Key<?>[] ANNOTATION_ATTRIBUTES = {
@@ -31,14 +32,20 @@ public class KotlinChooser implements LanguageChooser {
 
   @Override
   public boolean isLanguage(StructClass cl) {
+    if (!DecompilerContext.getOption(KotlinOptions.DECOMPILE_KOTLIN)) {
+      return false;
+    }
+
     // Try to find @Metadata()
 
     for (Key<?> key : ANNOTATION_ATTRIBUTES) {
       if (cl.hasAttribute(key)) {
-        StructAnnotationAttribute attr = cl.getAttribute(key);
+        StructAnnotationAttribute attr = cl.getAttribute((Key<StructAnnotationAttribute>) key);
         for (AnnotationExprent anno : attr.getAnnotations()) {
           if (anno.getClassName().equals("kotlin/Metadata")) {
-            setContextVariables(cl);
+            // Line removed as it slows down decompilation significantly, and it doesn't seem to break anything
+            //TODO double-check if it breaks anything
+//            setContextVariables(cl);
             return true;
           }
         }
@@ -55,7 +62,7 @@ public class KotlinChooser implements LanguageChooser {
     loop:
     for (Key<?> key : ANNOTATION_ATTRIBUTES) {
       if (cl.hasAttribute(key)) {
-        StructAnnotationAttribute attr = cl.getAttribute(key);
+        StructAnnotationAttribute attr = cl.getAttribute((Key<StructAnnotationAttribute>) key);
         for (AnnotationExprent a : attr.getAnnotations()) {
           if (a.getClassName().equals("kotlin/Metadata")) {
             anno = a;
@@ -67,12 +74,29 @@ public class KotlinChooser implements LanguageChooser {
 
     try {
       int kIndex = anno.getParNames().indexOf("k");
-      int k = (int) ((ConstExprent) anno.getParValues().get(kIndex)).getValue();
-  
       int d1Index = anno.getParNames().indexOf("d1");
-      Exprent d1 = anno.getParValues().get(d1Index);
-  
       int d2Index = anno.getParNames().indexOf("d2");
+
+      if (kIndex == -1) {
+        DecompilerContext.getLogger().writeMessage("No k attribute in class metadata for class " + cl.qualifiedName, IFernflowerLogger.Severity.WARN);
+        DecompilerContext.setProperty(KotlinDecompilationContext.CURRENT_TYPE, null);
+        return;
+      }
+
+      if (d1Index == -1) {
+        DecompilerContext.getLogger().writeMessage("No d1 attribute in class metadata for class " + cl.qualifiedName, IFernflowerLogger.Severity.WARN);
+        DecompilerContext.setProperty(KotlinDecompilationContext.CURRENT_TYPE, null);
+        return;
+      }
+
+      if (d2Index == -1) {
+        DecompilerContext.getLogger().writeMessage("No d2 attribute in class metadata for class " + cl.qualifiedName, IFernflowerLogger.Severity.WARN);
+        DecompilerContext.setProperty(KotlinDecompilationContext.CURRENT_TYPE, null);
+        return;
+      }
+
+      int k = (int) ((ConstExprent) anno.getParValues().get(kIndex)).getValue();
+      Exprent d1 = anno.getParValues().get(d1Index);
       Exprent d2 = anno.getParValues().get(d2Index);
 
       String[] data1 = getDataFromExpr((NewExprent) d1);
@@ -84,8 +108,7 @@ public class KotlinChooser implements LanguageChooser {
       ByteArrayInputStream input = new ByteArrayInputStream(buf);
       JvmProtoBuf.StringTableTypes types = JvmProtoBuf.StringTableTypes.parseDelimitedFrom(input, EXTENSIONS);
 
-      MetadataNameResolver resolver = new MetadataNameResolver(types, data2);
-      DecompilerContext.setProperty(KotlinDecompilationContext.NAME_RESOLVER, resolver);
+      DecompilerContext.setProperty(KotlinDecompilationContext.NAME_RESOLVER, new MetadataNameResolver(types, data2));
 
       if (k == 1) { // Class file
         ProtoBuf.Class pcl = ProtoBuf.Class.parseFrom(input, EXTENSIONS);

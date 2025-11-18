@@ -1,0 +1,415 @@
+package pkg;
+
+public class TestNumberDisambiguation {
+   public void foo(byte b) {
+   }// 5
+
+   public void foo(short s) {
+   }// 8
+
+   public void foo(char c) {
+   }// 11
+
+   public void foo(int i) {
+   }// 14
+
+   public void foo(long l) {
+   }// 17
+
+   public void foo(float f) {
+   }// 20
+
+   public void foo(double d) {
+   }// 23
+
+   public void bar(byte a, byte b) {
+   }// 26
+
+   public void bar(short a, short b) {
+   }// 29
+
+   public void bar(char a, char b) {
+   }// 32
+
+   public void bar(int a, int b) {
+   }// 35
+
+   public void bar(long a, long b) {
+   }// 38
+
+   public void bar(float a, float b) {
+   }// 41
+
+   public void bar(double a, double b) {
+   }// 44
+
+   public void baz(int a, byte b, byte c) {
+   }// 47
+
+   public void baz(int a, short b, short c) {
+   }// 50
+
+   public void baz(int a, char b, char c) {
+   }// 53
+
+   public void baz(int a, int b, int c) {
+   }// 56
+
+   public void baz(int a, long b, long c) {
+   }// 59
+
+   public void baz(int a, float b, float c) {
+   }// 62
+
+   public void baz(int a, double b, double c) {
+   }// 65
+
+   public void varargs(int... a) {
+   }// 68
+
+   public void varargs(float... a) {
+   }// 71
+
+   public void test() {
+      int i = 24;// 74
+      this.foo((byte)i);// 75
+      this.foo((short)i);// 76
+      this.foo((char)i);// 77
+      this.foo(i);// 78
+      this.foo((long)i);// 79
+      this.foo((float)i);// 80
+      this.foo((double)i);// 81
+      this.bar((byte)0, (byte)i);// 83
+      this.bar((short)0, (short)i);// 84
+      this.bar('\u0000', (char)i);// 85
+      this.bar(0, i);// 86
+      this.bar(0L, i);// 87
+      this.bar(0.0F, i);// 88
+      this.bar(0.0, i);// 89
+      this.baz(0, (byte)127, (byte)i);// 91
+      this.baz(0, (short)32767, (short)i);// 92
+      this.baz(0, '\uffff', (char)i);// 93
+      this.baz(0, 2147483647, i);// 94
+      this.baz(0, 9223372036854775807L, i);// 95
+      this.baz(0, 3.4028235E38F, i);// 96
+      this.baz(0, 1.7976931348623157E308, i);// 97
+      this.varargs(i);// 99
+      this.varargs(i);// 100
+   }// 101
+}
+
+class 'pkg/TestNumberDisambiguation' {
+   method 'foo (B)V' {
+      0      4
+   }
+
+   method 'foo (S)V' {
+      0      7
+   }
+
+   method 'foo (C)V' {
+      0      10
+   }
+
+   method 'foo (I)V' {
+      0      13
+   }
+
+   method 'foo (J)V' {
+      0      16
+   }
+
+   method 'foo (F)V' {
+      0      19
+   }
+
+   method 'foo (D)V' {
+      0      22
+   }
+
+   method 'bar (BB)V' {
+      0      25
+   }
+
+   method 'bar (SS)V' {
+      0      28
+   }
+
+   method 'bar (CC)V' {
+      0      31
+   }
+
+   method 'bar (II)V' {
+      0      34
+   }
+
+   method 'bar (JJ)V' {
+      0      37
+   }
+
+   method 'bar (FF)V' {
+      0      40
+   }
+
+   method 'bar (DD)V' {
+      0      43
+   }
+
+   method 'baz (IBB)V' {
+      0      46
+   }
+
+   method 'baz (ISS)V' {
+      0      49
+   }
+
+   method 'baz (ICC)V' {
+      0      52
+   }
+
+   method 'baz (III)V' {
+      0      55
+   }
+
+   method 'baz (IJJ)V' {
+      0      58
+   }
+
+   method 'baz (IFF)V' {
+      0      61
+   }
+
+   method 'baz (IDD)V' {
+      0      64
+   }
+
+   method 'varargs ([I)V' {
+      0      67
+   }
+
+   method 'varargs ([F)V' {
+      0      70
+   }
+
+   method 'test ()V' {
+      0      73
+      1      73
+      2      73
+      3      74
+      4      74
+      5      74
+      6      74
+      7      74
+      8      74
+      9      75
+      a      75
+      b      75
+      c      75
+      d      75
+      e      75
+      f      76
+      10      76
+      11      76
+      12      76
+      13      76
+      14      76
+      15      77
+      16      77
+      17      77
+      18      77
+      19      77
+      1a      78
+      1b      78
+      1c      78
+      1d      78
+      1e      78
+      1f      78
+      20      79
+      21      79
+      22      79
+      23      79
+      24      79
+      25      79
+      26      80
+      27      80
+      28      80
+      29      80
+      2a      80
+      2b      80
+      2c      81
+      2d      81
+      2e      81
+      2f      81
+      30      81
+      31      81
+      32      81
+      33      82
+      34      82
+      35      82
+      36      82
+      37      82
+      38      82
+      39      82
+      3a      83
+      3b      83
+      3c      83
+      3d      83
+      3e      83
+      3f      83
+      40      83
+      41      84
+      42      84
+      43      84
+      44      84
+      45      84
+      46      84
+      47      85
+      48      85
+      49      85
+      4a      85
+      4b      85
+      4c      85
+      4d      85
+      4e      86
+      4f      86
+      50      86
+      51      86
+      52      86
+      53      86
+      54      86
+      55      87
+      56      87
+      57      87
+      58      87
+      59      87
+      5a      87
+      5b      87
+      5c      88
+      5d      88
+      5e      88
+      5f      88
+      60      88
+      61      88
+      62      88
+      63      88
+      64      88
+      65      89
+      66      89
+      67      89
+      68      89
+      69      89
+      6a      89
+      6b      89
+      6c      89
+      6d      89
+      6e      89
+      6f      90
+      70      90
+      71      90
+      72      90
+      73      90
+      74      90
+      75      90
+      76      90
+      77      90
+      78      91
+      79      91
+      7a      91
+      7b      91
+      7c      91
+      7d      91
+      7e      91
+      7f      91
+      80      92
+      81      92
+      82      92
+      83      92
+      84      92
+      85      92
+      86      92
+      87      92
+      88      92
+      89      92
+      8a      93
+      8b      93
+      8c      93
+      8d      93
+      8e      93
+      8f      93
+      90      93
+      91      93
+      92      93
+      93      94
+      94      94
+      95      94
+      96      94
+      97      94
+      98      94
+      99      94
+      9a      94
+      9b      94
+      9c      94
+      9d      95
+      a3      95
+      a5      95
+      a6      95
+      a7      95
+      a8      96
+      ae      96
+      af      96
+      b1      96
+      b2      96
+      b3      96
+      b4      97
+   }
+}
+
+Lines mapping:
+5 <-> 5
+8 <-> 8
+11 <-> 11
+14 <-> 14
+17 <-> 17
+20 <-> 20
+23 <-> 23
+26 <-> 26
+29 <-> 29
+32 <-> 32
+35 <-> 35
+38 <-> 38
+41 <-> 41
+44 <-> 44
+47 <-> 47
+50 <-> 50
+53 <-> 53
+56 <-> 56
+59 <-> 59
+62 <-> 62
+65 <-> 65
+68 <-> 68
+71 <-> 71
+74 <-> 74
+75 <-> 75
+76 <-> 76
+77 <-> 77
+78 <-> 78
+79 <-> 79
+80 <-> 80
+81 <-> 81
+83 <-> 82
+84 <-> 83
+85 <-> 84
+86 <-> 85
+87 <-> 86
+88 <-> 87
+89 <-> 88
+91 <-> 89
+92 <-> 90
+93 <-> 91
+94 <-> 92
+95 <-> 93
+96 <-> 94
+97 <-> 95
+99 <-> 96
+100 <-> 97
+101 <-> 98

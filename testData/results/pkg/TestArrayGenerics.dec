@@ -1,0 +1,59 @@
+package pkg;
+
+import java.lang.reflect.Array;
+import java.util.stream.IntStream;
+
+public class TestArrayGenerics {
+   private static <T> T[] myMethod(Object[] myObjects, Class<T> clazz) {
+      return (T[])IntStream.range(0, myObjects.length).mapToObj(i -> myObjects[i]).toArray(size -> (Object[])Array.newInstance(clazz, size));// 8 9 10
+   }
+}
+
+class 'pkg/TestArrayGenerics' {
+   method 'myMethod ([Ljava/lang/Object;Ljava/lang/Class;)[Ljava/lang/Object;' {
+      0      7
+      1      7
+      2      7
+      3      7
+      4      7
+      5      7
+      c      7
+      d      7
+      e      7
+      f      7
+      10      7
+      17      7
+      18      7
+      19      7
+      1a      7
+      1b      7
+      1c      7
+   }
+
+   method 'lambda$myMethod$0 ([Ljava/lang/Object;I)Ljava/lang/Object;' {
+      0      7
+      1      7
+      2      7
+      3      7
+   }
+
+   method 'lambda$myMethod$1 (Ljava/lang/Class;I)[Ljava/lang/Object;' {
+      0      7
+      1      7
+      2      7
+      3      7
+      4      7
+      5      7
+      6      7
+      7      7
+      8      7
+      9      7
+      a      7
+      b      7
+   }
+}
+
+Lines mapping:
+8 <-> 8
+9 <-> 8
+10 <-> 8

@@ -13,6 +13,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.sforms.SSAConstructorSpa
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarTypeProcessor.FinalType;
 import org.jetbrains.java.decompiler.struct.StructMethod;
+import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.DotExporter;
@@ -31,10 +32,32 @@ public class VarVersionsProcessor {
     typeProcessor = new VarTypeProcessor(mt, md);
   }
 
+  // FIXME: This introduces bugs!! (see the FizzBuzz in TestDoublePopAfterJump & TestCompoundAssignmentReplace)
+  //  consider:
+  //    x = x + 1
+  //    use(x);
+  //    ...
+  //    use(x);
+  //  after splitting:
+  //    a = x + 1
+  //    use(a);
+  //    ...
+  //    use(a);
+  //  after inline 1 of these:
+  //    a = x + 1
+  //    use(x + 1);
+  //    ...
+  //    use(a);
+  //  merge variables again:
+  //    x = x + 1
+  //    use(x + 1);
+  //    ...
+  //    use(x);
   public void setVarVersions(RootStatement root, VarVersionsProcessor previousVersionsProcessor) {
     SSAConstructorSparseEx ssa = new SSAConstructorSparseEx();
     ssa.splitVariables(root, method);
 
+    // TODO: ssa already made a dgraph
     FlattenStatementsHelper flattenHelper = new FlattenStatementsHelper();
     DirectGraph graph = flattenHelper.buildDirectGraph(root);
 
@@ -115,33 +138,33 @@ public class VarVersionsProcessor {
   }
 
   private static void eliminateNonJavaTypes(VarTypeProcessor typeProcessor) {
-    Map<VarVersionPair, VarType> mapExprentMaxTypes = typeProcessor.getMapExprentMaxTypes();
-    Map<VarVersionPair, VarType> mapExprentMinTypes = typeProcessor.getMapExprentMinTypes();
+    Map<VarVersionPair, VarType> mapExprentMaxTypes = typeProcessor.getUpperBounds();
+    Map<VarVersionPair, VarType> mapExprentMinTypes = typeProcessor.getLowerBounds();
 
     for (VarVersionPair paar : new ArrayList<>(mapExprentMinTypes.keySet())) {
       VarType type = mapExprentMinTypes.get(paar);
       VarType maxType = mapExprentMaxTypes.get(paar);
 
-      if (type.type == CodeConstants.TYPE_BYTECHAR || type.type == CodeConstants.TYPE_SHORTCHAR) {
-        if (maxType != null && maxType.type == CodeConstants.TYPE_CHAR) {
+      if (type.type == CodeType.BYTECHAR || type.type == CodeType.SHORTCHAR) {
+        if (maxType != null && maxType.type == CodeType.CHAR) {
           type = VarType.VARTYPE_CHAR;
         }
         else {
-          type = type.type == CodeConstants.TYPE_BYTECHAR ? VarType.VARTYPE_BYTE : VarType.VARTYPE_SHORT;
+          type = type.type == CodeType.BYTECHAR ? VarType.VARTYPE_BYTE : VarType.VARTYPE_SHORT;
         }
         mapExprentMinTypes.put(paar, type);
-        //} else if(type.type == CodeConstants.TYPE_CHAR && (maxType == null || maxType.type == CodeConstants.TYPE_INT)) { // when possible, lift char to int
+        //} else if(type.type == CodeType.CHAR && (maxType == null || maxType.type == CodeType.INT)) { // when possible, lift char to int
         //	mapExprentMinTypes.put(paar, VarType.VARTYPE_INT);
       }
-      else if (type.type == CodeConstants.TYPE_NULL) {
+      else if (type.type == CodeType.NULL) {
         mapExprentMinTypes.put(paar, VarType.VARTYPE_OBJECT);
       }
     }
   }
 
   private static void simpleMerge(VarTypeProcessor typeProcessor, DirectGraph graph, StructMethod mt) {
-    Map<VarVersionPair, VarType> mapExprentMaxTypes = typeProcessor.getMapExprentMaxTypes();
-    Map<VarVersionPair, VarType> mapExprentMinTypes = typeProcessor.getMapExprentMinTypes();
+    Map<VarVersionPair, VarType> mapExprentMaxTypes = typeProcessor.getUpperBounds();
+    Map<VarVersionPair, VarType> mapExprentMinTypes = typeProcessor.getLowerBounds();
 
     Map<Integer, Set<Integer>> mapVarVersions = new HashMap<>();
 
@@ -174,14 +197,14 @@ public class VarVersionsProcessor {
             VarType secondType = mapExprentMinTypes.get(secondPair);
 
             if (firstType.equals(secondType) ||
-                (firstType.equals(VarType.VARTYPE_NULL) && secondType.type == CodeConstants.TYPE_OBJECT) ||
-                (secondType.equals(VarType.VARTYPE_NULL) && firstType.type == CodeConstants.TYPE_OBJECT)) {
+                (firstType.equals(VarType.VARTYPE_NULL) && secondType.type == CodeType.OBJECT) ||
+                (secondType.equals(VarType.VARTYPE_NULL) && firstType.type == CodeType.OBJECT)) {
 
               VarType firstMaxType = mapExprentMaxTypes.get(firstPair);
               VarType secondMaxType = mapExprentMaxTypes.get(secondPair);
               VarType type = firstMaxType == null ? secondMaxType :
                              secondMaxType == null ? firstMaxType :
-                             VarType.getCommonMinType(firstMaxType, secondMaxType);
+                             VarType.meet(firstMaxType, secondMaxType);
 
               mapExprentMaxTypes.put(firstPair, type);
               mapMergedVersions.put(secondPair, firstPair.version);
@@ -210,8 +233,8 @@ public class VarVersionsProcessor {
   }
 
   private void setNewVarIndices(VarTypeProcessor typeProcessor, DirectGraph graph, VarVersionsProcessor previousVersionsProcessor) {
-    final Map<VarVersionPair, VarType> mapExprentMaxTypes = typeProcessor.getMapExprentMaxTypes();
-    Map<VarVersionPair, VarType> mapExprentMinTypes = typeProcessor.getMapExprentMinTypes();
+    final Map<VarVersionPair, VarType> mapExprentMaxTypes = typeProcessor.getUpperBounds();
+    Map<VarVersionPair, VarType> mapExprentMinTypes = typeProcessor.getLowerBounds();
     Map<VarVersionPair, FinalType> mapFinalVars = typeProcessor.getMapFinalVars();
 
     CounterContainer counters = DecompilerContext.getCounterContainer();
@@ -226,6 +249,7 @@ public class VarVersionsProcessor {
 
     for (VarVersionPair pair : vvps) {
 
+      // '>= 0' captures all real variables, as constants are set to version -1
       if (pair.version >= 0) {
         int newIndex = pair.version == 1 ? pair.var : counters.getCounterAndIncrement(CounterContainer.VAR_COUNTER);
 
@@ -259,7 +283,7 @@ public class VarVersionsProcessor {
         }
         else if (expr instanceof ConstExprent) {
           VarType maxType = mapExprentMaxTypes.get(new VarVersionPair(expr.id, -1));
-          if (maxType != null && maxType.equals(VarType.VARTYPE_CHAR)) {
+          if (maxType != null) {
             ((ConstExprent)expr).setConstType(maxType);
           }
         }

@@ -4,7 +4,7 @@ public class TestTryCatchFinally {
    public void test1(String x) {
       try {
          System.out.println("sout1");// 24
-      } catch (Exception var9) {
+      } catch (Exception e) {
          try {
             System.out.println("sout2");// 27
          } catch (Exception var8) {// 28
@@ -27,8 +27,8 @@ public class TestTryCatchFinally {
    public int test(String a) {
       try {
          return Integer.parseInt(a);// 51
-      } catch (Exception var6) {// 52
-         System.out.println("Error" + var6);// 53
+      } catch (Exception e) {// 52
+         System.out.println("Error" + e);// 53
       } finally {
          System.out.println("Finally");// 55
       }
@@ -45,20 +45,25 @@ class 'pkg/TestTryCatchFinally' {
       3      5
       4      5
       5      5
+      6      5
+      7      5
       14      8
       15      8
       16      8
       17      8
       18      8
       19      8
+      1a      8
+      1b      8
       1f      9
-      2b      12
-      2c      12
       2d      12
       2e      12
       2f      12
       30      12
       31      12
+      32      12
+      33      12
+      34      12
       38      14
    }
 
@@ -66,10 +71,14 @@ class 'pkg/TestTryCatchFinally' {
       0      17
       1      17
       2      17
+      3      17
+      4      17
       c      18
       d      19
       e      19
       f      19
+      10      19
+      11      19
       12      20
       13      20
       1b      22
@@ -92,20 +101,17 @@ class 'pkg/TestTryCatchFinally' {
       24      30
       25      30
       26      30
+      27      30
+      28      30
       31      35
-      32      35
-      33      35
-      34      32
       35      32
       36      32
       37      32
       38      32
       39      32
-      3a      35
-      3b      35
-      3c      35
-      3d      35
-      3e      35
+      3a      32
+      3b      32
+      3c      32
       3f      35
    }
 }

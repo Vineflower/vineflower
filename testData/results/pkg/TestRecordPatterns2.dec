@@ -1,0 +1,38 @@
+package pkg;
+
+public class TestRecordPatterns2 {
+   public void test1(TestRecordPatterns2.R r) {
+      if (r instanceof TestRecordPatterns2.R(int z)) {// 9
+         System.out.println(z);// 10
+      }
+   }// 12
+
+   record R(int x) {
+   }
+}
+
+class 'pkg/TestRecordPatterns2' {
+   method 'test1 (Lpkg/TestRecordPatterns2$R;)V' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      5      4
+      6      4
+      11      4
+      12      5
+      13      5
+      14      5
+      15      5
+      16      5
+      17      5
+      18      5
+      2a      7
+   }
+}
+
+Lines mapping:
+9 <-> 5
+10 <-> 6
+12 <-> 8

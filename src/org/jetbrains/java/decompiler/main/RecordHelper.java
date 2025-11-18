@@ -3,6 +3,7 @@ package org.jetbrains.java.decompiler.main;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
@@ -13,6 +14,7 @@ import org.jetbrains.java.decompiler.struct.attr.StructAnnotationParameterAttrib
 import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructTypeAnnotationAttribute;
 import org.jetbrains.java.decompiler.struct.consts.LinkConstant;
+import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericFieldDescriptor;
 import org.jetbrains.java.decompiler.util.Key;
@@ -145,27 +147,12 @@ public final class RecordHelper {
 
     for (StructMember member : members) {
       for (Key<?> key : ClassWriter.ANNOTATION_ATTRIBUTES) {
-        StructAnnotationAttribute attribute = (StructAnnotationAttribute) member.getAttribute(key);
+        StructAnnotationAttribute attribute = member.getAttribute((Key<StructAnnotationAttribute>) key);
         if (attribute == null) continue;
         for (AnnotationExprent annotation : attribute.getAnnotations()) {
           TextBuffer text = annotation.toJava(-1);
           if (annotations.add(text.convertToStringAndAllowDataDiscard())) {
             buffers.add(text);
-          }
-        }
-      }
-
-      for (Key<?> key : ClassWriter.TYPE_ANNOTATION_ATTRIBUTES) {
-        StructTypeAnnotationAttribute attribute = (StructTypeAnnotationAttribute) member.getAttribute(key);
-        if (attribute == null) continue;
-        for (TypeAnnotation annotation : attribute.getAnnotations()) {
-          if (!annotation.isTopLevel()) continue;
-          int type = annotation.getTargetType();
-          if (type == TypeAnnotation.FIELD || type == TypeAnnotation.METHOD_PARAMETER) {
-            TextBuffer text = annotation.getAnnotation().toJava(-1);
-            if (annotations.add(text.convertToStringAndAllowDataDiscard())) {
-              buffers.add(text);
-            }
           }
         }
       }
@@ -175,7 +162,7 @@ public final class RecordHelper {
     if (constr == null) return buffers;
 
     for (Key<?> key : ClassWriter.PARAMETER_ANNOTATION_ATTRIBUTES) {
-      StructAnnotationParameterAttribute attribute = (StructAnnotationParameterAttribute) constr.getAttribute(key);
+      StructAnnotationParameterAttribute attribute = constr.getAttribute((Key<StructAnnotationParameterAttribute>)key);
       if (attribute == null) continue;
       List<List<AnnotationExprent>> paramAnnotations = attribute.getParamAnnotations();
       if (param >= paramAnnotations.size()) continue;
@@ -192,16 +179,27 @@ public final class RecordHelper {
 
   private static void recordComponentToJava(TextBuffer buffer, StructClass cl, StructRecordComponent cd, int param, boolean varArgComponent) {
     Set<TextBuffer> annotations = getRecordComponentAnnotations(cl, cd, param);
+    Set<String> writtenAnnotations = new HashSet<>();
     for (TextBuffer annotation : annotations) {
-      buffer.appendText(annotation).append(' ');
+      writtenAnnotations.add(annotation.convertToStringAndAllowDataDiscard());
+      buffer.append(annotation).append(' ');
     }
 
     VarType fieldType = new VarType(cd.getDescriptor(), false);
     GenericFieldDescriptor descriptor = cd.getSignature();
 
-    if (descriptor != null) fieldType = descriptor.type;
+    if (descriptor != null) {
+      descriptor.verifyType(cl.getSignature(), fieldType);
+      fieldType = descriptor.type;
+    }
 
-    buffer.appendCastTypeName(varArgComponent ? fieldType.decreaseArrayDim() : fieldType);
+    var annos = ClassWriter.getTypeAnnotations(cd, TypeAnnotation.FIELD, -1);
+
+    if (!annos.isEmpty()) {
+      buffer.appendCastTypeName(varArgComponent ? fieldType.decreaseArrayDim() : fieldType, annos, writtenAnnotations);
+    } else {
+      buffer.appendCastTypeName(varArgComponent ? fieldType.decreaseArrayDim() : fieldType);
+    }
     if (varArgComponent) {
       buffer.append("...");
     }
@@ -210,7 +208,7 @@ public final class RecordHelper {
     buffer.appendField(cd.getName(), true, cl.qualifiedName, cd.getName(), cd.getDescriptor());
   }
 
-  private static boolean hasAnnotations(StructMethod mt) {
+  public static boolean hasAnnotations(StructMethod mt) {
     return mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_RUNTIME_INVISIBLE_ANNOTATIONS) != null ||
       mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_RUNTIME_VISIBLE_ANNOTATIONS) != null;
   }
@@ -223,8 +221,54 @@ public final class RecordHelper {
     if (mw.methodStruct != getCanonicalConstructor(cl)) {
       return;
     }
+
+    MethodDescriptor md = mw.desc();
+    int params = md.params.length;
+
+    if (params != cl.getRecordComponents().size()) {
+      return;
+    }
+
+    int varidx = 1;
     for (int i = 0; i < cl.getRecordComponents().size(); i++) {
-      mw.varproc.setClashingName(new VarVersionPair(1 + i, 0), cl.getRecordComponents().get(i).getName());
+      mw.varproc.setClashingName(new VarVersionPair(varidx, 0), cl.getRecordComponents().get(i).getName());
+
+      varidx += md.params[i].stackSize;
+    }
+
+    // Prune all field assignments from the canonical constructor
+    if (isCompactCanonicalConstructor(mw)) {
+      mw.getOrBuildGraph().iterateExprents(exprent -> {
+        if (exprent instanceof AssignmentExprent assignmentExprent && assignmentExprent.getLeft() instanceof FieldExprent) {
+          return 2;
+        }
+
+        return 0;
+      });
+      mw.isCompactRecordConstructor = true;
     }
   }
+
+  // Ideally this is iterated backwards.
+  // However, what we do is check that the last exprents are field invocations to local variables.
+  // (And that the name of the lvt matches the field)
+  private static boolean isCompactCanonicalConstructor(MethodWrapper mw) {
+    DirectGraph graph = mw.getOrBuildGraph();
+    if (graph == null) {
+      return false;
+    }
+
+    boolean[] valid = new boolean[1];
+    graph.iterateExprents(exprent -> {
+      if (exprent instanceof AssignmentExprent assignmentExprent && assignmentExprent.getLeft() instanceof FieldExprent fieldExprent && assignmentExprent.getRight() instanceof VarExprent varExprent) {
+        valid[0] = varExprent.getLVT() != null && fieldExprent.getName().equals(varExprent.getName());
+      } else {
+        valid[0] = false;
+      }
+
+      return 0;
+    });
+    return valid[0];
+  }
+
 }

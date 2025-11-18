@@ -5,8 +5,10 @@ Welcome! Thank you for taking an interest in contributing to Vineflower.
 * The [ARCHITECTURE.md](./ARCHITECTURE.md) file in the repository contains technical information on how Vineflower is structured. Reading that will greatly help with familiarizing yourself with the codebase and with PR development.
 * It's highly recommended to socialize your changes first through our [social platforms](https://github.com/Vineflower) before making a pull request!
 * Check out the issue tracker and roadmap! You can find good things to contribute there.
+* Make sure your pull request is based off of the latest development branch in the repository. The main branch is a stable snapshot, representing the latest released version of the decompiler.
 
 ## Good things to contribute
+* Fixes to bugs present in the decompiler.
 * Improvements to the readability of the decompiled code.
 * New feature support for the decompiler.
 * Optimization, to make it run faster and use fewer resources.
@@ -17,7 +19,7 @@ Welcome! Thank you for taking an interest in contributing to Vineflower.
 * More technical issues are usually found in the [Test class](https://github.com/Vineflower/vineflower/blob/master/test/org/jetbrains/java/decompiler/SingleClassesTest.java) where individual wrong tests are described with their errors.
 
 ## Code Style and guidelines
-While the code inherited from FernFlower varies with its style and syntax, it's expected that pull requests stick to our established code style.
+While the code inherited from Fernflower varies with its style and syntax, it's expected that pull requests stick to our established code style.
 * We use UpperCamelCase for class names, camelCase for method, variable, local variable, and field names, and UPPER_SNAKE_CASE for static final fields. Please always qualify instance fields with a `this.` qualifier.
 * Please try to keep pull requests small and self-contained! It makes reviewing and maintaining the patch much easier.
 * Statements should always have braces around them, even if they are only 1 line in their length.
@@ -30,12 +32,12 @@ While the code inherited from FernFlower varies with its style and syntax, it's 
 * When contributing, you should add new tests that cover the area of code that you are targeting. Having more tests makes the decompiler more robust, so it's always appreciated.
 
 ## Resources
-FernFlower is a very complex and involved bit of software, and there's a lot going on in a rather questionable structure. Naturally, understanding it all is a challenge so various resources are provided here to aid with the process.
+Fernflower is a very complex and involved bit of software, and there's a lot going on in a rather questionable structure. Naturally, understanding it all is a challenge so various resources are provided here to aid with the process.
 * Knowing how java bytecode works is essential. You can find the detailed description of all the opcodes [here](https://docs.oracle.com/javase/specs/jvms/se16/html/jvms-6.html#jvms-6.5) or a simple list of them [here.](https://en.wikipedia.org/wiki/Java_bytecode_instruction_listings)
-* Graph theory comes up frequently in the statement analysis portion of FernFlower. It's useful knowing about [Basic Blocks](https://en.wikipedia.org/wiki/Basic_block), [Control Flow Graphs](https://en.wikipedia.org/wiki/Control-flow_graph), and [Dominators.](https://en.wikipedia.org/wiki/Dominator_(graph_theory))
+* Graph theory comes up frequently in the statement analysis portion of Fernflower. It's useful knowing about [Basic Blocks](https://en.wikipedia.org/wiki/Basic_block), [Control Flow Graphs](https://en.wikipedia.org/wiki/Control-flow_graph), and [Dominators.](https://en.wikipedia.org/wiki/Dominator_(graph_theory))
 * [Static Single Assignment Form](https://en.wikipedia.org/wiki/Static_single_assignment_form) is also used widely to track variables and their versions within the decompilation stages.
 * The [Java Language Specification](https://docs.oracle.com/javase/specs/jls/se16/html/), while dense, is a good source of information regarding language features.
-* The [ARCHITECTURE.md](./ARCHITECTURE.md) file in the repository contains important information about how FernFlower is structured.
+* The [ARCHITECTURE.md](./ARCHITECTURE.md) file in the repository contains important information about how Fernflower is structured.
 * The [social platforms](https://github.com/Vineflower) contains many people who have worked with the code before, so any remaining questions are best asked there.
 
 ## License

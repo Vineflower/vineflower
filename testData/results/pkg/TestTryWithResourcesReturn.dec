@@ -1,0 +1,699 @@
+package pkg;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Scanner;
+
+public class TestTryWithResourcesReturn {
+   public Scanner test(File file) throws FileNotFoundException {
+      Scanner var4;
+      try (Scanner scanner = new Scanner(file)) {// 10
+         var4 = scanner;
+      }
+
+      return var4;// 11
+   }
+
+   public Scanner test2(File file) throws FileNotFoundException {
+      try (Scanner scanner = new Scanner(file)) {// 16
+         System.out.println("try");// 17
+         return scanner;// 18
+      } catch (IOException e) {// 19
+         System.out.println("catch");// 20
+         throw new RuntimeException(e);// 21
+      }
+   }
+
+   public Scanner test3(File file) throws FileNotFoundException {
+      try (Scanner scanner = new Scanner(file)) {// 26
+         return scanner;// 27
+      } catch (IOException e) {// 28
+         System.out.println("catch");// 29
+         return null;// 30
+      }
+   }
+
+   public Scanner test4(File file) throws FileNotFoundException {
+      System.out.println("pre");// 35
+
+      try (Scanner scanner = new Scanner(file)) {// 37
+         return scanner;// 38
+      } catch (IOException e) {// 39
+         System.out.println("catch");// 40
+         return null;// 41
+      }
+   }
+
+   public Scanner test5(File file) throws FileNotFoundException {
+      System.out.println("pre");// 46
+
+      try (Scanner scanner = new Scanner(file)) {// 48
+         System.out.println("try");// 49
+         return scanner;// 50
+      } catch (IOException e) {// 51
+         System.out.println("catch");// 52
+         return null;// 53
+      }
+   }
+
+   public Scanner test6(File file) throws FileNotFoundException {
+      try (Scanner scanner = this.create(file)) {// 58
+         return scanner != null ? new Scanner(System.in) : scanner;// 59
+      } catch (IOException e) {// 60
+         System.out.println("catch");// 61
+         return null;// 62
+      }
+   }
+
+   public Scanner testFunc(File file) throws FileNotFoundException {
+      Scanner var4;
+      try (Scanner scanner = this.create(file)) {// 67
+         var4 = scanner;
+      }
+
+      return var4;// 68
+   }
+
+   public Scanner testFinally(File file) {
+      try {
+         try (Scanner scanner = new Scanner(file)) {// 73
+            ;
+         }
+
+         return null;// 76
+      } finally {
+         ;
+      }
+   }
+
+   public Scanner testFinallyNested(File param1) {
+      // $VF: Couldn't be decompiled
+      // Bytecode:
+      // 00: new java/util/Scanner
+      // 03: dup
+      // 04: aload 1
+      // 05: invokespecial java/util/Scanner.<init> (Ljava/io/File;)V
+      // 08: astore 2
+      // 09: aconst_null
+      // 0a: astore 3
+      // 0b: new java/util/Scanner
+      // 0e: dup
+      // 0f: aload 1
+      // 10: invokespecial java/util/Scanner.<init> (Ljava/io/File;)V
+      // 13: astore 4
+      // 15: aconst_null
+      // 16: astore 5
+      // 18: aload 4
+      // 1a: astore 6
+      // 1c: aload 4
+      // 1e: ifnull 3f
+      // 21: aload 5
+      // 23: ifnull 3a
+      // 26: aload 4
+      // 28: invokevirtual java/util/Scanner.close ()V
+      // 2b: goto 3f
+      // 2e: astore 7
+      // 30: aload 5
+      // 32: aload 7
+      // 34: invokevirtual java/lang/Throwable.addSuppressed (Ljava/lang/Throwable;)V
+      // 37: goto 3f
+      // 3a: aload 4
+      // 3c: invokevirtual java/util/Scanner.close ()V
+      // 3f: aload 2
+      // 40: astore 7
+      // 42: aload 2
+      // 43: ifnull 60
+      // 46: aload 3
+      // 47: ifnull 5c
+      // 4a: aload 2
+      // 4b: invokevirtual java/util/Scanner.close ()V
+      // 4e: goto 60
+      // 51: astore 8
+      // 53: aload 3
+      // 54: aload 8
+      // 56: invokevirtual java/lang/Throwable.addSuppressed (Ljava/lang/Throwable;)V
+      // 59: goto 60
+      // 5c: aload 2
+      // 5d: invokevirtual java/util/Scanner.close ()V
+      // 60: aconst_null
+      // 61: areturn
+      // 62: astore 6
+      // 64: aload 6
+      // 66: astore 5
+      // 68: aload 6
+      // 6a: athrow
+      // 6b: astore 9
+      // 6d: aload 4
+      // 6f: ifnull 90
+      // 72: aload 5
+      // 74: ifnull 8b
+      // 77: aload 4
+      // 79: invokevirtual java/util/Scanner.close ()V
+      // 7c: goto 90
+      // 7f: astore 10
+      // 81: aload 5
+      // 83: aload 10
+      // 85: invokevirtual java/lang/Throwable.addSuppressed (Ljava/lang/Throwable;)V
+      // 88: goto 90
+      // 8b: aload 4
+      // 8d: invokevirtual java/util/Scanner.close ()V
+      // 90: aload 9
+      // 92: athrow
+      // 93: astore 11
+      // 95: aload 2
+      // 96: astore 12
+      // 98: aload 2
+      // 99: ifnull b6
+      // 9c: aload 3
+      // 9d: ifnull b2
+      // a0: aload 2
+      // a1: invokevirtual java/util/Scanner.close ()V
+      // a4: goto b6
+      // a7: astore 13
+      // a9: aload 3
+      // aa: aload 13
+      // ac: invokevirtual java/lang/Throwable.addSuppressed (Ljava/lang/Throwable;)V
+      // af: goto b6
+      // b2: aload 2
+      // b3: invokevirtual java/util/Scanner.close ()V
+      // b6: aconst_null
+      // b7: areturn
+      // b8: astore 4
+      // ba: aload 4
+      // bc: astore 3
+      // bd: aload 4
+      // bf: athrow
+      // c0: astore 14
+      // c2: aload 2
+      // c3: ifnull e0
+      // c6: aload 3
+      // c7: ifnull dc
+      // ca: aload 2
+      // cb: invokevirtual java/util/Scanner.close ()V
+      // ce: goto e0
+      // d1: astore 15
+      // d3: aload 3
+      // d4: aload 15
+      // d6: invokevirtual java/lang/Throwable.addSuppressed (Ljava/lang/Throwable;)V
+      // d9: goto e0
+      // dc: aload 2
+      // dd: invokevirtual java/util/Scanner.close ()V
+      // e0: aload 14
+      // e2: athrow
+      // e3: astore 16
+      // e5: aconst_null
+      // e6: areturn
+      // try (20 -> 22): 23 java/lang/Throwable
+      // try (36 -> 38): 39 java/lang/Throwable
+      // try (14 -> 16): 48 java/lang/Throwable
+      // try (14 -> 16): 53 null
+      // try (58 -> 60): 61 java/lang/Throwable
+      // try (48 -> 54): 53 null
+      // try (7 -> 30): 70 null
+      // try (77 -> 79): 80 java/lang/Throwable
+      // try (48 -> 71): 70 null
+      // try (7 -> 32): 89 java/lang/Throwable
+      // try (48 -> 73): 89 java/lang/Throwable
+      // try (7 -> 32): 94 null
+      // try (48 -> 73): 94 null
+      // try (99 -> 101): 102 java/lang/Throwable
+      // try (89 -> 95): 94 null
+      // try (0 -> 46): 111 null
+      // try (48 -> 87): 111 null
+      // try (89 -> 112): 111 null
+   }
+
+   public String testComplex(File f, File f2, File f3) throws FileNotFoundException {
+      String o;
+      try (
+         Scanner scanner = this.create(f);// 94
+         Scanner s2 = this.create(f2);// 95
+      ) {
+         scanner.next();// 96
+         if (!scanner.hasNext() || !s2.hasNext()) {// 98
+            return null;// 99
+         }
+
+         try (Scanner s = this.create(f3)) {// 102
+            scanner.next();// 103
+
+            for (int i = 0; i < s.nextInt(); i++) {// 105
+               System.out.println(i);// 106
+            }
+
+            o = s.next();// 109
+         }
+      }
+
+      return o;// 113
+   }
+
+   public String testComplex1(File f, File f2, File f3) throws FileNotFoundException {
+      String var8;
+      try (
+         Scanner scanner = this.create(f);// 117
+         Scanner s2 = this.create(f2);// 118
+      ) {
+         if (!scanner.hasNext() || !s2.hasNext()) {// 119
+            s2.next();// 123
+            return null;// 126
+         }
+
+         var8 = scanner.next();
+      }
+
+      return var8;// 120
+   }
+
+   public String testComplex2(File f, File f2, File f3) throws FileNotFoundException {
+      String var6;
+      try (Scanner scanner = this.create(f)) {// 130
+         if (!scanner.hasNext()) {// 131
+            scanner.next();// 135
+            return null;// 138
+         }
+
+         var6 = scanner.next();
+      }
+
+      return var6;// 132
+   }
+
+   private Scanner create(File file) throws FileNotFoundException {
+      return new Scanner(file);// 142
+   }
+}
+
+class 'pkg/TestTryWithResourcesReturn' {
+   method 'test (Ljava/io/File;)Ljava/util/Scanner;' {
+      4      10
+      8      10
+      b      11
+      c      11
+      d      11
+      2c      14
+      2d      14
+      2e      14
+   }
+
+   method 'test2 (Ljava/io/File;)Ljava/util/Scanner;' {
+      4      18
+      8      18
+      b      19
+      c      19
+      d      19
+      e      19
+      f      19
+      10      19
+      11      19
+      12      19
+      13      20
+      36      20
+      62      21
+      63      22
+      64      22
+      65      22
+      66      22
+      67      22
+      68      22
+      69      22
+      6a      22
+      6f      23
+      73      23
+   }
+
+   method 'test3 (Ljava/io/File;)Ljava/util/Scanner;' {
+      4      28
+      8      28
+      b      29
+      2e      29
+      5a      30
+      5b      31
+      5c      31
+      5d      31
+      5e      31
+      5f      31
+      60      31
+      61      31
+      62      31
+      63      32
+      64      32
+   }
+
+   method 'test4 (Ljava/io/File;)Ljava/util/Scanner;' {
+      0      37
+      1      37
+      2      37
+      3      37
+      4      37
+      5      37
+      6      37
+      7      37
+      c      39
+      10      39
+      13      40
+      36      40
+      62      41
+      63      42
+      64      42
+      65      42
+      66      42
+      67      42
+      68      42
+      69      42
+      6a      42
+      6b      43
+      6c      43
+   }
+
+   method 'test5 (Ljava/io/File;)Ljava/util/Scanner;' {
+      0      48
+      1      48
+      2      48
+      3      48
+      4      48
+      5      48
+      6      48
+      7      48
+      c      50
+      10      50
+      13      51
+      14      51
+      15      51
+      16      51
+      17      51
+      18      51
+      19      51
+      1a      51
+      1b      52
+      3e      52
+      6a      53
+      6b      54
+      6c      54
+      6d      54
+      6e      54
+      6f      54
+      70      54
+      71      54
+      72      54
+      73      55
+      74      55
+   }
+
+   method 'test6 (Ljava/io/File;)Ljava/util/Scanner;' {
+      0      60
+      1      60
+      2      60
+      3      60
+      4      60
+      5      60
+      8      61
+      9      61
+      a      61
+      b      61
+      10      61
+      11      61
+      12      61
+      19      61
+      3c      61
+      68      62
+      69      63
+      6a      63
+      6b      63
+      6c      63
+      6d      63
+      6e      63
+      6f      63
+      70      63
+      71      64
+      72      64
+   }
+
+   method 'testFunc (Ljava/io/File;)Ljava/util/Scanner;' {
+      0      70
+      1      70
+      2      70
+      3      70
+      4      70
+      5      70
+      8      71
+      9      71
+      a      71
+      29      74
+      2a      74
+      2b      74
+   }
+
+   method 'testFinally (Ljava/io/File;)Ljava/util/Scanner;' {
+      4      79
+      8      79
+      2c      83
+      2d      83
+   }
+
+   method 'testComplex (Ljava/io/File;Ljava/io/File;Ljava/io/File;)Ljava/lang/String;' {
+      0      229
+      1      229
+      2      229
+      3      229
+      4      229
+      5      229
+      6      229
+      a      230
+      b      230
+      c      230
+      d      230
+      e      230
+      f      230
+      10      230
+      14      232
+      15      232
+      16      232
+      17      232
+      18      232
+      1a      233
+      1b      233
+      1c      233
+      1d      233
+      1e      233
+      1f      233
+      20      233
+      21      233
+      22      233
+      23      233
+      24      233
+      25      233
+      26      233
+      27      233
+      28      233
+      29      233
+      2a      234
+      75      234
+      76      237
+      77      237
+      78      237
+      79      237
+      7a      237
+      7b      237
+      7c      237
+      80      238
+      81      238
+      82      238
+      83      238
+      84      238
+      86      240
+      87      240
+      88      240
+      89      240
+      8a      240
+      8b      240
+      8c      240
+      8d      240
+      8e      240
+      8f      240
+      90      240
+      91      240
+      92      240
+      93      241
+      94      241
+      95      241
+      96      241
+      97      241
+      98      241
+      99      241
+      9a      241
+      9b      240
+      9c      240
+      9d      240
+      a1      244
+      a2      244
+      a3      244
+      a4      244
+      a5      244
+      a6      244
+      a7      244
+      1ad      248
+      1ae      248
+      1af      248
+   }
+
+   method 'testComplex1 (Ljava/io/File;Ljava/io/File;Ljava/io/File;)Ljava/lang/String;' {
+      0      254
+      1      254
+      2      254
+      3      254
+      4      254
+      5      254
+      6      254
+      a      255
+      b      255
+      c      255
+      d      255
+      e      255
+      f      255
+      10      255
+      14      257
+      15      257
+      16      257
+      17      257
+      18      257
+      19      257
+      1a      257
+      1b      257
+      1c      257
+      1d      257
+      1e      257
+      1f      257
+      20      257
+      21      257
+      22      257
+      23      257
+      24      262
+      25      262
+      26      262
+      27      262
+      28      262
+      29      262
+      2a      262
+      71      265
+      72      265
+      73      265
+      74      258
+      75      258
+      76      258
+      77      258
+      78      258
+      128      259
+      129      259
+   }
+
+   method 'testComplex2 (Ljava/io/File;Ljava/io/File;Ljava/io/File;)Ljava/lang/String;' {
+      0      270
+      1      270
+      2      270
+      3      270
+      4      270
+      5      270
+      6      270
+      a      271
+      b      271
+      c      271
+      d      271
+      e      271
+      f      271
+      10      271
+      11      271
+      12      276
+      13      276
+      14      276
+      15      276
+      16      276
+      17      276
+      18      276
+      3c      279
+      3d      279
+      3e      279
+      3f      272
+      40      272
+      41      272
+      42      272
+      43      272
+      9c      273
+      9d      273
+   }
+
+   method 'create (Ljava/io/File;)Ljava/util/Scanner;' {
+      4      283
+      8      283
+   }
+}
+
+Lines mapping:
+10 <-> 11
+11 <-> 15
+16 <-> 19
+17 <-> 20
+18 <-> 21
+19 <-> 22
+20 <-> 23
+21 <-> 24
+26 <-> 29
+27 <-> 30
+28 <-> 31
+29 <-> 32
+30 <-> 33
+35 <-> 38
+37 <-> 40
+38 <-> 41
+39 <-> 42
+40 <-> 43
+41 <-> 44
+46 <-> 49
+48 <-> 51
+49 <-> 52
+50 <-> 53
+51 <-> 54
+52 <-> 55
+53 <-> 56
+58 <-> 61
+59 <-> 62
+60 <-> 63
+61 <-> 64
+62 <-> 65
+67 <-> 71
+68 <-> 75
+73 <-> 80
+76 <-> 84
+94 <-> 230
+95 <-> 231
+96 <-> 233
+98 <-> 234
+99 <-> 235
+102 <-> 238
+103 <-> 239
+105 <-> 241
+106 <-> 242
+109 <-> 245
+113 <-> 249
+117 <-> 255
+118 <-> 256
+119 <-> 258
+120 <-> 266
+123 <-> 259
+126 <-> 260
+130 <-> 271
+131 <-> 272
+132 <-> 280
+135 <-> 273
+138 <-> 274
+142 <-> 284
+Not mapped:
+12
+69
+74
+75
+110
+111
+124
+136

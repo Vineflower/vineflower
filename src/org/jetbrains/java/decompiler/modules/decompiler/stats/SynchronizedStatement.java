@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public final class SynchronizedStatement extends Statement {
+public class SynchronizedStatement extends Statement {
 
   private Statement body;
 
@@ -98,12 +98,8 @@ public final class SynchronizedStatement extends Statement {
   }
 
   @Override
-  public List<Object> getSequentialObjects() {
-
-    List<Object> lst = new ArrayList<>(stats);
-    lst.add(1, headexprent.get(0));
-
-    return lst;
+  public List<Exprent> getStatExprents() {
+    return new ArrayList<>(headexprent);
   }
 
   @Override

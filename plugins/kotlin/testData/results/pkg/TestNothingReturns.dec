@@ -1,48 +1,48 @@
 package pkg
 
-class TestNothingReturns {
-   fun loop(): Void {
+public class TestNothingReturns {
+   public fun loop(): Nothing {
       while (true) {
-         System.out.println("loop");// 6
+         System.out.println("loop")// 6
       }
    }
 
-   fun test1(): Void {
-      this.loop();// 11
-      throw new KotlinNothingValueException();
+   public fun test1(): Nothing {
+      this.loop()// 11
+      throw new KotlinNothingValueException()
    }
 
-   fun test2(): Long {
-      this.test1();// 15
-      throw new KotlinNothingValueException();
+   public fun test2(): Long {
+      this.test1()// 15
+      throw new KotlinNothingValueException()
    }
 
-   fun test3(i: Int): Int {
+   public fun test3(i: Int): Int {
       if (i == 0) {// 19
-         this.loop();// 20
-         throw new KotlinNothingValueException();
+         this.loop()// 20
+         throw new KotlinNothingValueException()
       } else {
-         return this.test3(i - 1) + 1;// 23
+         return this.test3(i - 1) + 1// 23
       }
    }
 
-   fun test4() {
-      this.loop();// 27
-      throw new KotlinNothingValueException();
+   public fun test4() {
+      this.loop()// 27
+      throw new KotlinNothingValueException()
    }
 
-   fun test5(s: String): String {
-      StringsKt.repeat(s as CharSequence, 5);// 32
-      this.loop();
-      throw new KotlinNothingValueException();
+   public fun test5(s: String): String {
+      StringsKt.repeat(s as java.lang.CharSequence, 5)// 32
+      this.loop()
+      throw new KotlinNothingValueException()
    }
 
-   fun test6(s: String?): String {
+   public fun test6(s: String?): String {
       if (s == null) {// 36
-         this.loop();
-         throw new KotlinNothingValueException();
+         this.loop()
+         throw new KotlinNothingValueException()
       } else {
-         return s;
+         return s
       }
    }
 }
@@ -78,6 +78,8 @@ class 'pkg/TestNothingReturns' {
    method 'test3 (I)I' {
       0      20
       1      20
+      2      20
+      3      20
       4      21
       5      21
       6      21
@@ -122,6 +124,8 @@ class 'pkg/TestNothingReturns' {
    method 'test6 (Ljava/lang/String;)Ljava/lang/String;' {
       0      40
       2      40
+      3      40
+      4      40
       6      41
       7      41
       8      41

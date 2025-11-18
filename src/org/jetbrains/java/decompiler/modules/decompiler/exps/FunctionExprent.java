@@ -3,26 +3,32 @@
  */
 package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
-import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.plugins.PluginImplementationException;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.SFormsConstructor;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.VarMapHolder;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
+import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
+import org.jetbrains.java.decompiler.struct.gen.CodeType;
+import org.jetbrains.java.decompiler.struct.gen.TypeFamily;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.struct.match.MatchEngine;
 import org.jetbrains.java.decompiler.struct.match.MatchNode;
 import org.jetbrains.java.decompiler.util.IntHelper;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
+import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.Typed;
 import org.jetbrains.java.decompiler.util.collections.ListStack;
-import org.jetbrains.java.decompiler.util.TextBuffer;
+import org.jetbrains.java.decompiler.util.collections.SFormsFastMapDirect;
 
 import java.util.*;
 
 public class FunctionExprent extends Exprent {
 
-  private static final int[] TYPE_PRIMITIVES = {CodeConstants.TYPE_DOUBLE, CodeConstants.TYPE_FLOAT, CodeConstants.TYPE_LONG};
+  private static final CodeType[] TYPE_PRIMITIVES = {CodeType.DOUBLE, CodeType.FLOAT, CodeType.LONG};
   private static final VarType[] TYPES = {VarType.VARTYPE_DOUBLE, VarType.VARTYPE_FLOAT, VarType.VARTYPE_LONG};;
 
   public enum FunctionType implements Typed {
@@ -202,7 +208,7 @@ public class FunctionExprent extends Exprent {
       case XOR: {
         VarType type1 = lstOperands.get(0).getExprType();
         VarType type2 = lstOperands.get(1).getExprType();
-        if (type1.type == CodeConstants.TYPE_BOOLEAN && type2.type == CodeConstants.TYPE_BOOLEAN) {
+        if (type1.type == CodeType.BOOLEAN && type2.type == CodeType.BOOLEAN) {
           return VarType.VARTYPE_BOOLEAN;
         } else {
           return getMaxVarType(type1, type2);
@@ -213,13 +219,13 @@ public class FunctionExprent extends Exprent {
       case TERNARY: {
         Exprent param1 = lstOperands.get(1);
         Exprent param2 = lstOperands.get(2);
-        VarType supertype = VarType.getCommonSupertype(param1.getExprType(), param2.getExprType());
+        VarType supertype = VarType.join(param1.getExprType(), param2.getExprType());
         if (supertype == null) {
           throw new IllegalStateException("No common supertype for ternary expression");
         }
 
         if (param1 instanceof ConstExprent && param2 instanceof ConstExprent &&
-          supertype.type != CodeConstants.TYPE_BOOLEAN && VarType.VARTYPE_INT.isSuperset(supertype)) {
+          supertype.type != CodeType.BOOLEAN && VarType.VARTYPE_INT.higherEqualInLatticeThan(supertype)) {
           return VarType.VARTYPE_INT;
         } else {
           return supertype;
@@ -235,7 +241,7 @@ public class FunctionExprent extends Exprent {
     if (funcType == FunctionType.CAST) {
       this.needsCast = true;
       VarType right = lstOperands.get(0).getInferredExprType(upperBound);
-      VarType cast = lstOperands.get(1).getExprType();
+      List<VarType> cast = lstOperands.subList(1, lstOperands.size()).stream().map(Exprent::getExprType).toList();
 
       if (upperBound != null && (upperBound.isGeneric() || right.isGeneric())) {
         Map<VarType, List<VarType>> names = this.getNamedGenerics();
@@ -253,16 +259,12 @@ public class FunctionExprent extends Exprent {
         }
 
         if (types != null) {
-          boolean anyMatch = false; //TODO: allMatch instead of anyMatch?
-          for (VarType type : types) {
-            anyMatch |= DecompilerContext.getStructContext().instanceOf(type.value, cast.value);
-          }
-
-          if (anyMatch) {
+          List<VarType> finalTypes = types;
+          if (cast.stream().allMatch(castType -> finalTypes.stream().anyMatch(type -> DecompilerContext.getStructContext().instanceOf(type.value, castType.value)))) {
             this.needsCast = false;
           }
         } else {
-            this.needsCast = right.type == CodeConstants.TYPE_NULL || !DecompilerContext.getStructContext().instanceOf(right.value, upperBound.value) || !areGenericTypesSame(right, upperBound);
+            this.needsCast = right.type == CodeType.NULL || !DecompilerContext.getStructContext().instanceOf(right.value, upperBound.value) || !areGenericTypesSame(right, upperBound);
         }
 
         if (!this.needsCast) {
@@ -273,21 +275,33 @@ public class FunctionExprent extends Exprent {
           return right;
         }
       } else { //TODO: Capture generics to make cast better?
-        this.needsCast = right.type == CodeConstants.TYPE_NULL || !DecompilerContext.getStructContext().instanceOf(right.value, cast.value) || right.arrayDim != cast.arrayDim;
+        final VarType finalRight = right;
+        this.needsCast = right.type == CodeType.NULL || cast.stream().anyMatch(castType -> !DecompilerContext.getStructContext().instanceOf(finalRight.value, castType.value)) || cast.stream().anyMatch(castType -> finalRight.arrayDim != castType.arrayDim);
       }
 
       return getExprType();
     } else if (funcType == FunctionType.TERNARY) {
-      // TODO return common generic type?
       VarType type1 = lstOperands.get(1).getInferredExprType(upperBound);
       VarType type2 = lstOperands.get(2).getInferredExprType(upperBound);
 
-      if (type1.type == CodeConstants.TYPE_NULL) {
+      if (type1.type == CodeType.NULL) {
         return type2;
-      } else if (type2.type == CodeConstants.TYPE_NULL) {
+      } else if (type2.type == CodeType.NULL) {
         return type1;
       }
 
+      VarType union = VarType.join(type1, type2);
+
+      if (union != null && lstOperands.get(1) instanceof ConstExprent && lstOperands.get(2) instanceof ConstExprent &&
+        union.type != CodeType.BOOLEAN && VarType.VARTYPE_INT.higherEqualInLatticeThan(union)) {
+        union = VarType.VARTYPE_INT;
+      }
+
+      return union != null ? union : getExprType();
+    } else if (funcType == FunctionType.INSTANCEOF) {
+      for (Exprent oper : lstOperands) {
+        oper.getInferredExprType(null);
+      }
       return getExprType();
     }
 
@@ -356,9 +370,13 @@ public class FunctionExprent extends Exprent {
     switch (funcType) {
       case TERNARY:
         VarType supertype = getExprType();
-        result.addMinTypeExprent(param1, VarType.VARTYPE_BOOLEAN);
-        result.addMinTypeExprent(param2, VarType.getMinTypeInFamily(supertype.typeFamily));
-        result.addMinTypeExprent(lstOperands.get(2), VarType.getMinTypeInFamily(supertype.typeFamily));
+        result.addExprLowerBound(param1, VarType.VARTYPE_BOOLEAN);
+        result.addExprUpperBound(param1, VarType.VARTYPE_BOOLEAN);
+
+        result.addExprLowerBound(param2, VarType.findFamilyBottom(supertype.typeFamily));
+        result.addExprLowerBound(lstOperands.get(2), VarType.findFamilyBottom(supertype.typeFamily));
+        result.addExprUpperBound(param2, supertype);
+        result.addExprUpperBound(lstOperands.get(2), supertype);
         break;
       case I2L:
       case I2F:
@@ -366,15 +384,15 @@ public class FunctionExprent extends Exprent {
       case I2B:
       case I2C:
       case I2S:
-        result.addMinTypeExprent(param1, VarType.VARTYPE_BYTECHAR);
-        result.addMaxTypeExprent(param1, VarType.VARTYPE_INT);
+        result.addExprLowerBound(param1, VarType.VARTYPE_BYTECHAR);
+        result.addExprUpperBound(param1, VarType.VARTYPE_INT);
         break;
       case IMM:
       case IPP:
       case MMI:
       case PPI:
-        result.addMinTypeExprent(param1, implicitType);
-        result.addMaxTypeExprent(param1, implicitType);
+        result.addExprLowerBound(param1, implicitType);
+        result.addExprUpperBound(param1, implicitType);
         break;
       case ADD:
       case SUB:
@@ -388,45 +406,58 @@ public class FunctionExprent extends Exprent {
       case GE:
       case GT:
       case LE:
-        result.addMinTypeExprent(param2, VarType.VARTYPE_BYTECHAR);
+        result.addExprLowerBound(param2, VarType.VARTYPE_BYTECHAR);
       case BIT_NOT:
         // case BOOL_NOT:
       case NEG:
-        result.addMinTypeExprent(param1, VarType.VARTYPE_BYTECHAR);
+        result.addExprLowerBound(param1, VarType.VARTYPE_BYTECHAR);
         break;
       case AND:
       case OR:
       case XOR:
       case EQ:
       case NE: {
-        if (type1.type == CodeConstants.TYPE_BOOLEAN) {
-          if (type2.isStrictSuperset(type1)) {
-            result.addMinTypeExprent(param1, VarType.VARTYPE_BYTECHAR);
+        if (type1.type == CodeType.BOOLEAN) {
+          if (type2.higherInLatticeThan(type1)) {
+            result.addExprLowerBound(param1, VarType.VARTYPE_BYTECHAR);
           }
           else { // both are booleans
-            boolean param1_false_boolean =
-              type1.isFalseBoolean() || (param1 instanceof ConstExprent && !((ConstExprent)param1).hasBooleanValue());
-            boolean param2_false_boolean =
-              type1.isFalseBoolean() || (param2 instanceof ConstExprent && !((ConstExprent)param2).hasBooleanValue());
+            boolean param1_false_boolean = (param1 instanceof ConstExprent && !((ConstExprent)param1).hasBooleanValue());
+            boolean param2_false_boolean = (param2 instanceof ConstExprent && !((ConstExprent)param2).hasBooleanValue());
 
             if (param1_false_boolean || param2_false_boolean) {
-              result.addMinTypeExprent(param1, VarType.VARTYPE_BYTECHAR);
-              result.addMinTypeExprent(param2, VarType.VARTYPE_BYTECHAR);
+              result.addExprLowerBound(param1, VarType.VARTYPE_BYTECHAR);
+              result.addExprLowerBound(param2, VarType.VARTYPE_BYTECHAR);
             }
           }
         }
-        else if (type2.type == CodeConstants.TYPE_BOOLEAN) {
-          if (type1.isStrictSuperset(type2)) {
-            result.addMinTypeExprent(param2, VarType.VARTYPE_BYTECHAR);
+        else if (type2.type == CodeType.BOOLEAN) {
+          if (type1.higherInLatticeThan(type2)) {
+            result.addExprLowerBound(param2, VarType.VARTYPE_BYTECHAR);
           }
         }
         break;
       }
       case INSTANCEOF:
-        if (lstOperands.size() > 2) { // pattern matching instanceof
+        if (lstOperands.size() > 2 && lstOperands.get(2) instanceof VarExprent var) { // pattern matching instanceof
           // The type of the defined var must be the type being tested
-          result.addMinTypeExprent(lstOperands.get(2), lstOperands.get(1).getExprType());
+          result.addExprLowerBound(lstOperands.get(2), lstOperands.get(1).getExprType());
         }
+        break;
+      case STR_CONCAT:
+        VarType type = this.implicitType == null ? VarType.VARTYPE_STRING : this.implicitType;
+        // Inform children of the type of string concat that we are
+        if (type1.typeFamily == type.typeFamily) {
+          result.addExprLowerBound(param1, type);
+        }
+
+        if (type2.typeFamily == type.typeFamily) {
+          result.addExprLowerBound(param2, type);
+        }
+        break;
+      case CAST:
+        result.addExprLowerBound(param1, VarType.findFamilyBottom(type2.typeFamily));
+        result.addExprUpperBound(param1, type2);
         break;
 
       case OTHER: throw new PluginImplementationException();
@@ -581,7 +612,13 @@ public class FunctionExprent extends Exprent {
         if (!needsCast) {
           return buf.append(lstOperands.get(0).toJava(indent));
         }
-        return buf.append(lstOperands.get(1).toJava(indent)).encloseWithParens().append(wrapOperandString(lstOperands.get(0), true, indent));
+        for (int i = 1; i < lstOperands.size(); i++) {
+          if (i > 1) {
+            buf.append(" & ");
+          }
+          buf.append(lstOperands.get(i).toJava(indent));
+        }
+        return buf.encloseWithParens().append(wrapOperandString(lstOperands.get(0), true, indent));
       case ARRAY_LENGTH:
         Exprent arr = lstOperands.get(0);
 
@@ -602,14 +639,22 @@ public class FunctionExprent extends Exprent {
         buf.popNewlineGroup();
         return buf;
       case INSTANCEOF:
-        buf.append(wrapOperandString(lstOperands.get(0), true, indent)).append(" instanceof ").append(wrapOperandString(lstOperands.get(1), true, indent));
+        buf.append(wrapOperandString(lstOperands.get(0), true, indent)).append(" instanceof ");
 
         if (this.lstOperands.size() > 2) {
           // Pattern instanceof creation- only happens when we have more than 2 exprents
-          buf.append(" ");
-          ((VarExprent)this.lstOperands.get(2)).setDefinition(false);
+
+          Pattern pattern = (Pattern) this.lstOperands.get(2);
+          for (VarExprent var : pattern.getPatternVars()) {
+            var.setWritingPattern();
+          }
+
           buf.append(wrapOperandString(this.lstOperands.get(2), true, indent));
+        } else {
+          buf.append(wrapOperandString(lstOperands.get(1), true, indent));
         }
+
+
         return buf;
       case LCMP:
       case FCMPL:
@@ -637,9 +682,12 @@ public class FunctionExprent extends Exprent {
           inv.forceUnboxing(true);
         }
       }
-      return buf.append(wrapOperandString(lstOperands.get(0), true, indent))
-                .prepend("(" + ExprProcessor.getTypeName(funcType.castType) + ")")
-                .addTypeNameToken(funcType.castType, 1);
+
+      if (!needsCast) {
+        return buf.append(lstOperands.get(0).toJava(indent));
+      }
+
+      return buf.append(ExprProcessor.getTypeName(funcType.castType)).encloseWithParens().append(wrapOperandString(lstOperands.get(0), true, indent));
     }
 
     //        return "<unknown function>";
@@ -669,7 +717,7 @@ public class FunctionExprent extends Exprent {
 
   @Override
   public int getPrecedence() {
-    if (funcType == FunctionType.CAST && !doesCast()) {
+    if ((funcType == FunctionType.CAST || funcType.castType != null) && !doesCast()) {
       return lstOperands.get(0).getPrecedence();
     }
 
@@ -698,7 +746,10 @@ public class FunctionExprent extends Exprent {
       if (parentheses) {
         if (expr instanceof FunctionExprent &&
             ((FunctionExprent)expr).getFuncType() == funcType) {
-          parentheses = !ASSOCIATIVITY.contains(funcType);
+          // Float operations are not assocative!
+          if (expr.getExprType() != VarType.VARTYPE_FLOAT && expr.getExprType() != VarType.VARTYPE_DOUBLE) {
+            parentheses = !ASSOCIATIVITY.contains(funcType);
+          }
         }
       }
     }
@@ -797,6 +848,127 @@ public class FunctionExprent extends Exprent {
   public void getBytecodeRange(BitSet values) {
     measureBytecode(values, lstOperands);
     measureBytecode(values);
+  }
+
+  @Override
+  public void processSforms(SFormsConstructor sFormsConstructor, VarMapHolder varMaps, Statement stat, boolean calcLiveVars) {
+    switch (this.getFuncType()) {
+      case TERNARY: {
+        // `a ? b : c`
+        // Java language spec: 16.1.5.
+        this.getLstOperands().get(0).processSforms(sFormsConstructor, varMaps, stat, calcLiveVars);
+
+        VarMapHolder bVarMaps = VarMapHolder.ofNormal(varMaps.getIfTrue());
+        this.getLstOperands().get(1).processSforms(sFormsConstructor, bVarMaps, stat, calcLiveVars);
+
+        // reuse the varMaps for the false branch.
+        varMaps.setNormal(varMaps.getIfFalse());
+        this.getLstOperands().get(2).processSforms(sFormsConstructor, varMaps, stat, calcLiveVars);
+
+        if (bVarMaps.isNormal() && varMaps.isNormal()) {
+          varMaps.mergeNormal(bVarMaps.getNormal());
+        } else if (!varMaps.isNormal()) {
+          // b and c are boolean expression and at least c had an assignment.
+          varMaps.mergeIfTrue(bVarMaps.getIfTrue());
+          varMaps.mergeIfFalse(bVarMaps.getIfFalse());
+        } else {
+          // b and c are boolean expression and at b had an assignment.
+          // avoid cloning the c varmap.
+          bVarMaps.mergeIfTrue(varMaps.getNormal());
+          bVarMaps.mergeIfFalse(varMaps.getNormal());
+
+          varMaps.set(bVarMaps); // move over the maps.
+        }
+
+        return;
+      }
+      case BOOLEAN_AND: {
+        // `a && b`
+        // Java language spec: 16.1.2.
+        this.getLstOperands().get(0).processSforms(sFormsConstructor, varMaps, stat, calcLiveVars);
+
+        varMaps.makeFullyMutable();
+        SFormsFastMapDirect ifFalse = varMaps.getIfFalse();
+        varMaps.setNormal(varMaps.getIfTrue());
+
+        this.getLstOperands().get(1).processSforms(sFormsConstructor, varMaps, stat, calcLiveVars);
+        varMaps.mergeIfFalse(ifFalse);
+        return;
+      }
+      case BOOLEAN_OR: {
+        // `a || b`
+        // Java language spec: 16.1.3.
+        this.getLstOperands().get(0).processSforms(sFormsConstructor, varMaps, stat, calcLiveVars);
+
+        varMaps.makeFullyMutable();
+        SFormsFastMapDirect ifTrue = varMaps.getIfTrue();
+        varMaps.setNormal(varMaps.getIfFalse());
+
+        this.getLstOperands().get(1).processSforms(sFormsConstructor, varMaps, stat, calcLiveVars);
+        varMaps.mergeIfTrue(ifTrue);
+        return;
+      }
+      case BOOL_NOT: {
+        // `!a`
+        // Java language spec: 16.1.4.
+        this.getLstOperands().get(0).processSforms(sFormsConstructor, varMaps, stat, calcLiveVars);
+        varMaps.swap();
+
+        return;
+      }
+      case INSTANCEOF: {
+        // `a instanceof B`
+        // pattern matching instanceof creates a new variable when true.
+        this.getLstOperands().get(0).processSforms(sFormsConstructor, varMaps, stat, calcLiveVars);
+        varMaps.toNormal();
+
+        if (this.getLstOperands().size() == 3) {
+          // pattern matching
+          // `a instanceof B b`
+          // pattern matching variables are explained in different parts of the spec,
+          // but it comes down to the same ideas.
+          varMaps.makeFullyMutable();
+
+          Pattern pattern = (Pattern) this.getLstOperands().get(2);
+
+          for (VarExprent var : pattern.getPatternVars()) {
+            sFormsConstructor.updateVarExprent(var, stat, varMaps.getIfTrue(), calcLiveVars);
+          }
+        }
+
+        return;
+      }
+      case IMM:
+      case MMI:
+      case IPP:
+      case PPI: {
+        // process the var/field/array access
+        // Note that ++ and -- are both reads and writes.
+        this.getLstOperands().get(0).processSforms(sFormsConstructor, varMaps, stat, calcLiveVars);
+
+        switch (this.getLstOperands().get(0).type) {
+          case VAR: {
+            VarExprent varExprent = (VarExprent) this.getLstOperands().get(0);
+
+            VarVersionPair phantomPair = sFormsConstructor.getOrCreatePhantom(varExprent.getVarVersionPair());
+
+            // Can't have ++ or -- on a boolean expression.
+            varMaps.getNormal().setCurrentVar(phantomPair);
+            break;
+          }
+          case FIELD: {
+            // assignment to a field resets all fields.
+            // Can't have ++ or -- on a boolean expression.
+            varMaps.getNormal().removeAllFields();
+            break;
+          }
+        }
+        return;
+      }
+      default:{
+        super.processSforms(sFormsConstructor, varMaps, stat, calcLiveVars);
+      }
+    }
   }
 
   // *****************************************************************************
