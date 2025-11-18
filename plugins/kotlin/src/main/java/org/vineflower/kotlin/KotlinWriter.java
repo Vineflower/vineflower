@@ -423,6 +423,7 @@ public class KotlinWriter implements StatementWriter, Flags {
           wrapper.getHiddenMembers().contains(InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor())) ||
           mt.getName().equals("<init>") && mt.getDescriptor().equals("(Lkotlin/jvm/internal/DefaultConstructorMarker;)V") ||
           companion.map(c -> c.getWrapper().getMethods().containsKey(InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor()))).orElse(false) && mt.hasModifier(CodeConstants.ACC_STATIC) ||
+          mt.getName().contains("$lambda$") ||
           methodsToIgnore.contains(mt);
         if (hide) continue;
 
@@ -493,10 +494,8 @@ public class KotlinWriter implements StatementWriter, Flags {
           .append("}");
       }
 
-      buffer.appendLineSeparator();
-
       if (node.type != ClassNode.Type.ANONYMOUS) {
-        innerBuffer.appendLineSeparator();
+        buffer.appendLineSeparator();
       }
     } finally {
       DecompilerContext.setProperty(DecompilerContext.CURRENT_CLASS_NODE, outerNode);
@@ -726,7 +725,30 @@ public class KotlinWriter implements StatementWriter, Flags {
 
   private void writeClassDefinition(ClassNode node, TextBuffer buffer, int indent, StructKotlinMetadataAttribute ktData, int kotlinFlags) {
     if (node.type == ClassNode.Type.ANONYMOUS) {
-      buffer.append(" {").appendLineSeparator();
+      if (!(ktData.metadata instanceof StructKotlinMetadataAttribute.Class cls)) {
+        throw new IllegalStateException("Anonymous class does not have Class Kotlin metadata");
+      }
+
+      buffer.append("object");
+
+      boolean first = true;
+      for (ProtoBuf.Type supertype : cls.proto().getSupertypeList()) {
+        KType kType = KType.from(supertype, ktData.nameResolver);
+        if (VarType.VARTYPE_OBJECT.equals(kType)) {
+          // skip Any / Object supertype
+          continue;
+        }
+
+        if (first) {
+          buffer.append(" : ");
+          first = false;
+        } else {
+          buffer.append(", ");
+        }
+
+        buffer.append(kType.stringify(indent));
+      }
+
       return;
     }
 
