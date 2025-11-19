@@ -1409,7 +1409,7 @@ public class ClassWriter implements StatementWriter {
             DecompilerContext.getOption(IFernflowerPreferences.UNDEFINED_PARAM_TYPE_OBJECT)) {
           typeName = ExprProcessor.getCastTypeName(VarType.VARTYPE_OBJECT);
         }
-        var annos = getTypeAnnotations(mt, TypeAnnotation.METHOD_PARAMETER, i);
+        var annos = getTypeAnnotations(mt, TypeAnnotation.METHOD_PARAMETER, paramCount);
         if (!annos.isEmpty()) {
           VarType tempParam = parameterType;
           // Undo varargs change
