@@ -1,0 +1,17 @@
+base.archivesName = 'vineflower-unpick'
+
+dependencies {
+  shadow project(":")
+  testImplementation testFixtures(project(":"))
+  implementation fileTree(dir: 'libs', include: ['*.jar'])
+}
+
+jar {
+  enabled = false
+}
+
+shadowJar {
+  archiveClassifier.set('')
+}
+
+build.dependsOn(shadowJar)

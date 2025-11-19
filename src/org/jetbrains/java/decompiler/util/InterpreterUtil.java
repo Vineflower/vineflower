@@ -96,7 +96,7 @@ public final class InterpreterUtil {
     return name + ' ' + descriptor;
   }
 
-  public static String makeUniqueKey(String name, String descriptor1, String descriptor2) {
-    return name + ' ' + descriptor1 + ' ' + descriptor2;
+  public static String makeUniqueKey(String owner, String name, String descriptor) {
+    return owner + ' ' + name + ' ' + descriptor;
   }
 }
