@@ -86,6 +86,12 @@ public class PluginContext {
     classPasses = registrar.getClassPasses();
   }
 
+  public void close() {
+    for (Plugin plugin : plugins) {
+      plugin.close();
+    }
+  }
+
   // Returns whether any passes were run
   public boolean runPasses(JavaPassLocation location, PassContext ctx) {
     List<NamedPass> passes = this.passes.getOrDefault(location, Collections.emptyList());

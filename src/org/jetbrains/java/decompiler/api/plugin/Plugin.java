@@ -31,6 +31,13 @@ public interface Plugin {
   }
 
   /**
+   * Called after decompilation is done and the context is cleared.
+   */
+  default void close() {
+
+  }
+
+  /**
    * Allows addition to the list of passes that will be run during Java decompilation.
    *
    * @param registrar The registrar object to register into

@@ -458,7 +458,10 @@ public class ClassesProcessor implements CodeConstants {
             new NestedClassProcessor().processClass(root, root);
 
             new NestedMemberAccess().propagateMemberAccess(root);
+        } else {
+          spec.rootProcessor.accept(root);
         }
+
         DecompilerContext.getCurrentContext().structContext.getPluginContext()
           .runClassPasses(ClassPassLocation.AFTER_PROCESSING, root);
       }

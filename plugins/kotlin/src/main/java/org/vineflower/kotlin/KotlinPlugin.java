@@ -8,12 +8,17 @@ import org.jetbrains.java.decompiler.api.plugin.pass.LoopingPassBuilder;
 import org.jetbrains.java.decompiler.api.plugin.pass.MainPassBuilder;
 import org.jetbrains.java.decompiler.api.plugin.pass.Pass;
 import org.jetbrains.java.decompiler.api.plugin.pass.WrappedPass;
+import org.jetbrains.java.decompiler.main.ClassesProcessor;
+import org.jetbrains.java.decompiler.main.rels.NestedClassProcessor;
+import org.jetbrains.java.decompiler.main.rels.NestedMemberAccess;
 import org.jetbrains.java.decompiler.modules.code.DeadCodeHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.*;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.DomHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.deobfuscator.ExceptionDeobfuscator;
 import org.jetbrains.java.decompiler.util.Pair;
 import org.vineflower.kotlin.pass.*;
+
+import java.util.function.Consumer;
 
 public class KotlinPlugin implements Plugin {
   private static final StackVarsProcessor.StackSimplifyOptions INLINE_ALL_VARS = new StackVarsProcessor.StackSimplifyOptions()
@@ -39,7 +44,15 @@ public class KotlinPlugin implements Plugin {
 
   @Override
   public LanguageSpec getLanguageSpec() {
-    return new LanguageSpec("kotlin", new KotlinChooser(), new DomHelper(), new KotlinWriter(), makePass(), makeCfgPass(), "kt");
+    return new LanguageSpec("kotlin", new KotlinChooser(), new DomHelper(), new KotlinWriter(), makePass(), makeCfgPass(), getRootProcessor(), "kt");
+  }
+
+  private static Consumer<ClassesProcessor.ClassNode> getRootProcessor() {
+    return root -> {
+      new NestedClassProcessor().processClass(root, root);
+
+      new NestedMemberAccess().propagateMemberAccess(root);
+    };
   }
 
   private static Pass makeCfgPass() {

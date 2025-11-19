@@ -1,6 +1,9 @@
 package org.jetbrains.java.decompiler.api.plugin;
 
 import org.jetbrains.java.decompiler.api.plugin.pass.Pass;
+import org.jetbrains.java.decompiler.main.ClassesProcessor;
+
+import java.util.function.Consumer;
 
 public final class LanguageSpec {
   public final String name;
@@ -9,15 +12,17 @@ public final class LanguageSpec {
   public final StatementWriter writer;
   public final Pass pass;
   public final Pass cfgPass;
+  public final Consumer<ClassesProcessor.ClassNode> rootProcessor;
   public final String extension;
 
-  public LanguageSpec(String name, LanguageChooser chooser, GraphParser graphParser, StatementWriter writer, Pass pass, Pass cfgPass, String extension) {
+  public LanguageSpec(String name, LanguageChooser chooser, GraphParser graphParser, StatementWriter writer, Pass pass, Pass cfgPass, Consumer<ClassesProcessor.ClassNode> rootProcessor, String extension) {
     this.name = name;
     this.chooser = chooser;
     this.graphParser = graphParser;
     this.writer = writer;
     this.pass = pass;
     this.cfgPass = cfgPass;
+    this.rootProcessor = rootProcessor;
     this.extension = extension;
   }
 }
