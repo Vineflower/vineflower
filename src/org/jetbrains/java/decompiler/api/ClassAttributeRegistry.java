@@ -1,5 +1,6 @@
 package org.jetbrains.java.decompiler.api;
 
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.util.Key;
 import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
 
@@ -14,8 +15,8 @@ public final class ClassAttributeRegistry {
     REGISTRY.put(key, supplier);
   }
 
-  public static <T extends StructGeneralAttribute> T get(Key<T> key) {
-    return (T) REGISTRY.get(key).get();
+  public static <T extends StructGeneralAttribute> @Nullable Supplier<T> get(Key<T> key) {
+    return (Supplier<T>) REGISTRY.get(key);
   }
 
   public static Map<Key<? extends StructGeneralAttribute>, Supplier<? extends StructGeneralAttribute>> getRegistry() {

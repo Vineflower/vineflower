@@ -4,7 +4,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructMethod;
-import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
 import org.jetbrains.java.decompiler.util.Key;
 import org.vineflower.kt.metadata.ProtoBuf;
 import org.vineflower.kotlin.struct.KConstructor;
@@ -14,7 +13,7 @@ import org.vineflower.kotlin.struct.KProperty;
 import java.util.List;
 import java.util.Map;
 
-public class StructKotlinMetadataAttribute extends StructGeneralAttribute {
+public class KotlinMetadata {
   public sealed interface Metadata {
     @NotNull StructClass classStruct();
   }
@@ -31,7 +30,7 @@ public class StructKotlinMetadataAttribute extends StructGeneralAttribute {
   private Map<StructMethod, KFunction> functions;
   private KConstructor.Data constructorData;
 
-  public StructKotlinMetadataAttribute(@NotNull Metadata metadata, @Nullable MetadataNameResolver nameResolver) {
+  public KotlinMetadata(@NotNull Metadata metadata, @Nullable MetadataNameResolver nameResolver) {
     this.metadata = metadata;
     this.nameResolver = nameResolver;
   }
@@ -97,5 +96,5 @@ public class StructKotlinMetadataAttribute extends StructGeneralAttribute {
     return constructorData;
   }
 
-  public static final Key<StructKotlinMetadataAttribute> KEY = Key.of("kotlin-metadata-attribute");
+  public static final Key<KotlinMetadata> KEY = Key.of("kotlin-metadata-attribute");
 }

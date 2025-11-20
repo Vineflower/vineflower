@@ -39,7 +39,7 @@ import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.TextUtil;
 import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
 import org.vineflower.kotlin.expr.KAnnotationExprent;
-import org.vineflower.kotlin.metadata.StructKotlinMetadataAttribute;
+import org.vineflower.kotlin.metadata.KotlinMetadata;
 import org.vineflower.kotlin.struct.*;
 import org.vineflower.kotlin.util.KTypes;
 import org.vineflower.kotlin.util.KUtils;
@@ -154,8 +154,8 @@ public class KotlinWriter implements StatementWriter, Flags {
   }
 
   public void writeClassHeader(StructClass cl, TextBuffer buffer, ImportCollector importCollector) {
-    StructKotlinMetadataAttribute ktData = cl.getAttribute(StructKotlinMetadataAttribute.KEY);
-    if (ktData != null && ktData.metadata instanceof StructKotlinMetadataAttribute.File) {
+    KotlinMetadata ktData = cl.getAttribute(KotlinMetadata.KEY);
+    if (ktData != null && ktData.metadata instanceof KotlinMetadata.File) {
       for (Key<?> key : ANNOTATION_ATTRIBUTES) {
         StructAnnotationAttribute attr = cl.getAttribute((Key<StructAnnotationAttribute>) key);
         if (attr != null) {
@@ -187,7 +187,7 @@ public class KotlinWriter implements StatementWriter, Flags {
     KotlinImportCollector kotlinImportCollector = new KotlinImportCollector(importCollector);
     kotlinImportCollector.writeImports(buffer, true);
 
-    if (ktData != null && ktData.metadata instanceof StructKotlinMetadataAttribute.Class cls) {
+    if (ktData != null && ktData.metadata instanceof KotlinMetadata.Class cls) {
       if (cls.proto().getTypeAliasCount() > 0) {
         List<ProtoBuf.TypeAlias> typeAliases = cls.proto().getTypeAliasList();
         for (ProtoBuf.TypeAlias typeAlias : typeAliases) {
@@ -221,7 +221,7 @@ public class KotlinWriter implements StatementWriter, Flags {
       ConstantPool pool = cl.getPool();
 
       KotlinChooser.parseMetadataFor(cl);
-      StructKotlinMetadataAttribute ktData = cl.getAttribute(StructKotlinMetadataAttribute.KEY);
+      KotlinMetadata ktData = cl.getAttribute(KotlinMetadata.KEY);
 
       DecompilerContext.getLogger().startWriteClass(cl.qualifiedName);
 
@@ -229,7 +229,7 @@ public class KotlinWriter implements StatementWriter, Flags {
       if (ktData == null) {
         appendComment(buffer, "Class flags could not be determined", indent);
         kotlinFlags = 0;
-      } else if (ktData.metadata instanceof StructKotlinMetadataAttribute.Class cls) {
+      } else if (ktData.metadata instanceof KotlinMetadata.Class cls) {
         kotlinFlags = cls.proto().getFlags();
       } else {
         kotlinFlags = 0;
@@ -255,13 +255,13 @@ public class KotlinWriter implements StatementWriter, Flags {
         return;
       }
 
-      if (ktData != null && ktData.metadata instanceof StructKotlinMetadataAttribute.File) {
+      if (ktData != null && ktData.metadata instanceof KotlinMetadata.File) {
         writeKotlinFile(node, buffer, indent, ktData);
         return;
       }
 
       Optional<ClassNode> companion;
-      if (ktData != null && ktData.metadata instanceof StructKotlinMetadataAttribute.Class cls && cls.proto().hasCompanionObjectName()) {
+      if (ktData != null && ktData.metadata instanceof KotlinMetadata.Class cls && cls.proto().hasCompanionObjectName()) {
         String name = ktData.nameResolver.resolve(cls.proto().getCompanionObjectName());
         companion = node.nested.stream()
           .filter(n -> n.simpleName.equals(name))
@@ -309,7 +309,7 @@ public class KotlinWriter implements StatementWriter, Flags {
         ClassNode companionNode = companion.get();
         KotlinChooser.parseMetadataFor(companionNode.classStruct);
 
-        StructKotlinMetadataAttribute companionKtData = companionNode.classStruct.getAttribute(StructKotlinMetadataAttribute.KEY);
+        KotlinMetadata companionKtData = companionNode.classStruct.getAttribute(KotlinMetadata.KEY);
         if (companionKtData != null) {
           if (companionKtData.getProperties() != null) {
             fieldsToIgnore.addAll(companionKtData.getProperties().associatedFields());
@@ -504,7 +504,7 @@ public class KotlinWriter implements StatementWriter, Flags {
     }
   }
 
-  private void writeKotlinFile(ClassNode node, TextBuffer buffer, int indent, StructKotlinMetadataAttribute ktData) {
+  private void writeKotlinFile(ClassNode node, TextBuffer buffer, int indent, KotlinMetadata ktData) {
     ClassWrapper wrapper = node.getWrapper();
     StructClass cl = wrapper.getClassStruct();
     
@@ -547,7 +547,7 @@ public class KotlinWriter implements StatementWriter, Flags {
     }
 
     Set<StructField> fieldsToSkip = Optional.ofNullable(ktData)
-      .map(StructKotlinMetadataAttribute::getProperties)
+      .map(KotlinMetadata::getProperties)
       .map(KProperty.Data::associatedFields)
       .orElse(Set.of());
 
@@ -600,7 +600,7 @@ public class KotlinWriter implements StatementWriter, Flags {
   }
 
   //TODO update this to use Kotlin's metadata
-  private void writeAnnotationDefinition(ClassNode node, TextBuffer buffer, int indent, StructKotlinMetadataAttribute ktData) {
+  private void writeAnnotationDefinition(ClassNode node, TextBuffer buffer, int indent, KotlinMetadata ktData) {
     ClassWrapper wrapper = node.getWrapper();
     StructClass cl = wrapper.getClassStruct();
 
@@ -724,7 +724,7 @@ public class KotlinWriter implements StatementWriter, Flags {
     buffer.appendLineSeparator();
   }
 
-  private void writeClassDefinition(ClassNode node, TextBuffer buffer, int indent, StructKotlinMetadataAttribute ktData, int kotlinFlags) {
+  private void writeClassDefinition(ClassNode node, TextBuffer buffer, int indent, KotlinMetadata ktData, int kotlinFlags) {
     if (node.type == ClassNode.Type.ANONYMOUS) {
       buffer.append(" {").appendLineSeparator();
       return;
@@ -827,7 +827,7 @@ public class KotlinWriter implements StatementWriter, Flags {
 
     boolean appendedColon = false;
     boolean wroteSupertype = Optional.ofNullable(ktData)
-      .map(StructKotlinMetadataAttribute::getConstructors)
+      .map(KotlinMetadata::getConstructors)
       .map(KConstructor.Data::primary)
       .map(constructor -> constructor.writePrimaryConstructor(wrapper, buffer, indent))
       .orElse(false);
@@ -902,8 +902,8 @@ public class KotlinWriter implements StatementWriter, Flags {
     }
     appendAnnotations(buffer, indent, fd, TypeAnnotation.FIELD);
 
-    StructKotlinMetadataAttribute classData = cl.getAttribute(StructKotlinMetadataAttribute.KEY);
-    boolean isInFile = classData != null && classData.metadata instanceof StructKotlinMetadataAttribute.File;
+    KotlinMetadata classData = cl.getAttribute(KotlinMetadata.KEY);
+    boolean isInFile = classData != null && classData.metadata instanceof KotlinMetadata.File;
     appendJvmAnnotations(buffer, indent, fd, isInterface, isInFile, cl.getPool(), TypeAnnotation.FIELD);
 
     buffer.appendIndent(indent);
@@ -1062,8 +1062,8 @@ public class KotlinWriter implements StatementWriter, Flags {
 
       appendAnnotations(buffer, indent, mt, TypeAnnotation.METHOD_RETURN_TYPE);
 
-      StructKotlinMetadataAttribute classData = node.classStruct.getAttribute(StructKotlinMetadataAttribute.KEY);
-      boolean isInFile = classData != null && classData.metadata instanceof StructKotlinMetadataAttribute.File;
+      KotlinMetadata classData = node.classStruct.getAttribute(KotlinMetadata.KEY);
+      boolean isInFile = classData != null && classData.metadata instanceof KotlinMetadata.File;
       appendJvmAnnotations(buffer, indent, mt, isInterface, isInFile, cl.getPool(), TypeAnnotation.METHOD_RETURN_TYPE);
 
       buffer.appendIndent(indent);
