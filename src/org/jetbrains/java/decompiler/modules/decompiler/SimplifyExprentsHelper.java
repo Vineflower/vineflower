@@ -1,7 +1,6 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler;
 
-import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
@@ -9,9 +8,11 @@ import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.SSAConstructorSparseEx;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.SSAUConstructorSparseEx;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
+import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionNode;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.gen.CodeType;
@@ -1174,5 +1175,85 @@ public class SimplifyExprentsHelper {
     }
 
     return ret;
+  }
+
+  public static boolean simplifySimple(Statement stat, SSAUConstructorSparseEx ssu) {
+    if (stat instanceof BasicBlockStatement bbStat) {
+      return simplifySimpleBlock(bbStat, ssu);
+    }
+    boolean simplified = false;
+    for(var subStat : stat.getStats()) {
+      simplified |= simplifySimple(subStat, ssu);
+    }
+    return simplified;
+  }
+
+  private static boolean simplifySimpleBlock(BasicBlockStatement bbStat, SSAUConstructorSparseEx ssu) {
+    var statExprents = bbStat.getExprents();
+    if (statExprents == null) {
+      return false;
+    }
+
+    boolean simplified = false;
+
+    for (int i = statExprents.size() - 1; i > 0; i--) {
+      var prevExprent = statExprents.get(i - 1);
+      if (prevExprent instanceof AssignmentExprent ass &&
+        ass.getCondType() == null &&
+        ass.getLeft() instanceof VarExprent varExprent &&
+        varExprent.isStack()
+      ){
+        VarVersionNode node = ssu.getNode(varExprent);
+        if (node.hasSingleSuccessor()) {
+          VarVersionNode targetNode = node.getSingleSuccessor();
+          if (targetNode.hasSinglePredecessor() && !targetNode.hasAnySuccessors()) {
+            // inlining in next exprent if the use is in the next exprent
+
+            if (inlineExprent(statExprents.get(i), targetNode.asPair(), ass.getRight()) == 1){
+              simplified = true;
+              statExprents.remove(i - 1);
+            }
+          }
+        }
+      }
+    }
+    return simplified;
+  }
+
+  // 0 => fail; 1 => success; 2 => fail, stop looking (impure)
+  private static int inlineExprent(
+    Exprent targetExprent,
+    VarVersionPair replaceablePair,
+    Exprent replaceExprent
+  ) {
+    // step 1: find exprent
+    for (var subExprent : targetExprent.getAllExprents()) {
+      if (subExprent instanceof VarExprent varExprent) {
+        if (varExprent.getIndex() == replaceablePair.var &&
+          varExprent.getVersion() == replaceablePair.version) {
+
+          targetExprent.replaceExprent(varExprent, replaceExprent);
+          return 1;
+        }
+      }
+
+      if ((subExprent.getExprentUse() & Exprent.SIDE_EFFECTS_FREE) != 0) {
+        int sub = inlineExprent(subExprent, replaceablePair, replaceExprent);
+        if(          sub > 0        ) {
+          return sub;
+        }
+      } else if(subExprent instanceof InvocationExprent) {
+        int sub = inlineExprent(subExprent, replaceablePair, replaceExprent);
+        if(          sub > 0        ) {
+          return sub;
+        }
+        return 2;
+      } else {
+        return 2;  // safety
+      }
+    }
+
+    // exprent use is not here
+    return 0;
   }
 }

@@ -31,18 +31,28 @@ public class SSAUConstructorSparseEx extends SFormsConstructor {
   // field access counter
   private int fieldVarCounter = -1;
 
-  public SSAUConstructorSparseEx() {
+  final private boolean trackLiveVars;
+
+  public SSAUConstructorSparseEx(boolean trackLiveVars) {
     super(
       true,
       true
     );
+
+    this.trackLiveVars = trackLiveVars;
+  }
+
+  public SSAUConstructorSparseEx() {
+    this(true);
   }
 
   @Override
   public void splitVariables(RootStatement root, StructMethod mt) {
     super.splitVariables(root, mt);
 
-    this.ssaStatements(this.dgraph, new HashSet<>(), true, mt, 999_999);
+    if (this.trackLiveVars) {
+      this.ssaStatements(this.dgraph, new HashSet<>(), true, mt, 999_999);
+    }
 
 //    this.ssuVersions.initDominators();
 

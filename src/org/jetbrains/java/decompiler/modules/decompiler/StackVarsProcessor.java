@@ -64,6 +64,15 @@ public class StackVarsProcessor {
       SequenceHelper.condenseSequences(root);
       ValidationHelper.validateStatement(root);
 
+      if (first)  {
+        ssau = new SSAUConstructorSparseEx(false);
+        ssau.splitVariables(root, mt);
+
+        found |= SimplifyExprentsHelper.simplifySimple(root, ssau);
+
+        setVersionsToNull(root);
+      }
+
       ssau = new SSAUConstructorSparseEx();
       ssau.splitVariables(root, mt);
 
