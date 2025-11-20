@@ -27,8 +27,11 @@ import java.util.zip.ZipOutputStream;
 
 public class ConsoleDecompiler implements /* IBytecodeProvider, */ IResultSaver, AutoCloseable {
   private static final Map<String, Object> CONSOLE_DEFAULT_OPTIONS = Map.of(
-    IFernflowerPreferences.INCLUDE_JAVA_RUNTIME, JrtFinder.CURRENT
+    IFernflowerPreferences.INCLUDE_JAVA_RUNTIME, JrtFinder.CURRENT,
+    IFernflowerPreferences.COLORIZE_OUTPUT, "auto"
   );
+
+  static Runnable tokenizerInitializer;
 
   @SuppressWarnings("UseOfSystemOutOrSystemErr")
   public static void main(String[] args) {
@@ -179,22 +182,26 @@ public class ConsoleDecompiler implements /* IBytecodeProvider, */ IResultSaver,
 
 
     PrintStreamLogger logger = new PrintStreamLogger(System.out);
-    ConsoleDecompiler decompiler = new ConsoleDecompiler(destination, mapOptions, logger, saveType);
+    try (ConsoleDecompiler decompiler = new ConsoleDecompiler(destination, mapOptions, logger, saveType)) {
+      for (File library : libraries) {
+        decompiler.addLibrary(library);
+      }
+      for (File source : sources) {
+        decompiler.addSource(source);
+      }
+      for (String prefix : whitelist) {
+        decompiler.addWhitelist(prefix);
+      }
 
-    for (File library : libraries) {
-      decompiler.addLibrary(library);
-    }
-    for (File source : sources) {
-      decompiler.addSource(source);
-    }
-    for (String prefix : whitelist) {
-      decompiler.addWhitelist(prefix);
-    }
+      if (tokenizerInitializer != null) {
+        tokenizerInitializer.run();
+      }
 
-    try {
       decompiler.decompileContext();
     } catch (CancelationManager.CanceledException e) {
       System.out.println("Decompilation canceled");
+    } catch (IOException e) {
+      throw new UncheckedIOException("Decompilation failed", e);
     }
   }
 

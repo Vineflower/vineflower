@@ -1,5 +1,6 @@
 package org.jetbrains.java.decompiler.main.extern;
 
+import org.jetbrains.annotations.MustBeInvokedByOverriders;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.struct.gen.FieldDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
@@ -49,42 +50,49 @@ public abstract class TextTokenVisitor {
     return chainFactories().andThen(factory).create(EMPTY);
   }
 
+  @MustBeInvokedByOverriders
   public void start(String content) {
     if (next != null) {
       next.start(content);
     }
   }
 
+  @MustBeInvokedByOverriders
   public void visitClass(TextRange range, boolean declaration, String name) {
     if (next != null) {
       next.visitClass(range, declaration, name);
     }
   }
 
+  @MustBeInvokedByOverriders
   public void visitField(TextRange range, boolean declaration, String className, String name, FieldDescriptor descriptor) {
     if (next != null) {
       next.visitField(range, declaration, className, name, descriptor);
     }
   }
 
+  @MustBeInvokedByOverriders
   public void visitMethod(TextRange range, boolean declaration, String className, String name, MethodDescriptor descriptor) {
     if (next != null) {
       next.visitMethod(range, declaration, className, name, descriptor);
     }
   }
 
+  @MustBeInvokedByOverriders
   public void visitParameter(TextRange range, boolean declaration, String className, String methodName, MethodDescriptor methodDescriptor, int index, String name) {
     if (next != null) {
       next.visitParameter(range, declaration, className, methodName, methodDescriptor, index, name);
     }
   }
 
+  @MustBeInvokedByOverriders
   public void visitLocal(TextRange range, boolean declaration, String className, String methodName, MethodDescriptor methodDescriptor, int index, String name) {
     if (next != null) {
       next.visitLocal(range, declaration, className, methodName, methodDescriptor, index, name);
     }
   }
 
+  @MustBeInvokedByOverriders
   public void end() {
     if (next != null) {
       next.end();

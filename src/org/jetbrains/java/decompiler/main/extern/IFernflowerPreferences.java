@@ -418,6 +418,11 @@ public interface IFernflowerPreferences {
   @Type(DecompilerOption.Type.STRING)
   String METHOD_TO_DECOMPILE = "method-to-decompile";
 
+  @Name("Colorize console output")
+  @Description("Export ANSI color codes when decompiling to console. If run using the standard main class in a TTY, this defaults to true, otherwise false. This also accepts always/auto/never values.")
+  @Type(DecompilerOption.Type.BOOLEAN)
+  String COLORIZE_OUTPUT = "color";
+
   Map<String, Object> DEFAULTS = getDefaults();
 
   static Map<String, Object> getDefaults() {
@@ -495,6 +500,7 @@ public interface IFernflowerPreferences {
     defaults.put(VALIDATE_INNER_CLASSES_NAMES, "1");
     defaults.put(PRETTIFY_IFS, "1");
     defaults.put(METHOD_TO_DECOMPILE, "");
+    defaults.put(COLORIZE_OUTPUT, "0");
 
     return Collections.unmodifiableMap(defaults);
   }
