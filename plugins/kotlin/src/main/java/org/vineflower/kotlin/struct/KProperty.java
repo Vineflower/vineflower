@@ -6,8 +6,6 @@ import org.vineflower.kt.metadata.jvm.JvmProtoBuf;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.code.CodeConstants;
-import org.jetbrains.java.decompiler.main.ClassesProcessor;
-import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.AnnotationExprent;
@@ -24,8 +22,6 @@ import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
-import org.vineflower.kotlin.KotlinDecompilationContext;
-import org.vineflower.kotlin.KotlinOptions;
 import org.vineflower.kotlin.KotlinWriter;
 import org.vineflower.kotlin.metadata.MetadataNameResolver;
 import org.vineflower.kotlin.util.KTypes;
@@ -35,6 +31,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 
 public record KProperty(
   String name,
@@ -44,9 +41,9 @@ public record KProperty(
   @Nullable KPropertyAccessor setter,
   @Nullable String setterParamName,
   @Nullable StructField underlyingField,
-  @Nullable Exprent initializer,
+  @Nullable Function<ClassWrapper, Exprent> initializer,
   @Nullable List<AnnotationExprent> annotations,
-  ClassesProcessor.ClassNode node
+  StructClass classStruct
 ) implements Flags {
   private static final AnnotationExprent DEPRECATED_ANNOTATION = new AnnotationExprent(
     new VarType("kotlin/Deprecated").value,
@@ -54,7 +51,7 @@ public record KProperty(
     List.of(new ConstExprent(VarType.VARTYPE_STRING, "Deprecated by attribute.", null))
   );
 
-  public TextBuffer stringify(int indent) {
+  public TextBuffer stringify(ClassWrapper classWrapper, int indent) {
     TextBuffer buf = new TextBuffer();
 
     if (HAS_ANNOTATIONS.get(flags)) {
@@ -82,7 +79,7 @@ public record KProperty(
 
     if (MODALITY.get(flags) == ProtoBuf.Modality.FINAL) {
       buf.append(IS_CONST.get(flags) ? "const " : "final ");
-    } else if (!node.classStruct.hasModifier(CodeConstants.ACC_INTERFACE) || MODALITY.get(flags) != ProtoBuf.Modality.ABSTRACT) {
+    } else if (!classStruct.hasModifier(CodeConstants.ACC_INTERFACE) || MODALITY.get(flags) != ProtoBuf.Modality.ABSTRACT) {
       buf.append(MODALITY.get(flags).name().toLowerCase())
         .append(' ');
     }
@@ -101,16 +98,19 @@ public record KProperty(
       .append(type.stringify(indent)); 
 
     if (initializer != null) {
-      TextBuffer initializerBuf = initializer.toJava(indent);
-      if (IS_DELEGATED.get(flags)) {
-        buf.append(" by ")
-          .append(initializerBuf);
-      } else {
-        buf.append(" =")
-          .pushNewlineGroup(indent, 1)
-          .appendPossibleNewline(" ")
-          .append(initializerBuf)
-          .popNewlineGroup();
+      Exprent expr = initializer.apply(classWrapper);
+      if (expr != null) {
+        TextBuffer initializerBuf = expr.toJava(indent);
+        if (IS_DELEGATED.get(flags)) {
+          buf.append(" by ")
+            .append(initializerBuf);
+        } else {
+          buf.append(" =")
+            .pushNewlineGroup(indent, 1)
+            .appendPossibleNewline(" ")
+            .append(initializerBuf)
+            .popNewlineGroup();
+        }
       }
     }
 
@@ -135,7 +135,7 @@ public record KProperty(
 
       buf.append("get() ");
 
-      KotlinWriter.writeMethodBody(node, getter.underlyingMethod(), buf, indent + 1, false);
+      KotlinWriter.writeMethodBody(classStruct, getter.methodSupplier().apply(classWrapper), buf, indent + 1, false);
 
       buf.popNewlineGroup();
     } else if (getter != null && IS_EXTERNAL_ACCESSOR.get(getter.flags())) {
@@ -166,7 +166,7 @@ public record KProperty(
         .append(setterParamName)
         .append(") ");
 
-      KotlinWriter.writeMethodBody(node, setter.underlyingMethod(), buf, indent + 1, false);
+      KotlinWriter.writeMethodBody(classStruct, setter.methodSupplier().apply(classWrapper), buf, indent + 1, false);
 
       buf.popNewlineGroup();
     } else if (setter != null && (IS_EXTERNAL_ACCESSOR.get(setter.flags()) || VISIBILITY.get(setter.flags()) != VISIBILITY.get(flags) || MODALITY.get(setter.flags()) != MODALITY.get(flags))) {
@@ -195,38 +195,7 @@ public record KProperty(
     return buf;
   }
 
-  private static void appendVisibility(TextBuffer buf, ProtoBuf.Visibility visibility) {
-    switch (visibility) {
-      case LOCAL -> buf.append("// QF: local property")
-        .appendLineSeparator()
-        .append("internal ");
-      case PRIVATE_TO_THIS -> buf.append("private ");
-      case PUBLIC -> {
-        if (DecompilerContext.getOption(KotlinOptions.SHOW_PUBLIC_VISIBILITY)) {
-          buf.append("public ");
-        }
-      }
-      default -> buf.append(visibility.name().toLowerCase()).append(' ');
-    }
-  }
-
-  public static @Nullable Data parse(ClassesProcessor.ClassNode node) {
-    MetadataNameResolver nameResolver = KotlinDecompilationContext.getNameResolver();
-    ClassWrapper wrapper = node.getWrapper();
-    StructClass structClass = wrapper.getClassStruct();
-
-    KotlinDecompilationContext.KotlinType currentType = KotlinDecompilationContext.getCurrentType();
-    if (currentType == null) return null;
-
-    List<ProtoBuf.Property> protoProperties = switch (currentType) {
-      case CLASS -> KotlinDecompilationContext.getCurrentClass().getPropertyList();
-      case FILE -> KotlinDecompilationContext.getFilePackage().getPropertyList();
-      case MULTIFILE_CLASS -> KotlinDecompilationContext.getMultifilePackage().getPropertyList();
-      case SYNTHETIC_CLASS -> null;
-    };
-
-    if (protoProperties == null) return null;
-
+  public static @NotNull Data parse(StructClass classStruct, List<ProtoBuf.Property> protoProperties, @NotNull MetadataNameResolver nameResolver) {
     List<KProperty> properties = new ArrayList<>();
     Set<StructField> associatedFields = new HashSet<>();
     Set<StructMethod> associatedMethods = new HashSet<>();
@@ -238,12 +207,12 @@ public record KProperty(
 
       List<AnnotationExprent> annotations = new ArrayList<>();
       if (jvmProp.hasSyntheticMethod()) {
-        // Properties containing annotations receive a synthetic method which has the annotations in place of the property.
+        // Properties containing annotations receive a synthetic methodSupplier which has the annotations in place of the property.
         // https://github.com/JetBrains/kotlin/blob/master/core/metadata.jvm/src/jvm_metadata.proto#L84
         JvmProtoBuf.JvmMethodSignature syntheticMethod = jvmProp.getSyntheticMethod();
         String methodName = nameResolver.resolve(syntheticMethod.getName());
         String desc = nameResolver.resolve(syntheticMethod.getDesc());
-        StructMethod method = structClass.getMethod(methodName, desc);
+        StructMethod method = classStruct.getMethod(methodName, desc);
         if (method != null) {
           associatedMethods.add(method);
           if (method.hasAttribute(StructGeneralAttribute.ATTRIBUTE_RUNTIME_VISIBLE_ANNOTATIONS)) {
@@ -267,19 +236,19 @@ public record KProperty(
       }
 
       // Delegates create a hidden field containing the created delegate, so reference that instead
-      Exprent delegateExprent = null;
+      Function<ClassWrapper, Exprent> delegateSupplier = null;
       StructField delegateField = null;
       if (IS_DELEGATED.get(flags)) {
         String delegateFieldName = nameResolver.resolve(jvmProp.getField().getName());
         String delegateDesc = nameResolver.resolve(jvmProp.getField().getDesc());
-        delegateField = structClass.getField(delegateFieldName, delegateDesc);
+        delegateField = classStruct.getField(delegateFieldName, delegateDesc);
         if (delegateField != null) {
           associatedFields.add(delegateField);
           String key = InterpreterUtil.makeUniqueKey(delegateFieldName, delegateDesc);
           if (delegateField.hasModifier(CodeConstants.ACC_STATIC)) {
-            delegateExprent = wrapper.getStaticFieldInitializers().getWithKey(key);
+            delegateSupplier = wrapper -> wrapper.getStaticFieldInitializers().getWithKey(key);
           } else {
-            delegateExprent = wrapper.getDynamicFieldInitializers().getWithKey(key);
+            delegateSupplier = wrapper -> wrapper.getDynamicFieldInitializers().getWithKey(key);
           }
         }
       }
@@ -288,10 +257,10 @@ public record KProperty(
       if (HAS_GETTER.get(flags)) {
         String methodName = nameResolver.resolve(jvmProp.getGetter().getName());
         String desc = nameResolver.resolve(jvmProp.getGetter().getDesc());
-        StructMethod method = structClass.getMethod(methodName, desc);
+        StructMethod method = classStruct.getMethod(methodName, desc);
         if (method != null) {
-          MethodWrapper methodWrapper = wrapper.getMethodWrapper(methodName, desc);
-          getter = new KPropertyAccessor(property.getGetterFlags(), methodWrapper);
+          Function<ClassWrapper, MethodWrapper> supplier = wrapper -> wrapper.getMethodWrapper(methodName, desc);
+          getter = new KPropertyAccessor(property.getGetterFlags(), supplier);
           associatedMethods.add(method);
 
           if (propDesc == null) {
@@ -305,10 +274,10 @@ public record KProperty(
       if (HAS_SETTER.get(flags)) {
         String methodName = nameResolver.resolve(jvmProp.getSetter().getName());
         String desc = nameResolver.resolve(jvmProp.getSetter().getDesc());
-        StructMethod method = structClass.getMethod(methodName, desc);
+        StructMethod method = classStruct.getMethod(methodName, desc);
         if (method != null) {
-          MethodWrapper methodWrapper = wrapper.getMethodWrapper(methodName, desc);
-          setter = new KPropertyAccessor(property.getSetterFlags(), methodWrapper);
+          Function<ClassWrapper, MethodWrapper> supplier = wrapper -> wrapper.getMethodWrapper(methodName, desc);
+          setter = new KPropertyAccessor(property.getSetterFlags(), supplier);
           associatedMethods.add(method);
           setterParamName = nameResolver.resolve(property.getSetterValueParameter().getName());
         }
@@ -316,12 +285,12 @@ public record KProperty(
 
       StructField field = null;
       if (propDesc != null) {
-        field = structClass.getField(name, propDesc);
+        field = classStruct.getField(name, propDesc);
         if (field != null) {
           associatedFields.add(field);
         }
       } else {
-        VBStyleCollection<StructField, String> fields = structClass.getFields();
+        VBStyleCollection<StructField, String> fields = classStruct.getFields();
         for (StructField f : fields) {
           if (f.getName().equals(name)) {
             field = f;
@@ -351,24 +320,24 @@ public record KProperty(
       VarType varType = propDesc != null ? new VarType(propDesc) : VarType.VARTYPE_OBJECT;
 
       String key = InterpreterUtil.makeUniqueKey(name, varType.toString());
-      Exprent initializer;
+      Function<ClassWrapper, Exprent> initializer;
 
-      if (delegateExprent != null) {
-        initializer = delegateExprent;
+      if (delegateSupplier != null) {
+        initializer = delegateSupplier;
         field = delegateField;
       } else if (field == null) {
         initializer = null;
       } else if (field.hasAttribute(StructGeneralAttribute.ATTRIBUTE_CONSTANT_VALUE)) {
         StructConstantValueAttribute attr = field.getAttribute(StructGeneralAttribute.ATTRIBUTE_CONSTANT_VALUE);
-        PrimitiveConstant constant = structClass.getPool().getPrimitiveConstant(attr.getIndex());
-        initializer = new ConstExprent(varType, constant.value, null);
+        PrimitiveConstant constant = classStruct.getPool().getPrimitiveConstant(attr.getIndex());
+        initializer = ignored -> new ConstExprent(varType, constant.value, null);
       } else if (field.hasModifier(CodeConstants.ACC_STATIC)) {
-        initializer = wrapper.getStaticFieldInitializers().getWithKey(key);
+        initializer = wrapper -> wrapper.getStaticFieldInitializers().getWithKey(key);
       } else {
-        initializer = wrapper.getDynamicFieldInitializers().getWithKey(key);
+        initializer = wrapper -> wrapper.getDynamicFieldInitializers().getWithKey(key);
       }
 
-      properties.add(new KProperty(name, type, flags, getter, setter, setterParamName, field, initializer, annotations, node));
+      properties.add(new KProperty(name, type, flags, getter, setter, setterParamName, field, initializer, annotations, classStruct));
     }
 
     return new Data(properties, associatedFields, associatedMethods);

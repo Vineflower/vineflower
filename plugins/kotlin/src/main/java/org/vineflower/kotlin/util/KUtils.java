@@ -50,7 +50,7 @@ public class KUtils {
 
   public static void appendVisibility(TextBuffer buf, ProtoBuf.Visibility visibility) {
     switch (visibility) {
-      case LOCAL -> buf.append("// $VF: local visibility outside of method")
+      case LOCAL -> buf.append("// $VF: local visibility outside of methodSupplier")
         .appendLineSeparator()
         .append("internal ");
       case PRIVATE_TO_THIS -> buf.append("private ");
