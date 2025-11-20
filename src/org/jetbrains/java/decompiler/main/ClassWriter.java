@@ -415,64 +415,74 @@ public class ClassWriter implements StatementWriter {
         hasContent.set(true);
       };
 
+      String methodToDecompile = (String) DecompilerContext.getProperty(IFernflowerPreferences.METHOD_TO_DECOMPILE);
+
       // fields
-      List<StructRecordComponent> components = cl.getRecordComponents();
+      if (methodToDecompile.isEmpty()) {
+        List<StructRecordComponent> components = cl.getRecordComponents();
 
-      List<StructField> enumFields = new ArrayList<>();
-      List<StructField> nonEnumFields = new ArrayList<>();
+        List<StructField> enumFields = new ArrayList<>();
+        List<StructField> nonEnumFields = new ArrayList<>();
 
-      for (StructField fd : cl.getFields()) {
-        boolean isEnum = fd.hasModifier(CodeConstants.ACC_ENUM) && DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM);
-        if (isEnum) {
-          enumFields.add(fd);
-        } else {
-          nonEnumFields.add(fd);
+        for (StructField fd : cl.getFields()) {
+          boolean isEnum = fd.hasModifier(CodeConstants.ACC_ENUM) && DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM);
+          if (isEnum) {
+            enumFields.add(fd);
+          } else {
+            nonEnumFields.add(fd);
+          }
         }
-      }
 
-      boolean enums = false;
-      for (StructField fd : enumFields) {
+        boolean enums = false;
+        for (StructField fd : enumFields) {
+          if (enums) {
+            buffer.append(',').appendLineSeparator();
+          }
+          enums = true;
+
+          haveContent.run();
+          writeField(buffer, indent, fd, wrapper);
+        }
+
         if (enums) {
-          buffer.append(',').appendLineSeparator();
+          buffer.append(';').appendLineSeparator();
         }
-        enums = true;
 
-        haveContent.run();
-        writeField(buffer, indent, fd, wrapper);
-      }
+        for (StructField fd : nonEnumFields) {
+          boolean hide = fd.isSynthetic() && DecompilerContext.getOption(IFernflowerPreferences.REMOVE_SYNTHETIC) ||
+            wrapper.getHiddenMembers().contains(InterpreterUtil.makeUniqueKey(fd.getName(), fd.getDescriptor()));
+          if (hide) continue;
 
-      if (enums) {
-        buffer.append(';').appendLineSeparator();
-      }
-
-      for (StructField fd : nonEnumFields) {
-        boolean hide = fd.isSynthetic() && DecompilerContext.getOption(IFernflowerPreferences.REMOVE_SYNTHETIC) ||
-                       wrapper.getHiddenMembers().contains(InterpreterUtil.makeUniqueKey(fd.getName(), fd.getDescriptor()));
-        if (hide) continue;
-
-        if (components != null && fd.getAccessFlags() == (CodeConstants.ACC_FINAL | CodeConstants.ACC_PRIVATE) &&
+          if (components != null && fd.getAccessFlags() == (CodeConstants.ACC_FINAL | CodeConstants.ACC_PRIVATE) &&
             components.stream().anyMatch(c -> c.getName().equals(fd.getName()) && c.getDescriptor().equals(fd.getDescriptor()))) {
-          // Record component field: skip it
-          continue;
-        }
+            // Record component field: skip it
+            continue;
+          }
 
-        if (enums) {
-          // Add an extra line break between enums and non-enum fields
-          buffer.appendLineSeparator();
-          enums = false;
-        }
+          if (enums) {
+            // Add an extra line break between enums and non-enum fields
+            buffer.appendLineSeparator();
+            enums = false;
+          }
 
-        haveContent.run();
-        writeField(buffer, indent, fd, wrapper);
+          haveContent.run();
+          writeField(buffer, indent, fd, wrapper);
+        }
       }
 
       // methods
       VBStyleCollection<StructMethod, String> methods = cl.getMethods();
       for (int i = 0; i < methods.size(); i++) {
         StructMethod mt = methods.get(i);
-        boolean hide = mt.isSynthetic() && DecompilerContext.getOption(IFernflowerPreferences.REMOVE_SYNTHETIC) ||
-                       mt.hasModifier(CodeConstants.ACC_BRIDGE) && DecompilerContext.getOption(IFernflowerPreferences.REMOVE_BRIDGE) ||
-                       wrapper.getHiddenMembers().contains(InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor()));
+        boolean hide;
+        if (methodToDecompile.isEmpty() || (node.type != ClassNode.Type.ROOT && node.type != ClassNode.Type.MEMBER)) {
+          hide = mt.isSynthetic() && DecompilerContext.getOption(IFernflowerPreferences.REMOVE_SYNTHETIC) ||
+                 mt.hasModifier(CodeConstants.ACC_BRIDGE) && DecompilerContext.getOption(IFernflowerPreferences.REMOVE_BRIDGE) ||
+                 wrapper.getHiddenMembers().contains(InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor()));
+        } else {
+          hide = !methodToDecompile.equals(cl.qualifiedName + "." + mt.getName() + mt.getDescriptor()) &&
+                 (node.type != ClassNode.Type.ROOT || !methodToDecompile.equals(mt.getName() + mt.getDescriptor()));
+        }
         if (hide) continue;
 
         TextBuffer methodBuffer = new TextBuffer();
@@ -490,9 +500,14 @@ public class ClassWriter implements StatementWriter {
       for (ClassNode inner : node.nested) {
         if (inner.type == ClassNode.Type.MEMBER) {
           StructClass innerCl = inner.classStruct;
-          boolean isSynthetic = (inner.access & CodeConstants.ACC_SYNTHETIC) != 0 || innerCl.isSynthetic();
-          boolean hide = isSynthetic && DecompilerContext.getOption(IFernflowerPreferences.REMOVE_SYNTHETIC) ||
-                         wrapper.getHiddenMembers().contains(innerCl.qualifiedName);
+          boolean hide;
+          if (methodToDecompile.isEmpty()) {
+            boolean isSynthetic = (inner.access & CodeConstants.ACC_SYNTHETIC) != 0 || innerCl.isSynthetic();
+            hide = isSynthetic && DecompilerContext.getOption(IFernflowerPreferences.REMOVE_SYNTHETIC) ||
+                   wrapper.getHiddenMembers().contains(innerCl.qualifiedName);
+          } else {
+            hide = !methodToDecompile.startsWith(innerCl.qualifiedName + ".");
+          }
           if (hide) continue;
 
           if (hasContent.get()) {

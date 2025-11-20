@@ -408,6 +408,11 @@ public interface IFernflowerPreferences {
   @Type(DecompilerOption.Type.BOOLEAN)
   String PRETTIFY_IFS = "prettify-ifs";
 
+  @Name("Method to decompile")
+  @Description("Option to decompile a single method. Set to owner + \".\" + name + descriptor, e.g. foo/Bar.baz()V, or simply name + descriptor if you're only decompiling a single file and the method belongs to the root class.")
+  @Type(DecompilerOption.Type.STRING)
+  String METHOD_TO_DECOMPILE = "method-to-decompile";
+
   Map<String, Object> DEFAULTS = getDefaults();
 
   static Map<String, Object> getDefaults() {
@@ -483,6 +488,7 @@ public interface IFernflowerPreferences {
     defaults.put(EXCLUDED_CLASSES, "");
     defaults.put(VALIDATE_INNER_CLASSES_NAMES, "1");
     defaults.put(PRETTIFY_IFS, "1");
+    defaults.put(METHOD_TO_DECOMPILE, "");
 
     return Collections.unmodifiableMap(defaults);
   }
