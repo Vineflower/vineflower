@@ -6,7 +6,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.FieldExprent;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
-import org.vineflower.kotlin.metadata.StructKotlinMetadataAttribute;
+import org.vineflower.kotlin.metadata.KotlinMetadata;
 import org.vineflower.kotlin.util.KTypes;
 
 public class KFieldExprent extends FieldExprent implements KExprent {
@@ -30,12 +30,12 @@ public class KFieldExprent extends FieldExprent implements KExprent {
         return super.toJava(indent);
       }
 
-      StructKotlinMetadataAttribute ktData = cl.getAttribute(StructKotlinMetadataAttribute.KEY);
+      KotlinMetadata ktData = cl.getAttribute(KotlinMetadata.KEY);
       if (ktData == null) {
         return super.toJava(indent);
       }
 
-      if (ktData.metadata instanceof StructKotlinMetadataAttribute.Class cls) {
+      if (ktData.metadata instanceof KotlinMetadata.Class cls) {
         if (cls.proto().hasCompanionObjectName()) {
           String name = ktData.nameResolver == null ? cl.qualifiedName : ktData.nameResolver.resolve(cls.proto().getCompanionObjectName());
           buf.appendClass(DecompilerContext.getImportCollector().getShortName(cl.qualifiedName), false, name);

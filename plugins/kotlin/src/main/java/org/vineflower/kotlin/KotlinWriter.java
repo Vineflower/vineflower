@@ -503,7 +503,7 @@ public class KotlinWriter implements StatementWriter, Flags {
     }
   }
 
-  private void writeLambda(ClassNode node, TextBuffer buffer, int indent, StructKotlinMetadataAttribute ktData) {
+  private void writeLambda(ClassNode node, TextBuffer buffer, int indent, KotlinMetadata ktData) {
     Map<StructMethod, KFunction> functions = ktData.getFunctions();
     if (functions == null || functions.isEmpty()) {
       DecompilerContext.getLogger().writeMessage("No Kotlin function information for lambda class " + node.simpleName, IFernflowerLogger.Severity.WARN);
@@ -782,7 +782,7 @@ public class KotlinWriter implements StatementWriter, Flags {
 
   private void writeClassDefinition(ClassNode node, TextBuffer buffer, int indent, KotlinMetadata ktData, int kotlinFlags) {
     if (node.type == ClassNode.Type.ANONYMOUS) {
-      if (ktData == null || !(ktData.metadata instanceof StructKotlinMetadataAttribute.Class cls)) {
+      if (ktData == null || !(ktData.metadata instanceof KotlinMetadata.Class cls)) {
         throw new IllegalStateException("Anonymous class does not have Class Kotlin metadata");
       }
 

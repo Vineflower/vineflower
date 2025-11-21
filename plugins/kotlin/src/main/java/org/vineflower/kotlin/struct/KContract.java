@@ -8,7 +8,6 @@ import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.vineflower.kotlin.KotlinWriter;
 import org.vineflower.kotlin.metadata.KotlinMetadata;
-import org.vineflower.kotlin.metadata.StructKotlinMetadataAttribute;
 
 import java.util.List;
 import java.util.stream.Collectors;

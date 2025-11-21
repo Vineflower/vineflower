@@ -12,7 +12,6 @@ import org.jetbrains.java.decompiler.api.plugin.pass.WrappedPass;
 import org.jetbrains.java.decompiler.modules.decompiler.*;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.DomHelper;
 import org.jetbrains.java.decompiler.util.Pair;
-import org.vineflower.kotlin.metadata.StructKotlinMetadataAttribute;
 import org.vineflower.kotlin.pass.*;
 
 public class KotlinPlugin implements Plugin {

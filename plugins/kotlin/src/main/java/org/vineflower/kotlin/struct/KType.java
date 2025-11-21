@@ -6,7 +6,6 @@ import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.vineflower.kotlin.metadata.MetadataNameResolver;
-import org.vineflower.kotlin.metadata.StructKotlinMetadataAttribute;
 import org.vineflower.kotlin.metadata.KotlinMetadata;
 import org.vineflower.kotlin.util.KTypes;
 
@@ -81,22 +80,6 @@ public class KType extends VarType {
     return new KType(varType, kotlinType, isNullable, typeArguments, typeParameterName, typeAliasName);
   }
 
-  public static KType from(int tableIndex, StructKotlinMetadataAttribute ktData) {
-    ProtoBuf.TypeTable table;
-    if (ktData.metadata instanceof StructKotlinMetadataAttribute.Class cls) {
-      table = cls.proto().getTypeTable();
-    } else if (ktData.metadata instanceof StructKotlinMetadataAttribute.SyntheticClass cls) {
-      table = cls.proto().getTypeTable();
-    } else if (ktData.metadata instanceof StructKotlinMetadataAttribute.File cls) {
-      table = cls.proto().getTypeTable();
-    } else if (ktData.metadata instanceof StructKotlinMetadataAttribute.MultifileClass cls) {
-      table = cls.proto().getTypeTable();
-    } else {
-      throw new IllegalStateException("Impossible metadata value");
-    }
-
-    return from(table.getType(tableIndex), ktData.nameResolver);
-  }
   public static KType from(int tableIndex, KotlinMetadata ktData) {
     ProtoBuf.TypeTable table;
     if (ktData.metadata instanceof KotlinMetadata.Class cls) {
