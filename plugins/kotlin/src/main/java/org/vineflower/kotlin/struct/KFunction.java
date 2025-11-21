@@ -20,7 +20,7 @@ import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.vineflower.kotlin.KotlinOptions;
 import org.vineflower.kotlin.KotlinWriter;
 import org.vineflower.kotlin.metadata.MetadataNameResolver;
-import org.vineflower.kotlin.metadata.StructKotlinMetadataAttribute;
+import org.vineflower.kotlin.metadata.KotlinMetadata;
 import org.vineflower.kotlin.util.KUtils;
 
 import java.util.HashMap;
@@ -44,7 +44,7 @@ public record KFunction(
   StructClass classStruct,
   StructMethod methodStruct
 ) implements Flags {
-  public static @NotNull Map<StructMethod, KFunction> parse(StructClass classStruct, StructKotlinMetadataAttribute ktData, @NotNull MetadataNameResolver resolver, List<ProtoBuf.Function> protoFunctions) {
+  public static @NotNull Map<StructMethod, KFunction> parse(StructClass classStruct, KotlinMetadata ktData, @NotNull MetadataNameResolver resolver, List<ProtoBuf.Function> protoFunctions) {
     Map<StructMethod, KFunction> functions = new HashMap<>(protoFunctions.size(), 1f);
 
     for (ProtoBuf.Function function : protoFunctions) {
@@ -173,8 +173,8 @@ public record KFunction(
   public TextBuffer stringify(ClassWrapper wrapper, int indent) {
     TextBuffer buf = new TextBuffer();
     KotlinWriter.appendAnnotations(buf, indent, methodStruct, TypeAnnotation.METHOD_RETURN_TYPE);
-    StructKotlinMetadataAttribute classData = classStruct.getAttribute(StructKotlinMetadataAttribute.KEY);
-    boolean isInFile = classData != null && classData.metadata instanceof StructKotlinMetadataAttribute.File;
+    KotlinMetadata classData = classStruct.getAttribute(KotlinMetadata.KEY);
+    boolean isInFile = classData != null && classData.metadata instanceof KotlinMetadata.File;
     KotlinWriter.appendJvmAnnotations(buf, indent, methodStruct, false, isInFile, classStruct.getPool(), TypeAnnotation.METHOD_RETURN_TYPE);
 
     String methodKey = InterpreterUtil.makeUniqueKey(methodStruct.getName(), methodStruct.getDescriptor());

@@ -56,6 +56,7 @@ public class DecompilerTestFixture {
     options.put(IFernflowerPreferences.UNIT_TEST_MODE, "1");
     options.put(IFernflowerPreferences.NEW_LINE_SEPARATOR, "1");
     options.put(IFernflowerPreferences.ERROR_MESSAGE, "");
+    options.put(IFernflowerPreferences.INCLUDE_JAVA_RUNTIME, "");
     for (int i = 0; i < optionPairs.length; i += 2) {
       options.put((String) optionPairs[i], optionPairs[i + 1]);
     }

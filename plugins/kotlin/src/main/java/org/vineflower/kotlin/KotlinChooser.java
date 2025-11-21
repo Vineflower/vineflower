@@ -16,7 +16,7 @@ import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
 import org.jetbrains.java.decompiler.util.Key;
 import org.vineflower.kotlin.metadata.BitEncoding;
 import org.vineflower.kotlin.metadata.MetadataNameResolver;
-import org.vineflower.kotlin.metadata.StructKotlinMetadataAttribute;
+import org.vineflower.kotlin.metadata.KotlinMetadata;
 
 import java.io.ByteArrayInputStream;
 
@@ -54,7 +54,7 @@ public class KotlinChooser implements LanguageChooser {
   }
 
   public static void parseMetadataFor(StructClass cl) {
-    if (cl.getAttribute(StructKotlinMetadataAttribute.KEY) != null) {
+    if (cl.getAttribute(KotlinMetadata.KEY) != null) {
       return;
     }
 
@@ -111,24 +111,24 @@ public class KotlinChooser implements LanguageChooser {
         resolver = null;
       }
 
-      StructKotlinMetadataAttribute.Metadata metadata;
+      KotlinMetadata.Metadata metadata;
       if (k == 1) { // Class file
         ProtoBuf.Class pcl = ProtoBuf.Class.parseFrom(input, EXTENSIONS);
-        metadata = new StructKotlinMetadataAttribute.Class(cl, pcl);
+        metadata = new KotlinMetadata.Class(cl, pcl);
       } else if (k == 2) { // File facade
         ProtoBuf.Package pcl = ProtoBuf.Package.parseFrom(input, EXTENSIONS);
-        metadata = new StructKotlinMetadataAttribute.File(cl, pcl);
+        metadata = new KotlinMetadata.File(cl, pcl);
       } else if (k == 3) { // Synthetic class
         ProtoBuf.Function func = ProtoBuf.Function.parseFrom(input, EXTENSIONS);
-        metadata = new StructKotlinMetadataAttribute.SyntheticClass(cl, func);
+        metadata = new KotlinMetadata.SyntheticClass(cl, func);
       } else if (k == 5) { // Multi-file facade
         ProtoBuf.Package pcl = ProtoBuf.Package.parseFrom(input, EXTENSIONS);
-        metadata = new StructKotlinMetadataAttribute.MultifileClass(cl, pcl);
+        metadata = new KotlinMetadata.MultifileClass(cl, pcl);
       } else {
         return;
       }
 
-      cl.getAttributes().put(StructKotlinMetadataAttribute.KEY.name, new StructKotlinMetadataAttribute(metadata, resolver));
+      cl.getAttributes().put(KotlinMetadata.KEY, new KotlinMetadata(metadata, resolver));
     } catch (Exception e) {
       DecompilerContext.getLogger().writeMessage("Failed to parse metadata for class " + cl.qualifiedName, IFernflowerLogger.Severity.WARN, e);
     }

@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.vineflower.kotlin.KotlinWriter;
-import org.vineflower.kotlin.metadata.MetadataNameResolver;
+import org.vineflower.kotlin.metadata.KotlinMetadata;
 import org.vineflower.kotlin.metadata.StructKotlinMetadataAttribute;
 
 import java.util.List;
@@ -22,7 +22,7 @@ public class KContract implements Flags {
     this.effects = effects;
   }
 
-  public static KContract from(ProtoBuf.Contract proto, List<KParameter> params, StructKotlinMetadataAttribute ktData) {
+  public static KContract from(ProtoBuf.Contract proto, List<KParameter> params, KotlinMetadata ktData) {
     return new KContract(proto.getEffectList().stream().map(it -> KEffect.from(it, params, ktData)).collect(Collectors.toList()));
   }
 
@@ -57,7 +57,7 @@ public class KContract implements Flags {
       this.kind = kind;
     }
 
-    static KEffect from(ProtoBuf.Effect proto, List<KParameter> params, StructKotlinMetadataAttribute ktData) {
+    static KEffect from(ProtoBuf.Effect proto, List<KParameter> params, KotlinMetadata ktData) {
       ProtoBuf.Effect.EffectType type = proto.hasEffectType() ? proto.getEffectType() : null;
       List<KExpression> expressions = proto.getEffectConstructorArgumentList().stream().map(it -> KExpression.from(it, params, ktData)).collect(Collectors.toList());
       KExpression conditionalConclusion = proto.hasConclusionOfConditionalEffect() ? KExpression.from(proto.getConclusionOfConditionalEffect(), params, ktData) : null;
@@ -121,7 +121,7 @@ public class KContract implements Flags {
     // Placeholder type for receiver type
     private static final KParameter THIS_TYPE = new KParameter(0, "this", KType.NOTHING, null, 0);
 
-    static KExpression from(ProtoBuf.Expression proto, List<KParameter> params, StructKotlinMetadataAttribute ktData) {
+    static KExpression from(ProtoBuf.Expression proto, List<KParameter> params, KotlinMetadata ktData) {
       int flags = proto.getFlags();
       KParameter valueParameterReference = null;
       if (proto.hasValueParameterReference()) {

@@ -33,46 +33,46 @@ public class TestTypeAnnotations {
    public TestTypeAnnotations.G2<String, @TestTypeAnnotations.Anno Integer> x;
 
    public @TestTypeAnnotations.Anno TestTypeAnnotations.Inner a() {
-      return null;// 93
-   }
-
-   public TestTypeAnnotations.@TestTypeAnnotations.Anno Inner b() {
       return null;// 97
    }
 
-   public TestTypeAnnotations.@TestTypeAnnotations.Anno InnerStatic c() {
+   public TestTypeAnnotations.@TestTypeAnnotations.Anno Inner b() {
       return null;// 101
    }
 
-   public @TestTypeAnnotations.Anno TestTypeAnnotations[] d() {
+   public TestTypeAnnotations.@TestTypeAnnotations.Anno InnerStatic c() {
       return null;// 105
    }
 
-   public TestTypeAnnotations @TestTypeAnnotations.Anno [] e() {
+   public @TestTypeAnnotations.Anno TestTypeAnnotations[] d() {
       return null;// 109
    }
 
+   public TestTypeAnnotations @TestTypeAnnotations.Anno [] e() {
+      return null;// 113
+   }
+
    public byte @TestTypeAnnotations.Anno [] ary(byte @TestTypeAnnotations.Anno [] ary) {
-      return ary;// 113
+      return ary;// 117
    }
 
    public void varargs(@TestTypeAnnotations.Anno Object... args) {
-   }// 118
-
-   public void varargs(int v, @TestTypeAnnotations.Anno Object... args) {
    }// 122
 
-   public void varargs2(Object @TestTypeAnnotations.Anno ... args) {
+   public void varargs(int v, @TestTypeAnnotations.Anno Object... args) {
    }// 126
 
-   public void varargs2(int v, Object @TestTypeAnnotations.Anno ... args) {
+   public void varargs2(Object @TestTypeAnnotations.Anno ... args) {
    }// 130
 
-   public void varargs3a(Object[] @TestTypeAnnotations.Anno ... args) {
+   public void varargs2(int v, Object @TestTypeAnnotations.Anno ... args) {
    }// 134
 
-   public void varargs3b(Object @TestTypeAnnotations.Anno []... args) {
+   public void varargs3a(Object[] @TestTypeAnnotations.Anno ... args) {
    }// 138
+
+   public void varargs3b(Object @TestTypeAnnotations.Anno []... args) {
+   }// 142
 
    @Target(ElementType.TYPE_USE)
    public @interface Anno {
@@ -90,6 +90,9 @@ public class TestTypeAnnotations {
       public @TestTypeAnnotations.Anno TestTypeAnnotations.Inner.InnerInner ac;
       public TestTypeAnnotations.@TestTypeAnnotations.Anno Inner.InnerInner ad;
       public TestTypeAnnotations.Inner.@TestTypeAnnotations.Anno InnerInner ae;
+
+      public Inner(@TestTypeAnnotations.Anno String s, Object o, @TestTypeAnnotations.Anno String s2) {
+      }// 22
 
       public class InnerInner {
       }
@@ -119,6 +122,20 @@ public class TestTypeAnnotations {
 
       public static class Inner2Static {
       }
+   }
+
+   public enum TestEnum {
+      A("a"),// 145
+      B("b"),// 146
+      C("c");// 147
+
+      TestEnum(@TestTypeAnnotations.Anno String name) {
+         this(name, name.charAt(0), 0, null);// 150
+      }// 151
+
+      TestEnum(@TestTypeAnnotations.Anno String name, char c, int i, @TestTypeAnnotations.Anno Object o) {
+         System.out.println(name + " " + c + i + " " + o);// 154
+      }// 155
    }
 }
 
@@ -178,16 +195,82 @@ class 'pkg/TestTypeAnnotations' {
    }
 }
 
+class 'pkg/TestTypeAnnotations$Inner' {
+   method '<init> (Lpkg/TestTypeAnnotations;Ljava/lang/String;Ljava/lang/Object;Ljava/lang/String;)V' {
+      4      94
+   }
+}
+
+class 'pkg/TestTypeAnnotations$TestEnum' {
+   method '<clinit> ()V' {
+      7      127
+      8      127
+      16      128
+      17      128
+      25      129
+      26      129
+   }
+
+   method '<init> (Ljava/lang/String;ILjava/lang/String;)V' {
+      3      132
+      4      132
+      5      132
+      6      132
+      7      132
+      8      132
+      9      132
+      a      132
+      b      132
+      c      132
+      d      132
+      e      133
+   }
+
+   method '<init> (Ljava/lang/String;ILjava/lang/String;CILjava/lang/Object;)V' {
+      6      136
+      7      136
+      8      136
+      9      136
+      a      136
+      b      136
+      c      136
+      d      136
+      e      136
+      f      136
+      13      136
+      14      136
+      15      136
+      16      136
+      17      136
+      18      136
+      19      136
+      1a      136
+      1b      137
+   }
+}
+
 Lines mapping:
-93 <-> 36
-97 <-> 40
-101 <-> 44
-105 <-> 48
-109 <-> 52
-113 <-> 56
-118 <-> 60
-122 <-> 63
-126 <-> 66
-130 <-> 69
-134 <-> 72
-138 <-> 75
+22 <-> 95
+97 <-> 36
+101 <-> 40
+105 <-> 44
+109 <-> 48
+113 <-> 52
+117 <-> 56
+122 <-> 60
+126 <-> 63
+130 <-> 66
+134 <-> 69
+138 <-> 72
+142 <-> 75
+145 <-> 128
+146 <-> 129
+147 <-> 130
+150 <-> 133
+151 <-> 134
+154 <-> 137
+155 <-> 138
+Not mapped:
+20
+144
+153

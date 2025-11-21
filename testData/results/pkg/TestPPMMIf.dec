@@ -1,0 +1,52 @@
+package pkg;
+
+public class TestPPMMIf {
+   public void test() {
+      int vvv1 = -132;// 5
+      int var10000 = --vvv1;// 6
+      vvv1++;// 7
+      if (var10000 == 127) {
+         vvv1 += 402;// 8
+      } else {
+         vvv1--;// 10
+      }
+   }// 11
+}
+
+class 'pkg/TestPPMMIf' {
+   method 'test ()V' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      5
+      5      5
+      6      5
+      8      6
+      9      6
+      a      6
+      b      7
+      c      7
+      d      7
+      e      7
+      f      7
+      10      8
+      11      8
+      12      8
+      13      8
+      14      8
+      15      8
+      19      10
+      1a      10
+      1b      10
+      1c      12
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 6
+7 <-> 7
+8 <-> 9
+10 <-> 11
+11 <-> 13

@@ -53,6 +53,11 @@ public class TestRecordPatterns8 {
       // 54: areturn
       // 55: aconst_null
       // 56: areturn
+      // try (11 -> 12): 32 java/lang/Throwable
+      // try (25 -> 26): 32 java/lang/Throwable
+      // try (0 -> 17): 41 java/io/FileNotFoundException
+      // try (18 -> 30): 41 java/io/FileNotFoundException
+      // try (31 -> 40): 41 java/io/FileNotFoundException
    }
 
    public Object test2(File param1) {
@@ -105,6 +110,10 @@ public class TestRecordPatterns8 {
       // 59: areturn
       // 5a: aconst_null
       // 5b: areturn
+      // try (11 -> 12): 33 java/lang/Throwable
+      // try (26 -> 27): 33 java/lang/Throwable
+      // try (0 -> 31): 42 java/io/FileNotFoundException
+      // try (32 -> 41): 42 java/io/FileNotFoundException
    }
 
    public Object test3(File param1) {
@@ -157,6 +166,10 @@ public class TestRecordPatterns8 {
       // 59: areturn
       // 5a: aconst_null
       // 5b: areturn
+      // try (11 -> 12): 33 java/lang/Throwable
+      // try (25 -> 26): 33 java/lang/Throwable
+      // try (0 -> 17): 42 java/io/FileNotFoundException
+      // try (18 -> 41): 42 java/io/FileNotFoundException
    }
 
    public Object test4(File f) {
@@ -195,88 +208,88 @@ public class TestRecordPatterns8 {
 
 class 'pkg/TestRecordPatterns8' {
    method 'test4 (Ljava/io/File;)Ljava/lang/Object;' {
-      0      163
-      1      163
-      2      163
-      3      163
-      4      163
-      5      163
-      8      163
-      9      163
-      a      163
-      b      163
-      c      163
-      d      163
-      1b      163
-      1c      163
-      1d      163
-      1e      163
-      1f      163
-      20      163
-      21      163
-      37      164
-      38      165
-      39      165
-      3a      163
+      0      176
+      1      176
+      2      176
+      3      176
+      4      176
+      5      176
+      8      176
+      9      176
+      a      176
+      b      176
+      c      176
+      d      176
+      1b      176
+      1c      176
+      1d      176
+      1e      176
+      1f      176
+      20      176
+      21      176
+      37      177
+      38      178
+      39      178
+      3a      176
    }
 
    method 'test5 (Ljava/io/File;)Ljava/lang/Object;' {
-      0      171
-      1      171
-      2      171
-      3      171
-      4      171
-      5      171
-      8      171
-      9      171
-      a      171
-      b      171
-      c      171
-      d      171
-      1b      171
-      1c      171
-      1d      172
-      1e      172
-      1f      172
-      20      172
-      21      172
-      22      172
-      23      174
-      24      174
-      25      174
-      26      174
-      27      174
-      28      174
-      29      174
-      2a      174
-      2b      175
-      3f      177
-      40      178
-      41      178
-      42      175
+      0      184
+      1      184
+      2      184
+      3      184
+      4      184
+      5      184
+      8      184
+      9      184
+      a      184
+      b      184
+      c      184
+      d      184
+      1b      184
+      1c      184
+      1d      185
+      1e      185
+      1f      185
+      20      185
+      21      185
+      22      185
+      23      187
+      24      187
+      25      187
+      26      187
+      27      187
+      28      187
+      29      187
+      2a      187
+      2b      188
+      3f      190
+      40      191
+      41      191
+      42      188
    }
 
    method 'get (Ljava/lang/String;)Lpkg/TestRecordPatterns8$Sealed;' {
-      0      183
-      1      183
+      0      196
+      1      196
    }
 }
 
 Lines mapping:
-60 <-> 164
-61 <-> 164
-62 <-> 164
-64 <-> 165
-65 <-> 166
-68 <-> 164
-73 <-> 172
-74 <-> 172
-75 <-> 173
-77 <-> 175
-78 <-> 178
-79 <-> 179
-82 <-> 176
-86 <-> 184
+60 <-> 177
+61 <-> 177
+62 <-> 177
+64 <-> 178
+65 <-> 179
+68 <-> 177
+73 <-> 185
+74 <-> 185
+75 <-> 186
+77 <-> 188
+78 <-> 191
+79 <-> 192
+82 <-> 189
+86 <-> 197
 Not mapped:
 66
 80

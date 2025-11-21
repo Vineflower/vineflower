@@ -101,6 +101,15 @@ public class TestTryWithResourcesJ21 {
       // 97: areturn
       // 98: aconst_null
       // 99: areturn
+      // try (16 -> 17): 49 java/lang/Throwable
+      // try (36 -> 37): 49 java/lang/Throwable
+      // try (4 -> 23): 62 java/lang/Throwable
+      // try (29 -> 42): 62 java/lang/Throwable
+      // try (48 -> 57): 62 java/lang/Throwable
+      // try (65 -> 67): 68 java/lang/Throwable
+      // try (0 -> 27): 75 java/io/FileNotFoundException
+      // try (29 -> 46): 75 java/io/FileNotFoundException
+      // try (48 -> 74): 75 java/io/FileNotFoundException
    }
 
    public Object test3(File f) {
@@ -207,6 +216,13 @@ public class TestTryWithResourcesJ21 {
       // 90: areturn
       // 91: aconst_null
       // 92: areturn
+      // try (16 -> 17): 44 java/lang/Throwable
+      // try (31 -> 32): 44 java/lang/Throwable
+      // try (4 -> 37): 57 java/lang/Throwable
+      // try (43 -> 52): 57 java/lang/Throwable
+      // try (60 -> 62): 63 java/lang/Throwable
+      // try (0 -> 41): 70 java/io/FileNotFoundException
+      // try (43 -> 69): 70 java/io/FileNotFoundException
    }
 
    public Object test6(File param1) {
@@ -287,6 +303,13 @@ public class TestTryWithResourcesJ21 {
       // 90: areturn
       // 91: aconst_null
       // 92: areturn
+      // try (16 -> 17): 44 java/lang/Throwable
+      // try (36 -> 37): 44 java/lang/Throwable
+      // try (4 -> 23): 57 java/lang/Throwable
+      // try (29 -> 52): 57 java/lang/Throwable
+      // try (60 -> 62): 63 java/lang/Throwable
+      // try (0 -> 27): 70 java/io/FileNotFoundException
+      // try (29 -> 69): 70 java/io/FileNotFoundException
    }
 
    private TestTryWithResourcesJ21.Sealed get(String s) {
@@ -369,98 +392,98 @@ class 'pkg/TestTryWithResourcesJ21' {
    }
 
    method 'test3 (Ljava/io/File;)Ljava/lang/Object;' {
-      0      106
-      1      106
-      2      106
-      3      106
-      4      106
-      5      106
-      6      107
-      7      107
-      8      107
-      9      107
-      a      107
-      b      107
-      c      107
-      d      107
-      10      107
-      11      107
-      12      107
-      13      107
-      14      107
-      15      107
-      25      107
-      26      107
-      27      108
-      28      108
-      29      108
-      2a      108
-      2b      108
-      38      108
-      39      110
-      3a      110
-      3b      110
-      3c      110
-      3d      110
-      3e      110
-      3f      110
-      40      110
-      76      113
-      77      114
-      78      114
-      79      111
-      7a      111
+      0      115
+      1      115
+      2      115
+      3      115
+      4      115
+      5      115
+      6      116
+      7      116
+      8      116
+      9      116
+      a      116
+      b      116
+      c      116
+      d      116
+      10      116
+      11      116
+      12      116
+      13      116
+      14      116
+      15      116
+      25      116
+      26      116
+      27      117
+      28      117
+      29      117
+      2a      117
+      2b      117
+      38      117
+      39      119
+      3a      119
+      3b      119
+      3c      119
+      3d      119
+      3e      119
+      3f      119
+      40      119
+      76      122
+      77      123
+      78      123
+      79      120
+      7a      120
    }
 
    method 'test4 (Ljava/io/File;)Ljava/lang/Object;' {
-      0      119
-      1      119
-      2      119
-      3      119
-      4      119
-      5      119
-      6      120
-      7      120
-      8      120
-      9      120
-      a      120
-      b      120
-      c      120
-      d      120
-      10      120
-      11      120
-      12      120
-      13      120
-      14      120
-      15      120
-      1a      120
-      1b      120
-      1c      121
-      1d      121
-      2a      121
-      2b      123
-      2c      123
-      2d      123
-      2e      123
-      2f      123
-      30      123
-      31      123
-      32      123
-      57      126
-      58      127
-      59      127
-      5a      124
-      5b      124
+      0      128
+      1      128
+      2      128
+      3      128
+      4      128
+      5      128
+      6      129
+      7      129
+      8      129
+      9      129
+      a      129
+      b      129
+      c      129
+      d      129
+      10      129
+      11      129
+      12      129
+      13      129
+      14      129
+      15      129
+      1a      129
+      1b      129
+      1c      130
+      1d      130
+      2a      130
+      2b      132
+      2c      132
+      2d      132
+      2e      132
+      2f      132
+      30      132
+      31      132
+      32      132
+      57      135
+      58      136
+      59      136
+      5a      133
+      5b      133
    }
 
    method 'get (Ljava/lang/String;)Lpkg/TestTryWithResourcesJ21$Sealed;' {
-      0      292
-      1      292
+      0      315
+      1      315
    }
 
    method 'create (Ljava/io/File;)Ljava/util/Scanner;' {
-      4      296
-      8      296
+      4      319
+      8      319
    }
 }
 
@@ -474,24 +497,24 @@ Lines mapping:
 22 <-> 16
 23 <-> 17
 25 <-> 19
-43 <-> 107
-44 <-> 108
-45 <-> 108
-46 <-> 109
-48 <-> 111
-49 <-> 114
-50 <-> 115
-53 <-> 112
-57 <-> 120
-58 <-> 121
-59 <-> 121
-60 <-> 122
-62 <-> 124
-63 <-> 127
-64 <-> 128
-67 <-> 125
-101 <-> 293
-105 <-> 297
+43 <-> 116
+44 <-> 117
+45 <-> 117
+46 <-> 118
+48 <-> 120
+49 <-> 123
+50 <-> 124
+53 <-> 121
+57 <-> 129
+58 <-> 130
+59 <-> 130
+60 <-> 131
+62 <-> 133
+63 <-> 136
+64 <-> 137
+67 <-> 134
+101 <-> 316
+105 <-> 320
 Not mapped:
 24
 51

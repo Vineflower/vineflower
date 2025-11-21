@@ -14,6 +14,7 @@ import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericMain;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericMethodDescriptor;
 import org.jetbrains.java.decompiler.util.DataInputFullStream;
+import org.jetbrains.java.decompiler.util.Key;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -40,15 +41,15 @@ public class StructMethod extends StructMember {
 
     String[] values = pool.getClassElement(ConstantPool.METHOD, clQualifiedName, nameIndex, descriptorIndex);
 
-    Map<String, StructGeneralAttribute> attributes = readAttributes(in, pool, own, bytecodeVersion);
-    StructCodeAttribute code = (StructCodeAttribute)attributes.remove(StructGeneralAttribute.ATTRIBUTE_CODE.name);
+    Map<Key<?>, Object> attributes = readAttributes(in, pool, own, bytecodeVersion);
+    StructCodeAttribute code = (StructCodeAttribute)attributes.remove(StructGeneralAttribute.ATTRIBUTE_CODE);
     if (code != null) {
       attributes.putAll(code.codeAttributes);
     }
 
     GenericMethodDescriptor signature = null;
     if (DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_GENERIC_SIGNATURES)) {
-      StructGenericSignatureAttribute signatureAttr = (StructGenericSignatureAttribute)attributes.get(StructGeneralAttribute.ATTRIBUTE_SIGNATURE.name);
+      StructGenericSignatureAttribute signatureAttr = (StructGenericSignatureAttribute)attributes.get(StructGeneralAttribute.ATTRIBUTE_SIGNATURE);
       if (signatureAttr != null) {
         signature = GenericMain.parseMethodSignature(signatureAttr.getSignature());
       }
@@ -74,7 +75,7 @@ public class StructMethod extends StructMember {
   private IVariableNameProvider renamer;
 
   private StructMethod(int accessFlags,
-                       Map<String, StructGeneralAttribute> attributes,
+                       Map<Key<?>, Object> attributes,
                        String name,
                        String descriptor,
                        BytecodeVersion bytecodeVersion,
