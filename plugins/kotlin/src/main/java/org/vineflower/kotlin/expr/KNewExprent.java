@@ -8,6 +8,7 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.ExitExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.NewExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
@@ -17,7 +18,6 @@ import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.vineflower.kotlin.KotlinWriter;
-import org.vineflower.kotlin.struct.KType;
 import org.vineflower.kotlin.util.KTypes;
 
 import java.util.ArrayList;
@@ -94,19 +94,20 @@ public class KNewExprent extends NewExprent implements KExprent {
             RootStatement root = wrapper.root;
             if (root != null) {
               try {
-                List<StatEdge> exits = root.getDummyExit().getPredecessorEdges(StatEdge.TYPE_BREAK);
+                List<KExitExprent> exits = root.getDummyExit().getPredecessorEdges(StatEdge.TYPE_BREAK).stream()
+                  .flatMap(edge -> edge.getSource().getExprents().stream())
+                  .filter(expr -> expr instanceof KExitExprent kexpr && kexpr.getExitType() == ExitExprent.Type.RETURN)
+                  .map(expr -> (KExitExprent) expr)
+                  .toList();
+
                 if (exits.size() > 1) {
                   // Possibly multiple distinct exit points, add a name to this lambda
                   //TODO: figure out a more robust way to do this
                   String lambdaName = name.substring(name.indexOf("$lambda$") + 1).replace("$", "_");
                   buf.prepend(lambdaName + "@");
 
-                  for (StatEdge edge : exits) {
-                    for (Exprent expr : edge.getSource().getExprents()) {
-                      if (expr instanceof KExitExprent) {
-                        ((KExitExprent) expr).setLambdaName(lambdaName);
-                      }
-                    }
+                  for (KExitExprent exit : exits) {
+                    exit.setLambdaName(lambdaName);
                   }
                 }
 

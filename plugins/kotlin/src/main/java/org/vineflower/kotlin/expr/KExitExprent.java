@@ -21,6 +21,10 @@ public class KExitExprent extends ExitExprent implements KExprent {
 
   @Override
   public TextBuffer toJava(int indent) {
+    if (getExitType().equals(Type.THROW)) {
+      return super.toJava(indent);
+    }
+
     MethodWrapper outerMethod = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
     if (outerMethod != null) {
       TextBuffer buf = new TextBuffer();

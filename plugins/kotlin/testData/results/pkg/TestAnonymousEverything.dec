@@ -2,9 +2,11 @@ package pkg
 
 import kotlin.jvm.functions.Function1
 import kotlin.jvm.functions.Function2
+import kotlin.jvm.internal.SourceDebugExtension
 import kotlin.jvm.internal.Ref.IntRef
 import kotlin.reflect.KFunction
 
+@SourceDebugExtension(["SMAP\nTestAnonymousEverything.kt\nKotlin\n*S Kotlin\n*F\n+ 1 TestAnonymousEverything.kt\npkg/TestAnonymousEverything\n+ 2 fake.kt\nkotlin/jvm/internal/FakeKt\n*L\n1#1,105:1\n1#2:106\n*E\n"])
 public class TestAnonymousEverything {
    public fun testPlainLambda() {
       { x: Int, x: Int ->
@@ -84,333 +86,386 @@ public class TestAnonymousEverything {
       lambda.invoke(1)// 90
       lambda.invoke(-1)// 91
    }// 92
+
+   public fun testThrows() {
+      val lambda: Function1 = { x: Int ->// 95
+         if (x < 0) {// 96
+            throw new IllegalArgumentException("x must be >= 0")// 97
+         } else if (x == 2147483647) {
+            throw new IllegalArgumentException("x must not be Int.MAX_VALUE".toString())// 100
+         } else {
+            x + 1// 102
+         }
+      }
+   }// 104
 }
 
 class 'pkg/TestAnonymousEverything' {
    method 'testPlainLambda$lambda$0 (II)I' {
-      0      10
-      1      10
-      2      10
+      0      12
+      1      12
+      2      12
    }
 
    method 'testPlainLambda ()V' {
-      7      11
-      8      11
-      9      11
-      a      11
-      b      11
-      c      11
-      d      11
-      e      11
-      f      11
-      10      11
-      11      11
-      12      11
-      13      11
-      15      12
+      7      13
+      8      13
+      9      13
+      a      13
+      b      13
+      c      13
+      d      13
+      e      13
+      f      13
+      10      13
+      11      13
+      12      13
+      13      13
+      15      14
    }
 
    method 'testSerializableLambda ()V' {
-      0      15
-      1      15
-      2      15
-      3      15
-      4      15
-      5      15
-      7      15
-      8      15
-      9      15
-      a      15
-      b      15
-      c      15
-      d      15
-      e      15
-      f      15
-      10      15
-      11      15
-      12      15
-      13      15
-      14      15
-      16      16
+      0      17
+      1      17
+      2      17
+      3      17
+      4      17
+      5      17
+      7      17
+      8      17
+      9      17
+      a      17
+      b      17
+      c      17
+      d      17
+      e      17
+      f      17
+      10      17
+      11      17
+      12      17
+      13      17
+      14      17
+      16      18
    }
 
    method 'testAnonymousObject ()V' {
-      9      23
-      a      23
-      b      23
-      c      23
-      d      23
-      f      24
+      9      25
+      a      25
+      b      25
+      c      25
+      d      25
+      f      26
    }
 
    method 'testFunctionAnonymousObject ()V' {
-      9      31
-      a      31
-      b      31
-      c      31
-      d      31
-      f      32
+      9      33
+      a      33
+      b      33
+      c      33
+      d      33
+      f      34
    }
 
    method 'testAnonymousFunction$lambda$1 (II)I' {
-      0      36
-      1      36
-      2      36
+      0      38
+      1      38
+      2      38
    }
 
    method 'testAnonymousFunction ()V' {
-      7      37
-      8      37
-      9      37
-      a      37
-      b      37
-      c      37
-      d      37
-      e      37
-      f      37
-      10      37
-      11      37
-      12      37
-      13      37
-      15      38
+      7      39
+      8      39
+      9      39
+      a      39
+      b      39
+      c      39
+      d      39
+      e      39
+      f      39
+      10      39
+      11      39
+      12      39
+      13      39
+      15      40
    }
 
    method 'add (II)I' {
-      0      41
-      1      41
-      2      41
-      3      41
+      0      43
+      1      43
+      2      43
+      3      43
    }
 
    method 'testFunctionReference ()V' {
-      4      45
-      8      45
-      9      45
-      a      45
-      c      45
-      d      45
-      e      45
-      f      45
-      10      45
-      11      45
-      12      45
-      13      45
-      14      45
-      15      45
-      16      45
-      17      45
-      18      45
-      19      45
-      1a      45
-      1b      45
-      1c      45
-      1e      46
+      4      47
+      8      47
+      9      47
+      a      47
+      c      47
+      d      47
+      e      47
+      f      47
+      10      47
+      11      47
+      12      47
+      13      47
+      14      47
+      15      47
+      16      47
+      17      47
+      18      47
+      19      47
+      1a      47
+      1b      47
+      1c      47
+      1e      48
    }
 
    method 'testMultipleSubtypes ()V' {
-      7      49
-      8      50
-      9      50
-      a      50
-      b      50
-      c      51
-      d      51
-      e      51
-      f      51
-      10      51
-      11      51
-      12      51
-      13      52
+      7      51
+      8      52
+      9      52
+      a      52
+      b      52
+      c      53
+      d      53
+      e      53
+      f      53
+      10      53
+      11      53
+      12      53
+      13      54
    }
 
    method 'testNestedLambdas$lambda$3 (I)I' {
-      8      58
-      9      58
-      a      58
-      b      58
-      c      58
-      d      58
-      e      58
-      f      58
-      10      58
-      11      56
-      12      56
-      13      56
-      14      58
-      15      58
-      16      58
+      8      60
+      9      60
+      a      60
+      b      60
+      c      60
+      d      60
+      e      60
+      f      60
+      10      60
+      11      58
+      12      58
+      13      58
+      14      60
+      15      60
+      16      60
    }
 
    method 'testNestedLambdas$lambda$3$lambda$2 (II)I' {
-      0      57
-      1      57
-      2      57
+      0      59
+      1      59
+      2      59
    }
 
    method 'testNestedLambdas ()V' {
-      7      59
-      8      59
-      9      59
-      a      59
-      b      59
-      c      59
-      d      59
-      e      59
-      f      59
-      11      60
+      7      61
+      8      61
+      9      61
+      a      61
+      b      61
+      c      61
+      d      61
+      e      61
+      f      61
+      11      62
    }
 
    method 'testCapturedLocalVariables ()V' {
-      7      63
-      8      64
-      9      64
-      a      64
-      b      64
-      c      64
-      15      67
-      16      67
-      17      67
-      18      67
-      19      67
-      27      70
-      28      70
-      29      70
-      2a      70
-      2b      70
-      2d      71
+      7      65
+      8      66
+      9      66
+      a      66
+      b      66
+      c      66
+      15      69
+      16      69
+      17      69
+      18      69
+      19      69
+      27      72
+      28      72
+      29      72
+      2a      72
+      2b      72
+      2d      73
    }
 
    method 'testCapturedLocalVariables$lambda$4 (Lkotlin/jvm/internal/Ref$IntRef;)I' {
-      6      66
-      7      66
-      8      66
-      9      66
-      e      66
+      6      68
+      7      68
+      8      68
+      9      68
+      e      68
    }
 
    method 'testCapturedLocalVariables$lambda$5 (I)I' {
-      0      69
+      0      71
    }
 
    method 'testEarlyReturn ()V' {
-      5      74
-      6      83
-      7      83
-      8      83
-      9      83
-      a      83
-      b      83
-      c      83
-      d      83
-      e      83
-      f      83
-      11      84
-      12      84
-      13      84
-      14      84
-      15      84
-      16      84
-      17      84
-      18      84
-      19      84
-      1a      84
-      1c      85
+      5      76
+      6      85
+      7      85
+      8      85
+      9      85
+      a      85
+      b      85
+      c      85
+      d      85
+      e      85
+      f      85
+      11      86
+      12      86
+      13      86
+      14      86
+      15      86
+      16      86
+      17      86
+      18      86
+      19      86
+      1a      86
+      1c      87
    }
 
    method 'testEarlyReturn$lambda$6 (I)I' {
-      0      75
-      1      75
-      2      75
-      3      75
-      4      76
-      5      76
-      7      77
-      8      77
-      9      77
-      a      77
-      b      77
-      c      77
-      d      78
-      e      78
-      10      80
-      11      80
-      12      80
-      13      80
-      14      80
-      16      80
-      17      80
-      18      80
+      0      77
+      1      77
+      2      77
+      3      77
+      4      78
+      5      78
+      7      79
+      8      79
+      9      79
+      a      79
+      b      79
+      c      79
+      d      80
+      e      80
+      10      82
+      11      82
+      12      82
+      13      82
+      14      82
+      16      82
+      17      82
+      18      82
+   }
+
+   method 'testThrows ()V' {
+      5      90
+      6      99
+   }
+
+   method 'testThrows$lambda$8 (I)I' {
+      0      91
+      1      91
+      2      91
+      3      91
+      8      92
+      9      92
+      d      92
+      e      93
+      f      93
+      10      93
+      11      93
+      12      93
+      13      93
+      19      93
+      1a      93
+      1b      93
+      1e      94
+      1f      94
+      25      94
+      26      94
+      27      94
+      28      94
+      2c      94
+      2d      96
+      2e      96
+      2f      96
    }
 }
 
 class 'pkg/TestAnonymousEverything$testAnonymousObject$obj$1' {
    method 'foo (II)I' {
-      0      21
-      1      21
-      2      21
-      3      21
+      0      23
+      1      23
+      2      23
+      3      23
    }
 }
 
 class 'pkg/TestAnonymousEverything$testFunctionAnonymousObject$obj$1' {
    method 'invoke (II)Ljava/lang/Integer;' {
-      0      29
-      1      29
-      2      29
-      3      29
-      4      29
-      5      29
-      6      29
+      0      31
+      1      31
+      2      31
+      3      31
+      4      31
+      5      31
+      6      31
    }
 }
 
 Lines mapping:
-7 <-> 11
-8 <-> 12
-9 <-> 13
-12 <-> 16
-13 <-> 16
-14 <-> 17
-19 <-> 22
-22 <-> 24
-23 <-> 25
-28 <-> 30
-31 <-> 32
-32 <-> 33
-35 <-> 37
-36 <-> 38
-37 <-> 39
-39 <-> 42
-42 <-> 46
-43 <-> 46
-44 <-> 47
-47 <-> 50
-52 <-> 51
-53 <-> 52
-54 <-> 53
-58 <-> 58
-59 <-> 59
-61 <-> 60
-62 <-> 61
-65 <-> 64
-66 <-> 67
-67 <-> 68
-70 <-> 70
-71 <-> 71
-72 <-> 72
-75 <-> 75
-76 <-> 76
-77 <-> 77
-80 <-> 78
-81 <-> 79
-84 <-> 81
-85 <-> 81
-88 <-> 81
-90 <-> 84
-91 <-> 85
-92 <-> 86
+7 <-> 13
+8 <-> 14
+9 <-> 15
+12 <-> 18
+13 <-> 18
+14 <-> 19
+19 <-> 24
+22 <-> 26
+23 <-> 27
+28 <-> 32
+31 <-> 34
+32 <-> 35
+35 <-> 39
+36 <-> 40
+37 <-> 41
+39 <-> 44
+42 <-> 48
+43 <-> 48
+44 <-> 49
+47 <-> 52
+52 <-> 53
+53 <-> 54
+54 <-> 55
+58 <-> 60
+59 <-> 61
+61 <-> 62
+62 <-> 63
+65 <-> 66
+66 <-> 69
+67 <-> 70
+70 <-> 72
+71 <-> 73
+72 <-> 74
+75 <-> 77
+76 <-> 78
+77 <-> 79
+80 <-> 80
+81 <-> 81
+84 <-> 83
+85 <-> 83
+88 <-> 83
+90 <-> 86
+91 <-> 87
+92 <-> 88
+95 <-> 91
+96 <-> 92
+97 <-> 93
+100 <-> 95
+102 <-> 97
+104 <-> 100
 Not mapped:
 17
 26
 57
 69
+106

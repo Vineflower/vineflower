@@ -90,4 +90,16 @@ class TestAnonymousEverything {
     lambda(1)
     lambda(-1)
   }
+
+  fun testThrows() {
+    val lambda: (Int) -> Int = { x ->
+      if (x < 0) {
+        throw IllegalArgumentException("x must be >= 0")
+      }
+
+      require(x != Int.MAX_VALUE) { "x must not be Int.MAX_VALUE" }
+
+      x + 1
+    }
+  }
 }
