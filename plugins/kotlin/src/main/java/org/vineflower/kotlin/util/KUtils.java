@@ -45,6 +45,8 @@ public class KUtils {
       return new KSwitchHeadExprent((SwitchHeadExprent) ex);
     } else if (ex instanceof NewExprent) {
       return new KNewExprent((NewExprent) ex);
+    } else if (ex instanceof ExitExprent) {
+      return new KExitExprent((ExitExprent) ex);
     }
 
     return null;

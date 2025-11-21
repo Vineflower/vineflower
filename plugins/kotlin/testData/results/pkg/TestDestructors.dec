@@ -44,7 +44,7 @@ public class TestDestructors {
 
    public fun destructLambdaInline(x: Int) {
       val var2: Function0 = { 
-         return `$x`// 54
+         `$x`// 54
       }
       System.out
          .println(
@@ -485,7 +485,6 @@ class 'pkg/TestDestructors' {
 
    method 'destructLambdaInline$lambda$0 (I)I' {
       0      46
-      1      46
    }
 
    method 'component1 (I)I' {

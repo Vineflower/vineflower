@@ -60,7 +60,7 @@ public class TestContracts {
          callsInPlace(f)
       }
 
-      val var3: java.lang.Iterable = (new IntRange(0, i)) as java.lang.Iterable
+      val var3: java.lang.Iterable = new IntRange(0, i) as java.lang.Iterable
       var var4: Int = 0
       val var5: java.util.Iterator = var3.iterator()
 

@@ -2,7 +2,7 @@ package pkg
 
 public class TestKotlinTypes {
    public final val consumer: (Int) -> Unit = { it: Int ->
-      return Unit.INSTANCE// 8
+      Unit.INSTANCE// 8
    }
 
    public fun throwAlways(): Nothing {
@@ -15,7 +15,6 @@ class 'pkg/TestKotlinTypes' {
       0      4
       1      4
       2      4
-      3      4
    }
 
    method 'throwAlways ()Ljava/lang/Void;' {

@@ -8,13 +8,13 @@ public class TestCompanionObject {
    @JvmStatic
    @JvmSynthetic
    fun `access$getCompanionVal$cp`(): java.lang.String {
-      return companionVal
+      companionVal
    }
 
    @JvmStatic
    @JvmSynthetic
    fun `access$getCompanionValJvmStatic$cp`(): java.lang.String {
-      return companionValJvmStatic// 3
+      companionValJvmStatic// 3
    }
 
    public companion object {
@@ -50,14 +50,12 @@ class 'pkg/TestCompanionObject' {
       0      10
       1      10
       2      10
-      3      10
    }
 
    method 'access$getCompanionValJvmStatic$cp ()Ljava/lang/String;' {
       0      16
       1      16
       2      16
-      3      16
    }
 }
 

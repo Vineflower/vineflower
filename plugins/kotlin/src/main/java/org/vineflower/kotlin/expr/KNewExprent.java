@@ -7,6 +7,7 @@ import org.jetbrains.java.decompiler.main.decompiler.CancelationManager;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
+import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.NewExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
@@ -32,6 +33,12 @@ public class KNewExprent extends NewExprent implements KExprent {
     setAnonymous(expr.isAnonymous());
 
     assert expr.isLambda() == isLambda();
+  }
+
+  @Override
+  public int getPrecedence() {
+    // Kotlin treats constructors as not much more than slightly fancy functions
+    return 0;
   }
 
   @Override
@@ -87,6 +94,22 @@ public class KNewExprent extends NewExprent implements KExprent {
             RootStatement root = wrapper.root;
             if (root != null) {
               try {
+                List<StatEdge> exits = root.getDummyExit().getPredecessorEdges(StatEdge.TYPE_BREAK);
+                if (exits.size() > 1) {
+                  // Possibly multiple distinct exit points, add a name to this lambda
+                  //TODO: figure out a more robust way to do this
+                  String lambdaName = name.substring(name.indexOf("$lambda$") + 1).replace("$", "_");
+                  buf.prepend(lambdaName + "@");
+
+                  for (StatEdge edge : exits) {
+                    for (Exprent expr : edge.getSource().getExprents()) {
+                      if (expr instanceof KExitExprent) {
+                        ((KExitExprent) expr).setLambdaName(lambdaName);
+                      }
+                    }
+                  }
+                }
+
                 TextBuffer child = root.toJava(indent + 1);
                 child.addBytecodeMapping(root.getDummyExit().bytecode);
                 buf.append(child, node.classStruct.qualifiedName, InterpreterUtil.makeUniqueKey(name, lambdaInfo.content_method_descriptor));

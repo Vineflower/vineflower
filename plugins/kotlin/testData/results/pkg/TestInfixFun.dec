@@ -19,12 +19,12 @@ public class TestInfixFun {
 
    @JvmStatic
    fun Int.`test$times`(str: java.lang.String): java.lang.String {
-      return StringsKt.repeat(str as java.lang.CharSequence, `$this$test_u24times`)// 5
+      StringsKt.repeat(str as java.lang.CharSequence, `$this$test_u24times`)// 5
    }
 
    @JvmStatic
    fun Int.`testDuplicate$mult`(str: java.lang.String): java.lang.String {
-      return StringsKt.repeat(str as java.lang.CharSequence, `$this$testDuplicate_u24mult` + 1)// 18
+      StringsKt.repeat(str as java.lang.CharSequence, `$this$testDuplicate_u24mult` + 1)// 18
    }
 }
 
@@ -99,7 +99,6 @@ class 'pkg/TestInfixFun' {
       5      21
       6      21
       7      21
-      8      21
    }
 
    method 'testDuplicate$mult (ILjava/lang/String;)Ljava/lang/String;' {
@@ -113,7 +112,6 @@ class 'pkg/TestInfixFun' {
       7      26
       8      26
       9      26
-      a      26
    }
 }
 

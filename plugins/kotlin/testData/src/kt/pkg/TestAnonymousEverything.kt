@@ -70,4 +70,24 @@ class TestAnonymousEverything {
     val nonMutating: () -> Int = { y }
     nonMutating()
   }
+  
+  fun testEarlyReturn() {
+    val lambda: (Int) -> Int = lambda@ { x ->
+      if (x == 0) {
+        return@lambda 42
+      }
+
+      if (x == Int.MIN_VALUE) {
+        return@lambda Int.MAX_VALUE
+      }
+
+      if (x < 0) {
+        return@lambda 0
+      }
+
+      x + 1
+    }
+    lambda(1)
+    lambda(-1)
+  }
 }

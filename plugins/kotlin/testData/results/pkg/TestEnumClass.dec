@@ -20,13 +20,13 @@ public enum class TestEnumClass(number: Int = 4) {
 
    @JvmStatic
    fun getEntries(): EnumEntries<TestEnumClass> {
-      return $ENTRIES// 8
+      $ENTRIES
    }
 
    @JvmStatic
    @JvmSynthetic
    fun `$values`(): Array<TestEnumClass> {
-      return new TestEnumClass[]{A, B, C, D}
+      new TestEnumClass[]{A, B, C, D}
    }
 }
 
@@ -63,7 +63,6 @@ class 'pkg/TestEnumClass' {
       0      22
       1      22
       2      22
-      3      22
    }
 
    method '$values ()[Lpkg/TestEnumClass;' {
@@ -79,7 +78,6 @@ class 'pkg/TestEnumClass' {
       19      28
       1a      28
       1b      28
-      1e      28
    }
 }
 
@@ -87,4 +85,5 @@ Lines mapping:
 3 <-> 14
 4 <-> 9
 7 <-> 18
-8 <-> 23
+Not mapped:
+8
