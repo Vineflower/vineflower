@@ -47,6 +47,26 @@ public class KNewExprent extends NewExprent implements KExprent {
   @Override
   public TextBuffer toJava(int indent) {
     ClassesProcessor.ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(getNewType().value);
+    if (node != null && new KotlinChooser().isLanguage(node.classStruct)) {
+      KotlinMetadata ktData = node.classStruct.getAttribute(KotlinMetadata.KEY);
+      if (ktData.metadata instanceof KotlinMetadata.FunctionReference) {
+        Exprent receiver = getConstructor().getLstParameters().get(0);
+        TextBuffer buf = KotlinWriter.stringifyReference(indent, node, bytecode, receiver);
+        if (buf != null) {
+          return buf;
+        }
+      }
+
+      if (node.type == ClassesProcessor.ClassNode.Type.LOCAL && ktData.metadata instanceof KotlinMetadata.Class) {
+        // Work around the Java-targeted anonymous class verification
+        node.type = ClassesProcessor.ClassNode.Type.ANONYMOUS;
+        TextBuffer buf = new TextBuffer();
+        buf.addBytecodeMapping(bytecode);
+        new KotlinWriter().writeClass(node, buf, indent);
+        return buf;
+      }
+    }
+
     if (isLambda()) {
       MethodWrapper outerWrapper = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
       try {
@@ -148,19 +168,9 @@ public class KNewExprent extends NewExprent implements KExprent {
       }
     } else if (isAnonymous()) {
       TextBuffer buf = new TextBuffer();
+      buf.addBytecodeMapping(bytecode);
       new KotlinWriter().writeClass(node, buf, indent);
       return buf;
-    } else if (node != null && new KotlinChooser().isLanguage(node.classStruct)) {
-      KotlinMetadata ktData = node.classStruct.getAttribute(KotlinMetadata.KEY);
-      if (!(ktData.metadata instanceof KotlinMetadata.FunctionReference)) {
-        return super.toJava(indent);
-      }
-
-      Exprent receiver = getConstructor().getLstParameters().get(0);
-      TextBuffer buf = KotlinWriter.stringifyReference(indent, node, bytecode, receiver);
-      if (buf != null) {
-        return buf;
-      }
     }
 
     return super.toJava(indent);
