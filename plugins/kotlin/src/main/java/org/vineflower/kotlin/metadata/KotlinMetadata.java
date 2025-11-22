@@ -22,6 +22,7 @@ public class KotlinMetadata {
   public record File(@NotNull StructClass classStruct, @NotNull ProtoBuf.Package proto) implements Metadata {}
   public record SyntheticClass(@NotNull StructClass classStruct, @NotNull ProtoBuf.Function proto) implements Metadata {}
   public record MultifileClass(@NotNull StructClass classStruct, @NotNull ProtoBuf.Package proto) implements Metadata {}
+  public record FunctionReference(@NotNull StructClass classStruct) implements Metadata {}
 
   public final @NotNull Metadata metadata;
   public final @Nullable MetadataNameResolver nameResolver;
@@ -42,7 +43,7 @@ public class KotlinMetadata {
       }
 
       List<ProtoBuf.Property> protoProperties;
-      if (metadata instanceof SyntheticClass) { // Check first for a quick return
+      if (metadata instanceof SyntheticClass || metadata instanceof FunctionReference) { // Check first for a quick return
         return null;
       } else if (metadata instanceof Class cls) {
         protoProperties = cls.proto().getPropertyList();
@@ -66,7 +67,9 @@ public class KotlinMetadata {
       }
 
       List<ProtoBuf.Function> protoFunctions;
-      if (metadata instanceof Class cls) {
+      if (metadata instanceof FunctionReference) {
+        return null;
+      } else if (metadata instanceof Class cls) {
         protoFunctions = cls.proto().getFunctionList();
       } else if (metadata instanceof File file) {
         protoFunctions = file.proto().getFunctionList();

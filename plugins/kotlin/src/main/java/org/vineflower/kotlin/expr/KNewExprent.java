@@ -8,22 +8,25 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.ExitExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.NewExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
+import org.vineflower.kotlin.KotlinChooser;
 import org.vineflower.kotlin.KotlinWriter;
+import org.vineflower.kotlin.metadata.KotlinMetadata;
 import org.vineflower.kotlin.util.KTypes;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.List;
 
 public class KNewExprent extends NewExprent implements KExprent {
+  private static final String REFERENCE_CTOR_DESC = "(Ljava/lang/Object;)V";
+
   public KNewExprent(NewExprent expr) {
     super(expr.getNewType(), expr.getLstDims(), expr.bytecode);
     setConstructor(expr.getConstructor());
@@ -43,10 +46,10 @@ public class KNewExprent extends NewExprent implements KExprent {
 
   @Override
   public TextBuffer toJava(int indent) {
+    ClassesProcessor.ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(getNewType().value);
     if (isLambda()) {
       MethodWrapper outerWrapper = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
       try {
-        ClassesProcessor.ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(getNewType().value);
         ClassesProcessor.ClassNode.LambdaInformation lambdaInfo = node.lambdaInformation;
         String name = lambdaInfo.content_method_name;
         if (name.contains("$lambda$")) {
@@ -144,10 +147,20 @@ public class KNewExprent extends NewExprent implements KExprent {
         DecompilerContext.setProperty(DecompilerContext.CURRENT_METHOD_WRAPPER, outerWrapper);
       }
     } else if (isAnonymous()) {
-      ClassesProcessor.ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(getNewType().value);
       TextBuffer buf = new TextBuffer();
       new KotlinWriter().writeClass(node, buf, indent);
       return buf;
+    } else if (node != null && new KotlinChooser().isLanguage(node.classStruct)) {
+      KotlinMetadata ktData = node.classStruct.getAttribute(KotlinMetadata.KEY);
+      if (!(ktData.metadata instanceof KotlinMetadata.FunctionReference)) {
+        return super.toJava(indent);
+      }
+
+      Exprent receiver = getConstructor().getLstParameters().get(0);
+      TextBuffer buf = KotlinWriter.stringifyReference(indent, node, bytecode, receiver);
+      if (buf != null) {
+        return buf;
+      }
     }
 
     return super.toJava(indent);

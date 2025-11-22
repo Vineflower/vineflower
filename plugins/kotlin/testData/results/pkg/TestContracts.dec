@@ -44,7 +44,7 @@ public class TestContracts {
          callsInPlace(f, InvocationKind.EXACTLY_ONCE)
       }
 
-      return (f.invoke() as java.lang.Number).intValue()// 39
+      return (f() as java.lang.Number).intValue()// 39
    }
 
    public fun testFunctionalContract2(f: () -> Int, b: Boolean): Int {
@@ -52,7 +52,7 @@ public class TestContracts {
          callsInPlace(f, InvocationKind.AT_MOST_ONCE)
       }
 
-      return if (b) (f.invoke() as java.lang.Number).intValue() else 0// 46
+      return if (b) (f() as java.lang.Number).intValue() else 0// 46
    }
 
    public fun testFunctionalContract3(f: () -> Int, i: Int): Int {
@@ -66,7 +66,7 @@ public class TestContracts {
 
       while (var5.hasNext()) {
          val var6: Int = (var5 as IntIterator).nextInt()
-         var4 += (f.invoke() as java.lang.Number).intValue()
+         var4 += (f() as java.lang.Number).intValue()
       }
 
       return var4// 53

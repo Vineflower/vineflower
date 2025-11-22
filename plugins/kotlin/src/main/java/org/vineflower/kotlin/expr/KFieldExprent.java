@@ -1,12 +1,20 @@
 package org.vineflower.kotlin.expr;
 
 import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
+import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.ExprUtil;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FieldExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
+import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
+import org.vineflower.kotlin.KotlinChooser;
+import org.vineflower.kotlin.KotlinWriter;
 import org.vineflower.kotlin.metadata.KotlinMetadata;
+import org.vineflower.kotlin.struct.KFunction;
+import org.vineflower.kotlin.struct.KParameter;
 import org.vineflower.kotlin.util.KTypes;
 
 public class KFieldExprent extends FieldExprent implements KExprent {
@@ -19,6 +27,7 @@ public class KFieldExprent extends FieldExprent implements KExprent {
     TextBuffer buf = new TextBuffer();
 
     if (getName().equals("TYPE") && ExprUtil.PRIMITIVE_TYPES.containsKey(getClassname())) {
+      buf.addBytecodeMapping(bytecode);
       VarType type = new VarType(getClassname(), true);
       buf.append(KTypes.getKotlinType(type));
       buf.append("::class.javaPrimitiveType");
@@ -30,6 +39,8 @@ public class KFieldExprent extends FieldExprent implements KExprent {
         return super.toJava(indent);
       }
 
+      KotlinChooser.parseMetadataFor(cl);
+
       KotlinMetadata ktData = cl.getAttribute(KotlinMetadata.KEY);
       if (ktData == null) {
         return super.toJava(indent);
@@ -39,7 +50,59 @@ public class KFieldExprent extends FieldExprent implements KExprent {
         if (cls.proto().hasCompanionObjectName()) {
           String name = ktData.nameResolver == null ? cl.qualifiedName : ktData.nameResolver.resolve(cls.proto().getCompanionObjectName());
           buf.appendClass(DecompilerContext.getImportCollector().getShortName(cl.qualifiedName), false, name);
+          buf.addBytecodeMapping(bytecode);
           return buf;
+        }
+      } else if (ktData.metadata instanceof KotlinMetadata.SyntheticClass) {
+        KFunction function = ktData.getFunctions().values().iterator().next();
+        ClassWrapper wrapper = DecompilerContext.getClassProcessor().getMapRootClasses().get(getClassname()).getWrapper();
+        MethodWrapper method = function.methodSupplier().apply(wrapper);
+
+        buf.append("{");
+
+        int index = 0;
+        for (KParameter param : function.parameters()) {
+          if (index > 0) {
+            buf.append(", ");
+          } else {
+            buf.append(" ");
+          }
+          buf.appendVariable(param.name(), true, true, function.classStruct().qualifiedName, function.methodStruct().getName(), function.methodStruct().getDescriptor(), index, param.name());
+          index += param.type().stackSize;
+        }
+
+        if (function.parameters().length > 0) {
+          buf.append(" ->");
+        }
+
+        buf.appendLineSeparator();
+
+        MethodWrapper outerMethod = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
+        try {
+          if (method.decompileError == null) {
+            RootStatement root = method.root;
+            if (root != null) {
+              DecompilerContext.setProperty(DecompilerContext.CURRENT_METHOD_WRAPPER, method);
+              TextBuffer body = root.toJava(indent + 1);
+              body.addBytecodeMapping(root.getDummyExit().bytecode);
+              buf.append(body, cl.qualifiedName, InterpreterUtil.makeUniqueKey(method.methodStruct.getName(), method.methodStruct.getDescriptor()));
+            }
+          }
+        } finally {
+          DecompilerContext.setProperty(DecompilerContext.CURRENT_METHOD_WRAPPER, outerMethod);
+        }
+
+        if (method.decompileError != null) {
+          KotlinWriter.dumpError(buf, method, indent + 1);
+        }
+
+        buf.appendIndent(indent).append("}");
+        buf.addBytecodeMapping(bytecode);
+        return buf;
+      } else if (ktData.metadata instanceof KotlinMetadata.FunctionReference) {
+        TextBuffer buffer = KotlinWriter.stringifyReference(indent, DecompilerContext.getClassProcessor().getMapRootClasses().get(getClassname()), bytecode, null);
+        if (buffer != null) {
+          return buffer;
         }
       }
     }

@@ -43,6 +43,16 @@ class TestAnonymousEverything {
     ref(1, 2)
   }
 
+  fun testConstructorReference() {
+    val createAny = ::Any
+    createAny()
+  }
+
+  fun testNoTypeReference() {
+    val newList: (Any) -> List<*> = ::listOf
+    newList(1)
+  }
+
   fun testMultipleSubtypes() {
     val obj = object : Runnable, Consumer<Unit> {
       override fun run() = println("Runnable.run")

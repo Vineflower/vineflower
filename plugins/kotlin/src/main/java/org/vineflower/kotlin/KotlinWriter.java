@@ -260,6 +260,11 @@ public class KotlinWriter implements StatementWriter, Flags {
         return;
       }
 
+      if (ktData != null && ktData.metadata instanceof KotlinMetadata.SyntheticClass) {
+        writeLambda(node, buffer, indent, ktData);
+        return;
+      }
+
       Optional<ClassNode> companion;
       if (ktData != null && ktData.metadata instanceof KotlinMetadata.Class cls && cls.proto().hasCompanionObjectName()) {
         String name = ktData.nameResolver.resolve(cls.proto().getCompanionObjectName());
@@ -558,6 +563,55 @@ public class KotlinWriter implements StatementWriter, Flags {
     }
 
     buffer.appendIndent(indent).append("}");
+  }
+
+  public static TextBuffer stringifyReference(int indent, ClassesProcessor.ClassNode node, BitSet bytecode, Exprent receiver) {
+    // Attempt to extract the real reference from <init>
+    MethodWrapper init = node.getWrapper().getMethodWrapper("<init>", receiver != null ? "(Ljava/lang/Object;)V" : "()V");
+    if (init == null) {
+      return null;
+    }
+
+    List<Exprent> exprents = init.root.getFirst().getExprents();
+    if (exprents == null || exprents.size() != 1) {
+      return null;
+    }
+
+    TextBuffer buf = new TextBuffer();
+    buf.addBytecodeMapping(bytecode);
+
+    Exprent superCall = exprents.get(0);
+    List<Exprent> parameters = ((InvocationExprent) superCall).getLstParameters();
+
+    int parameterIndex = receiver == null ? 1 : 2;
+    String classRef = ((ConstExprent) parameters.get(parameterIndex++)).getValue().toString();
+    String methodRef = ((ConstExprent) parameters.get(parameterIndex++)).getValue().toString();
+    String methodAndDesc = ((ConstExprent) parameters.get(parameterIndex++)).getValue().toString();
+
+    StructClass cl = DecompilerContext.getStructContext().getClass(classRef);
+
+    String desc = methodAndDesc.substring(methodRef.length());
+
+    if (methodRef.equals("<init>")) {
+      buf.append("::");
+      VarType classType = new VarType(classRef, true);
+      buf.appendMethod(KTypes.getKotlinType(classType), false, classRef, methodRef, desc);
+      return buf;
+    }
+
+    if (receiver != null) {
+      buf.append(receiver.toJava(indent));
+    } else {
+      // Add class name, unless it is top-level
+      if (cl == null || !cl.hasAttribute(KotlinMetadata.KEY) || !(cl.getAttribute(KotlinMetadata.KEY).metadata instanceof KotlinMetadata.File)) {
+        VarType classType = new VarType(classRef, true);
+        buf.appendTypeName(KTypes.getKotlinType(classType), classType);
+      }
+    }
+
+    buf.append("::");
+    buf.appendMethod(methodRef, false, classRef, methodRef, desc);
+    return buf;
   }
 
   private void writeKotlinFile(ClassNode node, TextBuffer buffer, int indent, KotlinMetadata ktData) {

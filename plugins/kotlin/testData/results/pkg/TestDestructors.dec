@@ -36,8 +36,8 @@ public class TestDestructors {
    public fun destructInlineLambdaNoInline(x: () -> Int) {
       System.out
          .println(
-            "${this.component1((x.invoke() as java.lang.Number).intValue())}${this.component2((x.invoke() as java.lang.Number).intValue())}${this.component3(// 49 50 72 73 74
-               (x.invoke() as java.lang.Number).intValue()
+            "${this.component1((x() as java.lang.Number).intValue())}${this.component2((x() as java.lang.Number).intValue())}${this.component3(// 49 50 72 73 74
+               (x() as java.lang.Number).intValue()
             )}"
          )
       }// 51
@@ -48,8 +48,8 @@ public class TestDestructors {
       }
       System.out
          .println(
-            "${this.component1((var2.invoke() as java.lang.Number).intValue())}${this.component2((var2.invoke() as java.lang.Number).intValue())}${this.component3(// 55 75 76 77
-               (var2.invoke() as java.lang.Number).intValue()
+            "${this.component1((var2() as java.lang.Number).intValue())}${this.component2((var2() as java.lang.Number).intValue())}${this.component3(// 55 75 76 77
+               (var2() as java.lang.Number).intValue()
             )}"
          )
       }// 56
@@ -67,15 +67,15 @@ public class TestDestructors {
    }
 
    public inline operator fun (() -> Int).component1(): Int {
-      return this.component1((`$this$component1`.invoke() as java.lang.Number).intValue())// 68
+      return this.component1((`$this$component1`() as java.lang.Number).intValue())// 68
    }
 
    public inline operator fun (() -> Int).component2(): Int {
-      return this.component2((`$this$component2`.invoke() as java.lang.Number).intValue())// 69
+      return this.component2((`$this$component2`() as java.lang.Number).intValue())// 69
    }
 
    public inline operator fun (() -> Int).component3(): Int {
-      return this.component3((`$this$component3`.invoke() as java.lang.Number).intValue())// 70
+      return this.component3((`$this$component3`() as java.lang.Number).intValue())// 70
    }
 }
 
