@@ -112,4 +112,9 @@ class TestAnonymousEverything {
       x + 1
     }
   }
+
+  fun testIgnoredParams() {
+    val lambda: (Int, Any) -> Unit = { _, _ -> }
+    lambda(1, 2)
+  }
 }

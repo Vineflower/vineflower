@@ -8,10 +8,10 @@ import kotlin.jvm.internal.SourceDebugExtension
 import kotlin.jvm.internal.Ref.IntRef
 import kotlin.reflect.KFunction
 
-@SourceDebugExtension(["SMAP\nTestAnonymousEverything.kt\nKotlin\n*S Kotlin\n*F\n+ 1 TestAnonymousEverything.kt\npkg/TestAnonymousEverything\n+ 2 fake.kt\nkotlin/jvm/internal/FakeKt\n*L\n1#1,115:1\n1#2:116\n*E\n"])
+@SourceDebugExtension(["SMAP\nTestAnonymousEverything.kt\nKotlin\n*S Kotlin\n*F\n+ 1 TestAnonymousEverything.kt\npkg/TestAnonymousEverything\n+ 2 fake.kt\nkotlin/jvm/internal/FakeKt\n*L\n1#1,120:1\n1#2:121\n*E\n"])
 public class TestAnonymousEverything {
    public fun testPlainLambda() {
-      { x: Int, x: Int ->
+      { x: Int, y: Int ->
          x + y// 7
       }(1, 2)// 8
    }// 9
@@ -39,7 +39,7 @@ public class TestAnonymousEverything {
    }// 32
 
    public fun testAnonymousFunction() {
-      { x: Int, x: Int ->
+      { x: Int, y: Int ->
          x + y// 35
       }(1, 2)// 36
    }// 37
@@ -118,6 +118,12 @@ public class TestAnonymousEverything {
          }
       }
    }// 114
+
+   public fun testIgnoredParams() {
+      { var0: Int, var1: Any ->
+         Unit.INSTANCE// 117
+      }(1, 2)// 118
+   }// 119
 }
 
 class 'pkg/TestAnonymousEverything' {
@@ -462,6 +468,29 @@ class 'pkg/TestAnonymousEverything' {
       2e      116
       2f      116
    }
+
+   method 'testIgnoredParams$lambda$9 (ILjava/lang/Object;)Lkotlin/Unit;' {
+      6      123
+      7      123
+      8      123
+   }
+
+   method 'testIgnoredParams ()V' {
+      7      124
+      8      124
+      9      124
+      a      124
+      b      124
+      c      124
+      d      124
+      e      124
+      f      124
+      10      124
+      11      124
+      12      124
+      13      124
+      15      125
+   }
 }
 
 class 'pkg/TestAnonymousEverything$testSerializableLambda$lambda$1' {
@@ -583,7 +612,10 @@ Lines mapping:
 110 <-> 115
 112 <-> 117
 114 <-> 120
+117 <-> 124
+118 <-> 125
+119 <-> 126
 Not mapped:
 67
 79
-116
+121

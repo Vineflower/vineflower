@@ -105,6 +105,8 @@ public class KNewExprent extends NewExprent implements KExprent {
               buf.appendVariable(parameterName, true, true, lambdaInfo.content_class_name, lambdaInfo.content_method_name, realDesc, index, parameterName)
                 .append(": ")
                 .appendTypeName(KTypes.getKotlinType(type), type);
+
+              index += type.stackSize;
             }
 
             buf.append(" ->");
