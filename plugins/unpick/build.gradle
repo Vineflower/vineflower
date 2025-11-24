@@ -1,3 +1,5 @@
+import org.vineflower.build.TestDataRuntimesProvider
+
 base.archivesName = 'vineflower-unpick'
 
 dependencies {
@@ -15,3 +17,35 @@ shadowJar {
 }
 
 build.dependsOn(shadowJar)
+
+task testDataClasses {
+  group = 'build'
+}
+testClasses.dependsOn(testDataClasses)
+
+def testJavaRuntimes = [:]
+
+[8].forEach { version ->
+  def runtimeVersion = isArm && version > 8 && version < 11 ? 11 : version
+  rootProject.createJavaTestDataSet(project, version)
+  testJavaRuntimes[version] = javaToolchains.launcherFor {
+    languageVersion = JavaLanguageVersion.of(runtimeVersion)
+  }
+}
+
+test {
+  maxHeapSize = "512M"
+
+  systemProperty "DOT_EXPORT_DIR", System.getProperty("DOT_EXPORT_DIR", null)
+  systemProperty "DOT_ERROR_EXPORT_DIR", System.getProperty("DOT_ERROR_EXPORT_DIR", null)
+  systemProperty "VALIDATE_DECOMPILED_CODE", System.getProperty("VALIDATE_DECOMPILED_CODE", "false")
+  afterEvaluate {
+    systemProperty 'vineflower.unpick.files', sourceSets.test.resources.destinationDirectory.asFile.get().absolutePath
+  }
+
+  def provider = objects.newInstance(TestDataRuntimesProvider)
+  testJavaRuntimes.each { k, v ->
+    provider.launchers.put(k, v)
+  }
+  jvmArgumentProviders << provider
+}

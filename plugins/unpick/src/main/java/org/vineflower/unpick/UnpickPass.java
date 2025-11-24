@@ -1,8 +1,7 @@
 package org.vineflower.unpick;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.java.decompiler.api.plugin.pass.Pass;
-import org.jetbrains.java.decompiler.api.plugin.pass.PassContext;
+import org.jetbrains.java.decompiler.main.ClassesProcessor;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.vineflower.unpick.parser.UnpickV3Reader;
 
@@ -15,21 +14,21 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Enumeration;
+import java.util.function.Consumer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-public class UnpickPass implements Pass {
+public class UnpickPass implements Consumer<ClassesProcessor.ClassNode> {
   private UnpickDefinitions defs;
 
   @Override
-  public boolean run(PassContext ctx) {
+  public void accept(ClassesProcessor.ClassNode classNode) {
     loadDefinitions();
     if (defs.isEmpty()) {
-      return false;
+      return;
     }
 
     // TODO
-    return false;
   }
 
   // TODO: move to UnpickPlugin.initialize

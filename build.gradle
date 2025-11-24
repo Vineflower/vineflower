@@ -113,13 +113,13 @@ task testDataClasses {
 }
 testClasses.dependsOn(testDataClasses)
 
-void createJavaTestDataSet(int version, String suffix = "", List<String> compilerArgs = []) {
-  sourceSets.create("testDataJava${version}${suffix}") {
-    it.java.srcDirs file("testData/src/java${version}${suffix.toLowerCase()}")
+void createJavaTestDataSet(Project myProject, int version, String suffix = "", List<String> compilerArgs = []) {
+  myProject.sourceSets.create("testDataJava${version}${suffix}") {
+    it.java.srcDirs myProject.file("testData/src/java${version}${suffix.toLowerCase(Locale.ROOT)}")
   }
-  tasks.getByName("compileTestDataJava${version}${suffix}Java") {
-    destinationDirectory = file("testData/classes/java${version}${suffix.toLowerCase()}")
-    if (project.isArm && version > 8 && version < 11) {
+  myProject.tasks.getByName("compileTestDataJava${version}${suffix}Java") {
+    destinationDirectory = myProject.file("testData/classes/java${version}${suffix.toLowerCase(Locale.ROOT)}")
+    if (myProject.isArm && version > 8 && version < 11) {
       // On ARM systems, a more limited set of JVM versions are available
       // We'll accept the `--release` flag so development is at least somewhat possible
       javaCompiler = javaToolchains.compilerFor {
@@ -134,20 +134,20 @@ void createJavaTestDataSet(int version, String suffix = "", List<String> compile
 
     options.compilerArgs = compilerArgs
   }
-  testDataClasses.dependsOn("testDataJava${version}${suffix}Classes")
+  myProject.testDataClasses.dependsOn("testDataJava${version}${suffix}Classes")
 }
 
 def testJavaRuntimes = [:]
 
 [8, 9, 11, 16, 17, 21, 25].forEach { version ->
     def runtimeVersion = isArm && version > 8 && version < 11 ? 11 : version
-    createJavaTestDataSet(version)
+    createJavaTestDataSet(project, version)
     testJavaRuntimes[version] = javaToolchains.launcherFor {
         languageVersion = JavaLanguageVersion.of(runtimeVersion)
     }
 }
-[16, 17, 21].forEach { version -> createJavaTestDataSet(version, "Preview", ["--enable-preview"]) }
-[8, 16].forEach { version -> createJavaTestDataSet(version, "NoDebug", ["-g:none"])}
+[16, 17, 21].forEach { version -> createJavaTestDataSet(project, version, "Preview", ["--enable-preview"]) }
+[8, 16].forEach { version -> createJavaTestDataSet(project, version, "NoDebug", ["-g:none"])}
 
 task compileTestDataJasm(type: JasmCompile) {
   source = fileTree("testData/src/jasm/")
