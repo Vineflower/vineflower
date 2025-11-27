@@ -589,6 +589,16 @@ public class FunctionExprent extends Exprent {
       return buf;
     }
 
+    if (funcType == FunctionType.TERNARY) {
+      Exprent left = lstOperands.get(1);
+      Exprent right = lstOperands.get(2);
+      if (right instanceof ConstExprent) {
+        ((ConstExprent) right).adjustConstType(left.getExprType());
+      } else if (left instanceof ConstExprent) {
+        ((ConstExprent) left).adjustConstType(right.getExprType());
+      }
+    }
+
     switch (funcType) {
       case BIT_NOT:
       case BOOL_NOT:
