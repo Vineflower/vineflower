@@ -90,7 +90,7 @@ public class ConsoleDecompiler implements /* IBytecodeProvider, */ IResultSaver,
 
     SaveType userSaveType = null;
     boolean isOption = true;
-    int nonOption = 0;
+    String lastPath = null;
     for (int i = 0; i < args.length; ++i) { // last parameter - destination
       String arg = args[i];
 
@@ -124,25 +124,31 @@ public class ConsoleDecompiler implements /* IBytecodeProvider, */ IResultSaver,
       }
 
       if (!parsed) {
-        nonOption++;
-        // Don't process this, as it is the output
-        if (nonOption > 1 && i == args.length - 1) {
-          break;
-        }
-
         isOption = false;
 
         if (arg.equals("-s") || arg.equals("--silent")) {
           mapOptions.put(IFernflowerPreferences.LOG_LEVEL, "error");
         } else if (arg.startsWith("-e=") || arg.startsWith("--add-external=")) {
-          addPath(libraries, arg.substring(arg.indexOf('=') + 1));
+          for (String path : arg.substring(arg.indexOf('=') + 1).split(",")) {
+            addPath(libraries, path);
+          }
         } else if (arg.startsWith("-only=") || arg.startsWith("--only=")) {
-          whitelist.add(arg.substring(arg.indexOf('=') + 1));
+          whitelist.addAll(Arrays.asList(arg.substring(arg.indexOf('=') + 1).split(",")));
         } else {
-          addPath(sources, arg);
+          if (lastPath != null) {
+            addPath(sources, lastPath);
+          }
+          lastPath = arg;
         }
       }
     }
+
+    if (sources.isEmpty() && lastPath != null) {
+      // Only one path given; must be the source
+      addPath(sources, lastPath);
+      lastPath = null;
+    }
+    // Otherwise, the last path given is the destination
 
     if (sources.isEmpty()) {
       System.out.println("error: no sources given");
@@ -152,11 +158,9 @@ public class ConsoleDecompiler implements /* IBytecodeProvider, */ IResultSaver,
     SaveType saveType = SaveType.CONSOLE;
 
     File destination = new File("."); // Dummy value, when '.' we will be printing to console
-    if (nonOption > 1) {
-      String name = args[args.length - 1];
-
+    if (lastPath != null) {
       saveType = SaveType.FOLDER;
-      destination = new File(name);
+      destination = new File(lastPath);
 
       if (userSaveType == null) {
         if (destination.getName().contains(".zip") || destination.getName().contains(".jar")) {

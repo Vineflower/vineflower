@@ -1,8 +1,8 @@
 package pkg;
 
 public class TestMultiAssignmentInDynamicBlock {
-   private int i = 124151;
-   private final int a = this.i * 11;
+   private int i = 124151;// 4
+   private final int a = this.i * 11;// 12
    private final int b;
    private final int c;
    private final int d;
@@ -23,6 +23,15 @@ public class TestMultiAssignmentInDynamicBlock {
 
 class 'pkg/TestMultiAssignmentInDynamicBlock' {
    method '<init> ()V' {
+      5      3
+      6      3
+      b      4
+      c      4
+      d      4
+      e      4
+      f      4
+      10      4
+      11      4
       15      11
       16      11
       17      11
@@ -172,6 +181,8 @@ class 'pkg/TestMultiAssignmentInDynamicBlock' {
 }
 
 Lines mapping:
+4 <-> 4
+12 <-> 5
 13 <-> 12
 14 <-> 13
 15 <-> 14
@@ -184,5 +195,3 @@ Lines mapping:
 22 <-> 21
 Not mapped:
 3
-4
-12

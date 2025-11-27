@@ -2,26 +2,26 @@ package pkg
 
 public class TestVars {
    public fun testVar() {
-      System.out.println("initial");// 5 6
+      System.out.println("initial")// 5 6
    }// 9
 
    public fun testVal() {
-      System.out.println("initial");// 12 13
+      System.out.println("initial")// 12 13
    }// 16
 
    public fun testPhi(bl: Boolean) {
-      val var3: Byte;
+      val var3: Byte
       if (bl) {// 21
-         var3 = 1;// 22
+         var3 = 1// 22
       } else {
-         var3 = 2;// 24
+         var3 = 2// 24
       }
 
-      System.out.println(var3);// 27
+      System.out.println(var3)// 27
    }// 28
 
    public fun testIfExpr(bl: Boolean) {
-      System.out.println(if (bl) 1 else 2);// 31 32 34 37
+      System.out.println(if (bl) 1 else 2)// 31 32 34 37
    }// 38
 }
 

@@ -18,7 +18,7 @@ import java.io.IOException;
 */
 public class StructLocalVariableTypeTableAttribute extends StructGeneralAttribute {
   // store signature instead of descriptor
-  final StructLocalVariableTableAttribute backingAttribute = new StructLocalVariableTableAttribute();
+  public final StructLocalVariableTableAttribute backingAttribute = new StructLocalVariableTableAttribute();
 
   @Override
   public void initContent(DataInputFullStream data, ConstantPool pool, BytecodeVersion version) throws IOException {

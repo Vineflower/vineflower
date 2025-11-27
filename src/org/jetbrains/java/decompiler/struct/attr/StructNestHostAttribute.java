@@ -24,4 +24,8 @@ public class StructNestHostAttribute extends StructGeneralAttribute {
   public String getHostClass(ConstantPool pool) {
     return pool.getPrimitiveConstant(constPoolIndex).getString();
   }
+
+  public void setConstPoolIndex(int constPoolIndex) {
+    this.constPoolIndex = constPoolIndex;
+  }
 }

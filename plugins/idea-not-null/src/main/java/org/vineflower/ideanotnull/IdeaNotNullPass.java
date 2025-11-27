@@ -22,7 +22,7 @@ import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import java.util.ArrayList;
 import java.util.List;
 
-public class IdeaNotNullPass implements Pass{
+public class IdeaNotNullPass implements Pass {
   
   public boolean run(PassContext ctx){
     if (!DecompilerContext.getOption(IdeaNotNullOptions.IDEA_NOT_NULL_ANNOTATION)) {

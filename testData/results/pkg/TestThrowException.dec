@@ -6,14 +6,14 @@ public class TestThrowException {
    public TestThrowException(int a) {
       if (a > 0) {// 9
          throw new IllegalArgumentException("xxx");// 10
-      } else {
-         this.r = new Runnable() {// 12
-            @Override
-            public void run() {
-               int ax = 5;// 15
-            }// 16
-         };
       }
+
+      this.r = new Runnable() {// 12
+         @Override
+         public void run() {
+            int ax = 5;// 15
+         }// 16
+      };
    }// 18
 }
 
@@ -26,28 +26,28 @@ class 'pkg/TestThrowException' {
       c      7
       d      7
       11      7
-      12      9
-      1b      9
-      1c      9
-      1d      9
+      12      10
+      1b      10
+      1c      10
+      1d      10
       1e      16
    }
 }
 
 class 'pkg/TestThrowException$1' {
    method 'run ()V' {
-      0      12
-      1      12
-      2      13
+      0      13
+      1      13
+      2      14
    }
 }
 
 Lines mapping:
 9 <-> 7
 10 <-> 8
-12 <-> 10
-15 <-> 13
-16 <-> 14
+12 <-> 11
+15 <-> 14
+16 <-> 15
 18 <-> 17
 Not mapped:
 8

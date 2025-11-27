@@ -1,6 +1,6 @@
 package org.vineflower.kotlin.util;
 
-import kotlinx.metadata.internal.metadata.ProtoBuf;
+import org.vineflower.kt.metadata.ProtoBuf;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
@@ -41,6 +41,8 @@ public class KUtils {
       return new KFieldExprent((FieldExprent) ex);
     } else if (ex instanceof AnnotationExprent) {
       return new KAnnotationExprent((AnnotationExprent) ex);
+    } else if (ex instanceof SwitchHeadExprent) {
+      return new KSwitchHeadExprent((SwitchHeadExprent) ex);
     }
 
     return null;
@@ -48,22 +50,17 @@ public class KUtils {
 
   public static void appendVisibility(TextBuffer buf, ProtoBuf.Visibility visibility) {
     switch (visibility) {
-      case LOCAL:
-        buf.append("// QF: local property")
-          .appendLineSeparator()
-          .append("internal ");
-        break;
-      case PRIVATE_TO_THIS:
-        buf.append("private ");
-        break;
-      case PUBLIC:
+      case LOCAL -> buf.append("// $VF: local visibility outside of methodSupplier")
+        .appendLineSeparator()
+        .append("internal ");
+      case PRIVATE_TO_THIS -> buf.append("private ");
+      case PUBLIC -> {
         if (DecompilerContext.getOption(KotlinOptions.SHOW_PUBLIC_VISIBILITY)) {
           buf.append("public ");
         }
-        break;
-      default:
-        buf.append(visibility.name().toLowerCase())
-          .append(' ');
+      }
+      default -> buf.append(visibility.name().toLowerCase())
+        .append(' ');
     }
   }
 

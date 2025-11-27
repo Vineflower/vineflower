@@ -266,7 +266,7 @@ public class GenericType extends VarType {
     return parent;
   }
 
-  public List<VarType> getArguments() {
+  public List<@Nullable VarType> getArguments() {
     return arguments;
   }
   @Override

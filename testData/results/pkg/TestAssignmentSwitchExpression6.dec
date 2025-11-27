@@ -6,9 +6,8 @@ public class TestAssignmentSwitchExpression6 {
 
       while (i > 0) {// 6
          i--;// 7
-         String var4 = directionStr.toLowerCase();// 8
 
-         axis = switch (var4) {
+         axis = switch (directionStr.toLowerCase()) {// 8
             case "north", "south" -> "y";// 11
             case "east", "west" -> "x";// 14
             case "up", "down" -> "z";// 17
@@ -31,85 +30,81 @@ class 'pkg/TestAssignmentSwitchExpression6' {
       6      7
       7      7
       8      7
-      9      8
-      a      8
-      b      8
-      c      8
-      d      8
-      e      8
-      12      10
-      13      10
-      52      11
-      53      11
-      62      11
-      63      11
-      72      12
-      73      12
-      82      12
-      83      12
-      92      13
-      93      13
-      a2      13
-      a3      13
-      af      10
-      b0      10
-      b1      10
-      b2      10
-      b3      10
-      b4      10
-      b5      10
-      b6      10
-      b7      10
-      b8      10
-      b9      10
-      ba      10
-      bb      10
-      bc      10
-      bd      10
-      be      10
-      bf      10
-      c0      10
-      c1      10
-      c2      10
-      c3      10
-      c4      10
-      c5      10
-      c6      10
-      c7      10
-      c8      10
-      c9      10
-      ca      10
-      cb      10
-      cc      10
-      cd      10
-      ce      10
-      cf      10
-      d0      10
-      d1      10
-      d2      10
-      d3      10
-      d4      11
-      d5      11
-      d9      12
-      da      12
-      de      13
-      df      13
-      e7      14
-      e8      14
-      e9      14
-      ea      14
-      eb      14
-      ec      14
-      f0      14
-      f1      10
-      f5      18
-      f6      18
-      f7      18
-      f8      18
-      f9      18
-      fa      18
-      fb      18
-      fc      19
+      9      9
+      a      9
+      b      9
+      c      9
+      52      10
+      53      10
+      62      10
+      63      10
+      72      11
+      73      11
+      82      11
+      83      11
+      92      12
+      93      12
+      a2      12
+      a3      12
+      af      9
+      b0      9
+      b1      9
+      b2      9
+      b3      9
+      b4      9
+      b5      9
+      b6      9
+      b7      9
+      b8      9
+      b9      9
+      ba      9
+      bb      9
+      bc      9
+      bd      9
+      be      9
+      bf      9
+      c0      9
+      c1      9
+      c2      9
+      c3      9
+      c4      9
+      c5      9
+      c6      9
+      c7      9
+      c8      9
+      c9      9
+      ca      9
+      cb      9
+      cc      9
+      cd      9
+      ce      9
+      cf      9
+      d0      9
+      d1      9
+      d2      9
+      d3      9
+      d4      10
+      d5      10
+      d9      11
+      da      11
+      de      12
+      df      12
+      e7      13
+      e8      13
+      e9      13
+      ea      13
+      eb      13
+      ec      13
+      f0      13
+      f1      9
+      f5      17
+      f6      17
+      f7      17
+      f8      17
+      f9      17
+      fa      17
+      fb      17
+      fc      18
    }
 }
 
@@ -117,10 +112,10 @@ Lines mapping:
 5 <-> 5
 6 <-> 7
 7 <-> 8
-8 <-> 9
-11 <-> 12
-14 <-> 13
-17 <-> 14
-19 <-> 15
-23 <-> 19
-24 <-> 20
+8 <-> 10
+11 <-> 11
+14 <-> 12
+17 <-> 13
+19 <-> 14
+23 <-> 18
+24 <-> 19

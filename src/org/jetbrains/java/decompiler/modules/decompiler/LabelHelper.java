@@ -108,7 +108,7 @@ public final class LabelHelper {
     if (!ok) {
       DoStatement dostat = (DoStatement)stat;
       ok = dostat.getLooptype() == DoStatement.Type.INFINITE ||
-           dostat.getLooptype() == DoStatement.Type.WHILE ||
+           dostat.getLooptype() == DoStatement.Type.WHILE && dostat.getConditionExprent() == null ||
            (dostat.getLooptype() == DoStatement.Type.FOR && dostat.getIncExprent() == null);
     }
 

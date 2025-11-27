@@ -79,6 +79,7 @@ public class KotlinPlugin implements Plugin {
       .addPass("RedundantReturns", ctx -> ExitHelper.removeRedundantReturns(ctx.getRoot()))
       .addPass("IdentifySecondary", ctx -> SecondaryFunctionsHelper.identifySecondaryFunctions(ctx.getRoot(), ctx.getVarProc(), FORCE_TERNARY_SIMPLIFY))
       .addPass("SetVarDefinitions", WrappedPass.of(ctx -> ctx.getVarProc().setVarDefinitions(ctx.getRoot())))
+      .addPass("ReplaceStats", new ReplaceStatsPass())
       .addPass("ReplaceExprs", new ReplaceExprentsPass())
       // TODO: preference for this pass
       .addPass("ResugarMethods", new ResugarKotlinMethodsPass())

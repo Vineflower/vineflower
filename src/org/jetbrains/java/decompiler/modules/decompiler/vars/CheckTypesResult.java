@@ -9,31 +9,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CheckTypesResult {
-  private final List<ExprentTypePair> lstMaxTypeExprents = new ArrayList<>();
-  private final List<ExprentTypePair> lstMinTypeExprents = new ArrayList<>();
+  private final List<ExprentTypePair> upperBounds = new ArrayList<>();
+  private final List<ExprentTypePair> lowerBounds = new ArrayList<>();
 
-  public void addMaxTypeExprent(Exprent exprent, VarType type) {
-    if (type == null) {
-      throw new IllegalArgumentException();
-    }
-    lstMaxTypeExprents.add(new ExprentTypePair(exprent, type));
+  public void addExprUpperBound(Exprent exprent, VarType type) {
+    upperBounds.add(new ExprentTypePair(exprent, type));
   }
 
-  public void addMinTypeExprent(Exprent exprent, VarType type) {
-    lstMinTypeExprents.add(new ExprentTypePair(exprent, type));
+  public void addExprLowerBound(Exprent exprent, VarType type) {
+    lowerBounds.add(new ExprentTypePair(exprent, type));
   }
 
-  public List<ExprentTypePair> getLstMaxTypeExprents() {
-    return lstMaxTypeExprents;
+  public List<ExprentTypePair> getUpperBounds() {
+    return upperBounds;
   }
 
-  public List<ExprentTypePair> getLstMinTypeExprents() {
-    return lstMinTypeExprents;
+  public List<ExprentTypePair> getLowerBounds() {
+    return lowerBounds;
   }
 
   @Override
   public String toString() {
-    return "Min: " + this.lstMinTypeExprents + " Max: " + this.lstMaxTypeExprents;
+    return "Min: " + this.lowerBounds + " Max: " + this.upperBounds;
   }
 
   public static class ExprentTypePair {
@@ -50,7 +47,7 @@ public class CheckTypesResult {
 
     @Override
     public String toString() {
-      return "<" + exprent.toJava().convertToStringAndAllowDataDiscard() + ", " + type + ">";
+      return "\"" + exprent.toJava().convertToStringAndAllowDataDiscard() + "\" --> " + type;
     }
   }
 }

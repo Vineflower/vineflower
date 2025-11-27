@@ -7,8 +7,6 @@ import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
 import org.jetbrains.java.decompiler.code.cfg.ExceptionRangeCFG;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
-import org.jetbrains.java.decompiler.struct.StructMethod;
-import org.jetbrains.java.decompiler.util.DotExporter;
 
 import java.util.*;
 
@@ -414,7 +412,7 @@ public final class DeadCodeHelper {
         // FIXME: what is this splitting doing, and why does it cause the loop to never finish?
 //        if(succ_monitorexit_index < succSeq.length() - 1) { // split block
 //
-//          SimpleInstructionSequence seq = new SimpleInstructionSequence();
+//          InstructionSequence seq = new InstructionSequence();
 //          for(int counter = 0; counter < succ_monitorexit_index; counter++) {
 //            seq.addInstruction(succSeq.getInstr(0), -1);
 //            succSeq.removeInstruction(0);
@@ -449,7 +447,7 @@ public final class DeadCodeHelper {
         // copy instructions (handler successor block)
         InstructionSequence handlerSeq = handlerBlock.getSeq();
         for(int counter = 0; counter < handler_monitorexit_index; counter++) {
-          handlerSeq.addInstruction(succHandlerSeq.getInstr(0), -1);
+          handlerSeq.addInstruction(succHandlerSeq.getInstr(0));
           succHandlerSeq.removeInstruction(0);
         }
 

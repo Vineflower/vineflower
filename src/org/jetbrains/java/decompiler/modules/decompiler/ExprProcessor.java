@@ -1,12 +1,15 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler;
 
+import org.jetbrains.java.decompiler.api.Decompiler;
+import org.jetbrains.java.decompiler.api.plugin.LanguageSpec;
+import org.jetbrains.java.decompiler.api.plugin.StatementWriter;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.Instruction;
 import org.jetbrains.java.decompiler.code.InstructionSequence;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.main.collectors.ImportCollector;
+import org.jetbrains.java.decompiler.main.plugins.PluginContext;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectEdgeType;
 import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.util.collections.ListStack;
@@ -780,6 +783,15 @@ public class ExprProcessor implements CodeConstants {
       return ret;
     }
 
+    // Unrepresentable: only for debugging
+    if (tp == CodeType.BYTECHAR) {
+      return "<bytechar>";
+    }
+
+    if (tp == CodeType.SHORTCHAR) {
+      return "<shortchar>";
+    }
+
     throw new RuntimeException("invalid type: " + tp);
   }
 
@@ -802,7 +814,9 @@ public class ExprProcessor implements CodeConstants {
     VarExprent vartmp = new VarExprent(VarExprent.STACK_BASE, var.getExprType(), var.getProcessor());
     vartmp.setStack(true);
 
-    prlst.getLstExprents().add(new AssignmentExprent(vartmp, var.copy(), null));
+    VarExprent catchVar = (VarExprent) var.copy();
+    catchVar.setCatchTempVar(true);
+    prlst.getLstExprents().add(new AssignmentExprent(vartmp, catchVar, null));
     prlst.getStack().push(vartmp.copy());
     return prlst;
   }
@@ -814,7 +828,7 @@ public class ExprProcessor implements CodeConstants {
              (expr instanceof VarExprent && ((VarExprent)expr).isClassDef()));
   }
 
-  private static void addDeletedGotoInstructionMapping(Statement stat, TextBuffer buffer) {
+  public static void addDeletedGotoInstructionMapping(Statement stat, TextBuffer buffer) {
     if (stat instanceof BasicBlockStatement) {
       BasicBlock block = ((BasicBlockStatement)stat).getBlock();
       List<Integer> offsets = block.getInstrOldOffsets();
@@ -877,6 +891,9 @@ public class ExprProcessor implements CodeConstants {
       return new TextBuffer();
     }
 
+    StructClass cl = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS);
+    LanguageSpec spec = PluginContext.getCurrentContext().getLanguageSpec(cl);
+
     TextBuffer buf = new TextBuffer();
     lst = Exprent.sortIndexed(lst);
 
@@ -898,8 +915,14 @@ public class ExprProcessor implements CodeConstants {
         if (expr instanceof MonitorExprent && ((MonitorExprent)expr).getMonType() == MonitorExprent.Type.ENTER) {
           buf.append("{} // $VF: monitorenter "); // empty synchronized block
         }
-        if (endsWithSemicolon(expr)) {
-          buf.append(";");
+        if (spec != null) {
+          if (spec.writer.endsWithSemicolon(expr)) {
+            buf.append(';');
+          }
+        } else {
+          if (endsWithSemicolon(expr)) {
+            buf.append(';');
+          }
         }
         buf.appendLineSeparator();
       }
@@ -962,7 +985,7 @@ public class ExprProcessor implements CodeConstants {
     VarType rightType = exprent.getInferredExprType(leftType);
     exprent = narrowGenericCastType(exprent, leftType);
 
-    boolean doCast = (!leftType.isSuperset(rightType) && (rightType.equals(VarType.VARTYPE_OBJECT) || leftType.type != CodeType.OBJECT));
+    boolean doCast = (!leftType.higherEqualInLatticeThan(rightType) && (rightType.equals(VarType.VARTYPE_OBJECT) || leftType.type != CodeType.OBJECT));
     boolean doCastNull = (castNull.cast && rightType.type == CodeType.NULL && !UNDEFINED_TYPE_STRING.equals(getTypeName(leftType)));
     boolean doCastNarrowing = (castNarrowing && isIntConstant(exprent) && isNarrowedIntType(leftType));
     boolean doCastGenerics = doGenericTypesCast(exprent, leftType, rightType);
@@ -1099,7 +1122,7 @@ public class ExprProcessor implements CodeConstants {
       if (rightType.isGeneric()) {
         GenericType genRight = (GenericType) rightType;
 
-        if (leftType.isSuperset(rightType)) {
+        if (leftType.higherEqualInLatticeThan(rightType)) {
           // Casting Clazz<?> to Clazz<T> or Clazz<Concrete>
           if ((genLeft.getWildcard() == GenericType.WILDCARD_NO || genLeft.getWildcard() == GenericType.WILDCARD_EXTENDS) &&
             genRight.getWildcard() == GenericType.WILDCARD_SUPER) {
@@ -1188,7 +1211,7 @@ public class ExprProcessor implements CodeConstants {
   }
 
   private static boolean isNarrowedIntType(VarType type) {
-    return VarType.VARTYPE_INT.isStrictSuperset(type) ||
+    return VarType.VARTYPE_INT.higherInLatticeThan(type) ||
            type.equals(VarType.VARTYPE_BYTE_OBJ) || type.equals(VarType.VARTYPE_SHORT_OBJ);
   }
 

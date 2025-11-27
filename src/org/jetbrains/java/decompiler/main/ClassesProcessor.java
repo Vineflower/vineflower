@@ -1,11 +1,11 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.main;
 
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.api.plugin.StatementWriter;
 import org.jetbrains.java.decompiler.api.plugin.LanguageSpec;
 import org.jetbrains.java.decompiler.code.CodeConstants;
-import org.jetbrains.java.decompiler.code.Instruction;
-import org.jetbrains.java.decompiler.code.InstructionSequence;
+import org.jetbrains.java.decompiler.code.FullInstructionSequence;
 import org.jetbrains.java.decompiler.main.collectors.BytecodeSourceMapper;
 import org.jetbrains.java.decompiler.main.collectors.ImportCollector;
 import org.jetbrains.java.decompiler.main.decompiler.CancelationManager;
@@ -379,11 +379,9 @@ public class ClassesProcessor implements CodeConstants {
       try {
         mt.expandData(enclosingCl);
 
-        InstructionSequence seq = mt.getInstructionSequence();
+        FullInstructionSequence seq = mt.getInstructionSequence();
         if (seq != null) {
-          int len = seq.length();
-          for (int i = 0; i < len; i++) {
-            Instruction instr = seq.getInstr(i);
+          for (var instr : seq) {
             switch (instr.opcode) {
               case opc_checkcast:
               case opc_instanceof:
@@ -607,14 +605,14 @@ public class ClassesProcessor implements CodeConstants {
     public int access;
     public String simpleName;
     public final StructClass classStruct;
-    private ClassWrapper wrapper;
+    private @Nullable ClassWrapper wrapper;
     public String enclosingMethod;
     public InvocationExprent superInvocation;
     public final Map<String, VarVersionPair> mapFieldsToVars = new HashMap<>();
     public VarType anonymousClassType;
     public final List<ClassNode> nested = new ArrayList<>();
     public final Set<String> enclosingClasses = new HashSet<>();
-    public ClassNode parent;
+    public @Nullable ClassNode parent;
     public LambdaInformation lambdaInformation;
 
     public ClassNode(String content_class_name,
@@ -667,6 +665,10 @@ public class ClassesProcessor implements CodeConstants {
           this.enclosingMethod = InterpreterUtil.makeUniqueKey(name, desc);
         }
       }
+    }
+
+    public boolean hasModifier(int modifier) {
+      return (access & modifier) == modifier;
     }
 
     public ClassNode getClassNode(String qualifiedName) {

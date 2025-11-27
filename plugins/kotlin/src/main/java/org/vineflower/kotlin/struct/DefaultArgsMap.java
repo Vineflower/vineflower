@@ -1,5 +1,6 @@
 package org.vineflower.kotlin.struct;
 
+import org.vineflower.kt.metadata.deserialization.Flags;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
@@ -33,17 +34,17 @@ public class DefaultArgsMap {
     }
 
     /*
-     * Kotlin's method to define default arguments is a bit odd. The default values are stored in a separate method
-     * which is called in place of the actual method when defaults are needed. The method containing the defaults
+     * Kotlin's methodSupplier to define default arguments is a bit odd. The default values are stored in a separate methodSupplier
+     * which is called in place of the actual methodSupplier when defaults are needed. The methodSupplier containing the defaults
      * contains two extra arguments, a bitmask and a value that is always null. The bitmask specifies which arguments
-     * should be replaced with defaults, and it corresponds one-to-one with all the parameters of the actual method,
+     * should be replaced with defaults, and it corresponds one-to-one with all the parameters of the actual methodSupplier,
      * including non-defaulted ones. Constructors follow the same pattern, but the null extra parameter has a type of
      * `DefaultConstructorMarker` instead of `Object`, and the default wrappers are true constructors.
      *
      * In the case of 32 or more parameters, additional bitmask fields are created as needed.
      *
-     * For a method defined as `fun foo(arg1: Int = 42, arg2: String, arg3: Any? = null)`,
-     * the method containing its default values would look like this:
+     * For a methodSupplier defined as `fun foo(arg1: Int = 42, arg2: String, arg3: Any? = null)`,
+     * the methodSupplier containing its default values would look like this:
      *
      * String foo$default(int arg1, String arg2, Object arg3, int bitmask, Object alwaysNull) {
      *   if ((bitmask & 0b001) != 0) {
@@ -57,7 +58,7 @@ public class DefaultArgsMap {
      *   return foo(arg1, arg2, arg3);
      * }
      *
-     * To parse this, the method graph is traversed, and for each if statement, the condition of the statement is
+     * To parse this, the methodSupplier graph is traversed, and for each if statement, the condition of the statement is
      * checked to see if it matches the pattern Kotlin uses, and the if-true branch is checked to see if it is a
      * simple assignment. If both are true, it assumes that the assignment is a default value check and extracts
      * the assigned value.
@@ -120,7 +121,7 @@ public class DefaultArgsMap {
 
     if (KUtils.assertionsEnabled()) {
       for (KParameter param : params) {
-        assert map.containsKey(param) == param.flags().declaresDefault : "Parameter " + param.name() + " has default value but no default value was found";
+        assert map.containsKey(param) == Flags.DECLARES_DEFAULT_VALUE.get(param.flags()) : "Parameter " + param.name() + " has default value but no default value was found";
       }
     }
 

@@ -194,4 +194,17 @@ public class TestTryReturn {
       System.out.println(var3);
     }
   }
+
+  public void returnInCatch() {
+    try {
+      System.out.println("Hi!");
+    } catch (Exception e) {
+      System.out.println("hello");
+      return;
+    } finally {
+      System.out.println("finally");
+    }
+
+    System.out.println("post");
+  }
 }

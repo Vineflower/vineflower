@@ -244,7 +244,7 @@ public class KFunctionExprent extends FunctionExprent implements KExprent {
       case IF_NULL -> {
         Exprent param1 = getLstOperands().get(0);
         Exprent param2 = getLstOperands().get(1);
-        VarType supertype = VarType.getCommonSupertype(param1.getExprType(), param2.getExprType());
+        VarType supertype = VarType.join(param1.getExprType(), param2.getExprType());
 
         // TODO: Needs a better default!
         yield Objects.requireNonNullElse(supertype, VarType.VARTYPE_OBJECT);
@@ -272,25 +272,28 @@ public class KFunctionExprent extends FunctionExprent implements KExprent {
     switch (kType) {
       case IF_NULL -> {
         VarType supertype = getExprType();
-        result.addMinTypeExprent(param1, VarType.getMinTypeInFamily(supertype.typeFamily));
-        result.addMinTypeExprent(param2, VarType.getMinTypeInFamily(supertype.typeFamily));
+        result.addExprLowerBound(param1, VarType.findFamilyBottom(supertype.typeFamily));
+        result.addExprLowerBound(param2, VarType.findFamilyBottom(supertype.typeFamily));
+        break;
       }
       case EQUALS3 -> {
         if (type1.type == CodeType.BOOLEAN) {
-          if (type2.isStrictSuperset(type1)) {
-            result.addMinTypeExprent(param1, VarType.VARTYPE_BYTECHAR);
-          } else { // both are booleans
-            boolean param1_false_boolean = (param1 instanceof ConstExprent && !((ConstExprent) param1).hasBooleanValue());
-            boolean param2_false_boolean = (param2 instanceof ConstExprent && !((ConstExprent) param2).hasBooleanValue());
+          if (type2.higherInLatticeThan(type1)) {
+            result.addExprLowerBound(param1, VarType.VARTYPE_BYTECHAR);
+          }
+          else { // both are booleans
+            boolean param1_false_boolean = (param1 instanceof ConstExprent && !((ConstExprent)param1).hasBooleanValue());
+            boolean param2_false_boolean = (param2 instanceof ConstExprent && !((ConstExprent)param2).hasBooleanValue());
 
             if (param1_false_boolean || param2_false_boolean) {
-              result.addMinTypeExprent(param1, VarType.VARTYPE_BYTECHAR);
-              result.addMinTypeExprent(param2, VarType.VARTYPE_BYTECHAR);
+              result.addExprLowerBound(param1, VarType.VARTYPE_BYTECHAR);
+              result.addExprLowerBound(param2, VarType.VARTYPE_BYTECHAR);
             }
           }
-        } else if (type2.type == CodeType.BOOLEAN) {
-          if (type1.isStrictSuperset(type2)) {
-            result.addMinTypeExprent(param2, VarType.VARTYPE_BYTECHAR);
+        }
+        else if (type2.type == CodeType.BOOLEAN) {
+          if (type1.higherInLatticeThan(type2)) {
+            result.addExprLowerBound(param2, VarType.VARTYPE_BYTECHAR);
           }
         }
       }

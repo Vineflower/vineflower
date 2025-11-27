@@ -95,7 +95,6 @@ class 'pkg/TestSwitchAssign' {
 
    method 'test1 (Ljava/lang/String;)V' {
       0      22
-      5      22
       2d      23
       2e      23
       3c      27

@@ -128,6 +128,7 @@ public final class SwitchHelper {
         }
       }
 
+      boolean nullable = false;
       List<List<Exprent>> realCaseValues = new ArrayList<>(caseValues.size());
       for (List<Exprent> caseValue : caseValues) {
         List<Exprent> values = new ArrayList<>(caseValue.size());
@@ -147,6 +148,7 @@ public final class SwitchHelper {
                   // check for -1, used by nullable switches for the null branch
                   if (intLabel == -1) {
                     values.add(new ConstExprent(VarType.VARTYPE_NULL, null, null));
+                    nullable = true;
                     continue;
                   }
                   // other values can show up in a `tableswitch`, such as in [-1, fall-through synthetic 0, 1, 2, ...]
@@ -192,6 +194,19 @@ public final class SwitchHelper {
             ref.a.getExprents().remove(ref.b);
           }
         }
+      }
+
+      // Java 17 preview uses a switch map and creates a synthetic variable if there is a null case
+      BasicBlockStatement head = switchStatement.getBasichead();
+      if (nullable
+          && head.getExprents().size() > 0
+          && head.getExprents().get(head.getExprents().size() - 1) instanceof AssignmentExprent assignment
+          && assignment.getLeft() instanceof VarExprent tempVar
+          && switchHeadExprent.getValue() instanceof VarExprent usedVar
+          && tempVar.equalsVersions(usedVar)
+          && !tempVar.isVarReferenced(root, usedVar)) {
+        head.getExprents().remove(head.getExprents().size() - 1);
+        switchHeadExprent.setValue(assignment.getRight());
       }
 
       return true;
@@ -242,12 +257,35 @@ public final class SwitchHelper {
         caseMap.put(((ConstExprent)assign.getRight()).getIntValue(), new ConstExprent(VarType.VARTYPE_NULL, null, null));
       }
 
-      List<List<Exprent>> realCaseValues = following.getCaseValues().stream()
+      // If the 'following' switch is a tableswitch, it can have a synthetic value in the default branch to fill out the table,
+      // even if this value is unreachable from the preceding switch. Remove those values, as well as the edge that it corresponds to.
+      // See TestSwitchDefaultBefore for an example.
+
+      List<List<Pair<Exprent, Boolean>>> mappedCaseValues = following.getCaseValues().stream()
         .map(l -> l.stream()
           .map(e -> e instanceof ConstExprent ? ((ConstExprent)e).getIntValue() : null)
-          .map(caseMap::get)
+          .map(v -> {
+            return Pair.of(caseMap.get(v), v != null && caseMap.get(v) == null);
+          })
           .collect(Collectors.toList()))
         .collect(Collectors.toList());
+
+      // Use the case value data to remove the corresponding edges if necessary.
+      List<List<Exprent>> realCaseValues = new ArrayList<>();
+
+      for (int v = 0; v < mappedCaseValues.size(); v++) {
+        ArrayList<Exprent> exprs = new ArrayList<>();
+        realCaseValues.add(exprs);
+        for (int w = 0; w < mappedCaseValues.get(v).size(); w++) {
+          Pair<Exprent, Boolean> res = mappedCaseValues.get(v).get(w);
+          if (res.b) {
+            following.getCaseEdges().get(v).remove(w);
+            continue;
+          }
+
+          exprs.add(res.a);
+        }
+      }
 
       following.getCaseValues().clear();
       following.getCaseValues().addAll(realCaseValues);
@@ -279,6 +317,22 @@ public final class SwitchHelper {
       following.getAllPredecessorEdges().stream()
         .filter(e -> switchStatement.containsStatement(e.getSource()) && e.getSource() != switchStatement.getFirst())
         .forEach(e -> e.getSource().removeSuccessor(e));
+
+      // Check for the synthetic variable 
+      // If the switch is nullable it is the 2nd to last exprent in the basic head of the null check
+      // If the switch is not nullable it is the last exprent in the basic head of the null check due to a different synthetic variable getting removed above
+      BasicBlockStatement head = nullable ? containingNullCheck.getBasichead() : switchStatement.getBasichead();
+      if (head.getExprents().size() >= (nullable ? 2 : 1)
+          && head.getExprents().get(head.getExprents().size() - (nullable ? 2 : 1)) instanceof AssignmentExprent assignment
+          && assignment.getLeft() instanceof VarExprent tmpVar
+          && following.getHeadexprent() instanceof SwitchHeadExprent switchHead
+          && tmpVar.equalsVersions(switchHead.getValue())
+          && !tmpVar.isVarReferenced(following.getParent(), (VarExprent) switchHead.getValue())) {
+        switchHead.replaceExprent(switchHead.getValue(), assignment.getRight());
+        if (!nullable) {
+          head.getExprents().remove(head.getExprents().size() - 1);
+        }
+      }
 
       return true;
     }

@@ -55,4 +55,22 @@ public class TestDoWhileMerge {
       }
     }
   }
+
+  public void test3() {
+    while (1F < Math.random()) {
+      System.out.println();
+      do {
+        System.out.println();
+      } while (1F < Math.random());
+    }
+  }
+
+  public void test4() {
+    while (1F > Math.random()) {
+      do {
+        System.out.println();
+        System.out.println();
+      } while (1F < Math.random());
+    }
+  }
 }

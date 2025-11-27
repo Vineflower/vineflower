@@ -186,4 +186,68 @@ public class TestLoopFinally {
       }
     }
   }
+
+  public void test6(Object o) {
+    while (true) {
+      try {
+        System.out.println("try");
+      } finally {
+        if (o != null) {
+          try {
+            System.out.println("finally");
+            break;
+          } catch (Exception ex) {}
+        }
+      }
+    }
+  }
+
+  public void test7(Object o) {
+    while (true) {
+      try {
+        System.out.println("try");
+      } finally {
+        if (o != null) {
+          try {
+            System.out.println("finally");
+            break;
+          } catch (Exception ex) {}
+        }
+      }
+    }
+
+    System.out.println("outer");
+  }
+
+  public void test8(Object o) {
+    while (true) {
+      try {
+        System.out.println("try");
+      } finally {
+        if (o != null) {
+          try {
+            System.out.println("finally");
+            continue;
+          } catch (Exception ex) {}
+        }
+      }
+    }
+  }
+
+  public void test9(Object o) {
+    while (true) {
+      try {
+        System.out.println("try");
+      } finally {
+        if (o != null) {
+          try {
+            System.out.println("finally");
+            break;
+          } catch (Exception ex) {}
+
+          System.out.println("outer finally");
+        }
+      }
+    }
+  }
 }

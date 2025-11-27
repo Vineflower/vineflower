@@ -1,7 +1,7 @@
 package pkg;
 
 public class TestInnerClasses3J21 {
-   private int i = 0;
+   private int i = 0;// 4
 
    private class Inner {
       private int j;
@@ -17,6 +17,12 @@ public class TestInnerClasses3J21 {
       private void setI() {
          TestInnerClasses3J21.this.i = this.j;// 17
       }// 18
+   }
+}
+
+class 'pkg/TestInnerClasses3J21' {
+   method '<init> ()V' {
+      5      3
    }
 }
 
@@ -54,6 +60,7 @@ class 'pkg/TestInnerClasses3J21$Inner' {
 }
 
 Lines mapping:
+4 <-> 4
 9 <-> 10
 10 <-> 11
 13 <-> 14
@@ -61,4 +68,5 @@ Lines mapping:
 17 <-> 18
 18 <-> 19
 Not mapped:
+3
 12

@@ -16,6 +16,14 @@ public class TestJava9StringConcat {
    public String testEmptyInfix(int value, int value2) {
       return "" + value + value2;// 32
    }
+
+   public String test3() {
+      return this.get() + "";// 36
+   }
+
+   public String get() {
+      return "";// 40
+   }
 }
 
 class 'pkg/TestJava9StringConcat' {
@@ -62,6 +70,25 @@ class 'pkg/TestJava9StringConcat' {
       6      16
       7      16
    }
+
+   method 'test3 ()Ljava/lang/String;' {
+      0      20
+      1      20
+      2      20
+      3      20
+      4      20
+      5      20
+      6      20
+      7      20
+      8      20
+      9      20
+   }
+
+   method 'get ()Ljava/lang/String;' {
+      0      24
+      1      24
+      2      24
+   }
 }
 
 Lines mapping:
@@ -69,3 +96,5 @@ Lines mapping:
 24 <-> 9
 28 <-> 13
 32 <-> 17
+36 <-> 21
+40 <-> 25

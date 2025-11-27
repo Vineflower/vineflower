@@ -4,12 +4,12 @@ public class TestKotlinTypes {
    public final val consumer: (Int) -> Unit = TestKotlinTypes::consumer$lambda$0
 
    public fun throwAlways(): Nothing {
-      throw new Exception();// 5
+      throw new Exception()// 5
    }
 
    @JvmStatic
    fun `consumer$lambda$0`(it: Int): Unit {
-      return Unit.INSTANCE;// 8
+      return Unit.INSTANCE// 8
    }
 }
 

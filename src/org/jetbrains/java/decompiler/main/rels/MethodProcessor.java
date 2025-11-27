@@ -5,9 +5,8 @@ import org.jetbrains.java.decompiler.api.java.JavaPassLocation;
 import org.jetbrains.java.decompiler.api.plugin.LanguageSpec;
 import org.jetbrains.java.decompiler.api.plugin.pass.PassContext;
 import org.jetbrains.java.decompiler.code.CodeConstants;
-import org.jetbrains.java.decompiler.code.InstructionSequence;
+import org.jetbrains.java.decompiler.code.FullInstructionSequence;
 import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
-import org.jetbrains.java.decompiler.code.cfg.ExceptionRangeCFG;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.main.decompiler.CancelationManager;
@@ -17,7 +16,7 @@ import org.jetbrains.java.decompiler.main.plugins.PluginContext;
 import org.jetbrains.java.decompiler.modules.code.DeadCodeHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.*;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.DomHelper;
-import org.jetbrains.java.decompiler.modules.decompiler.deobfuscator.ExceptionDeobfuscator;
+import org.jetbrains.java.decompiler.modules.code.ExceptionDeobfuscator;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
@@ -96,7 +95,7 @@ public class MethodProcessor implements Runnable {
     PluginContext pluginContext = PluginContext.getCurrentContext();
 
     mt.expandData(cl);
-    InstructionSequence seq = mt.getInstructionSequence();
+    FullInstructionSequence seq = mt.getInstructionSequence();
     ControlFlowGraph graph = new ControlFlowGraph(seq);
     debugCurrentCFG.set(graph);
     DotExporter.toDotFile(graph, mt, "cfgConstructed", true);
@@ -319,7 +318,7 @@ public class MethodProcessor implements Runnable {
       if (DecompilerContext.getOption(IFernflowerPreferences.PATTERN_MATCHING)) {
         if (cl.getVersion().hasIfPatternMatching()) {
           if (IfPatternMatchProcessor.matchInstanceof(root)) {
-            decompileRecord.add("MatchIfInstanceof", root);
+            decompileRecord.add("MatchIfPatterns", root);
             continue;
           }
         }

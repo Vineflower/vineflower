@@ -6,7 +6,7 @@ public enum TestConstructorSwitchExpression3 {
    T1,
    T2;
 
-   private TestConstructorSwitchExpression3(int i) {
+   TestConstructorSwitchExpression3(int i) {
       System.out.println(i);// 18
    }// 19
 

@@ -24,11 +24,17 @@ public interface KotlinOptions {
   @Description("Convert string concatenations to Kotlin string templates.")
   @Type(DecompilerOption.Type.BOOLEAN)
   String COLLAPSE_STRING_CONCATENATION = "kt-collapse-string-concat";
+  
+  @Name("Always export metadata")
+  @Description("If Kotlin decompilation is disabled, metadata will not be parsed. If enabled, this will always parse Kotlin metadata for use by other plugins.")
+  @Type(DecompilerOption.Type.BOOLEAN)
+  String ALWAYS_EXPORT_METADATA = "kt-export-metadata";
 
   static void addDefaults(PluginOptions.AddDefaults cons) {
     cons.addDefault(SHOW_PUBLIC_VISIBILITY, "1");
     cons.addDefault(DECOMPILE_KOTLIN, "1");
     cons.addDefault(UNKNOWN_DEFAULT_ARG_STRING, "...");
     cons.addDefault(COLLAPSE_STRING_CONCATENATION, "1");
+    cons.addDefault(ALWAYS_EXPORT_METADATA, "0");
   }
 }

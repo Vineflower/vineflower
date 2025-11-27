@@ -1,0 +1,62 @@
+package pkg;
+
+public class TestMultiException {
+   public void test(int v) {
+      try {
+         Thread.sleep(50 / v);// 6
+      } catch (InterruptedException | ArithmeticException e) {// 7
+         throw new RuntimeException(e);// 8
+      }
+   }// 10
+
+   public void test2() {
+      try {
+         Thread.sleep(10L);// 14
+      } catch (InterruptedException | VirtualMachineError e) {// 15
+         throw new RuntimeException(e);// 16
+      }
+   }// 18
+}
+
+class 'pkg/TestMultiException' {
+   method 'test (I)V' {
+      0      5
+      1      5
+      2      5
+      3      5
+      4      5
+      5      5
+      6      5
+      7      5
+      b      6
+      10      7
+      14      7
+      15      9
+   }
+
+   method 'test2 ()V' {
+      0      13
+      1      13
+      2      13
+      3      13
+      4      13
+      5      13
+      9      14
+      e      15
+      12      15
+      13      17
+   }
+}
+
+Lines mapping:
+6 <-> 6
+7 <-> 7
+8 <-> 8
+10 <-> 10
+14 <-> 14
+15 <-> 15
+16 <-> 16
+18 <-> 18
+Not mapped:
+9
+17

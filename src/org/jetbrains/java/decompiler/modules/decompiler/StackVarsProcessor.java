@@ -14,6 +14,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNodeType;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.*;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.CatchStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.DoStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
@@ -22,9 +23,11 @@ import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionsGraph;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructMethod;
+import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute.LocalVariable;
 import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
+import org.jetbrains.java.decompiler.util.DotExporter;
 import org.jetbrains.java.decompiler.util.collections.FastSparseSetFactory.FastSparseSet;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.collections.SFormsFastMapDirect;
@@ -93,12 +96,12 @@ public class StackVarsProcessor {
 
   public static void setVersionsToNull(Statement stat) {
     if (stat.getExprents() == null) {
-      for (Object obj : stat.getSequentialObjects()) {
-        if (obj instanceof Statement) {
-          setVersionsToNull((Statement)obj);
-        } else if (obj instanceof Exprent) {
-          setExprentVersionsToNull((Exprent)obj);
-        }
+      for (Statement st : stat.getStats()) {
+        setVersionsToNull(st);
+      }
+
+      for (Exprent exprent : stat.getStatExprents()) {
+        setExprentVersionsToNull(exprent);
       }
     } else {
       for (Exprent exprent : stat.getExprents()) {
@@ -108,12 +111,11 @@ public class StackVarsProcessor {
   }
 
   private static void setExprentVersionsToNull(Exprent exprent) {
-    List<Exprent> lst = exprent.getAllExprents(true);
-    lst.add(exprent);
+    List<Exprent> lst = exprent.getAllExprents(true, true);
 
     for (Exprent expr : lst) {
-      if (expr instanceof VarExprent) {
-        ((VarExprent)expr).setVersion(0);
+      if (expr instanceof VarExprent var) {
+        var.setVersion(0);
       }
     }
   }
@@ -130,6 +132,8 @@ public class StackVarsProcessor {
 
     stack.add(dgraph.first);
     stackMaps.add(new HashMap<>());
+
+    Map<VarVersionPair, LocalVariable> lvts = new HashMap<>();
 
     int[] ret = {0, 0};
     while (!stack.isEmpty()) {
@@ -186,7 +190,7 @@ public class StackVarsProcessor {
             boolean simplifyAcrossStack = stackStage == 1;
 
             // {newIndex, changed}
-            iterateExprent(lst, index, next, mapVarValues, ssa, simplifyAcrossStack, ret, options);
+            iterateExprent(lst, nd.statement, lvts, index, next, mapVarValues, ssa, simplifyAcrossStack, ret, options);
 
             // If index is specified, set to that
             if (ret[0] >= 0) {
@@ -232,6 +236,17 @@ public class StackVarsProcessor {
         }
       }
     }
+
+    dgraph.iterateExprentsDeep(ex -> {
+      if (ex instanceof VarExprent var && lvts.containsKey(var.getVarVersionPair())) {
+        LocalVariable lvt = lvts.get(var.getVarVersionPair());
+        if (var.getLVT() == null) {
+          var.setLVT(lvt);
+        }
+      }
+
+      return 0;
+    });
 
     return res;
   }
@@ -288,6 +303,8 @@ public class StackVarsProcessor {
 
   // {nextIndex, (changed ? 1 : 0)}
   private static void iterateExprent(List<Exprent> lstExprents,
+                                      Statement stat,
+                                      Map<VarVersionPair, LocalVariable> lvts,
                                       int index,
                                       Exprent next,
                                       Map<VarVersionPair, Exprent> mapVarValues,
@@ -370,6 +387,8 @@ public class StackVarsProcessor {
         setRet(ret, index + 1, 1);
         return;
       } else if (right instanceof VarExprent) {
+        onDeletedVar(stat, left, right, lvts, ssau);
+
         lstExprents.remove(index);
         setRet(ret, index, 1);
         return;
@@ -409,7 +428,7 @@ public class StackVarsProcessor {
 
     // stack variables only
     if ((!left.isStack() && !options.inlineRegularVars) &&
-        (!(right instanceof VarExprent) || ((VarExprent)right).isStack())) { // special case catch(... ex)
+        (!(right instanceof VarExprent variable) || !variable.isCatchTempVar())) { // special case catch(... ex)
       setRet(ret, -1, changed);
       return;
     }
@@ -488,6 +507,7 @@ public class StackVarsProcessor {
     }
 
     if (!notdom && !vernotreplaced) {
+      onDeletedVar(stat, left, right, lvts, ssau);
       // remove assignment
       lstExprents.remove(index);
       setRet(ret, index, 1);
@@ -499,6 +519,87 @@ public class StackVarsProcessor {
       setRet(ret, -1, changed);
       return;
     }
+  }
+
+  // When variables are deleted, apply some post processing
+  private static void onDeletedVar(Statement stat,  VarExprent left, Exprent right, Map<VarVersionPair, LocalVariable> lvts, SSAUConstructorSparseEx ssau) {
+    if (right instanceof VarExprent rightVar) {
+      if (rightVar.getLVT() == null && left.getLVT() != null) {
+
+        // Iterate through the variables up the assignment chain, and move the LVT. This is needed so that stack processing
+        // doesn't accidentally delete variables with lvts and replace them with synthetic versions.
+        // Going through the VarVersionsGraph is needed because at this stage unrelated variables can have the same var index.
+
+        VarVersionsGraph versions = ssau.getSsuVersions();
+        VarVersionNode node = versions.nodes.getWithKey(left.getVarVersionPair());
+
+        Deque<VarVersionNode> nodes = new ArrayDeque<>();
+        Set<VarVersionNode> seen = new HashSet<>();
+        nodes.add(node);
+
+        while (!nodes.isEmpty()) {
+          VarVersionNode nd = nodes.poll();
+          seen.add(nd);
+
+          if (nd.var == rightVar.getIndex()) {
+            lvts.put(nd.asPair(), left.getLVT());
+          }
+
+          for (VarVersionNode pred : predecessors(nd, versions, ssau.getVarAssignmentMap())) {
+            if (pred == null) {
+              // Shouldn't be possible??
+              ValidationHelper.validateTrue(false, "Predecessor is null!");
+              continue;
+            }
+
+            if (!seen.contains(pred)) {
+              nodes.add(pred);
+            }
+          }
+        }
+
+        // In the pattern:
+        // catch (Exception var2) {
+        //   ex = var2; // ex -> var1
+        //   ...
+        //  }
+        // Try to propagate the lvt from the assignment being deleted to the catch. This is required because catch vars use
+        // synthetic variables, and won't get their lvt normally otherwise.
+
+        CatchStatement catchSt = enclosingCatch(stat);
+        if (catchSt != null) {
+          for (VarExprent var : catchSt.getVars()) {
+            if (var.getIndex() == rightVar.getIndex()) {
+              var.setLVT(left.getLVT());
+            }
+          }
+        }
+      }
+    }
+  }
+
+  private static Set<VarVersionNode> predecessors(VarVersionNode node, VarVersionsGraph graph, Map<VarVersionPair, VarVersionPair> assignments) {
+    Set<VarVersionNode> res = new HashSet<>();
+    res.addAll(node.predecessors);
+
+    VarVersionPair assign = assignments.get(node.asPair());
+    if (assign != null) {
+      res.add(graph.nodes.getWithKey(assign));
+    }
+
+    return res;
+  }
+
+  private static CatchStatement enclosingCatch(Statement stat) {
+    while (stat.getParent() != null) {
+      if (stat.getParent() instanceof CatchStatement st) {
+        return st;
+      }
+
+      stat = stat.getParent();
+    }
+
+    return null;
   }
 
   private static Exprent simplifyAcrossStackExprent(List<Exprent> exprents, int index, Exprent next, Exprent right, VarExprent left) {

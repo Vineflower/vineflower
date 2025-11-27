@@ -11,9 +11,9 @@ public class TestContracts {
       }
 
       if (x == null) {// 13
-         throw new IllegalStateException("x is null".toString());
+         throw new IllegalStateException("x is null".toString())
       } else {
-         return x;// 14
+         return x// 14
       }
    }
 
@@ -24,7 +24,7 @@ public class TestContracts {
          returns(false) implies ((a && !b || (!a && b)
       }
 
-      return if (a && b) null else a || b;// 24
+      return if (a && b) null else a || b// 24
    }
 
    public fun testTypeContract(x: Any?): Int {
@@ -33,9 +33,9 @@ public class TestContracts {
       }
 
       if (x !is Int) {// 31
-         throw new IllegalStateException("x is not Int".toString());
+         throw new IllegalStateException("x is not Int".toString())
       } else {
-         return (x as java.lang.Number).intValue();// 32
+         return (x as java.lang.Number).intValue()// 32
       }
    }
 
@@ -44,7 +44,7 @@ public class TestContracts {
          callsInPlace(f, InvocationKind.EXACTLY_ONCE)
       }
 
-      return (f.invoke() as java.lang.Number).intValue();// 39
+      return (f.invoke() as java.lang.Number).intValue()// 39
    }
 
    public fun testFunctionalContract2(f: () -> Int, b: Boolean): Int {
@@ -52,7 +52,7 @@ public class TestContracts {
          callsInPlace(f, InvocationKind.AT_MOST_ONCE)
       }
 
-      return if (b) (f.invoke() as java.lang.Number).intValue() else 0;// 46
+      return if (b) (f.invoke() as java.lang.Number).intValue() else 0// 46
    }
 
    public fun testFunctionalContract3(f: () -> Int, i: Int): Int {
@@ -60,16 +60,16 @@ public class TestContracts {
          callsInPlace(f)
       }
 
-      val var3: java.lang.Iterable = (new IntRange(0, i)) as java.lang.Iterable;
-      var var4: Int = 0;
-      val var5: java.util.Iterator = var3.iterator();
+      val var3: java.lang.Iterable = (new IntRange(0, i)) as java.lang.Iterable
+      var var4: Int = 0
+      val var5: java.util.Iterator = var3.iterator()
 
       while (var5.hasNext()) {
-         val var6: Int = (var5 as IntIterator).nextInt();
-         var4 += (f.invoke() as java.lang.Number).intValue();
+         val var6: Int = (var5 as IntIterator).nextInt()
+         var4 += (f.invoke() as java.lang.Number).intValue()
       }
 
-      return var4;// 53
+      return var4// 53
    }
 }
 

@@ -1,5 +1,5 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
-package org.jetbrains.java.decompiler.modules.decompiler.deobfuscator;
+package org.jetbrains.java.decompiler.modules.code;
 
 import org.jetbrains.java.decompiler.code.*;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
@@ -8,7 +8,6 @@ import org.jetbrains.java.decompiler.code.cfg.ExceptionRangeCFG;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
-import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.GenericDominatorEngine;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.IGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.IGraphNode;
@@ -94,8 +93,8 @@ public final class ExceptionDeobfuscator {
                     // split the handler
                     if (seq.length() > 1) {
                       newblock = new BasicBlock(++graph.last_id);
-                      InstructionSequence newseq = new SimpleInstructionSequence();
-                      newseq.addInstruction(firstinstr.clone(), -1);
+                      InstructionSequence newseq = new InstructionSequence();
+                      newseq.addInstruction(firstinstr.clone());
 
                       newblock.setSeq(newseq);
                       graph.getBlocks().addWithKey(newblock, newblock.id);
@@ -439,6 +438,8 @@ public final class ExceptionDeobfuscator {
 
           for (BasicBlock succ : handler.getSuccExceptions()) {
             newBlock.addSuccessorException(succ);
+            var excRange = graph.getExceptionRange(succ, handler);
+            excRange.getProtectedRange().add(newBlock);
           }
         }
 
@@ -450,9 +451,9 @@ public final class ExceptionDeobfuscator {
         for (ExceptionRangeCFG range : ranges) {
 
           // add some dummy instructions to prevent optimizing away the empty block
-          SimpleInstructionSequence seq = new SimpleInstructionSequence();
-          seq.addInstruction(Instruction.create(CodeConstants.opc_bipush, false, CodeConstants.GROUP_GENERAL, bytecode_version, new int[]{0}, 1), -1);
-          seq.addInstruction(Instruction.create(CodeConstants.opc_pop, false, CodeConstants.GROUP_GENERAL, bytecode_version, null, 1), -1);
+          InstructionSequence seq = new InstructionSequence();
+          seq.addInstruction(Instruction.create(CodeConstants.opc_bipush, false, CodeConstants.GROUP_GENERAL, bytecode_version, new int[]{0}, -1, 1));
+          seq.addInstruction(Instruction.create(CodeConstants.opc_pop, false, CodeConstants.GROUP_GENERAL, bytecode_version, null, -1, 1));
 
           BasicBlock dummyBlock = new BasicBlock(++graph.last_id);
           dummyBlock.setSeq(seq);

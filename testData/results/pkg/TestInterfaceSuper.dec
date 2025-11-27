@@ -4,7 +4,7 @@ public interface TestInterfaceSuper {
    default void defaultMethod() {
    }// 4
 
-   public static class Impl implements TestInterfaceSuper {
+   class Impl implements TestInterfaceSuper {
       @Override
       public void defaultMethod() {
          TestInterfaceSuper.super.defaultMethod();// 8

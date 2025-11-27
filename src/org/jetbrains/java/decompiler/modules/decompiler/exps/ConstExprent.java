@@ -651,7 +651,9 @@ public class ConstExprent extends Exprent {
 
   @Override
   public String toString() {
-    return "const(" + toJava(0).convertToStringAndAllowDataDiscard() + ")";
+    try (var v = DecompilerContext.getImportCollector().lock()) {
+      return "const(" + toJava(0).convertToStringAndAllowDataDiscard() + ")";
+    }
   }
 
   // *****************************************************************************

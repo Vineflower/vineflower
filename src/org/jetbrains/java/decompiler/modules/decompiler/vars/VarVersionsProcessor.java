@@ -138,8 +138,8 @@ public class VarVersionsProcessor {
   }
 
   private static void eliminateNonJavaTypes(VarTypeProcessor typeProcessor) {
-    Map<VarVersionPair, VarType> mapExprentMaxTypes = typeProcessor.getMapExprentMaxTypes();
-    Map<VarVersionPair, VarType> mapExprentMinTypes = typeProcessor.getMapExprentMinTypes();
+    Map<VarVersionPair, VarType> mapExprentMaxTypes = typeProcessor.getUpperBounds();
+    Map<VarVersionPair, VarType> mapExprentMinTypes = typeProcessor.getLowerBounds();
 
     for (VarVersionPair paar : new ArrayList<>(mapExprentMinTypes.keySet())) {
       VarType type = mapExprentMinTypes.get(paar);
@@ -163,8 +163,8 @@ public class VarVersionsProcessor {
   }
 
   private static void simpleMerge(VarTypeProcessor typeProcessor, DirectGraph graph, StructMethod mt) {
-    Map<VarVersionPair, VarType> mapExprentMaxTypes = typeProcessor.getMapExprentMaxTypes();
-    Map<VarVersionPair, VarType> mapExprentMinTypes = typeProcessor.getMapExprentMinTypes();
+    Map<VarVersionPair, VarType> mapExprentMaxTypes = typeProcessor.getUpperBounds();
+    Map<VarVersionPair, VarType> mapExprentMinTypes = typeProcessor.getLowerBounds();
 
     Map<Integer, Set<Integer>> mapVarVersions = new HashMap<>();
 
@@ -204,7 +204,7 @@ public class VarVersionsProcessor {
               VarType secondMaxType = mapExprentMaxTypes.get(secondPair);
               VarType type = firstMaxType == null ? secondMaxType :
                              secondMaxType == null ? firstMaxType :
-                             VarType.getCommonMinType(firstMaxType, secondMaxType);
+                             VarType.meet(firstMaxType, secondMaxType);
 
               mapExprentMaxTypes.put(firstPair, type);
               mapMergedVersions.put(secondPair, firstPair.version);
@@ -233,8 +233,8 @@ public class VarVersionsProcessor {
   }
 
   private void setNewVarIndices(VarTypeProcessor typeProcessor, DirectGraph graph, VarVersionsProcessor previousVersionsProcessor) {
-    final Map<VarVersionPair, VarType> mapExprentMaxTypes = typeProcessor.getMapExprentMaxTypes();
-    Map<VarVersionPair, VarType> mapExprentMinTypes = typeProcessor.getMapExprentMinTypes();
+    final Map<VarVersionPair, VarType> mapExprentMaxTypes = typeProcessor.getUpperBounds();
+    Map<VarVersionPair, VarType> mapExprentMinTypes = typeProcessor.getLowerBounds();
     Map<VarVersionPair, FinalType> mapFinalVars = typeProcessor.getMapFinalVars();
 
     CounterContainer counters = DecompilerContext.getCounterContainer();
@@ -249,6 +249,7 @@ public class VarVersionsProcessor {
 
     for (VarVersionPair pair : vvps) {
 
+      // '>= 0' captures all real variables, as constants are set to version -1
       if (pair.version >= 0) {
         int newIndex = pair.version == 1 ? pair.var : counters.getCounterAndIncrement(CounterContainer.VAR_COUNTER);
 
@@ -282,7 +283,7 @@ public class VarVersionsProcessor {
         }
         else if (expr instanceof ConstExprent) {
           VarType maxType = mapExprentMaxTypes.get(new VarVersionPair(expr.id, -1));
-          if (maxType != null && maxType.equals(VarType.VARTYPE_CHAR)) {
+          if (maxType != null) {
             ((ConstExprent)expr).setConstType(maxType);
           }
         }

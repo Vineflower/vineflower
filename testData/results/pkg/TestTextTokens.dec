@@ -32,7 +32,7 @@ public class TestTextTokens {
       enumValue = TestEnum.SecondValue,
       annotationValue = @NestedAnnotation("Bee"),
       classValue = String.class,
-      booleanArray = {false},
+      booleanArray = false,
       enumArray = {TestEnum.FirstValue, TestEnum.SecondValue},
       classArray = {String.class, StringBuilder.class}
    )
@@ -245,7 +245,13 @@ Tokens:
 (34:20, 34:26) class [reference] java/lang/String
 (35:7, 35:19) method [reference] pkg/MoreAnnotations#booleanArray()[Z
 (36:7, 36:16) method [reference] pkg/MoreAnnotations#enumArray()[Lpkg/MoreAnnotations$TestEnum;
+(36:20, 36:28) class [reference] pkg/MoreAnnotations$TestEnum
+(36:29, 36:39) field [reference] pkg/MoreAnnotations$TestEnum#FirstValue:Lpkg/MoreAnnotations$TestEnum;
+(36:41, 36:49) class [reference] pkg/MoreAnnotations$TestEnum
+(36:50, 36:61) field [reference] pkg/MoreAnnotations$TestEnum#SecondValue:Lpkg/MoreAnnotations$TestEnum;
 (37:7, 37:17) method [reference] pkg/MoreAnnotations#classArray()[Ljava/lang/Class;
+(37:21, 37:27) class [reference] java/lang/String
+(37:35, 37:48) class [reference] java/lang/StringBuilder
 (39:18, 39:21) class [declaration] pkg/TestTextTokens$Bee
 (40:15, 40:21) class [reference] java/lang/String
 (40:22, 40:25) field [declaration] pkg/TestTextTokens$Bee#bee:Ljava/lang/String;

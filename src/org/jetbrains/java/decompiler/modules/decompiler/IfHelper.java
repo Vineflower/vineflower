@@ -4,14 +4,13 @@ package org.jetbrains.java.decompiler.modules.decompiler;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.IfNode.EdgeType;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.ExitExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.IfExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.SequenceStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
+import org.jetbrains.java.decompiler.util.DotExporter;
 
 import java.util.*;
 
@@ -476,7 +475,12 @@ public final class IfHelper {
           mainIf.getFirstSuccessor().remove();
         }
 
-        // move seconds successor to be the if's successor
+        // Check for closure, remove it
+        if (secondIf.getFirstSuccessor().closure == secondIf) {
+          secondIf.getFirstSuccessor().removeClosure();
+        }
+
+        // move second's successor to be the if's successor
         secondIf.getFirstSuccessor().changeSource(mainIf);
         if (mainIf.getFirstSuccessor().closure == mainIf) {
           // TODO: always removing causes some <unknownclosure> bugs, while not removing causes issues with invalid closure validations
@@ -851,5 +855,77 @@ public final class IfHelper {
     }
 
     return false;
+  }
+
+  // Try to make if/else statements that unconditionally return more pleasing to read.
+  // TODO: swap branches with negated float ops
+  public static boolean prettifyIfs(Statement stat) {
+    boolean changed = false;
+    for (Statement st : new ArrayList<>(stat.getStats())) {
+      // Don't bother inside switches
+      if (st instanceof SwitchStatement) {
+        continue;
+      }
+
+      prettifyIfs(st);
+
+      if (st instanceof IfStatement ifSt) {
+        changed |= prettifyIf(ifSt);
+      }
+    }
+
+    return changed;
+  }
+
+  private static boolean prettifyIf(IfStatement ifSt) {
+    if (ifSt.iftype == IfStatement.IFTYPE_IFELSE && !ifSt.isPatternMatched()) {
+      Statement ifStat = ifSt.getIfstat();
+      Statement elseStat = ifSt.getElsestat();
+      if (ifStat != null && isExit(ifStat)) {
+        // TODO: if the same var exprents are found in the if and an if-inside-the-else, try to keep as else if
+
+        // If the inside of the if is only one return/throw, be more aggressive in reordering
+        boolean force = ifStat.getExprents().size() == 1 && elseStat.getExprents() != null && elseStat.getExprents().size() > 1;
+        if (!force) {
+          if (isExit(elseStat)) {
+            return false;
+          }
+
+          if (elseStat instanceof IfStatement elseIf && elseIf.getIfstat() != null && isExit(elseIf.getIfstat())) {
+            return false;
+          }
+        }
+
+        ifSt.iftype = IfStatement.IFTYPE_IF;
+        SequenceStatement seq = new SequenceStatement(ifSt, elseStat);
+
+        StatEdge elseEdge = ifSt.getElseEdge();
+        ifSt.getStats().removeWithKey(elseStat.id);
+
+        ifSt.setElsestat(null);
+        ifSt.setElseEdge(null);
+        ifSt.replaceWith(seq);
+        elseEdge.changeSource(ifSt);
+        seq.setAllParent();
+
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  private static boolean isExit(Statement stat) {
+    if (!stat.hasAnyDirectSuccessor()) {
+      return false;
+    }
+
+    StatEdge suc = stat.getFirstDirectSuccessor();
+
+    if (!(suc.getType() == StatEdge.TYPE_BREAK && suc.getDestination() instanceof DummyExitStatement)) {
+      return false;
+    }
+
+    return stat instanceof BasicBlockStatement bb && !bb.getExprents().isEmpty() && bb.getExprents().get(bb.getExprents().size() - 1) instanceof ExitExprent;
   }
 }

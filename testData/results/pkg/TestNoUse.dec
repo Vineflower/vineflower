@@ -59,6 +59,11 @@ public class TestNoUse {
 }
 
 class 'pkg/TestNoUse' {
+   method '<init> ()V' {
+      5      3
+      6      3
+   }
+
    method 'test (ZI)V' {
       0      6
       1      6

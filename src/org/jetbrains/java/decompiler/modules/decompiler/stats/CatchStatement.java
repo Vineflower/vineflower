@@ -9,6 +9,7 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.DecHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
+import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.AssignmentExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
@@ -178,15 +179,25 @@ public class CatchStatement extends Statement {
       buf.append(" catch (");
 
       List<String> exception_types = exctstrings.get(i - 1);
-      if (exception_types.size() > 1) { // multi-catch, Java 7 style
-        for (int exc_index = 1; exc_index < exception_types.size(); ++exc_index) {
-          VarType exc_type = new VarType(CodeType.OBJECT, 0, exception_types.get(exc_index));
-          String exc_type_name = ExprProcessor.getCastTypeName(exc_type);
-
-          buf.append(exc_type_name).append(" | ");
+      for (int exc_index = 0; exc_index < exception_types.size(); ++exc_index) {
+        String name = ExprProcessor.getCastTypeName(new VarType(CodeType.OBJECT, 0, exception_types.get(exc_index)));
+        if (exception_types.size() > 1 && exc_index > 0) { // multi-catch, Java 7 style
+          buf.append(" | ");
         }
+        buf.append(name);
       }
-      buf.append(vars.get(i - 1).toJava(indent));
+
+      buf.append(" ");
+
+      VarExprent var = vars.get(i - 1);
+
+      validateType(exception_types, var.getVarType());
+
+      // Temporarily set variable as not a definition, since we just wrote the type above
+      try (var v = var.new DefinitionLocker()) {
+        buf.append(var.toJava(indent));
+      }
+
       buf.append(") {").appendLineSeparator();
       buf.append(ExprProcessor.jmpWrapper(stat, indent + 1, false)).appendIndent(indent)
         .append("}");
@@ -196,12 +207,19 @@ public class CatchStatement extends Statement {
     return buf;
   }
 
-  public List<Object> getSequentialObjects() {
+  private void validateType(List<String> exTypes, VarType exVarType) {
+    // TODO: join together all types, then check if exVarType instanceof that
+    // Not correct!!
+    if (ValidationHelper.VALIDATE) {
+//      VarType type = new VarType(CodeType.OBJECT, 0, exTypes.get(exTypes.size() - 1));
+//      ValidationHelper.validateTrue(type.higherEqualInLatticeThan(exVarType), "Invalid exception type " + exVarType + " " + type);
+    }
+  }
 
-    List<Object> lst = new ArrayList<>(resources);
-    lst.addAll(stats);
+  @Override
+  public List<Exprent> getStatExprents() {
+    List<Exprent> lst = new ArrayList<>(resources);
     lst.addAll(vars);
-
     return lst;
   }
 
@@ -249,7 +267,9 @@ public class CatchStatement extends Statement {
 
     // resource vars must also be included
     for (Exprent exp : getResources()) {
-      vars.add((VarExprent)((AssignmentExprent)exp).getLeft());
+      if (exp instanceof AssignmentExprent assignment) {
+        vars.add((VarExprent) assignment.getLeft());
+      }
     }
 
     return vars;

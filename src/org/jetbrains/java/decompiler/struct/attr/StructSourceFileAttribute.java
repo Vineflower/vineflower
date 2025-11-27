@@ -24,4 +24,12 @@ public class StructSourceFileAttribute extends StructGeneralAttribute {
   public String getSourceFile(ConstantPool pool) {
     return pool.getPrimitiveConstant(constPoolIndex).getString();
   }
+
+  public int getConstPoolIndex() {
+    return constPoolIndex;
+  }
+
+  public void setConstPoolIndex(int constPoolIndex) {
+    this.constPoolIndex = constPoolIndex;
+  }
 }

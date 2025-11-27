@@ -11,9 +11,9 @@ public class TestFinallyBlockVariableUse {
          try {
             i = Integer.parseInt(s) - j;// 9
             e = i;
-         } catch (NumberFormatException var10) {// 13
+         } catch (NumberFormatException ex) {// 13
             i = j;// 14
-            throw var10;// 15
+            throw ex;// 15
          }
       } finally {
          int id = i - j;// 18

@@ -55,7 +55,6 @@ class 'pkg/TestSwitchPatternMatchingJ21' {
       1      8
       2      8
       3      8
-      7      8
       e      8
       f      8
       10      8
@@ -102,7 +101,6 @@ class 'pkg/TestSwitchPatternMatchingJ21' {
 
    method 'test2 (Ljava/lang/Object;)Ljava/lang/String;' {
       0      15
-      9      15
       10      15
       11      15
       12      15
@@ -251,7 +249,6 @@ class 'pkg/TestSwitchPatternMatchingJ21' {
 
    method 'test4 (Ljava/lang/Object;)V' {
       0      39
-      9      39
       10      39
       11      39
       12      39

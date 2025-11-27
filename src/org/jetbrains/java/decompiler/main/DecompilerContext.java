@@ -96,6 +96,12 @@ public class DecompilerContext {
     context.counterContainer = new CounterContainer();
   }
 
+  public static void resetMethod(MethodWrapper wrapper) {
+    DecompilerContext context = getCurrentContext();
+    context.varProcessor = wrapper.varproc;
+    context.counterContainer = wrapper.counter;
+  }
+
   public static void setImportCollector(ImportCollector importCollector) {
     getCurrentContext().importCollector = importCollector;
   }

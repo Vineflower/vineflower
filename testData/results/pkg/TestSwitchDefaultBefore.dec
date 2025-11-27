@@ -33,7 +33,6 @@ public class TestSwitchDefaultBefore {
 class 'pkg/TestSwitchDefaultBefore' {
    method 'test (Ljava/lang/String;)V' {
       0      4
-      4      4
       25      5
       26      5
       33      8

@@ -38,4 +38,16 @@ public class StructEnclosingMethodAttribute extends StructGeneralAttribute {
   public String getMethodName() {
     return methodName;
   }
+
+  public void setClassName(String className) {
+    this.className = className;
+  }
+
+  public void setMethodName(String methodName) {
+    this.methodName = methodName;
+  }
+
+  public void setMethodDescriptor(String methodDescriptor) {
+    this.methodDescriptor = methodDescriptor;
+  }
 }

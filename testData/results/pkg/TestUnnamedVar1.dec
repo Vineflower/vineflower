@@ -3,6 +3,7 @@ package pkg;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Scanner;
 
 public class TestUnnamedVar1 {
@@ -11,40 +12,148 @@ public class TestUnnamedVar1 {
          TestUnnamedVar1.Point var10000 = var2;
 
          try {
-            var7 = var10000.x();
-         } catch (Throwable var6) {// 12
-            throw new MatchException(var6.toString(), var6);
+            var8 = var10000.x();
+         } catch (Throwable var7) {// 12
+            throw new MatchException(var7.toString(), var7);
          }
 
-         int var4 = var7;
-         var10000 = var2;
+         int var4 = var8;
+         if (true) {
+            int x = var4;
+            var10000 = var2;
 
-         try {
-            var10000.y();
-         } catch (Throwable var5) {
-            throw new MatchException(var5.toString(), var5);
+            try {
+               var10000.y();
+            } catch (Throwable var6) {
+               throw new MatchException(var6.toString(), var6);
+            }
+
+            System.out.println(x);// 13
          }
-
-         System.out.println(var4);// 13
       }
    }// 15
 
    public void test1(Object o) {
-      if (o instanceof TestUnnamedVar1.Point(int var5, Object var8)) {// 18
-         System.out.println(var5);// 19
+      if (o instanceof TestUnnamedVar1.Point var2) {
+         TestUnnamedVar1.Point var10000 = var2;
+
+         try {
+            var9 = var10000.x();
+         } catch (Throwable var7) {// 18
+            throw new MatchException(var7.toString(), var7);
+         }
+
+         int var4 = var9;
+         if (true) {
+            int x = var4;
+            var10000 = var2;
+
+            try {
+               var11 = var10000.y();
+            } catch (Throwable var6) {
+               throw new MatchException(var6.toString(), var6);
+            }
+
+            var4 = (int)var11;
+            if (var4 instanceof Integer) {
+               System.out.println(x);// 19
+            }
+         }
       }
    }// 21
 
+   public void test2(Object o) {
+      if (o instanceof TestUnnamedVar1.Point) {// 24
+         System.out.println(o);// 25
+      }
+   }// 27
+
+   public void def() {
+      byte var1 = 5;// 30
+      int x = 3;// 31
+      System.out.println(x);// 33
+   }// 34
+
+   public void patternSwitch(Object o) {
+      switch (o) {// 37
+         case Integer var4:
+            System.out.println("1");// 38
+            break;
+         default:
+            System.out.println("def");// 39
+      }
+   }// 41
+
+   public void patternSwitch2(Object o) {
+      switch (o) {// 44
+         case Integer var4:
+            System.out.println("1");// 45
+            break;
+         case String var5:
+            System.out.println("2");// 46
+            break;
+         default:
+            System.out.println("def");// 47
+      }
+   }// 49
+
+   public void patternSwitch3(Object o) {
+      // $VF: Couldn't be decompiled
+      // Bytecode:
+      // 00: aload 1
+      // 01: dup
+      // 02: invokestatic java/util/Objects.requireNonNull (Ljava/lang/Object;)Ljava/lang/Object;
+      // 05: pop
+      // 06: astore 2
+      // 07: bipush 0
+      // 08: istore 3
+      // 09: aload 2
+      // 0a: iload 3
+      // 0b: invokedynamic typeSwitch (Ljava/lang/Object;I)I bsm=java/lang/runtime/SwitchBootstraps.typeSwitch (Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite; args=[ java/lang/Integer, java/lang/String ]
+      // 10: lookupswitch 64 2 0 28 1 28
+      // 2c: aload 2
+      // 2d: instanceof java/lang/Integer
+      // 30: ifeq 36
+      // 33: goto 45
+      // 36: aload 2
+      // 37: instanceof java/lang/String
+      // 3a: ifeq 40
+      // 3d: goto 45
+      // 40: bipush 2
+      // 41: istore 3
+      // 42: goto 09
+      // 45: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 48: ldc "1"
+      // 4a: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // 4d: goto 5b
+      // 50: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 53: ldc "def"
+      // 55: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // 58: goto 5b
+      // 5b: return
+   }
+
    public List<String> stream(List<String> in) {
-      return in.stream().map(var0 -> "val").toList();// 24
+      return in.stream().map(var0 -> "val").toList();// 59
    }
 
    public void trycatch(File file) {
       try {
-         new Scanner(file);// 29
-      } catch (IOException var3) {// 30
+         new Scanner(file);// 64
+      } catch (IOException var3) {// 65
+         System.out.println("catch");// 66
       }
-   }// 33
+   }// 68
+
+   public void trycatch2(File file) {
+      try {
+         new Scanner(file);// 72
+      } catch (IOException var3) {// 73
+         System.out.println("catch");// 74
+      } catch (Exception var4) {// 75
+         System.out.println("catch2");// 76
+      }
+   }// 78
 
    record Point(int x, Object y) {
    }
@@ -52,110 +161,332 @@ public class TestUnnamedVar1 {
 
 class 'pkg/TestUnnamedVar1' {
    method 'test (Ljava/lang/Object;)V' {
-      0      9
-      1      9
-      2      9
-      3      9
-      4      9
-      5      9
-      6      9
-      b      9
-      c      10
-      d      13
-      e      13
-      f      13
-      10      18
-      11      18
-      12      27
-      13      27
-      15      19
-      16      22
-      17      22
-      18      22
-      1b      27
-      1c      27
-      1d      27
-      1e      27
-      1f      27
-      20      27
-      21      27
-      25      14
-      2a      15
-      2b      15
-      2c      15
+      0      10
+      1      10
+      2      10
+      3      10
+      4      10
+      5      10
+      6      10
+      b      10
+      c      11
+      d      14
+      e      14
+      f      14
+      10      19
+      11      19
+      17      20
+      18      20
+      19      20
+      1a      21
+      1b      21
+      1c      21
+      1d      22
+      1e      25
+      1f      25
+      20      25
+      23      30
+      24      30
+      25      30
+      26      30
+      27      30
+      28      30
+      29      30
       2d      15
-      2e      15
-      32      15
-      33      29
+      32      16
+      33      16
+      34      16
+      35      16
+      36      16
+      3a      16
+      3b      33
    }
 
    method 'test1 (Ljava/lang/Object;)V' {
-      0      32
-      1      32
-      2      32
-      3      32
-      4      32
-      5      32
-      6      32
-      10      32
-      11      32
-      12      33
-      13      33
-      1b      32
-      1c      32
-      23      33
-      24      33
-      25      33
-      26      33
-      27      33
-      28      33
-      29      33
-      3b      35
+      0      36
+      1      36
+      2      36
+      3      36
+      4      36
+      5      36
+      6      36
+      b      36
+      c      37
+      d      40
+      e      40
+      f      40
+      10      45
+      11      45
+      17      46
+      18      46
+      19      46
+      1a      47
+      1b      47
+      1c      47
+      1d      48
+      1e      51
+      1f      51
+      20      51
+      21      56
+      22      56
+      23      57
+      24      57
+      25      57
+      26      57
+      27      57
+      28      57
+      29      57
+      2a      57
+      2b      58
+      2c      58
+      2d      58
+      2e      58
+      2f      58
+      30      58
+      31      58
+      35      41
+      3a      42
+      3b      42
+      3c      42
+      3d      42
+      3e      42
+      42      42
+      43      62
+   }
+
+   method 'test2 (Ljava/lang/Object;)V' {
+      0      65
+      1      65
+      2      65
+      3      65
+      4      65
+      5      65
+      6      65
+      7      66
+      8      66
+      9      66
+      a      66
+      b      66
+      c      66
+      d      66
+      e      68
+   }
+
+   method 'def ()V' {
+      0      71
+      1      71
+      2      72
+      3      72
+      6      73
+      7      73
+      8      73
+      9      73
+      a      73
+      b      73
+      c      73
+      d      74
+   }
+
+   method 'patternSwitch (Ljava/lang/Object;)V' {
+      0      77
+      10      77
+      11      77
+      12      77
+      13      77
+      14      77
+      15      77
+      16      77
+      17      77
+      18      77
+      19      77
+      1a      77
+      1b      77
+      1c      77
+      1d      77
+      1e      77
+      1f      77
+      20      77
+      21      77
+      22      77
+      23      77
+      24      79
+      25      79
+      26      79
+      27      79
+      28      79
+      29      79
+      2a      79
+      2b      79
+      2c      80
+      2f      82
+      30      82
+      31      82
+      32      82
+      33      82
+      34      82
+      35      82
+      36      82
+      37      84
+   }
+
+   method 'patternSwitch2 (Ljava/lang/Object;)V' {
+      0      87
+      10      87
+      11      87
+      12      87
+      13      87
+      14      87
+      15      87
+      16      87
+      17      87
+      18      87
+      19      87
+      1a      87
+      1b      87
+      1c      87
+      1d      87
+      1e      87
+      1f      87
+      20      87
+      21      87
+      22      87
+      23      87
+      24      87
+      25      87
+      26      87
+      27      87
+      28      87
+      29      87
+      2a      87
+      2b      87
+      2c      89
+      2d      89
+      2e      89
+      2f      89
+      30      89
+      31      89
+      32      89
+      33      89
+      34      90
+      37      92
+      38      92
+      39      92
+      3a      92
+      3b      92
+      3c      92
+      3d      92
+      3e      92
+      3f      93
+      42      95
+      43      95
+      44      95
+      45      95
+      46      95
+      47      95
+      48      95
+      49      95
+      4a      97
    }
 
    method 'stream (Ljava/util/List;)Ljava/util/List;' {
-      0      38
-      1      38
-      2      38
-      3      38
-      4      38
-      5      38
-      b      38
-      c      38
-      d      38
-      e      38
-      f      38
-      10      38
-      11      38
-      12      38
-      13      38
-      14      38
-      15      38
+      0      136
+      1      136
+      2      136
+      3      136
+      4      136
+      5      136
+      b      136
+      c      136
+      d      136
+      e      136
+      f      136
+      10      136
+      11      136
+      12      136
+      13      136
+      14      136
+      15      136
    }
 
    method 'lambda$stream$0 (Ljava/lang/String;)Ljava/lang/String;' {
-      0      38
-      1      38
-      2      38
+      0      136
+      1      136
+      2      136
    }
 
    method 'trycatch (Ljava/io/File;)V' {
-      4      43
-      c      44
-      d      46
+      4      141
+      c      142
+      d      143
+      e      143
+      f      143
+      10      143
+      11      143
+      12      143
+      13      143
+      14      143
+      15      145
+   }
+
+   method 'trycatch2 (Ljava/io/File;)V' {
+      4      149
+      c      150
+      d      151
+      e      151
+      f      151
+      10      151
+      11      151
+      12      151
+      13      151
+      14      151
+      18      152
+      19      153
+      1a      153
+      1b      153
+      1c      153
+      1d      153
+      1e      153
+      1f      153
+      20      153
+      21      155
    }
 }
 
 Lines mapping:
-12 <-> 15
-13 <-> 28
-15 <-> 30
-18 <-> 33
-19 <-> 34
-21 <-> 36
-24 <-> 39
-29 <-> 44
-30 <-> 45
-33 <-> 47
+12 <-> 16
+13 <-> 31
+15 <-> 34
+18 <-> 42
+19 <-> 59
+21 <-> 63
+24 <-> 66
+25 <-> 67
+27 <-> 69
+30 <-> 72
+31 <-> 73
+33 <-> 74
+34 <-> 75
+37 <-> 78
+38 <-> 80
+39 <-> 83
+41 <-> 85
+44 <-> 88
+45 <-> 90
+46 <-> 93
+47 <-> 96
+49 <-> 98
+59 <-> 137
+64 <-> 142
+65 <-> 143
+66 <-> 144
+68 <-> 146
+72 <-> 150
+73 <-> 151
+74 <-> 152
+75 <-> 153
+76 <-> 154
+78 <-> 156
 Not mapped:
 32
+67
+77

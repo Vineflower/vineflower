@@ -43,6 +43,16 @@ public abstract class TestDoubleNestedClass {
    }
 }
 
+class 'pkg/TestDoubleNestedClass$1' {
+   method '<init> ()V' {
+      5      6
+   }
+
+   method 'test ()Ljava/lang/Object;' {
+      8      16
+   }
+}
+
 class 'pkg/TestDoubleNestedClass$1$1Local' {
    method 'getX ()I' {
       1      12
@@ -55,12 +65,6 @@ class 'pkg/TestDoubleNestedClass$1$1Local' {
    }
 }
 
-class 'pkg/TestDoubleNestedClass$1' {
-   method 'test ()Ljava/lang/Object;' {
-      8      16
-   }
-}
-
 class 'pkg/TestDoubleNestedClass$2' {
    method 'test ()Ljava/lang/Object;' {
       8      22
@@ -68,6 +72,10 @@ class 'pkg/TestDoubleNestedClass$2' {
 }
 
 class 'pkg/TestDoubleNestedClass$Child1' {
+   method '<init> ()V' {
+      5      29
+   }
+
    method 'foo (I)Ljava/util/function/Supplier;' {
       0      32
       1      32

@@ -45,6 +45,10 @@ public class StructMethodParametersAttribute extends StructGeneralAttribute {
     return myEntries;
   }
 
+  public void setEntries(List<Entry> myEntries) {
+    this.myEntries = myEntries;
+  }
+
   public static class Entry {
     public final String myName;
     public final int myAccessFlags;

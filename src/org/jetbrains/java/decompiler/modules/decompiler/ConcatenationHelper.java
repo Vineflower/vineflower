@@ -92,8 +92,9 @@ public final class ConcatenationHelper {
         }
 
         // If we need to add an empty string to the param list, do so here
-        if (addEmptyString) {
+        if (addEmptyString || parameters.size() == 1) {
           // Make single variable concat nicer by appending the string at the end
+          // TODO: remove this
           int index = parameters.size() == 1 ? 1 : 0;
 
           parameters.add(index, new ConstExprent(VarType.VARTYPE_STRING, "", expr.bytecode));

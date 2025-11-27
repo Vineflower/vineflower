@@ -18,8 +18,6 @@ import java.util.stream.Collectors;
 /**
  * Processes try catch statements to turns them into try-with-resources statements wherever possible.
  * Including the entire classpath is generally needed for this to work as it needs to know which classes implement AutoCloseable.
- *
- * @author ForgeFlower devs, SuperCoder79
  */
 public final class TryWithResourcesProcessor {
   // Make try with resources with the old style bytecode (J8)
@@ -259,6 +257,14 @@ public final class TryWithResourcesProcessor {
 
       // Destroy catch block
       tryStatement.getStats().remove(1);
+
+      // Check for synthetic variable in the case that the resource is just a variable or field
+      if (assignment.getLeft() instanceof VarExprent declaration
+          && (assignment.getRight() instanceof VarExprent
+              || assignment.getRight() instanceof FieldExprent)
+          && !declaration.isVarReferenced(tryStatement)) {
+        tryStatement.getResources().set(0, assignment.getRight());
+      }
 
       return true;
     }

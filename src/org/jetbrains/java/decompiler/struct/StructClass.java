@@ -1,7 +1,6 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.struct;
 
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.code.BytecodeVersion;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
@@ -18,6 +17,7 @@ import org.jetbrains.java.decompiler.struct.gen.generics.GenericMain;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.util.DataInputFullStream;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
+import org.jetbrains.java.decompiler.util.Key;
 import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
 
 import java.io.IOException;
@@ -92,11 +92,11 @@ public class StructClass extends StructMember {
       methods.addWithKey(method, key);
     }
 
-    Map<String, StructGeneralAttribute> attributes = readAttributes(in, pool, bytecodeVersion);
+    Map<Key<?>, Object> attributes = readAttributes(in, pool, bytecodeVersion);
 
     GenericClassDescriptor signature = null;
     if (DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_GENERIC_SIGNATURES)) {
-      StructGenericSignatureAttribute signatureAttr = (StructGenericSignatureAttribute)attributes.get(StructGeneralAttribute.ATTRIBUTE_SIGNATURE.name);
+      StructGenericSignatureAttribute signatureAttr = (StructGenericSignatureAttribute)attributes.get(StructGeneralAttribute.ATTRIBUTE_SIGNATURE);
       if (signatureAttr != null) {
         signature = GenericMain.parseClassSignature(qualifiedName, signatureAttr.getSignature());
       }
@@ -121,7 +121,7 @@ public class StructClass extends StructMember {
   private ConstantPool pool;
 
   private StructClass(int accessFlags,
-                      Map<String, StructGeneralAttribute> attributes,
+                      Map<Key<?>, Object> attributes,
                       String qualifiedName,
                       PrimitiveConstant superClass,
                       boolean own,
@@ -347,29 +347,5 @@ public class StructClass extends StructMember {
 
     this.genericHiarachy = ret.isEmpty() ? Collections.emptyMap() : ret;
     return this.genericHiarachy;
-  }
-
-  private List<StructClass> superClasses;
-  public List<StructClass> getAllSuperClasses() {
-    if (superClasses != null) {
-      return superClasses;
-    }
-
-    List<StructClass> classList = new ArrayList<>();
-    StructContext context = DecompilerContext.getStructContext();
-
-    if (this.superClass != null) {
-      StructClass cl = context.getClass(this.superClass.getString());
-      while (cl != null) {
-        classList.add(cl);
-        if (cl.superClass == null) {
-          break;
-        }
-        cl = context.getClass(cl.superClass.getString());
-      }
-    }
-
-    superClasses = classList;
-    return superClasses;
   }
 }

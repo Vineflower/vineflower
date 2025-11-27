@@ -6,8 +6,8 @@ import java.util.List;
 public class TestClassCast {
    public void test(List list) {
       List a = list;// 22
-      if (list != null) {// 23
-         (a = new ArrayList(list)).add("23");// 24
+      if (a != null) {// 23
+         (a = new ArrayList(a)).add("23");// 24
       }
 
       System.out.println(a.size());// 26

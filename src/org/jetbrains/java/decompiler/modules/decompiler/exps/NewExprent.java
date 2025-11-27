@@ -264,15 +264,15 @@ public class NewExprent extends Exprent {
 
     if (newType.arrayDim != 0) {
       for (Exprent dim : lstDims) {
-        result.addMinTypeExprent(dim, VarType.VARTYPE_BYTECHAR);
-        result.addMaxTypeExprent(dim, VarType.VARTYPE_INT);
+        result.addExprLowerBound(dim, VarType.VARTYPE_BYTECHAR);
+        result.addExprUpperBound(dim, VarType.VARTYPE_INT);
       }
 
       if (newType.arrayDim == 1) {
         VarType leftType = newType.decreaseArrayDim();
         for (Exprent element : lstArrayElements) {
-          result.addMinTypeExprent(element, VarType.getMinTypeInFamily(leftType.typeFamily));
-          result.addMaxTypeExprent(element, leftType);
+          result.addExprLowerBound(element, VarType.findFamilyBottom(leftType.typeFamily));
+          result.addExprUpperBound(element, leftType);
         }
       }
     }

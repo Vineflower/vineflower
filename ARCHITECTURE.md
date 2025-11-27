@@ -1,10 +1,10 @@
 # Architecture
-This file provides information on how FernFlower is structured, with descriptions of how each part of the codebase works.
+This file provides information on how Vineflower is structured, with descriptions of how each part of the codebase works.
 
 ## Terms
-FernFlower uses a large amount of terms and shorthand names within its code, for which explanations are provided here.
+Vineflower uses a large amount of terms and shorthand names within its code, for which explanations are provided here.
 The first name is the full name and the names in parentheses are the shorthand names that are used throughout the code.
-* Exprent (expr, exp) Refers to an expression that FernFlower uses to create the java code, such as a constant or method invocation. Exprents are stored in a tree structure.
+* Exprent (expr, exp) Refers to an expression that Vineflower uses to create the java code, such as a constant or method invocation. Exprents are stored in a tree structure.
 * Statement (stat) Refers to a statement within the code used to structure the code, such as an if statement or a loop. Statements are stored in a graph structure.
 
 ## The decompilation process

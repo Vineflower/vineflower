@@ -1,7 +1,7 @@
 package pkg;
 
 public class TestMultiAssignmentInStaticBlock {
-   private static int i = 124151;
+   private static int i = 124151;// 4
    private static final int a;
    private static final int b;
    private static final int c;
@@ -24,6 +24,8 @@ public class TestMultiAssignmentInStaticBlock {
 
 class 'pkg/TestMultiAssignmentInStaticBlock' {
    method '<clinit> ()V' {
+      0      3
+      1      3
       5      11
       6      11
       7      11
@@ -164,6 +166,7 @@ class 'pkg/TestMultiAssignmentInStaticBlock' {
 }
 
 Lines mapping:
+4 <-> 4
 12 <-> 12
 13 <-> 13
 14 <-> 14
@@ -175,5 +178,3 @@ Lines mapping:
 20 <-> 20
 21 <-> 21
 22 <-> 22
-Not mapped:
-4

@@ -9,10 +9,12 @@ import org.jetbrains.java.decompiler.main.collectors.VarNamesCollector;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
+import org.jetbrains.java.decompiler.modules.decompiler.StackVarsProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.SSAUConstructorSparseEx;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarTypeProcessor.FinalType;
 import org.jetbrains.java.decompiler.struct.StructClass;
@@ -44,7 +46,7 @@ public class VarDefinitionHelper {
 
   private final VarProcessor varproc;
 
-  private final Statement root;
+  private final RootStatement root;
   private final StructMethod mt;
   private final Map<VarVersionPair, String> clashingNames = new HashMap<>();
 
@@ -244,7 +246,7 @@ public class VarDefinitionHelper {
     }
 
     mergeVars(root);
-    propogateLVTs(root);
+    propagateLVTs(root);
     setNonFinal(root, new HashSet<>());
     remapClashingNames(root, mt);
   }
@@ -256,18 +258,17 @@ public class VarDefinitionHelper {
 
   private LocalVariable findLVT(int index, Statement stat) {
     if (stat.getExprents() == null) {
-      for (Object obj : stat.getSequentialObjects()) {
-        if (obj instanceof Statement) {
-          LocalVariable lvt = findLVT(index, (Statement)obj);
-          if (lvt != null) {
-            return lvt;
-          }
+      for (Statement st : stat.getStats()) {
+        LocalVariable lvt = findLVT(index, st);
+        if (lvt != null) {
+          return lvt;
         }
-        else if (obj instanceof Exprent) {
-          LocalVariable lvt = findLVT(index, (Exprent)obj);
-          if (lvt != null) {
-            return lvt;
-          }
+      }
+
+      for (Exprent exp : stat.getStatExprents()) {
+        LocalVariable lvt = findLVT(index, exp);
+        if (lvt != null) {
+          return lvt;
         }
       }
     }
@@ -350,30 +351,26 @@ public class VarDefinitionHelper {
       List<Integer> childVars = new ArrayList<>();
       List<Exprent> currVars = new ArrayList<>();
 
-      for (Object obj : stat.getSequentialObjects()) {
-        if (obj instanceof Statement) {
-          Statement st = (Statement)obj;
-          childVars.addAll(initStatement(st));
+      for (Statement st : stat.getStats()) {
+        childVars.addAll(initStatement(st));
 
-          if (st instanceof DoStatement) {
-            DoStatement dost = (DoStatement)st;
-            if (dost.getLooptype() != DoStatement.Type.FOR &&
-                dost.getLooptype() != DoStatement.Type.FOR_EACH &&
-                dost.getLooptype() != DoStatement.Type.INFINITE) {
-              currVars.add(dost.getConditionExprent());
-            }
-          }
-          else if (st instanceof CatchAllStatement) {
-            CatchAllStatement fin = (CatchAllStatement)st;
-            if (fin.isFinally() && fin.getMonitor() != null) {
-              currVars.add(fin.getMonitor());
-            }
+        if (st instanceof DoStatement) {
+          DoStatement dost = (DoStatement)st;
+          if (dost.getLooptype() != DoStatement.Type.FOR &&
+            dost.getLooptype() != DoStatement.Type.FOR_EACH &&
+            dost.getLooptype() != DoStatement.Type.INFINITE) {
+            currVars.add(dost.getConditionExprent());
           }
         }
-        else if (obj instanceof Exprent) {
-          currVars.add((Exprent)obj);
+        else if (st instanceof CatchAllStatement) {
+          CatchAllStatement fin = (CatchAllStatement)st;
+          if (fin.isFinally() && fin.getMonitor() != null) {
+            currVars.add(fin.getMonitor());
+          }
         }
       }
+
+      currVars.addAll(stat.getStatExprents());
 
       // children statements
       for (Integer index : childVars) {
@@ -444,8 +441,8 @@ public class VarDefinitionHelper {
   }
 
   private void populateTypeBounds(VarProcessor proc, Statement stat) {
-    Map<VarVersionPair, VarType> mapExprentMinTypes = varproc.getVarVersions().getTypeProcessor().getMapExprentMinTypes();
-    Map<VarVersionPair, VarType> mapExprentMaxTypes = varproc.getVarVersions().getTypeProcessor().getMapExprentMaxTypes();
+    Map<VarVersionPair, VarType> mapExprentMinTypes = varproc.getVarVersions().getTypeProcessor().getLowerBounds();
+    Map<VarVersionPair, VarType> mapExprentMaxTypes = varproc.getVarVersions().getTypeProcessor().getUpperBounds();
     LinkedList<Statement> stack = new LinkedList<>();
     stack.add(root);
 
@@ -519,7 +516,118 @@ public class VarDefinitionHelper {
     }
   }
 
-  private VPPEntry mergeVars(Statement stat) {
+  static class VarID {
+    final VarExprent var;
+
+    VarID(VarExprent var) {
+      this.var = var;
+    }
+
+    @Override
+    public int hashCode() {
+      return System.identityHashCode(var);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      return obj instanceof VarID varID && var == varID.var;
+    }
+  }
+
+  private Map<VarID, Set<VarID>> getVarExprentSources() {
+    // Do an ssau analysis to find the sources of variables
+    SSAUConstructorSparseEx ssau = new SSAUConstructorSparseEx();
+    try {
+      ssau.splitVariables(root, mt);
+    } catch (NullPointerException t) {
+      // Can happen when something is wrong with variables ...
+
+      StackVarsProcessor.setVersionsToNull(root);
+      return null;
+    }
+
+    Map<VarVersionPair, VarID> lookup = new HashMap<>();
+    findAllVarExprents(root, lookup);
+
+    Map<VarID, Set<VarID>> sources = new HashMap<>();
+    for (VarVersionNode node : ssau.getSsuVersions().nodes) {
+      VarID target = lookup.get(node.asPair());
+      if (target == null) {
+        continue;
+      }
+
+      Set<VarID> sourceVars = new HashSet<>();
+
+      for (VarVersionNode predecessor : node.getPredecessors()) {
+        VarID source = lookup.get(predecessor.asPair());
+        if (source != null) {
+          sourceVars.add(source);
+        }
+      }
+
+      if (node.phantomNode != null) {
+        VarID source = lookup.get(node.phantomNode.asPair());
+        if (source != null) {
+          sourceVars.add(source);
+        }
+      }
+
+      if (!sourceVars.isEmpty()) {
+        sources.put(target, sourceVars);
+      }
+    }
+
+    StackVarsProcessor.setVersionsToNull(root);
+
+    return sources;
+  }
+
+  private static void findAllVarExprents(Statement stat, Map<VarVersionPair, VarID> lookup) {
+    for (Exprent exprent : stat.getVarDefinitions()) {
+      if (exprent instanceof VarExprent varExprent) {
+        lookup.put(new VarVersionPair(varExprent), new VarID(varExprent));
+      }
+    }
+    List<Exprent> lst = stat.getExprents();
+    if (lst != null) {
+      for (Exprent exprent : lst) {
+        for (Exprent exp : exprent.getAllExprents(true, true)) {
+          if (exp instanceof VarExprent varExprent) {
+            lookup.put(new VarVersionPair(varExprent), new VarID(varExprent));
+          }
+        }
+      }
+    }
+
+    for (Statement subStat : stat.getStats()) {
+      findAllVarExprents(subStat, lookup);
+    }
+  }
+
+  private void compareVarExprentSources(
+    Map<VarID, Set<VarID>> oldSources,
+    Map<VarID, Set<VarID>> newSources
+  ) {
+    if (newSources == null) return;
+
+    for (var oldEntry : oldSources.entrySet()) {
+      Set<VarID> oldSet = oldEntry.getValue();
+      Set<VarID> newSet = newSources.get(oldEntry.getKey());
+
+      // Check if sets match
+      if (!Objects.equals(oldSet, newSet)) {
+        root.addComment("$VF: Variable merging failed for merge " + oldEntry.getKey().var + ". Code has semantic differences!");
+      }
+    }
+
+    for (var newVar : newSources.keySet()) {
+      if (!oldSources.containsKey(newVar)) {
+        root.addComment("$VF: Variable merging added a var? " + newVar.var);
+      }
+    }
+  }
+
+  private VPPEntry mergeVars(RootStatement stat) {
     Map<Integer, VarVersionPair> parent = new HashMap<>(); // Always empty dua!
     MethodDescriptor md = MethodDescriptor.parseDescriptor(mt.getDescriptor());
 
@@ -536,6 +644,12 @@ public class VarDefinitionHelper {
 
     populateTypeBounds(varproc, stat);
 
+
+    Map<VarID, Set<VarID>> sources = null;
+    if (DecompilerContext.getOption(IFernflowerPreferences.VERIFY_PRE_POST_VARIABLE_MERGES)) {
+      sources = getVarExprentSources();
+    }
+
     Map<VarVersionPair, VarVersionPair> denylist = new HashMap<>();
     VPPEntry remap = mergeVars(stat, parent, new HashMap<>(), denylist);
     while (remap != null) {
@@ -546,7 +660,20 @@ public class VarDefinitionHelper {
 
       remap = mergeVars(stat, parent, new HashMap<>(), denylist);
     }
+
+    if (sources != null) {
+      Map<VarID, Set<VarID>> newSources = getVarExprentSources();
+      compareVarExprentSources(sources, newSources);
+    }
     return null;
+  }
+
+  // FIXME: Needed for variable merging combat, get rid of it!
+  private static List<Object> getSequentialObjects(Statement stat) {
+    ArrayList<Object> lst = new ArrayList<>();
+    lst.addAll(stat.getStatExprents());
+    lst.addAll(stat.getStats());
+    return lst;
   }
 
 
@@ -587,7 +714,7 @@ public class VarDefinitionHelper {
     }
 
     if (stat.getExprents() == null) {
-      List<Object> objs = stat.getSequentialObjects();
+      List<Object> objs = getSequentialObjects(stat);
       for (int i = 0; i < objs.size(); i++) {
         Object obj = objs.get(i);
         if (obj instanceof Statement) {
@@ -646,7 +773,7 @@ public class VarDefinitionHelper {
             VarType t1 = this.varproc.getVarType(ret.getKey());
             VarType t2 = this.varproc.getVarType(ret.getValue());
 
-            if (t1.isSuperset(t2) || t2.isSuperset(t1)) {
+            if (t1.higherEqualInLatticeThan(t2) || t2.higherEqualInLatticeThan(t1)) {
               return ret;
             }
           }
@@ -664,7 +791,7 @@ public class VarDefinitionHelper {
           VarType t1 = this.varproc.getVarType(ret.getKey());
           VarType t2 = this.varproc.getVarType(ret.getValue());
 
-          if (t1 != null && t2 != null && (t1.isSuperset(t2) || t2.isSuperset(t1))) {
+          if (t1.higherEqualInLatticeThan(t2) || t2.higherEqualInLatticeThan(t1)) {
             // TODO: this only checks for totally disjoint types, there are instances where merging is incorrect with primitives
 
             boolean ok = true;
@@ -818,14 +945,13 @@ public class VarDefinitionHelper {
       throw new IllegalStateException("Trying to remap var version " + from + " in statement " + stat + " to itself!");
     boolean success = false;
     if (stat.getExprents() == null) {
-      for (Object obj : stat.getSequentialObjects()) {
-        if (obj instanceof Statement) {
-          success |= remapVar((Statement)obj, from, to);
-        }
-        else if (obj instanceof Exprent) {
-          if (remapVar((Exprent)obj, from, to)) {
-            success = true;
-          }
+      for (Statement st : stat.getStats()) {
+        success |= remapVar(st, from, to);
+      }
+
+      for (Exprent exp : stat.getStatExprents()) {
+        if (remapVar(exp, from, to)) {
+          success = true;
         }
       }
     }
@@ -903,7 +1029,7 @@ public class VarDefinitionHelper {
           VarType type = right.getConstType();
 
           // We can only do this if the merged type is a superset of the old type
-          if (merged.isSuperset(type) && canConstTypeMerge(merged)) {
+          if (merged.higherEqualInLatticeThan(type) && canConstTypeMerge(merged)) {
             right.setConstType(merged);
           }
         }
@@ -941,8 +1067,8 @@ public class VarDefinitionHelper {
   }
 
   private VarType getMergedType(VarVersionPair from, VarVersionPair to) {
-    Map<VarVersionPair, VarType> minTypes = varproc.getVarVersions().getTypeProcessor().getMapExprentMinTypes();
-    Map<VarVersionPair, VarType> maxTypes = varproc.getVarVersions().getTypeProcessor().getMapExprentMaxTypes();
+    Map<VarVersionPair, VarType> minTypes = varproc.getVarVersions().getTypeProcessor().getLowerBounds();
+    Map<VarVersionPair, VarType> maxTypes = varproc.getVarVersions().getTypeProcessor().getUpperBounds();
 
     return getMergedType(minTypes.get(from), minTypes.get(to), maxTypes.get(from), maxTypes.get(to));
   }
@@ -951,7 +1077,7 @@ public class VarDefinitionHelper {
     if (fromMin != null && fromMin.equals(toMin)) {
       return fromMin; // Short circuit this for simplicities sake
     }
-    VarType type = fromMin == null ? toMin : (toMin == null ? fromMin : VarType.getCommonSupertype(fromMin, toMin));
+    VarType type = fromMin == null ? toMin : (toMin == null ? fromMin : VarType.join(fromMin, toMin));
     if (type == null || fromMin == null || toMin == null) {
       return null; // no common supertype, skip the remapping
     }
@@ -989,7 +1115,7 @@ public class VarDefinitionHelper {
       return null;
     } else {
       // Both nonnull at this point
-      if (!fromMin.isStrictSuperset(toMin)) {
+      if (!fromMin.higherInLatticeThan(toMin)) {
         // If type we're merging into the old type isn't a strict superset of the old type, we cannot merge
         return null;
       }
@@ -998,7 +1124,7 @@ public class VarDefinitionHelper {
     }
   }
 
-  private void propogateLVTs(Statement stat) {
+  private void propagateLVTs(Statement stat) {
     MethodDescriptor md = MethodDescriptor.parseDescriptor(mt.getDescriptor());
     Map<VarVersionPair, VarInfo> types = new LinkedHashMap<>();
 
@@ -1104,13 +1230,12 @@ public class VarDefinitionHelper {
     }
 
     if (stat.getExprents() == null) {
-      for (Object obj : stat.getSequentialObjects()) {
-        if (obj instanceof Statement) {
-          findTypes((Statement)obj, types);
-        }
-        else if (obj instanceof Exprent) {
-          findTypes((Exprent)obj, types);
-        }
+      for (Statement st : stat.getStats()) {
+        findTypes(st, types);
+      }
+
+      for (Exprent exp : stat.getStatExprents()) {
+        findTypes(exp, types);
       }
     }
     else {
@@ -1132,10 +1257,12 @@ public class VarDefinitionHelper {
           types.put(ver, new VarInfo(var.getLVT(), var.getVarType()));
         } else {
           VarInfo existing = types.get(ver);
-          if (existing == null)
+          if (existing == null) {
             existing = new VarInfo(var.getLVT(), var.getVarType());
-          else if (existing.getLVT() == null && var.getLVT() != null)
+          } else if (existing.getLVT() == null && var.getLVT() != null) {
             existing = new VarInfo(var.getLVT(), existing.getType());
+          }
+
           types.put(ver, existing);
         }
       }
@@ -1152,13 +1279,12 @@ public class VarDefinitionHelper {
     }
 
     if (stat.getExprents() == null) {
-      for (Object obj : stat.getSequentialObjects()) {
-        if (obj instanceof Statement) {
-          applyTypes((Statement)obj, types);
-        }
-        else if (obj instanceof Exprent) {
-          applyTypes((Exprent)obj, types);
-        }
+      for (Statement st : stat.getStats()) {
+        applyTypes(st, types);
+      }
+
+      for (Exprent exp : stat.getStatExprents()) {
+        applyTypes(exp, types);
       }
     }
     else {
@@ -1244,7 +1370,7 @@ public class VarDefinitionHelper {
 
   private static boolean isVarReadFirst(VarVersionPair var, Statement stat, int index, VarExprent... allowlist) {
     if (stat.getExprents() == null) {
-      List<Object> objs = stat.getSequentialObjects();
+      List<Object> objs = getSequentialObjects(stat);
       for (int x = index; x < objs.size(); x++) {
         Object obj = objs.get(x);
         if (obj instanceof Statement) {
@@ -1498,13 +1624,11 @@ public class VarDefinitionHelper {
       }
     } else {
       // Process var definitions in statement head
-      for (Object obj : stat.getSequentialObjects()) {
-        if (obj instanceof Exprent) {
-          List<Exprent> exprents = ((Exprent) obj).getAllExprents(true, true);
+      for (Exprent exp : stat.getStatExprents()) {
+        List<Exprent> exprents = exp.getAllExprents(true, true);
 
-          for (Exprent exprent : exprents) {
-            iterateClashingExprent(stat, mt, varDefinitions, exprent, liveVarDefs, curVarDefs, nameMap, seenMethods);
-          }
+        for (Exprent exprent : exprents) {
+          iterateClashingExprent(stat, mt, varDefinitions, exprent, liveVarDefs, curVarDefs, nameMap, seenMethods);
         }
       }
 

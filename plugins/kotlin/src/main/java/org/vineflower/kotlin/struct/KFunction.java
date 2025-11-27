@@ -1,11 +1,11 @@
 package org.vineflower.kotlin.struct;
 
-import kotlinx.metadata.internal.metadata.ProtoBuf;
-import kotlinx.metadata.internal.metadata.jvm.JvmProtoBuf;
+import org.vineflower.kt.metadata.ProtoBuf;
+import org.vineflower.kt.metadata.deserialization.Flags;
+import org.vineflower.kt.metadata.jvm.JvmProtoBuf;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.code.CodeConstants;
-import org.jetbrains.java.decompiler.main.ClassesProcessor;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
@@ -17,17 +17,16 @@ import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
-import org.vineflower.kotlin.KotlinDecompilationContext;
 import org.vineflower.kotlin.KotlinOptions;
 import org.vineflower.kotlin.KotlinWriter;
 import org.vineflower.kotlin.metadata.MetadataNameResolver;
+import org.vineflower.kotlin.metadata.KotlinMetadata;
 import org.vineflower.kotlin.util.KUtils;
-import org.vineflower.kotlin.util.ProtobufFlags;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public record KFunction(
@@ -35,44 +34,30 @@ public record KFunction(
   KParameter[] parameters,
   List<KTypeParameter> typeParameters,
   KType returnType,
-  ProtobufFlags.Function flags,
-  List<KType> contextReceiverTypes, MethodWrapper method,
+  int flags,
+  List<KType> contextReceiverTypes,
+  Function<ClassWrapper, MethodWrapper> methodSupplier,
   @Nullable KType receiverType,
   @Nullable KContract contract,
   boolean knownOverride,
-  @NotNull DefaultArgsMap defaultArgs,
-  ClassesProcessor.ClassNode node
-) {
-  public static Map<StructMethod, KFunction> parse(ClassesProcessor.ClassNode node) {
-    MetadataNameResolver resolver = KotlinDecompilationContext.getNameResolver();
-    ClassWrapper wrapper = node.getWrapper();
-    StructClass struct = wrapper.getClassStruct();
-
-    List<ProtoBuf.Function> protoFunctions;
-
-    KotlinDecompilationContext.KotlinType type = KotlinDecompilationContext.getCurrentType();
-    if (type == null) return Map.of();
-
-    protoFunctions = switch (type) {
-      case CLASS -> KotlinDecompilationContext.getCurrentClass().getFunctionList();
-      case FILE -> KotlinDecompilationContext.getFilePackage().getFunctionList();
-      case MULTIFILE_CLASS -> KotlinDecompilationContext.getMultifilePackage().getFunctionList();
-      case SYNTHETIC_CLASS -> Collections.singletonList(KotlinDecompilationContext.getSyntheticClass()); // Lambdas and similar
-    };
-
+  @NotNull Function<ClassWrapper, @NotNull DefaultArgsMap> defaultArgsSupplier,
+  StructClass classStruct,
+  StructMethod methodStruct
+) implements Flags {
+  public static @NotNull Map<StructMethod, KFunction> parse(StructClass classStruct, KotlinMetadata ktData, @NotNull MetadataNameResolver resolver, List<ProtoBuf.Function> protoFunctions) {
     Map<StructMethod, KFunction> functions = new HashMap<>(protoFunctions.size(), 1f);
 
     for (ProtoBuf.Function function : protoFunctions) {
       JvmProtoBuf.JvmMethodSignature jvmData = function.getExtension(JvmProtoBuf.methodSignature);
 
-      ProtobufFlags.Function flags = new ProtobufFlags.Function(function.getFlags());
+      int flags = function.getFlags();
 
       String name = resolver.resolve(function.getName());
 
       KParameter[] parameters = new KParameter[function.getValueParameterCount()];
       for (int i = 0; i < parameters.length; i++) {
         ProtoBuf.ValueParameter parameter = function.getValueParameter(i);
-        ProtobufFlags.ValueParameter paramFlags = new ProtobufFlags.ValueParameter(parameter.getFlags());
+        int paramFlags = parameter.getFlags();
         String paramName = resolver.resolve(parameter.getName());
         KType paramType = KType.from(parameter.getType(), resolver);
         KType varargType = parameter.hasVarargElementType() ? KType.from(parameter.getVarargElementType(), resolver) : null;
@@ -87,14 +72,13 @@ public record KFunction(
 
       KType returnType = KType.from(function.getReturnType(), resolver);
 
-      MethodWrapper method = null;
-
+      StructMethod methodLookup = null;
       String lookupName = jvmData.hasName() ? resolver.resolve(jvmData.getName()) : name;
       if (jvmData.hasDesc()) {
-        method = wrapper.getMethodWrapper(lookupName, resolver.resolve(jvmData.getDesc()));
+        methodLookup = classStruct.getMethod(lookupName, resolver.resolve(jvmData.getDesc()));
       }
 
-      if (method == null) {
+      if (methodLookup == null) {
         StringBuilder desc = new StringBuilder("(");
         if (receiverType != null) {
           desc.append(receiverType);
@@ -106,12 +90,13 @@ public record KFunction(
 
         desc.append(")").append(returnType);
 
-        method = wrapper.getMethodWrapper(lookupName, desc.toString());
+        methodLookup = classStruct.getMethod(lookupName, desc.toString());
 
-        if (method == null) {
-          throw new IllegalStateException("Couldn't find method " + name + " " + desc + " in class " + struct.qualifiedName);
+        if (methodLookup == null) {
+          throw new IllegalStateException("Couldn't find methodSupplier " + name + " " + desc + " in class " + classStruct.qualifiedName);
         }
       }
+      @NotNull StructMethod method = methodLookup;
 
       List<KTypeParameter> typeParameters = function.getTypeParameterList().stream()
         .map(typeParameter -> KTypeParameter.from(typeParameter, resolver))
@@ -121,11 +106,11 @@ public record KFunction(
         .map(ctxType -> KType.from(ctxType, resolver))
         .collect(Collectors.toList());
 
-      boolean isStatic = (method.methodStruct.getAccessFlags() & CodeConstants.ACC_STATIC) != 0;
+      boolean isStatic = method.hasModifier(CodeConstants.ACC_STATIC);
       String defaultArgsName = name + "$default";
       StringBuilder defaultArgsDesc = new StringBuilder("(");
       if (!isStatic) {
-        defaultArgsDesc.append("L").append(struct.qualifiedName).append(";");
+        defaultArgsDesc.append("L").append(classStruct.qualifiedName).append(";");
       }
       if (receiverType != null) {
         defaultArgsDesc.append(receiverType);
@@ -148,14 +133,16 @@ public record KFunction(
       defaultArgsDesc.append("Ljava/lang/Object;)");
       defaultArgsDesc.append(returnType);
 
-      DefaultArgsMap defaultArgs = DefaultArgsMap.from(wrapper.getMethodWrapper(defaultArgsName, defaultArgsDesc.toString()), method, parameters);
+      Function<ClassWrapper, DefaultArgsMap> defaultArgs = wrapper -> DefaultArgsMap.from(wrapper.getMethodWrapper(defaultArgsName, defaultArgsDesc.toString()), wrapper.getMethodWrapper(method.getName(), method.getDescriptor()), parameters);
 
-      boolean knownOverride = flags.visibility != ProtoBuf.Visibility.PRIVATE
-        && flags.visibility != ProtoBuf.Visibility.PRIVATE_TO_THIS
-        && flags.visibility != ProtoBuf.Visibility.LOCAL
-        && KotlinWriter.searchForMethod(struct, method.methodStruct.getName(), method.desc(), false);
+      ProtoBuf.Visibility visibility = VISIBILITY.get(flags);
 
-      KContract contract = function.hasContract() ? KContract.from(function.getContract(), List.of(parameters), resolver) : null;
+      boolean knownOverride = visibility != ProtoBuf.Visibility.PRIVATE
+        && visibility != ProtoBuf.Visibility.PRIVATE_TO_THIS
+        && visibility != ProtoBuf.Visibility.LOCAL
+        && KotlinWriter.searchForMethod(classStruct, method.getName(), method.methodDescriptor(), false);
+
+      KContract contract = function.hasContract() ? KContract.from(function.getContract(), List.of(parameters), ktData) : null;
 
       KFunction kFunction = new KFunction(
         name,
@@ -164,26 +151,29 @@ public record KFunction(
         returnType,
         flags,
         contextReceiverTypes,
-        method,
+        wrapper -> wrapper.getMethodWrapper(method.getName(), method.getDescriptor()),
         receiverType,
         contract,
         knownOverride,
         defaultArgs,
-        node
+        classStruct,
+        method
       );
 
-      functions.put(method.methodStruct, kFunction);
+      functions.put(method, kFunction);
     }
 
     return functions;
   }
 
-  public TextBuffer stringify(int indent) {
+  public TextBuffer stringify(ClassWrapper wrapper, int indent) {
     TextBuffer buf = new TextBuffer();
-    KotlinWriter.appendAnnotations(buf, indent, method.methodStruct, TypeAnnotation.METHOD_RETURN_TYPE);
-    KotlinWriter.appendJvmAnnotations(buf, indent, method.methodStruct, false, method.classStruct.getPool(), TypeAnnotation.METHOD_RETURN_TYPE);
+    KotlinWriter.appendAnnotations(buf, indent, methodStruct, TypeAnnotation.METHOD_RETURN_TYPE);
+    KotlinMetadata classData = classStruct.getAttribute(KotlinMetadata.KEY);
+    boolean isInFile = classData != null && classData.metadata instanceof KotlinMetadata.File;
+    KotlinWriter.appendJvmAnnotations(buf, indent, methodStruct, false, isInFile, classStruct.getPool(), TypeAnnotation.METHOD_RETURN_TYPE);
 
-    String methodKey = InterpreterUtil.makeUniqueKey(method.methodStruct.getName(), method.methodStruct.getDescriptor());
+    String methodKey = InterpreterUtil.makeUniqueKey(methodStruct.getName(), methodStruct.getDescriptor());
 
     buf.appendIndent(indent);
 
@@ -201,22 +191,22 @@ public record KFunction(
       buf.append(")").appendLineSeparator().appendIndent(indent);
     }
 
-    if (flags.visibility != ProtoBuf.Visibility.PUBLIC || DecompilerContext.getOption(KotlinOptions.SHOW_PUBLIC_VISIBILITY)) {
-      KUtils.appendVisibility(buf, flags.visibility);
+    if (VISIBILITY.get(flags) != ProtoBuf.Visibility.PUBLIC || DecompilerContext.getOption(KotlinOptions.SHOW_PUBLIC_VISIBILITY)) {
+      KUtils.appendVisibility(buf, VISIBILITY.get(flags));
     }
 
-    if (flags.isExpect) {
+    if (IS_EXPECT_FUNCTION.get(flags)) {
       buf.append("expect ");
     }
 
-    if (flags.modality != ProtoBuf.Modality.FINAL) {
-      if (!knownOverride || flags.modality != ProtoBuf.Modality.OPEN) {
-        buf.append(flags.modality.name().toLowerCase())
+    if (MODALITY.get(flags) != ProtoBuf.Modality.FINAL) {
+      if (!knownOverride || MODALITY.get(flags) != ProtoBuf.Modality.OPEN) {
+        buf.append(MODALITY.get(flags).name().toLowerCase())
           .append(' ');
       }
     }
 
-    if (flags.isExternal) {
+    if (IS_EXTERNAL_FUNCTION.get(flags)) {
       buf.append("external ");
     }
 
@@ -224,23 +214,23 @@ public record KFunction(
       buf.append("override ");
     }
 
-    if (flags.isTailrec) {
+    if (IS_TAILREC.get(flags)) {
       buf.append("tailrec ");
     }
 
-    if (flags.isSuspend) {
+    if (IS_SUSPEND.get(flags)) {
       buf.append("suspend ");
     }
 
-    if (flags.isInline) {
+    if (IS_INLINE.get(flags)) {
       buf.append("inline ");
     }
 
-    if (flags.isInfix) {
+    if (IS_INFIX.get(flags)) {
       buf.append("infix ");
     }
 
-    if (flags.isOperator) {
+    if (IS_OPERATOR.get(flags)) {
       buf.append("operator ");
     }
 
@@ -302,8 +292,8 @@ public record KFunction(
       first = false;
 
       parameter.stringify(indent + 1, buf);
-      if (parameter.flags().declaresDefault) {
-        buf.append(defaultArgs.toJava(parameter, indent + 1), node.classStruct.qualifiedName, methodKey);
+      if (DECLARES_DEFAULT_VALUE.get(parameter.flags())) {
+        buf.append(defaultArgsSupplier.apply(wrapper).toJava(parameter, indent + 1), classStruct.qualifiedName, methodKey);
       }
     }
 
@@ -348,8 +338,9 @@ public record KFunction(
       buf.append(contract.stringify(indent + 1));
     }
 
-    RootStatement root = method.root;
-    if (root != null && method.decompileError == null) {
+    MethodWrapper methodWrapper = methodSupplier.apply(wrapper);
+    RootStatement root = methodWrapper.root;
+    if (root != null && methodWrapper.decompileError == null) {
       try {
         TextBuffer body = root.toJava(indent + 1);
         body.addBytecodeMapping(root.getDummyExit().bytecode);
@@ -357,16 +348,16 @@ public record KFunction(
           buf.appendLineSeparator();
         }
 
-        buf.append(body, node.classStruct.qualifiedName, methodKey);
+        buf.append(body, classStruct.qualifiedName, methodKey);
       } catch (Throwable t) {
-        String message = "Method " + method.methodStruct.getName() + " " + method.desc() + " in class " + node.classStruct.qualifiedName + " couldn't be written.";
+        String message = "Method " + methodStruct.getName() + " " + methodWrapper.desc() + " in class " + classStruct.qualifiedName + " couldn't be written.";
         DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.WARN, t);
-        method.decompileError = t;
+        methodWrapper.decompileError = t;
       }
     }
 
-    if (method.decompileError != null) {
-      KotlinWriter.dumpError(buf, method, indent + 1);
+    if (methodWrapper.decompileError != null) {
+      KotlinWriter.dumpError(buf, methodWrapper, indent + 1);
     }
 
     buf.appendIndent(indent).append('}').appendLineSeparator();

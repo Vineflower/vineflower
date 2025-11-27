@@ -25,14 +25,14 @@ public class TestTryWithResourcesFake {
 
       try {
          sc.connect(remote);// 29
-      } catch (Throwable var5) {
+      } catch (Throwable x) {
          try {
             sc.close();// 32
-         } catch (Throwable var4) {// 33
-            var5.addSuppressed(var4);// 34
+         } catch (Throwable suppressed) {// 33
+            x.addSuppressed(suppressed);// 34
          }
 
-         throw var5;// 36
+         throw x;// 36
       }
 
       assert sc.isConnected();// 38

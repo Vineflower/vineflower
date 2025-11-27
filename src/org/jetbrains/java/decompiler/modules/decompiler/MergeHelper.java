@@ -1,12 +1,9 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler;
 
-import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectEdgeType;
-import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNode;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
@@ -100,7 +97,7 @@ public class MergeHelper {
           stat.setLooptype(DoStatement.Type.DO_WHILE);
 
           IfExprent ifexpr = (IfExprent)lastif.getHeadexprent().copy();
-          if (ifedge.getType() == StatEdge.TYPE_BREAK) {
+          if (elseedge.getType() == StatEdge.TYPE_CONTINUE && elseedge.closure == stat) {
             ifexpr.negateIf();
           }
 
@@ -473,12 +470,12 @@ public class MergeHelper {
 
   private static Set<VarExprent> getFinalVariables(Statement stat, Set<VarExprent> variables) {
     if (stat.getExprents() == null) {
-      for (Object o : stat.getSequentialObjects()) {
-        if (o instanceof Statement) {
-          getFinalVariables((Statement) o, variables);
-        } else if (o instanceof Exprent) {
-          getFinalVariables((Exprent) o, variables);
-        }
+      for (Statement s : stat.getStats()) {
+        getFinalVariables(s, variables);
+      }
+
+      for (Exprent exp : stat.getStatExprents()) {
+        getFinalVariables(exp, variables);
       }
     } else {
       for (Exprent exp : stat.getExprents()) {
@@ -716,8 +713,8 @@ public class MergeHelper {
 
         // Type of assignment- store in var for type calculation
         CheckTypesResult typeRes = ass.checkExprTypeBounds();
-        if (typeRes != null && !typeRes.getLstMinTypeExprents().isEmpty()) {
-          VarType boundType = typeRes.getLstMinTypeExprents().get(0).type;
+        if (typeRes != null && !typeRes.getLowerBounds().isEmpty()) {
+          VarType boundType = typeRes.getLowerBounds().get(0).type;
           VarExprent var = (VarExprent) ass.getLeft();
           var.setBoundType(boundType);
         }
@@ -769,22 +766,8 @@ public class MergeHelper {
           }
         }
 
-        VarExprent assignPre = null;
-        for (Exprent e : preData.getExprents()) {
-          if (e instanceof AssignmentExprent) {
-            AssignmentExprent a = (AssignmentExprent)e;
-            if (a.getLeft() instanceof VarExprent) {
-              if (a.getRight() instanceof VarExprent) {
-                if (((VarExprent)a.getLeft()).getVarVersionPair().equals(array.getVarVersionPair())) {
-                  assignPre = (VarExprent)a.getRight();
-                }
-              }
-            }
-          }
-        }
-
-        // TODO: handle this case! don't just fail silently!
-        if (assignPre != null && !((VarExprent)funcRight.getLstOperands().get(0)).getVarVersionPair().equals(assignPre.getVarVersionPair())) {
+        // Check that the array being accessed is the same as the one used for getting the length
+        if (!array.equalsVersions(funcRight.getLstOperands().get(0))) {
           return false;
         }
 
@@ -808,10 +791,12 @@ public class MergeHelper {
         firstData.getExprents().remove(firstDoExprent);
         lastData.getExprents().remove(lastExprent);
 
-        if (initExprents[2] != null && initExprents[2].getLeft() instanceof VarExprent) {
+        // Check for the variable that the for each loop creates to store the array
+        // If it exists then and nothing else uses the variable then remove the assignment
+        if (initExprents[2] != null && initExprents[2].getLeft() instanceof VarExprent && stat.getIncExprent() instanceof VarExprent forArray) {
           VarExprent copy = (VarExprent)initExprents[2].getLeft();
 
-          if (copy.getIndex() == array.getIndex() && copy.getVersion() == array.getVersion()) {
+          if (copy.getIndex() == array.getIndex() && copy.getVersion() == array.getVersion() && !copy.isVarReferenced(stat.getParent(), forArray)) {
             preData.getExprents().remove(initExprents[2]);
             initExprents[2].getRight().addBytecodeOffsets(initExprents[2].bytecode);
             initExprents[2].getRight().addBytecodeOffsets(stat.getIncExprent().bytecode);
@@ -821,8 +806,8 @@ public class MergeHelper {
 
         // Type of assignment- store in var for type calculation
         CheckTypesResult typeRes = firstDoExprent.checkExprTypeBounds();
-        if (typeRes != null && !typeRes.getLstMinTypeExprents().isEmpty()) {
-          VarType boundType = typeRes.getLstMinTypeExprents().get(0).type;
+        if (typeRes != null && !typeRes.getLowerBounds().isEmpty()) {
+          VarType boundType = typeRes.getLowerBounds().get(0).type;
           VarExprent var = (VarExprent) firstDoExprent.getLeft();
           var.setBoundType(boundType);
         }

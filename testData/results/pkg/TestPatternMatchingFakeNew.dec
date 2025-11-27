@@ -154,7 +154,6 @@ class 'pkg/TestPatternMatchingFakeNew' {
 
    method 'test2 (Ljava/lang/Object;)V' {
       0      10
-      2      10
       3      10
       4      10
       5      10
@@ -254,7 +253,6 @@ class 'pkg/TestPatternMatchingFakeNew' {
       5      33
       6      33
       7      33
-      9      33
       a      33
       b      33
       c      33
@@ -286,7 +284,6 @@ class 'pkg/TestPatternMatchingFakeNew' {
       5      40
       6      40
       7      40
-      9      40
       a      40
       b      40
       c      40
@@ -322,7 +319,6 @@ class 'pkg/TestPatternMatchingFakeNew' {
       5      47
       6      47
       7      47
-      9      47
       a      47
       b      47
       c      47
@@ -362,7 +358,6 @@ class 'pkg/TestPatternMatchingFakeNew' {
       5      56
       6      56
       7      56
-      9      56
       a      56
       b      56
       c      56
@@ -467,7 +462,6 @@ class 'pkg/TestPatternMatchingFakeNew' {
 
    method 'test4Swap (Ljava/lang/Object;)V' {
       0      81
-      2      81
       3      81
       4      81
       5      81
@@ -499,7 +493,6 @@ class 'pkg/TestPatternMatchingFakeNew' {
 
    method 'test4xSwap (Ljava/lang/Object;)V' {
       0      88
-      2      88
       3      88
       4      88
       5      88
@@ -538,7 +531,6 @@ class 'pkg/TestPatternMatchingFakeNew' {
 
    method 'test4BSwap (Ljava/lang/Object;)V' {
       0      95
-      2      95
       3      95
       4      95
       5      95
@@ -578,7 +570,6 @@ class 'pkg/TestPatternMatchingFakeNew' {
 
    method 'test4xBSwap (Ljava/lang/Object;)V' {
       0      104
-      2      104
       3      104
       4      104
       5      104
@@ -625,7 +616,6 @@ class 'pkg/TestPatternMatchingFakeNew' {
 
    method 'testClash (Ljava/lang/Object;)V' {
       0      113
-      2      113
       3      113
       4      113
       5      113

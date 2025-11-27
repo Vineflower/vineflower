@@ -3,7 +3,7 @@ package pkg;
 import java.util.Random;
 
 public class TestBlankLinesSpaces {
-   private static final String STRING = longMethodName00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000();
+   private static final String STRING = longMethodName00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000();// 6
 
    private static String longMethodName00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000() {
       return null;// 9
@@ -30,6 +30,16 @@ public class TestBlankLinesSpaces {
 }
 
 class 'pkg/TestBlankLinesSpaces' {
+   method '<clinit> ()V' {
+      0      5
+      1      5
+      2      5
+      b      17
+      c      17
+      d      17
+      e      28
+   }
+
    method 'longMethodName00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 ()Ljava/lang/String;' {
       0      8
       1      8
@@ -37,13 +47,6 @@ class 'pkg/TestBlankLinesSpaces' {
 
    method 'takeLambda00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 (Ljava/lang/Runnable;)V' {
       0      14
-   }
-
-   method '<clinit> ()V' {
-      b      17
-      c      17
-      d      17
-      e      28
    }
 
    method 'lambda$static$0 ()V' {
@@ -83,6 +86,7 @@ class 'pkg/TestBlankLinesSpaces' {
 }
 
 Lines mapping:
+6 <-> 6
 9 <-> 9
 13 <-> 18
 14 <-> 20
@@ -92,5 +96,3 @@ Lines mapping:
 20 <-> 27
 21 <-> 29
 24 <-> 15
-Not mapped:
-6
