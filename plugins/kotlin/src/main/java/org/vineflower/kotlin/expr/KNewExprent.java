@@ -207,6 +207,43 @@ public class KNewExprent extends NewExprent implements KExprent {
         buf.append(element.toJava(indent));
         first = false;
       }
+    } else if (getLstArrayElements().isEmpty()) {
+      //TODO there should never be a multi-dimension new array created here - check if the handling is necessary
+      for (int i = 0; i < getNewType().arrayDim - 1; i++) {
+        buf.append("Array(");
+        Exprent dim = getLstDims().get(i);
+        if (dim.type == Type.CONST) {
+          ((ConstExprent) dim).adjustConstType(VarType.VARTYPE_INT);
+        }
+        buf.append(dim.toJava(indent));
+        buf.append(") {");
+        buf.pushNewlineGroup(indent, 1);
+        buf.appendPossibleNewline(" ");
+      }
+
+      buf.append(switch (getNewType().resizeArrayDim(0).type) {
+        case BOOLEAN -> "BooleanArray";
+        case BYTE -> "ByteArray";
+        case SHORT -> "ShortArray";
+        case CHAR -> "CharArray";
+        case INT -> "IntArray";
+        case FLOAT -> "FloatArray";
+        case LONG -> "LongArray";
+        case DOUBLE -> "DoubleArray";
+        default -> "arrayOfNulls";
+      }).append('(');
+
+      Exprent dim = getLstDims().get(getNewType().arrayDim - 1);
+      if (dim.type == Type.CONST) {
+        ((ConstExprent) dim).adjustConstType(VarType.VARTYPE_INT);
+      }
+      buf.append(dim.toJava(indent)).append(')');
+
+      for (int i = 0; i < getNewType().arrayDim - 1; i++) {
+        buf.appendPossibleNewline(" ", true);
+        buf.popNewlineGroup();
+        buf.append('}');
+      }
     } else {
       buf.append(switch (getNewType().decreaseArrayDim().type) {
         case BOOLEAN -> "booleanArrayOf";
