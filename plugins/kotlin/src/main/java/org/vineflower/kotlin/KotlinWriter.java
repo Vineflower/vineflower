@@ -2,6 +2,7 @@
 package org.vineflower.kotlin;
 
 import org.jetbrains.java.decompiler.modules.decompiler.*;
+import org.vineflower.kotlin.expr.KNewExprent;
 import org.vineflower.kt.metadata.ProtoBuf;
 import org.vineflower.kt.metadata.deserialization.Flags;
 import net.fabricmc.fernflower.api.IFabricJavadocProvider;
@@ -769,6 +770,10 @@ public class KotlinWriter implements StatementWriter, Flags {
           if (paramAttr != null) {
             Exprent kExpr = KUtils.replaceExprent(paramAttr.getDefaultValue());
             Exprent expr = kExpr != null ? kExpr : paramAttr.getDefaultValue();
+            VarType returnType = mt.methodDescriptor().ret;
+            if (expr instanceof KNewExprent knew) {
+              knew.setInAnnotation(true);
+            }
             buffer.append(" = ").append(expr.toJava());
           }
         }

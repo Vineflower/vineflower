@@ -29,6 +29,7 @@ import java.util.List;
 
 public class KNewExprent extends NewExprent implements KExprent {
   private static final String REFERENCE_CTOR_DESC = "(Ljava/lang/Object;)V";
+  private boolean inAnnotation;
 
   public KNewExprent(NewExprent expr) {
     super(expr.getNewType(), expr.getLstDims(), expr.bytecode);
@@ -207,6 +208,24 @@ public class KNewExprent extends NewExprent implements KExprent {
         buf.append(element.toJava(indent));
         first = false;
       }
+    } else if (inAnnotation) {
+      buf.append('[');
+      buf.pushNewlineGroup(indent, 1);
+      buf.appendPossibleNewline();
+      boolean first = true;
+      for (Exprent element : getLstArrayElements()) {
+        if (!first) {
+          buf.append(",").appendPossibleNewline(" ");
+        }
+        if (element instanceof KNewExprent knew) {
+          knew.setInAnnotation(true);
+        }
+        buf.append(element.toJava(indent));
+        first = false;
+      }
+      buf.appendPossibleNewline("", true);
+      buf.popNewlineGroup();
+      buf.append(']');
     } else if (getLstArrayElements().isEmpty()) {
       //TODO there should never be a multi-dimension new array created here - check if the handling is necessary
       for (int i = 0; i < getNewType().arrayDim - 1; i++) {
@@ -278,5 +297,9 @@ public class KNewExprent extends NewExprent implements KExprent {
   @Override
   public Exprent copy() {
     return new KNewExprent((NewExprent) super.copy());
+  }
+
+  public void setInAnnotation(boolean inAnnotation) {
+    this.inAnnotation = inAnnotation;
   }
 }
