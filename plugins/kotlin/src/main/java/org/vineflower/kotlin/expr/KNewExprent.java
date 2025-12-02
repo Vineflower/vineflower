@@ -18,7 +18,10 @@ import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.vineflower.kotlin.KotlinChooser;
 import org.vineflower.kotlin.KotlinWriter;
 import org.vineflower.kotlin.metadata.KotlinMetadata;
+import org.vineflower.kotlin.struct.KType;
+import org.vineflower.kotlin.util.KExprProcessor;
 import org.vineflower.kotlin.util.KTypes;
+import org.vineflower.kotlin.util.KUtils;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -46,21 +49,21 @@ public class KNewExprent extends NewExprent implements KExprent {
 
   @Override
   public TextBuffer toJava(int indent) {
+    TextBuffer buf = new TextBuffer();
     ClassesProcessor.ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(getNewType().value);
     if (node != null && new KotlinChooser().isLanguage(node.classStruct)) {
       KotlinMetadata ktData = node.classStruct.getAttribute(KotlinMetadata.KEY);
       if (ktData.metadata instanceof KotlinMetadata.FunctionReference) {
         Exprent receiver = getConstructor().getLstParameters().get(0);
-        TextBuffer buf = KotlinWriter.stringifyReference(indent, node, bytecode, receiver);
-        if (buf != null) {
-          return buf;
+        TextBuffer ref = KotlinWriter.stringifyReference(indent, node, bytecode, receiver);
+        if (ref != null) {
+          return ref;
         }
       }
 
       if (node.type == ClassesProcessor.ClassNode.Type.LOCAL && ktData.metadata instanceof KotlinMetadata.Class) {
         // Work around the Java-targeted anonymous class verification
         node.type = ClassesProcessor.ClassNode.Type.ANONYMOUS;
-        TextBuffer buf = new TextBuffer();
         buf.addBytecodeMapping(bytecode);
         new KotlinWriter().writeClass(node, buf, indent);
         return buf;
@@ -78,7 +81,6 @@ public class KNewExprent extends NewExprent implements KExprent {
           MethodDescriptor realDesc = MethodDescriptor.parseDescriptor(lambdaInfo.content_method_descriptor);
 
           MethodWrapper wrapper = node.getWrapper().getMethodWrapper(name, lambdaInfo.content_method_descriptor);
-          TextBuffer buf = new TextBuffer();
           buf.append("{ ");
 
           if (referencedDesc.params.length > 0) {
@@ -169,13 +171,71 @@ public class KNewExprent extends NewExprent implements KExprent {
         DecompilerContext.setProperty(DecompilerContext.CURRENT_METHOD_WRAPPER, outerWrapper);
       }
     } else if (isAnonymous()) {
-      TextBuffer buf = new TextBuffer();
       buf.addBytecodeMapping(bytecode);
       new KotlinWriter().writeClass(node, buf, indent);
       return buf;
     }
 
-    return super.toJava(indent);
+    if (getNewType().arrayDim == 0) {
+      if (!isEnumConst()) {
+        String typeName = KTypes.getKotlinType(getNewType());
+        
+        if (getConstructor() != null) {
+          TextBuffer enclosing = getQualifiedNewInstance(getNewType().value, getConstructor().getLstParameters(), indent);
+          if (enclosing != null) {
+            buf.append(enclosing).append('.');
+            ClassesProcessor.ClassNode newNode = DecompilerContext.getClassProcessor().getMapRootClasses().get(getNewType().value);
+            typeName = newNode != null ? newNode.simpleName : typeName.substring(typeName.lastIndexOf('.') + 1);
+          }
+        }
+
+        buf.appendTypeName(typeName, getNewType());
+      }
+      
+      if (getConstructor() != null) {
+        if (!isEnumConst() || getConstructor().getLstParameters().size() > 2) {
+          appendParameters(buf, getConstructor().getGenericArgs());
+          buf.append("(").append(getConstructor().appendParamList(indent)).append(')');
+        }
+      }
+    } else if (isVarArgParam()) {
+      boolean first = true;
+      for (Exprent element : getLstArrayElements()) {
+        if (!first) {
+          buf.append(",").appendPossibleNewline(" ");
+        }
+        buf.append(element.toJava(indent));
+        first = false;
+      }
+    } else {
+      buf.append(switch (getNewType().decreaseArrayDim().type) {
+        case BOOLEAN -> "booleanArrayOf";
+        case BYTE -> "byteArrayOf";
+        case SHORT -> "shortArrayOf";
+        case CHAR -> "charArrayOf";
+        case INT -> "intArrayOf";
+        case FLOAT -> "floatArrayOf";
+        case LONG -> "longArrayOf";
+        case DOUBLE -> "doubleArrayOf";
+        default -> "arrayOf";
+      });
+      buf.append('(');
+      buf.pushNewlineGroup(indent, 1);
+      buf.appendPossibleNewline();
+      boolean first = true;
+      for (Exprent element : getLstArrayElements()) {
+        if (!first) {
+          buf.append(",").appendPossibleNewline(" ");
+        }
+        buf.append(element.toJava(indent));
+        first = false;
+      }
+      buf.appendPossibleNewline("", true);
+      buf.popNewlineGroup();
+      buf.append(')');
+    }
+
+    return buf;
   }
 
   @Override

@@ -83,7 +83,7 @@ public class TestAnonymousEverything {
    }// 72
 
    public fun testCapturedLocalVariables() {
-      val x: IntRef = new IntRef()// 75
+      val x: IntRef = IntRef()// 75
       x.element = 1
       { 
          `$x`.element++// 76
@@ -110,9 +110,9 @@ public class TestAnonymousEverything {
    public fun testThrows() {
       val lambda: Function1 = { x: Int ->// 105
          if (x < 0) {// 106
-            throw new IllegalArgumentException("x must be >= 0")// 107
+            throw IllegalArgumentException("x must be >= 0")// 107
          } else if (x == 2147483647) {
-            throw new IllegalArgumentException("x must not be Int.MAX_VALUE".toString())// 110
+            throw IllegalArgumentException("x must not be Int.MAX_VALUE".toString())// 110
          } else {
             x + 1// 112
          }

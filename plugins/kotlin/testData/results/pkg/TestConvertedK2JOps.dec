@@ -1,10 +1,10 @@
 package pkg
 
 public class TestConvertedK2JOps {
-   public final val list: List<String> = CollectionsKt.listOf(new java.lang.String[]{"a", "b", "c"})// 4
-   public final val set: Set<String> = SetsKt.setOf(new java.lang.String[]{"a", "b", "c"})// 5
-   public final val map: Map<String, String> = MapsKt.mapOf(new Pair[]{TuplesKt.to("a", "b"), TuplesKt.to("c", "d")})// 6
-   public final val any: Any = new Object()
+   public final val list: List<String> = CollectionsKt.listOf(arrayOf("a", "b", "c"))// 4
+   public final val set: Set<String> = SetsKt.setOf(arrayOf("a", "b", "c"))// 5
+   public final val map: Map<String, String> = MapsKt.mapOf(arrayOf(TuplesKt.to("a", "b"), TuplesKt.to("c", "d")))// 6
+   public final val any: Any = Any()
 
    public fun codeConstructs() {
       System.out.println("Hello, world!")// 10

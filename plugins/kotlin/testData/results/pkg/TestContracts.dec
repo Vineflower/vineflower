@@ -11,7 +11,7 @@ public class TestContracts {
       }
 
       if (x == null) {// 13
-         throw new IllegalStateException("x is null".toString())
+         throw IllegalStateException("x is null".toString())
       } else {
          return x// 14
       }
@@ -33,7 +33,7 @@ public class TestContracts {
       }
 
       if (x !is Int) {// 31
-         throw new IllegalStateException("x is not Int".toString())
+         throw IllegalStateException("x is not Int".toString())
       } else {
          return (x as java.lang.Number).intValue()// 32
       }
@@ -60,7 +60,7 @@ public class TestContracts {
          callsInPlace(f)
       }
 
-      val var3: java.lang.Iterable = new IntRange(0, i) as java.lang.Iterable
+      val var3: java.lang.Iterable = IntRange(0, i) as java.lang.Iterable
       var var4: Int = 0
       val var5: java.util.Iterator = var3.iterator()
 

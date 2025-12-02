@@ -6,7 +6,7 @@ public class TestKotlinTypes {
    }
 
    public fun throwAlways(): Nothing {
-      throw new Exception()// 5
+      throw Exception()// 5
    }
 }
 

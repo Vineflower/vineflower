@@ -48,7 +48,7 @@ public open class TestNonInlineLambda {
    }// 34
 
    public fun testCaptureMutableInt(x: Int) {
-      val y: IntRef = new IntRef()// 37
+      val y: IntRef = IntRef()// 37
       y.element = x
       this.execute({ // 38
          System.out.println(`$y`.element)// 39
@@ -77,7 +77,7 @@ public open class TestNonInlineLambda {
    }// 57
 
    public fun testCaptureMutableObject(x: String) {
-      val y: ObjectRef = new ObjectRef()// 60
+      val y: ObjectRef = ObjectRef()// 60
       y.element = x
       this.execute({ // 61
          System.out.println(`$y`.element)// 62
@@ -106,7 +106,7 @@ public open class TestNonInlineLambda {
    }// 80
 
    public fun testCaptureAndMutateInt(x: Int) {
-      val y: IntRef = new IntRef()// 83
+      val y: IntRef = IntRef()// 83
       this.execute({ // 84
          while (`$y`.element < 10) {// 85
             System.out.println(`$y`.element++)// 86
@@ -127,7 +127,7 @@ public open class TestNonInlineLambda {
    }// 95
 
    public fun testCaptureAndMutateString(x: String) {
-      val y: ObjectRef = new ObjectRef()// 98
+      val y: ObjectRef = ObjectRef()// 98
       y.element = ""
       this.execute({ // 99
          while ((`$y`.element as java.lang.String).length() < 10) {// 100
