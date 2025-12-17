@@ -33,6 +33,42 @@ public class DotExporter {
   public static final boolean DUMP_DOTS = DOTS_FOLDER != null && !DOTS_FOLDER.trim().isEmpty();
   public static final boolean DUMP_ERROR_DOTS = DOTS_ERROR_FOLDER != null && !DOTS_ERROR_FOLDER.trim().isEmpty();
 
+  private static final boolean DARK_MODE = false;
+  private static final String THEME_HEADER = DARK_MODE ?
+    """
+      bgcolor="#181818";
+    
+      node [
+        fontcolor = "#e6e6e6",
+        style = filled,
+        color = "#e6e6e6",
+        fillcolor = "#333333"
+      ]
+    
+      edge [
+        color = "#e6e6e6",
+        fontcolor = "#e6e6e6"
+      ]
+    """ : "";
+  public static final String BG_DOM_ERROR = DARK_MODE ? "coral1" : "coral4";
+  public static final String BG_DOM_INFO = DARK_MODE ? "navy" : "lightblue";
+  public static final String BG_DOM_NEWSTAT = DARK_MODE ? "seagreen" : "lawngreen";
+  public static final String BG_DOM_NEWSTAT_CHILDREN = DARK_MODE ? "red4" : "pink";
+  public static final String BG_DOM_OLDSTAT = DARK_MODE ? "orange4" : "orange";
+  public static final String BG_DOM_SUCCESS = DARK_MODE ? "seagreen" : "lawngreen";
+  public static final String BG_DOM_WARN = DARK_MODE ? "tan1" : "tan4";
+  private static final String BG_VAR_CATCH = DARK_MODE ? "goldrod" : "gold";
+  private static final String BG_VAR_DEAD_READ = "gray59";
+  private static final String BG_VAR_PARAM = DARK_MODE ? "skyblue4" : "skyblue1";
+  private static final String BG_VAR_WRITE = DARK_MODE ? "palegreen4" : "palegreen1";
+  private static final String FG_BLACK = DARK_MODE ? "white" : "black";
+  private static final String FG_BLUE = DARK_MODE ? "cyan" : "blue";
+  private static final String FG_GREEN = DARK_MODE ? "limegreen" : "green";
+  private static final String FG_ORANGE = "orange";
+  private static final String FG_PINK = DARK_MODE ? "lightpink" : "pink";
+  private static final String FG_PURPLE = DARK_MODE ? "plum" : "purple";
+  private static final String FG_RED = DARK_MODE ? "\"#ff6666\"" : "red";
+
   private static final boolean EXTENDED_MODE = false;
   private static final boolean STATEMENT_LR_MODE = false;
   private static final boolean SAME_RANK_MODE = false;
@@ -65,6 +101,7 @@ public class DotExporter {
     Set<Integer> referenced = new HashSet<>();
 
     buffer.append("digraph " + name + " {\r\n");
+    buffer.append(THEME_HEADER);
 
     if (STATEMENT_LR_MODE) {
       buffer.append("  rankdir = LR;\r\n");
@@ -77,8 +114,8 @@ public class DotExporter {
     DummyExitStatement exit = null;
     if (stat instanceof RootStatement) {
       exit = ((RootStatement)stat).getDummyExit();
+      stats.add(exit);
     }
-    stats.add(exit);
 
     // Pre process
     Map<StatEdge, String> extraData = new HashMap<>();
@@ -166,14 +203,14 @@ public class DotExporter {
           if (labelEdge.explicit) {
             data += "Explicit";
           }
-          buffer.append(src + "->" + destId + " [color=orange,label=\"Label Edge (" + data + ") (Contained by " + st.id + ")\"];\r\n");
+          buffer.append(src + "->" + destId + " [color=" + FG_ORANGE + ",label=\"Label Edge (" + data + ") (Contained by " + st.id + ")\"];\r\n");
         }
       }
 
       // Neighbor set is redundant
 //      for (Statement neighbour : st.getNeighbours(Statement.STATEDGE_ALL, Statement.DIRECTION_FORWARD)) {
 //        String destId = neighbour.id + (neighbour.getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty()?"":"000000");
-//        buffer.append(sourceId + "->" + destId + " [arrowhead=tee,color=purple];\r\n");
+//        buffer.append(sourceId + "->" + destId + " [arrowhead=tee,color=" + FG_PURPLE + "];\r\n");
 //      }
 
       if (EXTENDED_MODE) {
@@ -182,7 +219,7 @@ public class DotExporter {
 
           String edgeType = getEdgeType(edge);
 
-          buffer.append(sourceId + "->" + destId + "[color=pink" + (edgeType != null ? ",fontcolor=blue,label=\"" + edgeType + "\"" : "") + "];\r\n");
+          buffer.append(sourceId + "->" + destId + "[color=" + FG_PINK + (edgeType != null ? ",fontcolor=" + FG_BLUE + ",label=\"" + edgeType + "\"" : "") + "];\r\n");
 
           referenced.add(edge.getSource().id);
 
@@ -233,24 +270,24 @@ public class DotExporter {
           }
         }
 
-        buffer.append(sourceId + " -> " + destId + " [arrowhead=vee,color=red" + (!label.equals("") ? ",fontcolor=red,label=\"" + label + "\"" : "") + "];\r\n");
+        buffer.append(sourceId + " -> " + destId + " [arrowhead=vee,color=" + FG_RED + (!label.equals("") ? ",fontcolor=" + FG_RED + ",label=\"" + label + "\"" : "") + "];\r\n");
         referenced.add(s.id);
       }
 
       if (!foundFirst && st.getFirst() != null) {
         String destId = st.getFirst().id + (st.getFirst().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty()?"":"000000");
-        buffer.append(sourceId + "->" + destId + " [arrowhead=vee,color=red,fontcolor=red,label=\"Dangling First statement!\"];\r\n");
+        buffer.append(sourceId + "->" + destId + " [arrowhead=vee,color=" + FG_RED + ",fontcolor=" + FG_RED + ",label=\"Dangling First statement!\"];\r\n");
       }
 
       if (isIf) {
         if (!foundIf && ((IfStatement) st).getIfstat() != null) {
           String destId = ((IfStatement) st).getIfstat().id + (st.getFirst().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty()?"":"000000");
-          buffer.append(sourceId + "->" + destId + " [arrowhead=vee,color=red,fontcolor=red,label=\"Dangling If statement!\"];\r\n");
+          buffer.append(sourceId + "->" + destId + " [arrowhead=vee,color=" + FG_RED + ",fontcolor=" + FG_RED + ",label=\"Dangling If statement!\"];\r\n");
         }
 
         if (!foundElse && ((IfStatement) st).getElsestat() != null) {
           String destId = ((IfStatement) st).getElsestat().id + (((IfStatement) st).getElsestat().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty()?"":"000000");
-          buffer.append(sourceId + "->" + destId + " [arrowhead=vee,color=red,fontcolor=red,label=\"Dangling Else statement!\"];\r\n");
+          buffer.append(sourceId + "->" + destId + " [arrowhead=vee,color=" + FG_RED + ",fontcolor=" + FG_RED + ",label=\"Dangling Else statement!\"];\r\n");
         }
       }
 
@@ -258,7 +295,7 @@ public class DotExporter {
 
       String extra = extraProps == null || !extraProps.containsKey(st) ? "" : "," + extraProps.get(st);
 
-      String node = sourceId + " [shape=box,label=\"" + st.id + " (" + getStatType(st) + ")\\n" + toJava(st) + "\"" + (st == stat ? ",color=red" : "") + extra + "];\n";
+      String node = sourceId + " [shape=box,label=\"" + st.id + " (" + getStatType(st) + ")\\n" + toJava(st) + "\"" + (st == stat ? ",color=" + FG_RED : "") + extra + "];\n";
 //      if (edges || st == stat) {
         buffer.append(node);
 //      } else {
@@ -291,13 +328,13 @@ public class DotExporter {
 
     // Exits
     if (exit != null) {
-      buffer.append(exit.id + " [color=green,label=\"" + exit.id + " (Canonical Return)\"];\n");
+      buffer.append(exit.id + " [color=" + FG_GREEN + ",label=\"" + exit.id + " (Canonical Return)\"];\n");
       referenced.remove(exit.id);
     }
 
 //    for (Integer exit : exits) {
 //      if (!visitedNodes.contains(exit)) {
-//        buffer.append(exit + " [color=green,label=\"" + exit + " (Canonical Return)\"];\r\n");
+//        buffer.append(exit + " [color=" + FG_green + ",label=\"" + exit + " (Canonical Return)\"];\r\n");
 //      }
 //
 //      referenced.remove(exit);
@@ -307,7 +344,7 @@ public class DotExporter {
 
     // Unresolved statement references
     for (Integer integer : referenced) {
-      buffer.append(integer + " [color=red,label=\"" + integer + " (Unknown statement!)\"];\r\n");
+      buffer.append(integer + " [color=" + FG_RED + ",label=\"" + integer + " (Unknown statement!)\"];\r\n");
     }
 
     for (StatEdge labelEdge : extraData.keySet()) {
@@ -319,7 +356,7 @@ public class DotExporter {
       String destId = labelEdge.getDestination().id + (labelEdge.getDestination().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty() ? "" : "000000");
       String label = "Floating extra edge: ("  + extraData.get(labelEdge) + ")";
 
-      buffer.append(src + " -> " + destId + " [arrowhead=vee,color=purple,fontcolor=red,label=\"" + label + "\"];\r\n");
+      buffer.append(src + " -> " + destId + " [arrowhead=vee,color=" + FG_PURPLE + ",fontcolor=" + FG_RED + ",label=\"" + label + "\"];\r\n");
     }
 
 //    if (subgraph.size() > 0) {
@@ -341,6 +378,7 @@ public class DotExporter {
     StringBuffer buffer = new StringBuffer();
 
     buffer.append("digraph G {\r\n");
+    buffer.append(THEME_HEADER);
 
     buffer.append("subgraph cluster_root {\r\n");
 
@@ -400,12 +438,12 @@ public class DotExporter {
 
   private static String getEdgeMeta(StatEdge edge) {
     switch (edge.getType()) {
-      case StatEdge.TYPE_REGULAR: return "weight=1, color=black";
-      case StatEdge.TYPE_EXCEPTION: return "weight=1, color=orange, style=dashed";
-      case StatEdge.TYPE_BREAK: return "weight=0.4, color=blue";
-      case StatEdge.TYPE_CONTINUE: return "weight=0.2, color=green";
-      case StatEdge.TYPE_FINALLYEXIT: return "weight=1, color=orange, style=dotted";
-      default: return "weight=1, color=purple";
+      case StatEdge.TYPE_REGULAR: return "weight=1, color=" + FG_BLACK;
+      case StatEdge.TYPE_EXCEPTION: return "weight=1, color=" + FG_ORANGE + ", style=dashed";
+      case StatEdge.TYPE_BREAK: return "weight=0.4, color=" + FG_BLUE;
+      case StatEdge.TYPE_CONTINUE: return "weight=0.2, color=" + FG_GREEN;
+      case StatEdge.TYPE_FINALLYEXIT: return "weight=1, color=" + FG_ORANGE + ", style=dotted";
+      default: return "weight=1, color=" + FG_PURPLE;
     }
   }
 
@@ -454,6 +492,7 @@ public class DotExporter {
     StringBuffer buffer = new StringBuffer();
 
     buffer.append("digraph " + name + " {\r\n");
+    buffer.append(THEME_HEADER);
 
     List<BasicBlock> blocks = graph.getBlocks();
     for (BasicBlock block : blocks) {
@@ -473,7 +512,7 @@ public class DotExporter {
       }
 
 //      for (BasicBlock pred : preds) {
-//        buffer.append(block.getDebugId() + " -> " + pred.getDebugId() + " [color=blue];\r\n");
+//        buffer.append(block.getDebugId() + " -> " + pred.getDebugId() + " [color=" + FG_blue + "];\r\n");
 //      }
 
       suc = block.getSuccExceptions();
@@ -490,7 +529,7 @@ public class DotExporter {
       }
 
 //      for (BasicBlock pred : preds) {
-//        buffer.append(block.getDebugId() + " -> " + pred.getDebugId() + " [color=blue,style=dotted];\r\n");
+//        buffer.append(block.getDebugId() + " -> " + pred.getDebugId() + " [color=" + FG_blue + ",style=dotted];\r\n");
 //      }
     }
 
@@ -515,6 +554,7 @@ public class DotExporter {
     int size = names.size();
 
     builder.append("digraph decompileRecord {\n");
+    builder.append(THEME_HEADER);
 
     for (int i = 0; i < size; i++) {
       builder.append("\t").append(i).append(" [label=\"").append(names.get(i)).append("\"];\n");
@@ -534,6 +574,7 @@ public class DotExporter {
     StringBuilder builder = new StringBuilder();
 
     builder.append("digraph G {\r\n");
+    builder.append(THEME_HEADER);
 
     for (VarVersionNode node : graph.nodes) {
       appendNode(builder, node);
@@ -549,19 +590,19 @@ public class DotExporter {
             builder.append(" [shape=box, ");
             break;
           case WRITE:
-            builder.append(" [shape=box, style=filled, fillcolor=palegreen1, ");
+            builder.append(" [shape=box, style=filled, fillcolor=" + BG_VAR_WRITE + ", ");
             break;
           case PHANTOM:
             builder.append(" [shape=box; style=dotted, ");
             break;
           case DEAD_READ:
-            builder.append(" [shape=box, style=filled, fillcolor=grey59, ");
+            builder.append(" [shape=box, style=filled, fillcolor=" + BG_VAR_DEAD_READ + ", ");
             break;
           case PARAM:
-            builder.append(" [shape=box, style=filled, fillcolor=skyblue1, ");
+            builder.append(" [shape=box, style=filled, fillcolor=" + BG_VAR_PARAM + ", ");
             break;
           case CATCH:
-            builder.append(" [shape=box, style=filled, fillcolor=gold, ");
+            builder.append(" [shape=box, style=filled, fillcolor=" + BG_VAR_CATCH + ", ");
             break;
         }
       }
@@ -590,7 +631,7 @@ public class DotExporter {
         appendNode(builder, from);
         builder.append("->");
         appendNode(builder, to);
-        builder.append(" [color=green];\r\n");
+        builder.append(" [color=" + FG_GREEN + "];\r\n");
       }
     }
 
@@ -615,6 +656,7 @@ public class DotExporter {
     StringBuilder builder = new StringBuilder();
 
     builder.append("digraph G {\r\n");
+    builder.append(THEME_HEADER);
 
     Set<Integer> nodes = new HashSet<>();
 
@@ -637,6 +679,7 @@ public class DotExporter {
     StringBuffer buffer = new StringBuffer();
 
     buffer.append("digraph G {\r\n");
+    buffer.append(THEME_HEADER);
 
     List<DirectNode> blocks = graph.nodes;
     for (DirectNode block : blocks) {
@@ -670,7 +713,7 @@ public class DotExporter {
       }
 
       if (block.tryFinally != null) {
-        buffer.append("x" + (block.id)+" -> x"+(block.tryFinally.id) + "[color=blue];\r\n");
+        buffer.append("x" + (block.id)+" -> x"+(block.tryFinally.id) + "[color=" + FG_BLUE + "];\r\n");
       }
     }
 
