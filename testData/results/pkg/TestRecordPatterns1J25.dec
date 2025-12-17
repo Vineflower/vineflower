@@ -2,118 +2,30 @@ package pkg;
 
 public class TestRecordPatterns1J25 {
    public void test1(TestRecordPatterns1J25.R r) {
-      if (r instanceof TestRecordPatterns1J25.R var2) {
-         TestRecordPatterns1J25.R var10000 = var2;
-
-         try {
-            var10 = var10000.i();
-         } catch (Throwable var8) {// 7
-            throw new MatchException(var8.toString(), var8);
-         }
-
-         int var5 = var10;
-         if (true) {
-            int x = var5;
-            var10000 = var2;
-
-            try {
-               var12 = var10000.o();
-            } catch (Throwable var7) {
-               throw new MatchException(var7.toString(), var7);
-            }
-
-            var5 = (int)var12;
-            Object o = var5;
-            System.out.println(x);// 8
-            System.out.println(o);// 9
-         }
+      if (r instanceof TestRecordPatterns1J25.R(int x, Object o)) {// 7
+         System.out.println(x);// 8
+         System.out.println(o);// 9
       }
    }// 11
 
    public void test2(TestRecordPatterns1J25.R r) {
-      if (r instanceof TestRecordPatterns1J25.R var2) {
-         TestRecordPatterns1J25.R var10000 = var2;
-
-         try {
-            var10 = var10000.i();
-         } catch (Throwable var8) {// 14
-            throw new MatchException(var8.toString(), var8);
-         }
-
-         int var5 = var10;
-         if (true) {
-            int x = var5;
-            var10000 = var2;
-
-            try {
-               var12 = var10000.o();
-            } catch (Throwable var7) {
-               throw new MatchException(var7.toString(), var7);
-            }
-
-            if (var12 instanceof String s) {
-               System.out.println(x);// 15
-               System.out.println(s);// 16
-            }
-         }
+      if (r instanceof TestRecordPatterns1J25.R(int x, String s)) {// 14
+         System.out.println(x);// 15
+         System.out.println(s);// 16
       }
    }// 18
 
    public void test3(TestRecordPatterns1J25.R r) {
-      if (r instanceof TestRecordPatterns1J25.R var2) {
-         TestRecordPatterns1J25.R var10000 = var2;
-
-         try {
-            var10 = var10000.i();
-         } catch (Throwable var8) {// 21
-            throw new MatchException(var8.toString(), var8);
-         }
-
-         int var5 = var10;
-         if (true) {
-            int x = var5;
-            var10000 = var2;
-
-            try {
-               var12 = var10000.o();
-            } catch (Throwable var7) {
-               throw new MatchException(var7.toString(), var7);
-            }
-
-            if (var12 instanceof String s && s.length() > 10) {
-               System.out.println(x);// 22
-               System.out.println(s);// 23
-            }
-         }
+      if (r instanceof TestRecordPatterns1J25.R(int x, String s) && s.length() > 10) {// 21
+         System.out.println(x);// 22
+         System.out.println(s);// 23
       }
    }// 25
 
    public void test4(TestRecordPatterns1J25.R r) {
-      if (r instanceof TestRecordPatterns1J25.R var2) {
-         TestRecordPatterns1J25.R var10000 = var2;
-
-         try {
-            var10 = var10000.i();
-         } catch (Throwable var8) {// 28
-            throw new MatchException(var8.toString(), var8);
-         }
-
-         int var5 = var10;
-         if (true) {
-            int x = var5;
-            var10000 = var2;
-
-            try {
-               var12 = var10000.o();
-            } catch (Throwable var7) {
-               throw new MatchException(var7.toString(), var7);
-            }
-
-            var5 = (int)var12;
-            Object v = var5;
-            System.out.println(x);// 29
-            System.out.println(v);// 30
-         }
+      if (r instanceof TestRecordPatterns1J25.R(int x, Object v)) {// 28
+         System.out.println(x);// 29
+         System.out.println(v);// 30
       }
    }// 32
 
@@ -130,27 +42,104 @@ class 'pkg/TestRecordPatterns1J25' {
       4      4
       5      4
       6      4
-      8      4
-      9      5
-      a      8
-      b      8
-      c      8
-      d      13
-      e      13
-      14      14
-      15      14
-      16      14
-      17      15
-      18      15
-      19      15
-      1a      16
-      1b      19
-      1c      19
-      1d      19
-      1e      24
-      1f      24
-      20      25
-      21      25
+      19      4
+      22      4
+      23      4
+      24      5
+      25      5
+      26      5
+      27      5
+      28      5
+      29      5
+      2a      5
+      2b      6
+      2c      6
+      2d      6
+      2e      6
+      2f      6
+      30      6
+      31      6
+      32      6
+      44      8
+   }
+
+   method 'test2 (Lpkg/TestRecordPatterns1J25$R;)V' {
+      0      11
+      1      11
+      2      11
+      3      11
+      4      11
+      5      11
+      6      11
+      19      11
+      2d      11
+      2e      11
+      2f      12
+      30      12
+      31      12
+      32      12
+      33      12
+      34      12
+      35      12
+      36      13
+      37      13
+      38      13
+      39      13
+      3a      13
+      3b      13
+      3c      13
+      3d      13
+      4f      15
+   }
+
+   method 'test3 (Lpkg/TestRecordPatterns1J25$R;)V' {
+      0      18
+      1      18
+      2      18
+      3      18
+      4      18
+      5      18
+      6      18
+      19      18
+      2d      18
+      2e      18
+      2f      18
+      30      18
+      31      18
+      32      18
+      33      18
+      34      18
+      35      18
+      36      18
+      37      18
+      38      18
+      39      19
+      3a      19
+      3b      19
+      3c      19
+      3d      19
+      3e      19
+      3f      19
+      40      20
+      41      20
+      42      20
+      43      20
+      44      20
+      45      20
+      46      20
+      47      20
+      59      22
+   }
+
+   method 'test4 (Lpkg/TestRecordPatterns1J25$R;)V' {
+      0      25
+      1      25
+      2      25
+      3      25
+      4      25
+      5      25
+      6      25
+      19      25
       22      25
       23      25
       24      26
@@ -168,213 +157,24 @@ class 'pkg/TestRecordPatterns1J25' {
       30      27
       31      27
       32      27
-      36      9
-      3b      10
-      3c      10
-      3d      10
-      3e      10
-      3f      10
-      43      10
-      44      30
-   }
-
-   method 'test2 (Lpkg/TestRecordPatterns1J25$R;)V' {
-      0      33
-      1      33
-      2      33
-      3      33
-      4      33
-      5      33
-      6      33
-      8      33
-      9      34
-      a      37
-      b      37
-      c      37
-      d      42
-      e      42
-      14      43
-      15      43
-      16      43
-      17      44
-      18      44
-      19      44
-      1a      45
-      1b      48
-      1c      48
-      1d      48
-      22      53
-      23      53
-      24      53
-      25      53
-      26      53
-      27      53
-      2d      53
-      2e      53
-      2f      54
-      30      54
-      31      54
-      32      54
-      33      54
-      34      54
-      35      54
-      36      55
-      37      55
-      38      55
-      39      55
-      3a      55
-      3b      55
-      3c      55
-      3d      55
-      41      38
-      46      39
-      47      39
-      48      39
-      49      39
-      4a      39
-      4e      39
-      4f      59
-   }
-
-   method 'test3 (Lpkg/TestRecordPatterns1J25$R;)V' {
-      0      62
-      1      62
-      2      62
-      3      62
-      4      62
-      5      62
-      6      62
-      8      62
-      9      63
-      a      66
-      b      66
-      c      66
-      d      71
-      e      71
-      14      72
-      15      72
-      16      72
-      17      73
-      18      73
-      19      73
-      1a      74
-      1b      77
-      1c      77
-      1d      77
-      22      82
-      23      82
-      24      82
-      25      82
-      26      82
-      27      82
-      2d      82
-      2e      82
-      2f      82
-      30      82
-      31      82
-      32      82
-      33      82
-      34      82
-      35      82
-      36      82
-      37      82
-      38      82
-      39      83
-      3a      83
-      3b      83
-      3c      83
-      3d      83
-      3e      83
-      3f      83
-      40      84
-      41      84
-      42      84
-      43      84
-      44      84
-      45      84
-      46      84
-      47      84
-      4b      67
-      50      68
-      51      68
-      52      68
-      53      68
-      54      68
-      58      68
-      59      88
-   }
-
-   method 'test4 (Lpkg/TestRecordPatterns1J25$R;)V' {
-      0      91
-      1      91
-      2      91
-      3      91
-      4      91
-      5      91
-      6      91
-      8      91
-      9      92
-      a      95
-      b      95
-      c      95
-      d      100
-      e      100
-      14      101
-      15      101
-      16      101
-      17      102
-      18      102
-      19      102
-      1a      103
-      1b      106
-      1c      106
-      1d      106
-      1e      111
-      1f      111
-      20      112
-      21      112
-      22      112
-      23      112
-      24      113
-      25      113
-      26      113
-      27      113
-      28      113
-      29      113
-      2a      113
-      2b      114
-      2c      114
-      2d      114
-      2e      114
-      2f      114
-      30      114
-      31      114
-      32      114
-      36      96
-      3b      97
-      3c      97
-      3d      97
-      3e      97
-      3f      97
-      43      97
-      44      117
+      44      29
    }
 }
 
 Lines mapping:
-7 <-> 10
-8 <-> 27
-9 <-> 28
-11 <-> 31
-14 <-> 39
-15 <-> 55
-16 <-> 56
-18 <-> 60
-21 <-> 68
-22 <-> 84
-23 <-> 85
-25 <-> 89
-28 <-> 97
-29 <-> 114
-30 <-> 115
-32 <-> 118
+7 <-> 5
+8 <-> 6
+9 <-> 7
+11 <-> 9
+14 <-> 12
+15 <-> 13
+16 <-> 14
+18 <-> 16
+21 <-> 19
+22 <-> 20
+23 <-> 21
+25 <-> 23
+28 <-> 26
+29 <-> 27
+30 <-> 28
+32 <-> 30

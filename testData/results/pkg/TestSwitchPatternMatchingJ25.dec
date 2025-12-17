@@ -47,6 +47,16 @@ public class TestSwitchPatternMatchingJ25 {
          default:
       }
    }// 48
+
+   public String test5(Object o) {
+      return switch (o) {// 52
+         case TestSwitchPatternMatchingJ25.Test5(TestSwitchPatternMatchingJ25.Test5(TestSwitchPatternMatchingJ25.Test5 t)) -> t.toString();// 53
+         default -> null;// 54
+      };
+   }
+
+   record Test5(Object o) {
+   }
 }
 
 class 'pkg/TestSwitchPatternMatchingJ25' {
@@ -307,6 +317,39 @@ class 'pkg/TestSwitchPatternMatchingJ25' {
       51      45
       54      48
    }
+
+   method 'test5 (Ljava/lang/Object;)Ljava/lang/String;' {
+      0      51
+      10      51
+      11      51
+      12      51
+      13      51
+      14      51
+      15      51
+      16      51
+      17      51
+      18      51
+      19      51
+      1a      51
+      1b      51
+      1c      51
+      1d      51
+      1e      51
+      1f      51
+      20      51
+      21      51
+      22      51
+      23      51
+      54      52
+      55      52
+      56      52
+      57      52
+      5e      52
+      5f      52
+      60      52
+      66      53
+      6a      51
+   }
 }
 
 Lines mapping:
@@ -334,3 +377,6 @@ Lines mapping:
 44 <-> 45
 45 <-> 46
 48 <-> 49
+52 <-> 52
+53 <-> 53
+54 <-> 54
