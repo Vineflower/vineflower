@@ -301,8 +301,9 @@ public final class IfPatternMatchProcessor {
     Map<BasicBlockStatement, List<Exprent>> remove = new HashMap<>();
     // Statements that ought to be destroyed as a result of creating the pattern
     List<Statement> toDestroy = new ArrayList<>();
+    List<StatEdge> removeEdge = new ArrayList<>();
 
-    PatternData pattern = getChildPattern(cl, storeVariable, type, branch, 1, toDestroy, remove);
+    PatternData pattern = getChildPattern(cl, storeVariable, type, branch, 1, toDestroy, remove, removeEdge);
     if (pattern == null) {
       return null;
     }
@@ -324,10 +325,12 @@ public final class IfPatternMatchProcessor {
       e.getKey().getExprents().removeAll(e.getValue());
     }
 
+    removeEdge.forEach(StatEdge::remove);
+
     return pattern.exp;
   }
 
-  private static PatternData getChildPattern(StructClass cl, Exprent storeVariable, VarType type, Statement branch, int stIdx, List<Statement> toDestroy, Map<BasicBlockStatement, List<Exprent>> remove) {
+  private static PatternData getChildPattern(StructClass cl, Exprent storeVariable, VarType type, Statement branch, int stIdx, List<Statement> toDestroy, Map<BasicBlockStatement, List<Exprent>> remove, List<StatEdge> removeEdge) {
     // Iteratively go through the sequence to see if it extracts from the record
 
     // The general strategy is to identify an "extracting try" [1] for each record component.
@@ -517,18 +520,18 @@ public final class IfPatternMatchProcessor {
       if (st instanceof CatchStatement) {
         // The matched trys will have a single assignment in the try body and a throw in the catch. These have break edges
         // that should be removed
-        st.getStats().get(0).getSuccessorEdges(StatEdge.TYPE_BREAK).forEach(StatEdge::remove);
-        st.getStats().get(1).getSuccessorEdges(StatEdge.TYPE_BREAK).forEach(StatEdge::remove);
+        st.getStats().get(0).getSuccessorEdges(StatEdge.TYPE_BREAK).forEach(removeEdge::add);
+        st.getStats().get(1).getSuccessorEdges(StatEdge.TYPE_BREAK).forEach(removeEdge::add);
       } else if (st instanceof IfStatement) {
-        st.getSuccessorEdges(StatEdge.TYPE_BREAK).forEach(StatEdge::remove);
+        st.getSuccessorEdges(StatEdge.TYPE_BREAK).forEach(removeEdge::add);
       }
     }
 
     if (branch != original) {
       if (branch.getParent() instanceof IfStatement ifSt) {
         // If we had to dig inside an if to find the body content, delete any breaks it has and any head->if body successors
-        ifSt.getSuccessorEdges(StatEdge.TYPE_BREAK).forEach(StatEdge::remove);
-        ifSt.getFirst().getSuccessorEdges(StatEdge.TYPE_REGULAR).forEach(StatEdge::remove);
+        ifSt.getSuccessorEdges(StatEdge.TYPE_BREAK).forEach(removeEdge::add);
+        ifSt.getFirst().getSuccessorEdges(StatEdge.TYPE_REGULAR).forEach(removeEdge::add);
       }
     }
 
@@ -536,13 +539,15 @@ public final class IfPatternMatchProcessor {
     for (PatternStore patternStore : patternStores) {
       List<Statement> tmpToDestroy = new ArrayList<>();
       Map<BasicBlockStatement, List<Exprent>> tmpRemove = new HashMap<>();
-      PatternData patternData = getChildPattern(patternStore.cl, patternStore.store, patternStore.type, branch, stIdx, tmpToDestroy, tmpRemove);
+      List<StatEdge> tmpRemoveEdge = new ArrayList<>();
+      PatternData patternData = getChildPattern(patternStore.cl, patternStore.store, patternStore.type, branch, stIdx, tmpToDestroy, tmpRemove, tmpRemoveEdge);
       if (patternData != null) {
         vars.put(patternStore.component, patternData.exp);
         branch = patternData.stat;
         stIdx = patternData.index;
         toDestroy.addAll(tmpToDestroy);
         remove.putAll(tmpRemove);
+        removeEdge.addAll(tmpRemoveEdge);
       }
     }
 
