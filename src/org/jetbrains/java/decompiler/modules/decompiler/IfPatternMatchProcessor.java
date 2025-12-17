@@ -472,9 +472,6 @@ public final class IfPatternMatchProcessor {
                 }
               }
             } else if (ifSt.getHeadexprent().getCondition() instanceof ConstExprent constExp && constExp.hasBooleanValue() && (int) constExp.getValue() == 1) {
-              if (branch.getTopParent().mt.getClassQualifiedName().contains("TestRecordPatterns1J25")) {
-                System.out.println();
-              }
               BasicBlockStatement headStat = ifSt.getIfstat().getBasichead();
               List<Exprent> headExprents = headStat.getExprents();
               if (headExprents.size() >= 1
