@@ -435,38 +435,61 @@ public final class IfPatternMatchProcessor {
                 }
               }
             }
-          } else if (next instanceof IfStatement ifSt && ifSt.iftype == IfStatement.IFTYPE_IF && ifSt.getHeadexprent().getCondition() instanceof FunctionExprent func) {
-            // Is the next statement an if with an instanceof inside? It might be a type-improving if. Search inside it too.
-            FunctionExprent function = null;
+          } else if (next instanceof IfStatement ifSt && ifSt.iftype == IfStatement.IFTYPE_IF) {
             boolean found = false;
             boolean inverted = false;
-            if (func.getFuncType() == FunctionType.INSTANCEOF) {
-              found = true;
-              function = func;
-            } else if (func.getFuncType() == FunctionType.BOOL_NOT && func.getLstOperands().get(0) instanceof FunctionExprent inner && inner.getFuncType() == FunctionType.INSTANCEOF) {
-              found = true;
-              inverted = true;
-              function = inner;
-            }
-
-            if (found) {
-              // "<stackVar> = <originalVar>;" idiom
-              // Ensure this is the right idiom be fore we mark it for destruction.
-              if (branch.getBasichead().getExprents().size() == 1) {
-                if (branch.getBasichead().getExprents().get(0) instanceof AssignmentExprent assign
-                  && assign.getLeft() instanceof VarExprent && assign.getRight() instanceof VarExprent) {
-                  toDestroy.add(branch.getBasichead());
+            if (ifSt.getHeadexprent().getCondition() instanceof FunctionExprent func) {
+              // Is the next statement an if with an instanceof inside? It might be a type-improving if. Search inside it too.
+              FunctionExprent function = null;
+              if (func.getFuncType() == FunctionType.INSTANCEOF) {
+                found = true;
+                function = func;
+              } else if (func.getFuncType() == FunctionType.BOOL_NOT && func.getLstOperands().get(0) instanceof FunctionExprent inner && inner.getFuncType() == FunctionType.INSTANCEOF) {
+                found = true;
+                inverted = true;
+                function = inner;
+              }
+  
+              if (found) {
+                // "<stackVar> = <originalVar>;" idiom
+                // Ensure this is the right idiom be fore we mark it for destruction.
+                if (branch.getBasichead().getExprents().size() == 1) {
+                  if (branch.getBasichead().getExprents().get(0) instanceof AssignmentExprent assign
+                    && assign.getLeft() instanceof VarExprent && assign.getRight() instanceof VarExprent) {
+                    toDestroy.add(branch.getBasichead());
+                  }
+                }
+  
+                // Find any nested record patterns
+                Exprent store = function.getLstOperands().size() > 2 ? function.getLstOperands().get(2) : function.getLstOperands().get(0);
+                if (store instanceof VarExprent variable) {
+                  patternStores.add(new PatternStore(c, DecompilerContext.getStructContext().getClass(variable.getExprType().value), variable.getExprType(), variable));
+                  vars.put(c, variable);
+                  ok = true;
+                } else if (store instanceof PatternExprent pattern) {
+                  vars.put(c, pattern);
+                  ok = true;
                 }
               }
-
-              // Find any nested record patterns
-              Exprent store = function.getLstOperands().size() > 2 ? function.getLstOperands().get(2) : function.getLstOperands().get(0);
-              if (store instanceof VarExprent variable) {
-                patternStores.add(new PatternStore(c, DecompilerContext.getStructContext().getClass(variable.getExprType().value), variable.getExprType(), variable));
-                vars.put(c, variable);
-                ok = true;
+            } else if (ifSt.getHeadexprent().getCondition() instanceof ConstExprent constExp && constExp.hasBooleanValue() && (int) constExp.getValue() == 1) {
+              if (branch.getTopParent().mt.getClassQualifiedName().contains("TestRecordPatterns1J25")) {
+                System.out.println();
               }
-
+              BasicBlockStatement headStat = ifSt.getIfstat().getBasichead();
+              List<Exprent> headExprents = headStat.getExprents();
+              if (headExprents.size() >= 1
+                  && headExprents.get(0) instanceof AssignmentExprent assignment
+                  && assignment.getLeft() instanceof VarExprent store
+                  && assignment.getRight() instanceof VarExprent) {
+                found = true;
+                vars.put(c, store);
+                ok = true;
+                List<Exprent> toRemove = remove.computeIfAbsent(headStat, block -> new ArrayList<>());
+                toRemove.add(assignment);
+              }
+            }
+  
+            if (found) {
               toDestroy.add(ifSt);
 
               if (inverted) {
