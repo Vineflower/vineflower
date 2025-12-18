@@ -486,7 +486,8 @@ public final class IfPatternMatchProcessor {
                 inverted = true;
               }
 
-              if (exprents.size() >= 1
+              if (stat != null
+                  && exprents.size() >= 1
                   && exprents.get(0) instanceof AssignmentExprent assignment
                   && assignment.getLeft() instanceof VarExprent store
                   && assignment.getRight() instanceof VarExprent) {
