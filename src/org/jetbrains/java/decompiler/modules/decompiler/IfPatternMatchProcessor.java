@@ -474,17 +474,27 @@ public final class IfPatternMatchProcessor {
                   ok = true;
                 }
               }
-            } else if (ifSt.getHeadexprent().getCondition() instanceof ConstExprent constExp && constExp.hasBooleanValue() && (int) constExp.getValue() == 1) {
-              BasicBlockStatement headStat = ifSt.getIfstat().getBasichead();
-              List<Exprent> headExprents = headStat.getExprents();
-              if (headExprents.size() >= 1
-                  && headExprents.get(0) instanceof AssignmentExprent assignment
+            } else if (ifSt.getHeadexprent().getCondition() instanceof ConstExprent constExp && constExp.hasBooleanValue()) {
+              BasicBlockStatement stat = null;
+              List<Exprent> exprents = null;
+              if ((int) constExp.getValue() == 1) {
+                stat = ifSt.getIfstat().getBasichead();
+                exprents = stat.getExprents();
+              } else if (stIdx + 1 < branch.getStats().size()) {
+                stat = branch.getStats().get(stIdx + 1).getBasichead();
+                exprents = stat.getExprents();
+                inverted = true;
+              }
+
+              if (stat != null
+                  && exprents.size() >= 1
+                  && exprents.get(0) instanceof AssignmentExprent assignment
                   && assignment.getLeft() instanceof VarExprent store
                   && assignment.getRight() instanceof VarExprent) {
                 found = true;
                 vars.put(c, store);
                 ok = true;
-                List<Exprent> toRemove = remove.computeIfAbsent(headStat, block -> new ArrayList<>());
+                List<Exprent> toRemove = remove.computeIfAbsent(stat, block -> new ArrayList<>());
                 toRemove.add(assignment);
               }
             }
