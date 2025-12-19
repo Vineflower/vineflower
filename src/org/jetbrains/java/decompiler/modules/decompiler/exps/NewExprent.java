@@ -851,6 +851,10 @@ public class NewExprent extends Exprent {
     return methodReference;
   }
 
+  public void setMethodReference(boolean methodReference) {
+    this.methodReference = methodReference;
+  }
+
   public String getLambdaMethodKey() {
     ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(newType.value);
     if (node != null && constructor != null) {

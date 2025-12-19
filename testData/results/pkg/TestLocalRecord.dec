@@ -34,21 +34,21 @@ public class TestLocalRecord {
       record R() {
       }
 
-      Supplier<R> constr = () -> new R();// 29
+      Supplier<R> constr = R::new;// 29
    }// 30
 
    public Supplier<Supplier<Object>> test5() {
       record R() {
       }
 
-      return () -> () -> new R();// 34
+      return () -> R::new;// 34
    }
 
    public Supplier<Object> test6() {
       record R() {
       }
 
-      return () -> new R();// 39
+      return R::new;// 39
    }
 }
 
@@ -119,10 +119,6 @@ class 'pkg/TestLocalRecord' {
       6      37
    }
 
-   method 'lambda$test4$0 ()Lpkg/TestLocalRecord$3R;' {
-      7      36
-   }
-
    method 'test5 ()Ljava/util/function/Supplier;' {
       5      43
    }
@@ -131,16 +127,8 @@ class 'pkg/TestLocalRecord' {
       5      43
    }
 
-   method 'lambda$test5$1 ()Ljava/lang/Object;' {
-      7      43
-   }
-
    method 'test6 ()Ljava/util/function/Supplier;' {
       5      50
-   }
-
-   method 'lambda$test6$3 ()Ljava/lang/Object;' {
-      7      50
    }
 }
 

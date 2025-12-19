@@ -346,6 +346,11 @@ public class MethodProcessor implements Runnable {
         continue;
       }
 
+      if (MethodReferenceHelper.convertToMethodReference(root)) {
+        decompileRecord.add("ProcessLambda", root);
+        continue;
+      }
+
       if (InlineSingleBlockHelper.inlineSingleBlocks(root)) {
         decompileRecord.add("InlineSingleBlocks", root);
         continue;
