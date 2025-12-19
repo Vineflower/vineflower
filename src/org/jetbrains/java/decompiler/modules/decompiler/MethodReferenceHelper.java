@@ -256,6 +256,7 @@ public class MethodReferenceHelper {
             && assign instanceof AssignmentExprent stackAssign
             && stackVar.equalsVersions(stackAssign.getLeft())) {
           newExp.getConstructor().setInstance(stackAssign.getRight());
+          newExp.getConstructor().getLstParameters().set(0, stackAssign.getRight());
           stat.getExprents().remove(i - 1);
           stat.getExprents().remove(i - 2);
           return true;
