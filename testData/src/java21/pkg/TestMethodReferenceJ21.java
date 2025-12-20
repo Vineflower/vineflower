@@ -9,6 +9,10 @@ public class TestMethodReferenceJ21 extends RefsExt {
     consume(this::accept);
   }
 
+  private void test_() {
+    consume(s -> this.accept(s));
+  }
+
   private void test2() {
     consume(this::accept2);
   }
@@ -17,12 +21,32 @@ public class TestMethodReferenceJ21 extends RefsExt {
     consume(ref::accept);
   }
 
+  private void test3_(TestMethodReferenceJ21 ref) {
+    consume(s -> ref.accept(s));
+  }
+
   private void test4(TestMethodReferenceJ21 ref) {
     consume(ref::accept2);
   }
 
   private void test5(RefsExt ref) {
     consume(ref::accept2);
+  }
+
+  private void test6() {
+    consume(ref()::accept);
+  }
+
+  private void test6_() {
+    consume(s -> ref().accept(s));
+  }
+
+  private void test7() {
+    consume(ref()::accept2);
+  }
+
+  public TestMethodReferenceJ21 ref() {
+    return this;
   }
 
   protected void consume(Consumer<String> c) {
