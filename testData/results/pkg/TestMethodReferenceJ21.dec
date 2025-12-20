@@ -1,0 +1,109 @@
+package pkg;
+
+import ext.RefsExt;
+import java.util.function.Consumer;
+
+public class TestMethodReferenceJ21 extends RefsExt {
+   private void test() {
+      this.consume(x$0 -> this.accept(x$0));// 9
+   }// 10
+
+   private void test2() {
+      this.consume(this::accept2);// 13
+   }// 14
+
+   private void test3(TestMethodReferenceJ21 ref) {
+      this.consume(x$0 -> ref.accept(x$0));// 17
+   }// 18
+
+   private void test4(TestMethodReferenceJ21 ref) {
+      this.consume(ref::accept2);// 21
+   }// 22
+
+   private void test5(RefsExt ref) {
+      this.consume(ref::accept2);// 25
+   }// 26
+
+   protected void consume(Consumer<String> c) {
+   }// 30
+}
+
+class 'pkg/TestMethodReferenceJ21' {
+   method 'test ()V' {
+      0      7
+      7      7
+      8      7
+      9      7
+      a      8
+   }
+
+   method 'lambda$test$0 (Lpkg/TestMethodReferenceJ21;Ljava/lang/String;)V' {
+      0      7
+      1      7
+      2      7
+      3      7
+      4      7
+      5      7
+   }
+
+   method 'test2 ()V' {
+      0      11
+      1      11
+      7      11
+      8      11
+      9      11
+      a      12
+   }
+
+   method 'test3 (Lpkg/TestMethodReferenceJ21;)V' {
+      0      15
+      c      15
+      d      15
+      e      15
+      f      16
+   }
+
+   method 'lambda$test3$1 (Lpkg/TestMethodReferenceJ21;Ljava/lang/String;)V' {
+      0      15
+      1      15
+      2      15
+      3      15
+      4      15
+      5      15
+   }
+
+   method 'test4 (Lpkg/TestMethodReferenceJ21;)V' {
+      0      19
+      1      19
+      c      19
+      d      19
+      e      19
+      f      20
+   }
+
+   method 'test5 (Lext/RefsExt;)V' {
+      0      23
+      1      23
+      c      23
+      d      23
+      e      23
+      f      24
+   }
+
+   method 'consume (Ljava/util/function/Consumer;)V' {
+      0      27
+   }
+}
+
+Lines mapping:
+9 <-> 8
+10 <-> 9
+13 <-> 12
+14 <-> 13
+17 <-> 16
+18 <-> 17
+21 <-> 20
+22 <-> 21
+25 <-> 24
+26 <-> 25
+30 <-> 28

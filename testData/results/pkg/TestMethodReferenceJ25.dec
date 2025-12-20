@@ -1,0 +1,120 @@
+package pkg;
+
+import ext.RefsExt;
+import java.util.Objects;
+import java.util.function.Consumer;
+
+public class TestMethodReferenceJ25 extends RefsExt {
+   private void test() {
+      TestMethodReferenceJ25 var1 = this;
+      this.consume(x$0 -> var1.accept(x$0));// 9
+   }// 10
+
+   private void test2() {
+      this.consume(this::accept2);// 13
+   }// 14
+
+   private void test3(TestMethodReferenceJ25 ref) {
+      Objects.requireNonNull(ref);
+      TestMethodReferenceJ25 var2 = ref;
+      this.consume(x$0 -> var2.accept(x$0));// 17
+   }// 18
+
+   private void test4(TestMethodReferenceJ25 ref) {
+      this.consume(ref::accept2);// 21
+   }// 22
+
+   private void test5(RefsExt ref) {
+      this.consume(ref::accept2);// 25
+   }// 26
+
+   protected void consume(Consumer<String> c) {
+   }// 30
+}
+
+class 'pkg/TestMethodReferenceJ25' {
+   method 'test ()V' {
+      0      9
+      1      8
+      2      8
+      9      9
+      a      9
+      b      9
+      c      10
+   }
+
+   method 'lambda$test$0 (Lpkg/TestMethodReferenceJ25;Ljava/lang/String;)V' {
+      0      9
+      1      9
+      2      9
+      3      9
+      4      9
+      5      9
+   }
+
+   method 'test2 ()V' {
+      0      13
+      1      13
+      7      13
+      8      13
+      9      13
+      a      14
+   }
+
+   method 'test3 (Lpkg/TestMethodReferenceJ25;)V' {
+      0      19
+      1      17
+      3      17
+      4      17
+      5      17
+      7      18
+      e      19
+      f      19
+      10      19
+      11      20
+   }
+
+   method 'lambda$test3$0 (Lpkg/TestMethodReferenceJ25;Ljava/lang/String;)V' {
+      0      19
+      1      19
+      2      19
+      3      19
+      4      19
+      5      19
+   }
+
+   method 'test4 (Lpkg/TestMethodReferenceJ25;)V' {
+      0      23
+      1      23
+      c      23
+      d      23
+      e      23
+      f      24
+   }
+
+   method 'test5 (Lext/RefsExt;)V' {
+      0      27
+      1      27
+      c      27
+      d      27
+      e      27
+      f      28
+   }
+
+   method 'consume (Ljava/util/function/Consumer;)V' {
+      0      31
+   }
+}
+
+Lines mapping:
+9 <-> 10
+10 <-> 11
+13 <-> 14
+14 <-> 15
+17 <-> 20
+18 <-> 21
+21 <-> 24
+22 <-> 25
+25 <-> 28
+26 <-> 29
+30 <-> 32
