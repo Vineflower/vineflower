@@ -794,7 +794,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestTryLoopReturnFinally");
     register(JASM, "TestNumberCompareToBoolean");
 
-    register(JAVA_25, "TestMethodReferenceJ25");
+    register(JAVA_21, "TestMethodReferenceJ21", "ext/RefsExt");
+    register(JAVA_25, "TestMethodReferenceJ25", "ext/RefsExt");
   }
 
   private void registerEntireClassPath() {

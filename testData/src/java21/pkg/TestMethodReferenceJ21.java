@@ -4,7 +4,7 @@ import ext.RefsExt;
 
 import java.util.function.Consumer;
 
-public class TestMethodReferenceJ25 extends RefsExt {
+public class TestMethodReferenceJ21 extends RefsExt {
   private void test() {
     consume(this::accept);
   }
@@ -17,15 +17,15 @@ public class TestMethodReferenceJ25 extends RefsExt {
     consume(this::accept2);
   }
 
-  private void test3(TestMethodReferenceJ25 ref) {
+  private void test3(TestMethodReferenceJ21 ref) {
     consume(ref::accept);
   }
 
-  private void test3_(TestMethodReferenceJ25 ref) {
+  private void test3_(TestMethodReferenceJ21 ref) {
     consume(s -> ref.accept(s));
   }
 
-  private void test4(TestMethodReferenceJ25 ref) {
+  private void test4(TestMethodReferenceJ21 ref) {
     consume(ref::accept2);
   }
 
@@ -45,7 +45,7 @@ public class TestMethodReferenceJ25 extends RefsExt {
     consume(ref()::accept2);
   }
 
-  public TestMethodReferenceJ25 ref() {
+  public TestMethodReferenceJ21 ref() {
     return this;
   }
 
