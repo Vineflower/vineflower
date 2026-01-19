@@ -1,6 +1,8 @@
 package org.vineflower.kotlin;
 
+import org.vineflower.kotlin.struct.*;
 import org.vineflower.kt.metadata.ProtoBuf;
+import org.vineflower.kt.metadata.deserialization.Flags;
 import org.vineflower.kt.metadata.jvm.JvmProtoBuf;
 import org.vineflower.kt.protobuf.ExtensionRegistryLite;
 import org.jetbrains.java.decompiler.api.plugin.LanguageChooser;
@@ -16,9 +18,10 @@ import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
 import org.jetbrains.java.decompiler.util.Key;
 import org.vineflower.kotlin.metadata.BitEncoding;
 import org.vineflower.kotlin.metadata.MetadataNameResolver;
-import org.vineflower.kotlin.metadata.KotlinMetadata;
 
 import java.io.ByteArrayInputStream;
+import java.util.Arrays;
+import java.util.List;
 
 public class KotlinChooser implements LanguageChooser {
   private static final Key<?>[] ANNOTATION_ATTRIBUTES = {
@@ -54,7 +57,7 @@ public class KotlinChooser implements LanguageChooser {
   }
 
   public static void parseMetadataFor(StructClass cl) {
-    if (cl.getAttribute(KotlinMetadata.KEY) != null) {
+    if (cl.getAttribute(KElement.KEY) != null) {
       return;
     }
 
@@ -88,7 +91,7 @@ public class KotlinChooser implements LanguageChooser {
       if (d1Index == -1) {
         boolean functionRef = cl.superClass.getString().equals("kotlin/jvm/internal/FunctionReferenceImpl");
         if (functionRef) {
-          cl.getAttributes().put(KotlinMetadata.KEY, new KotlinMetadata(new KotlinMetadata.FunctionReference(cl), null));
+          cl.getAttributes().put(KElement.KEY, new KFunctionReference());
         }
 
         String resolution = functionRef ? "assuming function reference" : "cannot continue Kotlin parsing";
@@ -118,24 +121,28 @@ public class KotlinChooser implements LanguageChooser {
         resolver = null;
       }
 
-      KotlinMetadata.Metadata metadata;
       if (k == 1) { // Class file
         ProtoBuf.Class pcl = ProtoBuf.Class.parseFrom(input, EXTENSIONS);
-        metadata = new KotlinMetadata.Class(cl, pcl);
+        KProperty.parse(cl, pcl.getPropertyList(), resolver, null);
+        KFunction.parse(cl, resolver, pcl.getTypeTable(), pcl.getFunctionList(), false, null);
+        KConstructor.parse(cl, pcl, resolver);
+        cl.getAttributes().put(KElement.KEY, new KClass(pcl, resolver));
       } else if (k == 2) { // File facade
         ProtoBuf.Package pcl = ProtoBuf.Package.parseFrom(input, EXTENSIONS);
-        metadata = new KotlinMetadata.File(cl, pcl);
+        KProperty.parse(cl, pcl.getPropertyList(), resolver, null);
+        KFunction.parse(cl, resolver, pcl.getTypeTable(), pcl.getFunctionList(), false, null);
+        cl.getAttributes().put(KElement.KEY, new KFile(pcl, resolver, false));
       } else if (k == 3) { // Synthetic class
         ProtoBuf.Function func = ProtoBuf.Function.parseFrom(input, EXTENSIONS);
-        metadata = new KotlinMetadata.SyntheticClass(cl, func);
-      } else if (k == 5) { // Multi-file facade
+        KFunction.parse(cl, resolver, func.getTypeTable(), List.of(func), true, null);
+      } else if (k == 4) { // Multi-file facade
+        cl.getAttributes().put(KElement.KEY, new KMultifileFacade(Arrays.asList(data1)));
+      } else if (k == 5) { // Multi-file part
         ProtoBuf.Package pcl = ProtoBuf.Package.parseFrom(input, EXTENSIONS);
-        metadata = new KotlinMetadata.MultifileClass(cl, pcl);
-      } else {
-        return;
+        KProperty.parse(cl, pcl.getPropertyList(), resolver, null);
+        KFunction.parse(cl, resolver, pcl.getTypeTable(), pcl.getFunctionList(), false, null);
+        cl.getAttributes().put(KElement.KEY, new KFile(pcl, resolver, true));
       }
-
-      cl.getAttributes().put(KotlinMetadata.KEY, new KotlinMetadata(metadata, resolver));
     } catch (Exception e) {
       DecompilerContext.getLogger().writeMessage("Failed to parse metadata for class " + cl.qualifiedName, IFernflowerLogger.Severity.WARN, e);
     }

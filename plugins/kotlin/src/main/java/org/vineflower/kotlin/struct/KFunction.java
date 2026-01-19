@@ -20,12 +20,9 @@ import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.vineflower.kotlin.KotlinOptions;
 import org.vineflower.kotlin.KotlinWriter;
 import org.vineflower.kotlin.metadata.MetadataNameResolver;
-import org.vineflower.kotlin.metadata.KotlinMetadata;
 import org.vineflower.kotlin.util.KUtils;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -43,9 +40,11 @@ public record KFunction(
   @NotNull Function<ClassWrapper, @NotNull DefaultArgsMap> defaultArgsSupplier,
   StructClass classStruct,
   StructMethod methodStruct
-) implements Flags {
-  public static @NotNull Map<StructMethod, KFunction> parse(StructClass classStruct, KotlinMetadata ktData, @NotNull MetadataNameResolver resolver, List<ProtoBuf.Function> protoFunctions) {
-    Map<StructMethod, KFunction> functions = new HashMap<>(protoFunctions.size(), 1f);
+) implements KElement, Flags {
+  public static void parse(StructClass classStruct, @Nullable MetadataNameResolver resolver, ProtoBuf.TypeTable typeTable, List<ProtoBuf.Function> protoFunctions, boolean isSyntheticFunction, StructClass companionParent) {
+    if (resolver == null) {
+      return;
+    }
 
     for (ProtoBuf.Function function : protoFunctions) {
       JvmProtoBuf.JvmMethodSignature jvmData = function.getExtension(JvmProtoBuf.methodSignature);
@@ -97,7 +96,14 @@ public record KFunction(
             //TODO suspend function support at large
             continue;
           }
-          throw new IllegalStateException("Couldn't find methodSupplier " + name + " " + desc + " in class " + classStruct.qualifiedName);
+          throw new IllegalStateException("Couldn't find method " + name + " " + desc + " in class " + classStruct.qualifiedName);
+        }
+
+        if (companionParent != null) {
+          StructMethod inParent = companionParent.getMethod(lookupName, desc.toString());
+          if (inParent != null) {
+            inParent.getAttributes().put(KElement.KEY, KHiddenElement.COMPANION_ITEM);
+          }
         }
       }
       @NotNull StructMethod method = methodLookup;
@@ -137,6 +143,18 @@ public record KFunction(
       defaultArgsDesc.append("Ljava/lang/Object;)");
       defaultArgsDesc.append(returnType);
 
+      StructMethod defaultMethod = classStruct.getMethod(defaultArgsName, defaultArgsDesc.toString());
+      if (defaultMethod != null) {
+        defaultMethod.getAttributes().put(KElement.KEY, KHiddenElement.DEFAULT_IMPL);
+      }
+      
+      if (companionParent != null) {
+        StructMethod inParent = companionParent.getMethod(defaultArgsName, defaultArgsDesc.toString());
+        if (inParent != null) {
+          inParent.getAttributes().put(KElement.KEY, KHiddenElement.DEFAULT_IMPL);
+        }
+      }
+
       Function<ClassWrapper, DefaultArgsMap> defaultArgs = wrapper -> DefaultArgsMap.from(wrapper.getMethodWrapper(defaultArgsName, defaultArgsDesc.toString()), wrapper.getMethodWrapper(method.getName(), method.getDescriptor()), parameters);
 
       ProtoBuf.Visibility visibility = VISIBILITY.get(flags);
@@ -146,7 +164,7 @@ public record KFunction(
         && visibility != ProtoBuf.Visibility.LOCAL
         && KotlinWriter.searchForMethod(classStruct, method.getName(), method.methodDescriptor(), false);
 
-      KContract contract = function.hasContract() ? KContract.from(function.getContract(), List.of(parameters), ktData) : null;
+      KContract contract = function.hasContract() ? KContract.from(function.getContract(), List.of(parameters), resolver, typeTable) : null;
 
       KFunction kFunction = new KFunction(
         name,
@@ -164,17 +182,19 @@ public record KFunction(
         method
       );
 
-      functions.put(method, kFunction);
-    }
+      method.getAttributes().put(KElement.KEY, kFunction);
 
-    return functions;
+      if (isSyntheticFunction) {
+        classStruct.getAttributes().put(KElement.KEY, kFunction);
+      }
+    }
   }
 
   public TextBuffer stringify(ClassWrapper wrapper, int indent) {
     TextBuffer buf = new TextBuffer();
     KotlinWriter.appendAnnotations(buf, indent, methodStruct, TypeAnnotation.METHOD_RETURN_TYPE);
-    KotlinMetadata classData = classStruct.getAttribute(KotlinMetadata.KEY);
-    boolean isInFile = classData != null && classData.metadata instanceof KotlinMetadata.File;
+    KElement classData = classStruct.getAttribute(KElement.KEY);
+    boolean isInFile = classData instanceof KFile;
     KotlinWriter.appendJvmAnnotations(buf, indent, methodStruct, false, isInFile, classStruct.getPool(), TypeAnnotation.METHOD_RETURN_TYPE);
 
     String methodKey = InterpreterUtil.makeUniqueKey(methodStruct.getName(), methodStruct.getDescriptor());

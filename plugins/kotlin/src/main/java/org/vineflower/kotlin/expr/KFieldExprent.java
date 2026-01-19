@@ -12,9 +12,7 @@ import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.vineflower.kotlin.KotlinChooser;
 import org.vineflower.kotlin.KotlinWriter;
-import org.vineflower.kotlin.metadata.KotlinMetadata;
-import org.vineflower.kotlin.struct.KFunction;
-import org.vineflower.kotlin.struct.KParameter;
+import org.vineflower.kotlin.struct.*;
 import org.vineflower.kotlin.util.KTypes;
 
 public class KFieldExprent extends FieldExprent implements KExprent {
@@ -41,20 +39,19 @@ public class KFieldExprent extends FieldExprent implements KExprent {
 
       KotlinChooser.parseMetadataFor(cl);
 
-      KotlinMetadata ktData = cl.getAttribute(KotlinMetadata.KEY);
+      KElement ktData = cl.getAttribute(KElement.KEY);
       if (ktData == null) {
         return super.toJava(indent);
       }
 
-      if (ktData.metadata instanceof KotlinMetadata.Class cls) {
+      if (ktData instanceof KClass cls) {
         if (cls.proto().hasCompanionObjectName()) {
-          String name = ktData.nameResolver == null ? cl.qualifiedName : ktData.nameResolver.resolve(cls.proto().getCompanionObjectName());
+          String name = cls.resolver() == null ? cl.qualifiedName : cls.resolver().resolve(cls.proto().getCompanionObjectName());
           buf.appendClass(DecompilerContext.getImportCollector().getShortName(cl.qualifiedName), false, name);
           buf.addBytecodeMapping(bytecode);
           return buf;
         }
-      } else if (ktData.metadata instanceof KotlinMetadata.SyntheticClass) {
-        KFunction function = ktData.getFunctions().values().iterator().next();
+      } else if (ktData instanceof KFunction function) {
         ClassWrapper wrapper = DecompilerContext.getClassProcessor().getMapRootClasses().get(getClassname()).getWrapper();
         MethodWrapper method = function.methodSupplier().apply(wrapper);
 
@@ -99,7 +96,7 @@ public class KFieldExprent extends FieldExprent implements KExprent {
         buf.appendIndent(indent).append("}");
         buf.addBytecodeMapping(bytecode);
         return buf;
-      } else if (ktData.metadata instanceof KotlinMetadata.FunctionReference) {
+      } else if (ktData instanceof KFunctionReference) {
         TextBuffer buffer = KotlinWriter.stringifyReference(indent, DecompilerContext.getClassProcessor().getMapRootClasses().get(getClassname()), bytecode, null);
         if (buffer != null) {
           return buffer;

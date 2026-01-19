@@ -6,7 +6,6 @@ import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.vineflower.kotlin.metadata.MetadataNameResolver;
-import org.vineflower.kotlin.metadata.KotlinMetadata;
 import org.vineflower.kotlin.util.KTypes;
 
 import java.util.Objects;
@@ -80,21 +79,8 @@ public class KType extends VarType {
     return new KType(varType, kotlinType, isNullable, typeArguments, typeParameterName, typeAliasName);
   }
 
-  public static KType from(int tableIndex, KotlinMetadata ktData) {
-    ProtoBuf.TypeTable table;
-    if (ktData.metadata instanceof KotlinMetadata.Class cls) {
-      table = cls.proto().getTypeTable();
-    } else if (ktData.metadata instanceof KotlinMetadata.SyntheticClass cls) {
-      table = cls.proto().getTypeTable();
-    } else if (ktData.metadata instanceof KotlinMetadata.File cls) {
-      table = cls.proto().getTypeTable();
-    } else if (ktData.metadata instanceof KotlinMetadata.MultifileClass cls) {
-      table = cls.proto().getTypeTable();
-    } else {
-      throw new IllegalStateException("Impossible metadata value");
-    }
-
-    return from(table.getType(tableIndex), ktData.nameResolver);
+  public static KType from(int tableIndex, MetadataNameResolver resolver, ProtoBuf.TypeTable typeTable) {
+    return from(typeTable.getType(tableIndex), resolver);
   }
 
   // stringify is for the decompiler output
