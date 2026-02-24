@@ -68,22 +68,21 @@ public class StackVarsProcessor {
         ssau = new SSAUConstructorSparseEx(false);
         ssau.splitVariables(root, mt);
 
-        found |= SimplifyExprentsHelper.simplifySimple(root, ssau);
-
-        setVersionsToNull(root);
-      }
-
-      ssau = new SSAUConstructorSparseEx();
-      ssau.splitVariables(root, mt);
-
-      if (first) {
         setEffectivelyFinalVars(root, ssau, new HashMap<>());
         ValidationHelper.validateStatement(root);
-      }
 
-      if (iterateStatements(root, ssau, options)) {
-        ValidationHelper.validateStatement(root);
-        found = true;
+        if (SimplifyExprentsHelper.simplifySimple(root, ssau)){
+          ValidationHelper.validateStatement(root);
+          found = true;
+        }
+      } else {
+        ssau = new SSAUConstructorSparseEx();
+        ssau.splitVariables(root, mt);
+
+        if (iterateStatements(root, ssau, options)) {
+          ValidationHelper.validateStatement(root);
+          found = true;
+        }
       }
 
       setVersionsToNull(root);

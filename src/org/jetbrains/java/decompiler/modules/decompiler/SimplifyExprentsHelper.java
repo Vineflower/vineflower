@@ -1217,6 +1217,26 @@ public class SimplifyExprentsHelper {
         }
       }
     }
+
+
+    for (int i = statExprents.size() - 1; i > 0; i--) {
+      if (statExprents.get(i - 1) instanceof AssignmentExprent ass &&
+        ass.getCondType() == null &&
+        ass.getLeft() instanceof VarExprent varExprent &&
+        varExprent.isStack() &&
+        ((Object) ssu.getNode(varExprent)) instanceof VarVersionNode node &&
+        node.hasSingleSuccessor() &&
+        ((Object) node.getSingleSuccessor()) instanceof VarVersionNode targetNode &&
+        targetNode.hasSinglePredecessor() &&
+        !targetNode.hasAnySuccessors() &&
+        // inlining in next exprent if the use is in the next exprent
+        inlineExprent(statExprents.get(i), targetNode.asPair(), ass.getRight()) == 1
+      ) {
+        simplified = true;
+        statExprents.remove(i - 1);
+      }
+    }
+
     return simplified;
   }
 
