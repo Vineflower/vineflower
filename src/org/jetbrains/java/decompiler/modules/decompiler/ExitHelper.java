@@ -1,17 +1,11 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler;
 
-import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
-import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.ConstExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.ExitExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement.EdgeDirection;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -106,87 +100,117 @@ public final class ExitHelper {
         }
       }
 
-      if (stat instanceof IfStatement) {
-        IfStatement ifst = (IfStatement) stat;
-        if (ifst.getIfstat() == null) {
-          StatEdge ifedge = ifst.getIfEdge();
-          dest = isExitEdge(ifedge);
-          if (dest != null) {
-            BasicBlockStatement bstat = BasicBlockStatement.create();
-            bstat.setExprents(DecHelper.copyExprentList(dest.getExprents()));
+      if (stat instanceof IfStatement ifst && ifst.getIfstat() == null) {
+        StatEdge ifedge = ifst.getIfEdge();
 
-            ifst.getFirst().removeSuccessor(ifedge);
-            StatEdge newedge = new StatEdge(StatEdge.TYPE_REGULAR, ifst.getFirst(), bstat);
-            ifst.getFirst().addSuccessor(newedge);
-            ifst.setIfEdge(newedge);
-            ifst.setIfstat(bstat);
-            ifst.getStats().addWithKey(bstat, bstat.id);
-            bstat.setParent(ifst);
+        dest = isExitEdge(ifedge);
 
-            StatEdge oldexitedge = dest.getFirstSuccessor();
-            StatEdge newexitedge = new StatEdge(StatEdge.TYPE_BREAK, bstat, oldexitedge.getDestination());
-            bstat.addSuccessor(newexitedge);
-            oldexitedge.closure.addLabeledEdge(newexitedge);
-            ret = 1;
+        StatEdge realIfedge = null;
+        if (dest == null && ifst.hasSuccessor(StatEdge.TYPE_BREAK)) {
+          // If it's not the if edge, also check the first break out of the if.
+          // TODO(aoqia): This may be not accurate enough, like if the break out is a return after.
+          realIfedge = ifst.getSuccessorEdges(StatEdge.TYPE_BREAK).get(0);
+          dest = isExitEdge2(ifst, realIfedge);
+        }
+
+        if (dest != null) {
+          BasicBlockStatement bstat = BasicBlockStatement.create();
+          bstat.setExprents(DecHelper.copyExprentList(dest.getExprents()));
+
+          if (realIfedge != null
+            && ifst.getParent() instanceof SwitchStatement switchStat
+            && ifst.getHeadexprent().getCondition() instanceof FunctionExprent funcExpr
+            && funcExpr.getFuncType().equals(FunctionExprent.FunctionType.BOOL_NOT)) {
+              ifst.getHeadexprent().setCondition(funcExpr.getLstOperands().get(0));
+
+              // Redirect if -> dest edge to if -> default case
+              // TODO(aoqia): What happens if the switch doesn't have a default case statement?
+              if (switchStat.getDefaultEdge() != null) {
+                final var defaultCase = switchStat.getDefaultEdge().getDestination().getFirstSuccessor().getDestination();
+                if (ifedge.getDestination().equals(defaultCase)) {
+                  ifst.removeSuccessor(realIfedge);
+                  ifst.addSuccessor(new StatEdge(StatEdge.TYPE_BREAK, realIfedge.getSource(), defaultCase,
+                    ifedge.closure));
+                }
+              }
           }
+
+          StatEdge newedge = new StatEdge(StatEdge.TYPE_REGULAR, ifst.getFirst(), bstat);
+          ifst.getFirst().removeSuccessor(ifedge);
+          ifst.getFirst().addSuccessor(newedge);
+          ifst.setIfEdge(newedge);
+          ifst.setIfstat(bstat);
+          ifst.getStats().addWithKey(bstat, bstat.id);
+          bstat.setParent(ifst);
+
+          StatEdge oldexitedge = dest.getFirstSuccessor();
+          StatEdge newexitedge = new StatEdge(StatEdge.TYPE_BREAK, bstat, oldexitedge.getDestination());
+          bstat.addSuccessor(newexitedge);
+          oldexitedge.closure.addLabeledEdge(newexitedge);
+
+          ret = 1;
         }
       }
     }
 
 
-    if (stat.getAllSuccessorEdges().size() == 1 &&
-        stat.getAllSuccessorEdges().get(0).getType() == StatEdge.TYPE_BREAK &&
-        stat.getLabelEdges().isEmpty()) {
+    if (stat.getAllSuccessorEdges().size() == 1
+      && stat.getAllSuccessorEdges().get(0).getType() == StatEdge.TYPE_BREAK
+      && stat.getLabelEdges().isEmpty()) {
       Statement parent = stat.getParent();
-      if (stat != parent.getFirst() || !(parent instanceof IfStatement ||
-                                         parent instanceof SwitchStatement)) {
+      if (stat == parent.getFirst() && (parent instanceof IfStatement || parent instanceof SwitchStatement)) {
+        return ret;
+      }
 
-        StatEdge destedge = stat.getAllSuccessorEdges().get(0);
-        dest = isExitEdge(destedge);
-        if (dest != null) {
-          stat.removeSuccessor(destedge);
+      StatEdge destedge = stat.getAllSuccessorEdges().get(0);
+      dest = isExitEdge(destedge);
+      if (dest == null) {
+        return ret;
+      }
 
-          BasicBlockStatement bstat = BasicBlockStatement.create();
-          bstat.setExprents(DecHelper.copyExprentList(dest.getExprents()));
+      stat.removeSuccessor(destedge);
 
-          StatEdge oldexitedge = dest.getAllSuccessorEdges().get(0);
-          StatEdge newexitedge = new StatEdge(StatEdge.TYPE_BREAK, bstat, oldexitedge.getDestination());
-          bstat.addSuccessor(newexitedge);
-          oldexitedge.closure.addLabeledEdge(newexitedge);
+      BasicBlockStatement bstat = BasicBlockStatement.create();
+      bstat.setExprents(DecHelper.copyExprentList(dest.getExprents()));
 
-          SequenceStatement block = new SequenceStatement(Arrays.asList(stat, bstat));
-          block.setAllParent();
+      StatEdge oldexitedge = dest.getAllSuccessorEdges().get(0);
+      StatEdge newexitedge = new StatEdge(StatEdge.TYPE_BREAK, bstat, oldexitedge.getDestination());
+      bstat.addSuccessor(newexitedge);
+      oldexitedge.closure.addLabeledEdge(newexitedge);
 
-          parent.replaceStatement(stat, block);
-          // LabelHelper.lowContinueLabels not applicable because of forward continue edges
-          // LabelHelper.lowContinueLabels(block, new HashSet<StatEdge>());
-          // do it by hand
-          for (StatEdge prededge : block.getPredecessorEdges(StatEdge.TYPE_CONTINUE)) {
-            block.removePredecessor(prededge);
-            prededge.getSource().changeEdgeNode(EdgeDirection.FORWARD, prededge, stat);
-            stat.addPredecessor(prededge);
-            stat.addLabeledEdge(prededge);
-          }
+      SequenceStatement block = new SequenceStatement(Arrays.asList(stat, bstat));
+      block.setAllParent();
 
-          stat.addSuccessor(new StatEdge(StatEdge.TYPE_REGULAR, stat, bstat));
+      parent.replaceStatement(stat, block);
+      // LabelHelper.lowContinueLabels not applicable because of forward continue edges
+      // LabelHelper.lowContinueLabels(block, new HashSet<StatEdge>());
+      // do it by hand
+      for (StatEdge prededge : block.getPredecessorEdges(StatEdge.TYPE_CONTINUE)) {
+        block.removePredecessor(prededge);
+        prededge.getSource().changeEdgeNode(EdgeDirection.FORWARD, prededge, stat);
+        stat.addPredecessor(prededge);
+        stat.addLabeledEdge(prededge);
+      }
 
-          for (StatEdge edge : dest.getAllPredecessorEdges()) {
-            if (!edge.explicit && stat.containsStatementStrict(edge.getSource()) &&
-                MergeHelper.isDirectPath(edge.getSource().getParent(), bstat)) {
+      stat.addSuccessor(new StatEdge(StatEdge.TYPE_REGULAR, stat, bstat));
 
-              dest.removePredecessor(edge);
-              edge.getSource().changeEdgeNode(EdgeDirection.FORWARD, edge, bstat);
-              bstat.addPredecessor(edge);
+      for (StatEdge edge : dest.getAllPredecessorEdges()) {
+        if (edge.explicit
+          || !stat.containsStatementStrict(edge.getSource())
+          || !MergeHelper.isDirectPath(edge.getSource().getParent(), bstat)) {
+          continue;
+        }
 
-              if (!stat.containsStatementStrict(edge.closure)) {
-                stat.addLabeledEdge(edge);
-              }
-            }
-          }
+        dest.removePredecessor(edge);
+        edge.getSource().changeEdgeNode(EdgeDirection.FORWARD, edge, bstat);
+        bstat.addPredecessor(edge);
 
-          ret = 2;
+        if (!stat.containsStatementStrict(edge.closure)) {
+          stat.addLabeledEdge(edge);
         }
       }
+
+      ret = 2;
     }
 
     return ret;
@@ -195,7 +219,11 @@ public final class ExitHelper {
   private static Statement isExitEdge(StatEdge edge) {
     Statement dest = edge.getDestination();
 
-    if (edge.getType() == StatEdge.TYPE_BREAK && dest instanceof BasicBlockStatement && edge.explicit && (edge.labeled || isOnlyEdge(edge)) && edge.canInline) {
+    if (edge.getType() == StatEdge.TYPE_BREAK
+      && dest instanceof BasicBlockStatement
+      && edge.explicit
+      && (edge.labeled || isOnlyEdge(edge))
+      && edge.canInline) {
       // Don't inline in phantom statements. This can break the statement graph, and cause recursive writing.
       Statement parent = edge.closure;
       while (parent != null) {
@@ -217,6 +245,47 @@ public final class ExitHelper {
     return null;
   }
 
+  // TODO(aoqia): Needs a better name or maybe can be merged with the original method?
+  private static Statement isExitEdge2(IfStatement ifst, StatEdge edge) {
+    Statement dest = edge.getDestination();
+
+    // It should be a break edge that can be inlined and is explicit
+    if (edge.getType() != StatEdge.TYPE_BREAK
+      || !(dest instanceof BasicBlockStatement)
+      || !edge.explicit
+      || !edge.canInline) {
+      return null;
+    }
+
+    // The edge should be either:
+    //   - A labeled edge
+    //   - An only edge
+    //   - A break edge which breaks out of the switch to an exit
+    if (!edge.labeled
+      && !isOnlyEdge(edge)
+      && (!ifst.getParent().equals(edge.closure)
+        || !edge.getDestination().equals(ifst.getParent().getFirstSuccessor().getDestination()))) {
+      return null;
+    }
+
+    // Don't inline in phantom statements. This can break the statement graph, and cause recursive writing.
+    Statement parent = edge.closure;
+    while (parent != null) {
+      if (parent instanceof SwitchStatement sw && sw.isPhantom()) {
+        return null;
+      }
+
+      parent = parent.getParent();
+    }
+
+    List<Exprent> data = dest.getExprents();
+    if (data != null && data.size() == 1 && data.get(0) instanceof ExitExprent) {
+      return dest;
+    }
+
+    return null;
+  }
+
   private static boolean isOnlyEdge(StatEdge edge) {
     Statement stat = edge.getDestination();
 
@@ -225,9 +294,9 @@ public final class ExitHelper {
         if (ed.getType() == StatEdge.TYPE_REGULAR) {
           Statement source = ed.getSource();
 
-          if (source instanceof BasicBlockStatement || (source instanceof IfStatement &&
-                                                        ((IfStatement) source).iftype == IfStatement.IFTYPE_IF) ||
-              (source instanceof DoStatement && ((DoStatement) source).getLooptype() != DoStatement.Type.INFINITE)) {
+          if (source instanceof BasicBlockStatement
+            || (source instanceof IfStatement sourceIf && sourceIf.iftype == IfStatement.IFTYPE_IF)
+            || (source instanceof DoStatement sourceDo && sourceDo.getLooptype() != DoStatement.Type.INFINITE)) {
             return false;
           }
         } else {
@@ -250,8 +319,7 @@ public final class ExitHelper {
         List<Exprent> lstExpr = source.getExprents();
         if (lstExpr != null && !lstExpr.isEmpty()) {
           Exprent expr = lstExpr.get(lstExpr.size() - 1);
-          if (expr instanceof ExitExprent) {
-            ExitExprent ex = (ExitExprent) expr;
+          if (expr instanceof ExitExprent ex) {
             if (ex.getExitType() == ExitExprent.Type.RETURN && ex.getValue() == null) {
               // remove redundant return
               dummyExit.addBytecodeOffsets(ex.bytecode);
@@ -278,8 +346,7 @@ public final class ExitHelper {
       if (exprents != null && !exprents.isEmpty()) {
         // Get return exprent
         Exprent expr = exprents.get(exprents.size() - 1);
-        if (expr instanceof ExitExprent) {
-          ExitExprent ex = (ExitExprent) expr;
+        if (expr instanceof ExitExprent ex) {
 
           List<Exprent> exitExprents = ex.getAllExprents(true);
 
