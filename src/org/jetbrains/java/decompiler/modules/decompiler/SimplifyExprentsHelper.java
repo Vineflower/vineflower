@@ -70,8 +70,8 @@ public class SimplifyExprentsHelper {
           res |= simplifyStackVarsStatement(st, setReorderedIfs, ssa, cl, firstInvocation);
 
           changed = IfHelper.mergeIfs(st, setReorderedIfs) ||  // collapse composed if's
-                    buildIff(st, ssa) ||  // collapse iff ?: statement
-                    processClass14 && collapseInlinedClass14(st);  // collapse inlined .class property in version 1.4 and before
+            buildIff(st, ssa) ||  // collapse iff ?: statement
+            processClass14 && collapseInlinedClass14(st);  // collapse inlined .class property in version 1.4 and before
 
           if (changed) {
             break;
@@ -234,18 +234,15 @@ public class SimplifyExprentsHelper {
   }
 
   private static boolean addArrayInitializer(Exprent first, Exprent second) {
-    if (
-      first instanceof AssignmentExprent as &&
-        as.getRight() instanceof NewExprent newExpr &&
-          !newExpr.getLstArrayElements().isEmpty() &&
-        as.getLeft() instanceof VarExprent arrVar1 &&
-
+    if (first instanceof AssignmentExprent as &&
+      as.getRight() instanceof NewExprent newExpr &&
+      !newExpr.getLstArrayElements().isEmpty() &&
+      as.getLeft() instanceof VarExprent arrVar1 &&
       second instanceof AssignmentExprent aas &&
-        aas.getLeft() instanceof ArrayExprent arrExpr &&
-          arrExpr.getArray() instanceof VarExprent arrVar2 &&
-            arrVar1.equals(arrVar2) &&
-          arrExpr.getIndex() instanceof ConstExprent constExpr
-    ) {
+      aas.getLeft() instanceof ArrayExprent arrExpr &&
+      arrExpr.getArray() instanceof VarExprent arrVar2 &&
+      arrVar1.equals(arrVar2) &&
+      arrExpr.getIndex() instanceof ConstExprent constExpr) {
       int constValue = constExpr.getIntValue();
 
       if (constValue < newExpr.getLstArrayElements().size()) {
@@ -257,10 +254,10 @@ public class SimplifyExprentsHelper {
           if (constInit.equals(defaultVal)) {
             Exprent tempExpr = aas.getRight();
 
-            if ((tempExpr.getExprentUse() & Exprent.SIDE_EFFECTS_FREE) == 0){
+            if ((tempExpr.getExprentUse() & Exprent.SIDE_EFFECTS_FREE) == 0) {
               for (int i = constValue + 1; i < newExpr.getLstArrayElements().size(); i++) {
                 final Exprent exprent = newExpr.getLstArrayElements().get(i);
-                if ((exprent.getExprentUse() & Exprent.SIDE_EFFECTS_FREE) == 0){
+                if ((exprent.getExprentUse() & Exprent.SIDE_EFFECTS_FREE) == 0) {
                   // can't reorder non-side-effect free expressions
                   return false;
                 }
@@ -289,15 +286,13 @@ public class SimplifyExprentsHelper {
 
   private static int isArrayInitializer(List<Exprent> list, int index) {
     Exprent current = list.get(index);
-    if (
-      current instanceof AssignmentExprent as &&
-        as.getLeft() instanceof VarExprent arrVar &&
-        as.getRight() instanceof NewExprent newExpr &&
-          newExpr.getExprType().arrayDim > 0 &&
-          newExpr.getLstDims().size() == 1 &&
-          newExpr.getLstArrayElements().isEmpty() &&
-          newExpr.getLstDims().get(0) instanceof ConstExprent constExpr
-    ) {
+    if (current instanceof AssignmentExprent as &&
+      as.getLeft() instanceof VarExprent arrVar &&
+      as.getRight() instanceof NewExprent newExpr &&
+      newExpr.getExprType().arrayDim > 0 &&
+      newExpr.getLstDims().size() == 1 &&
+      newExpr.getLstArrayElements().isEmpty() &&
+      newExpr.getLstDims().get(0) instanceof ConstExprent constExpr) {
 
       int size = (Integer) constExpr.getValue();
       if (size == 0) {
@@ -310,13 +305,11 @@ public class SimplifyExprentsHelper {
       int lastImpure = -1;
       while (index + i < list.size() && i <= size) {
         Exprent expr = list.get(index + i);
-        if (
-          expr instanceof AssignmentExprent aas &&
-            aas.getLeft() instanceof ArrayExprent arrExpr &&
-              arrExpr.getArray() instanceof VarExprent arrVar2 &&
-                arrVar.equals(arrVar2) &&
-              arrExpr.getIndex() instanceof ConstExprent indexExpr
-        ) {
+        if (expr instanceof AssignmentExprent aas &&
+          aas.getLeft() instanceof ArrayExprent arrExpr &&
+          arrExpr.getArray() instanceof VarExprent arrVar2 &&
+          arrVar.equals(arrVar2) &&
+          arrExpr.getIndex() instanceof ConstExprent indexExpr) {
           // TODO: check for a number type. Failure extremely improbable, but nevertheless...
           int constValue = indexExpr.getIntValue();
           if (constValue < size && !mapInit.containsKey(constValue)) {
@@ -384,16 +377,14 @@ public class SimplifyExprentsHelper {
     //If assignment then exit.
     //if simple assign and exit is return and return isn't void
     //If the assignment before the return is immediately used in the return, inline it.
-    if (
-      first instanceof AssignmentExprent assignment &&
-        assignment.getCondType() == null &&
-        assignment.getLeft() instanceof VarExprent assignmentLeft &&
-          !assignmentLeft.isStack() &&
+    if (first instanceof AssignmentExprent assignment &&
+      assignment.getCondType() == null &&
+      assignment.getLeft() instanceof VarExprent assignmentLeft &&
+      !assignmentLeft.isStack() &&
       second instanceof ExitExprent exit &&
-        exit.getExitType() == ExitExprent.Type.RETURN &&
-        exit.getValue() instanceof VarExprent exitValue &&
-          assignmentLeft.equals(exitValue)
-    ) {
+      exit.getExitType() == ExitExprent.Type.RETURN &&
+      exit.getValue() instanceof VarExprent exitValue &&
+      assignmentLeft.equals(exitValue)) {
       // Avoid doing this transform for potential pattern matches, as they should be processed by the pattern matcher first.
       if (stat.getTopParent().mt.getBytecodeVersion().hasIfPatternMatching()
         && stat.getParent() instanceof IfStatement ifst && !ifst.isPatternMatched() && stat.getExprents().indexOf(first) == 0
@@ -418,9 +409,9 @@ public class SimplifyExprentsHelper {
     return
       first instanceof AssignmentExprent asf &&
         asf.getLeft() instanceof VarExprent leftVar &&
-          leftVar.isStack() &&
+        leftVar.isStack() &&
         asf.getRight() instanceof VarExprent rightVar &&
-          leftVar.getIndex() == rightVar.getIndex();
+        leftVar.getIndex() == rightVar.getIndex();
   }
 
   /*
@@ -433,13 +424,11 @@ public class SimplifyExprentsHelper {
    * TODO: shouldn't this check if var10001 is used in `yyy`?
    */
   private static boolean isStackAssignment2(Exprent first, Exprent second) {  // e.g. 1.4-style class invocation
-    if (
-      first instanceof AssignmentExprent asf &&
-        isStackVar(asf.getLeft()) &&
+    if (first instanceof AssignmentExprent asf &&
+      isStackVar(asf.getLeft()) &&
       second instanceof AssignmentExprent ass &&
-        !isStackVar(ass.getLeft()) &&
-        asf.getLeft().equals(ass.getRight())
-    ) {
+      !isStackVar(ass.getLeft()) &&
+      asf.getLeft().equals(ass.getRight())) {
       asf.setRight(new AssignmentExprent(ass.getLeft(), asf.getRight(), ass.bytecode));
       return true;
     }
@@ -472,18 +461,14 @@ public class SimplifyExprentsHelper {
    * just deleting the second.
    */
   private static boolean isStackAssignment(Exprent first, Exprent second) {
-    if (
-      first instanceof AssignmentExprent asf &&
-      second instanceof AssignmentExprent ass
-    ) {
+    if (first instanceof AssignmentExprent asf &&
+      second instanceof AssignmentExprent ass) {
 
       while (true) {
-        if (
-          asf.getRight().equals(ass.getRight()) &&
+        if (asf.getRight().equals(ass.getRight()) &&
           isStackVar(asf.getLeft()) &&
           !isStackVar(ass.getLeft()) &&
-          !ass.getLeft().containsExprent(asf.getLeft())
-        ) {
+          !ass.getLeft().containsExprent(asf.getLeft())) {
           asf.setRight(ass);
           return true;
         }
@@ -546,7 +531,7 @@ public class SimplifyExprentsHelper {
     if (first instanceof AssignmentExprent as && second instanceof FunctionExprent in) {
 
       if ((in.getFuncType() == FunctionType.MMI || in.getFuncType() == FunctionType.PPI) &&
-          in.getLstOperands().get(0).equals(as.getRight())) {
+        in.getLstOperands().get(0).equals(as.getRight())) {
 
         if (in.getFuncType() == FunctionType.MMI) {
           in.setFuncType(FunctionType.IMM);
@@ -571,11 +556,9 @@ public class SimplifyExprentsHelper {
    * xxx = yyy++;
    */
   private static boolean isIPPorIMM2(Exprent first, Exprent second) {
-    if (
-      first instanceof AssignmentExprent af &&
+    if (first instanceof AssignmentExprent af &&
       second instanceof AssignmentExprent as &&
-        as.getRight() instanceof FunctionExprent func
-    ) {
+      as.getRight() instanceof FunctionExprent func) {
       if (func.getFuncType() != FunctionType.ADD && func.getFuncType() != FunctionType.SUB) {
         return false;
       }
@@ -715,9 +698,9 @@ public class SimplifyExprentsHelper {
   private static boolean isPPMM(FunctionExprent func) {
     return
       func.getFuncType() == FunctionType.PPI ||
-      func.getFuncType() == FunctionType.MMI ||
-      func.getFuncType() == FunctionType.IPP ||
-      func.getFuncType() == FunctionType.IMM;
+        func.getFuncType() == FunctionType.MMI ||
+        func.getFuncType() == FunctionType.IPP ||
+        func.getFuncType() == FunctionType.IMM;
   }
 
   private static boolean isMonitorExit(Exprent first) {
@@ -725,7 +708,7 @@ public class SimplifyExprentsHelper {
       first instanceof MonitorExprent expr &&
         expr.getMonType() == MonitorExprent.Type.EXIT &&
         expr.getValue() instanceof VarExprent varExpr &&
-          !varExpr.isStack() &&
+        !varExpr.isStack() &&
         expr.isRemovable();
   }
 
@@ -748,9 +731,9 @@ public class SimplifyExprentsHelper {
     if (first instanceof InvocationExprent invocation) {
 
       if ((!invocation.isStatic() &&
-           invocation.getName().equals("getClass") && invocation.getStringDescriptor().equals("()Ljava/lang/Class;")) // J8
-          || (invocation.isStatic() && invocation.getClassname().equals("java/util/Objects") && invocation.getName().equals("requireNonNull")
-              && invocation.getStringDescriptor().equals("(Ljava/lang/Object;)Ljava/lang/Object;"))) { // J9+
+        invocation.getName().equals("getClass") && invocation.getStringDescriptor().equals("()Ljava/lang/Class;")) // J8
+        || (invocation.isStatic() && invocation.getClassname().equals("java/util/Objects") && invocation.getName().equals("requireNonNull")
+        && invocation.getStringDescriptor().equals("(Ljava/lang/Object;)Ljava/lang/Object;"))) { // J9+
 
         if (invocation.isSyntheticNullCheck()) {
           return true;
@@ -776,7 +759,7 @@ public class SimplifyExprentsHelper {
               !newExpr.getConstructor().getLstParameters().isEmpty() &&
               (
                 newExpr.getConstructor().getLstParameters().get(0).equals(target) ||
-                isUnambiguouslySameParam(invocation.isStatic(), target, newExpr.getConstructor().getLstParameters())
+                  isUnambiguouslySameParam(invocation.isStatic(), target, newExpr.getConstructor().getLstParameters())
               )
           ) {
 
@@ -841,11 +824,9 @@ public class SimplifyExprentsHelper {
       boolean foundAssign = false;
       Exprent secondRight = ass.getRight();
       for (Exprent exprent : secondRight.getAllExprents()) {
-        if (
-          exprent instanceof ArrayExprent arrExpr &&
-            arrExpr.getArray() instanceof VarExprent arrVar &&
-              arrVar.getIndex() == firstLeft.getIndex()
-        ) {
+        if (exprent instanceof ArrayExprent arrExpr &&
+          arrExpr.getArray() instanceof VarExprent arrVar &&
+          arrVar.getIndex() == firstLeft.getIndex()) {
           exprent.replaceExprent(arrExpr.getArray(), asf.getRight().copy());
           foundAssign = true;
         }
@@ -876,12 +857,10 @@ public class SimplifyExprentsHelper {
           Exprent remote = list.get(i);
 
           // <init> invocation
-          if (
-            remote instanceof InvocationExprent in &&
-              in.getFunctype() == InvocationExprent.Type.INIT &&
-              in.getInstance() instanceof VarExprent instance &&
-            varExpr.equals(instance)
-          ) {
+          if (remote instanceof InvocationExprent in &&
+            in.getFunctype() == InvocationExprent.Type.INIT &&
+            in.getInstance() instanceof VarExprent instance &&
+            varExpr.equals(instance)) {
             newExpr.setConstructor(in);
             in.setInstance(null);
 
@@ -913,20 +892,17 @@ public class SimplifyExprentsHelper {
   // var = new Type(...);
   //
   private static boolean isSwapConstructorInvocation(Exprent last, Exprent expr, Exprent next) {
-    if (
-      last instanceof AssignmentExprent asLast &&
-        asLast.getLeft() instanceof VarExprent varLast &&
-        asLast.getRight() instanceof NewExprent newExpr &&
+    if (last instanceof AssignmentExprent asLast &&
+      asLast.getLeft() instanceof VarExprent varLast &&
+      asLast.getRight() instanceof NewExprent newExpr &&
       expr instanceof AssignmentExprent asExpr &&
-        asExpr.getRight() instanceof VarExprent varExpr &&
-        varLast.getIndex() == varExpr.getIndex() &&
+      asExpr.getRight() instanceof VarExprent varExpr &&
+      varLast.getIndex() == varExpr.getIndex() &&
       next instanceof InvocationExprent inNext &&
-        // Make sure the next invocation is a constructor invocation!
-        inNext.getFunctype() == InvocationExprent.Type.INIT &&
-        inNext.getInstance() instanceof VarExprent varNext &&
-        varExpr.getIndex() == varNext.getIndex()
-
-    ) {
+      // Make sure the next invocation is a constructor invocation!
+      inNext.getFunctype() == InvocationExprent.Type.INIT &&
+      inNext.getInstance() instanceof VarExprent varNext &&
+      varExpr.getIndex() == varNext.getIndex()) {
       // Create constructor
       inNext.setInstance(null);
       newExpr.setConstructor(inNext);
@@ -1002,20 +978,18 @@ public class SimplifyExprentsHelper {
         Statement elseStatement = statement.getElsestat();
 
         if (ifStatement.getExprents() != null && ifStatement.getExprents().size() == 1 &&
-            elseStatement.getExprents() != null && elseStatement.getExprents().size() == 1 &&
-            ifStatement.getAllSuccessorEdges().size() == 1 && elseStatement.getAllSuccessorEdges().size() == 1 &&
-            ifStatement.getAllSuccessorEdges().get(0).getDestination() == elseStatement.getAllSuccessorEdges().get(0).getDestination()) {
+          elseStatement.getExprents() != null && elseStatement.getExprents().size() == 1 &&
+          ifStatement.getAllSuccessorEdges().size() == 1 && elseStatement.getAllSuccessorEdges().size() == 1 &&
+          ifStatement.getAllSuccessorEdges().get(0).getDestination() == elseStatement.getAllSuccessorEdges().get(0).getDestination()) {
           Exprent ifExpr = ifStatement.getExprents().get(0);
           Exprent elseExpr = elseStatement.getExprents().get(0);
 
           if (ifExpr instanceof AssignmentExprent ifAssign && elseExpr instanceof AssignmentExprent elseAssign) {
 
-            if (
-              ifAssign.getLeft() instanceof VarExprent ifVar &&
-                ifVar.isStack() &&
+            if (ifAssign.getLeft() instanceof VarExprent ifVar &&
+              ifVar.isStack() &&
               elseAssign.getLeft() instanceof VarExprent elseVar &&
-                ifVar.getIndex() == elseVar.getIndex()
-            ) {
+              ifVar.getIndex() == elseVar.getIndex()) {
               boolean found = false;
 
               // Can happen in EliminateLoopsHelper
@@ -1057,11 +1031,11 @@ public class SimplifyExprentsHelper {
           } else if (ifExpr instanceof ExitExprent ifExit && elseExpr instanceof ExitExprent elseExit) {
 
             if (ifExit.getExitType() == elseExit.getExitType() && ifExit.getValue() != null && elseExit.getValue() != null &&
-                ifExit.getExitType() == ExitExprent.Type.RETURN) {
+              ifExit.getExitType() == ExitExprent.Type.RETURN) {
               // throw is dangerous, because of implicit casting to a common superclass
               // e.g. throws IOException and throw true?new RuntimeException():new IOException(); won't work
               if (ifExit.getExitType() == ExitExprent.Type.THROW &&
-                  !ifExit.getValue().getExprType().equals(elseExit.getValue().getExprType())) {  // note: getExprType unreliable at this point!
+                !ifExit.getValue().getExprType().equals(elseExit.getValue().getExprType())) {  // note: getExprType unreliable at this point!
                 return false;
               }
 
