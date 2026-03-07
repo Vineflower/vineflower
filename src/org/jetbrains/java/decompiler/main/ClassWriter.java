@@ -2,6 +2,8 @@
 package org.jetbrains.java.decompiler.main;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import net.fabricmc.fernflower.api.FabricJavadocStyle;
 import net.fabricmc.fernflower.api.IFabricJavadocProvider;
 import org.jetbrains.java.decompiler.api.plugin.StatementWriter;
 import org.jetbrains.java.decompiler.code.CodeConstants;
@@ -689,7 +691,7 @@ public class ClassWriter implements StatementWriter {
     }
 
     if (javadocProvider != null) {
-      appendJavadoc(buffer, javadocProvider.getClassDoc(cl), indent);
+      appendJavadoc(buffer, javadocProvider.getClassJavadocStyle(cl), javadocProvider.getClassDoc(cl), indent);
     }
 
     appendAnnotations(buffer, indent, cl, -1);
@@ -876,7 +878,7 @@ public class ClassWriter implements StatementWriter {
     }
 
     if (javadocProvider != null) {
-      appendJavadoc(buffer, javadocProvider.getFieldDoc(cl, fd), indent);
+      appendJavadoc(buffer, javadocProvider.getFieldJavadocStyle(cl, fd), javadocProvider.getFieldDoc(cl, fd), indent);
     }
     Set<String> writtenAnnotations = appendAnnotations(buffer, indent, fd, TypeAnnotation.FIELD);
 
@@ -1130,7 +1132,7 @@ public class ClassWriter implements StatementWriter {
       }
 
       if (javadocProvider != null) {
-        appendJavadoc(buffer, javadocProvider.getMethodDoc(cl, mt), indent);
+        appendJavadoc(buffer, javadocProvider.getMethodJavadocStyle(cl, mt), javadocProvider.getMethodDoc(cl, mt), indent);
       }
 
       Set<String> writtenAnnotations = appendAnnotations(buffer, indent, mt, TypeAnnotation.METHOD_RETURN_TYPE);
@@ -1786,13 +1788,22 @@ public class ClassWriter implements StatementWriter {
     buffer.appendIndent(indent).append("// $VF: ").append(comment).appendLineSeparator();
   }
 
-  private static void appendJavadoc(TextBuffer buffer, String javaDoc, int indent) {
+  private static void appendJavadoc(TextBuffer buffer, FabricJavadocStyle javadocStyle, String javaDoc, int indent) {
     if (javaDoc == null) return;
-    buffer.appendIndent(indent).append("/**").appendLineSeparator();
-    for (String s : javaDoc.split("\n")) {
-      buffer.appendIndent(indent).append(" * ").append(s).appendLineSeparator();
+    switch (javadocStyle) {
+      case HTML -> {
+        buffer.appendIndent(indent).append("/**").appendLineSeparator();
+        for (String s : javaDoc.split("\n")) {
+          buffer.appendIndent(indent).append(" * ").append(s).appendLineSeparator();
+        }
+        buffer.appendIndent(indent).append(" */").appendLineSeparator();
+      }
+      case MARKDOWN -> {
+        for (String s : javaDoc.split("\n")) {
+          buffer.appendIndent(indent).append("/// ").append(s).appendLineSeparator();
+        }
+      }
     }
-    buffer.appendIndent(indent).append(" */").appendLineSeparator();
   }
 
   public static void appendSyntheticClassComment(StructClass cl, TextBuffer buffer) {
