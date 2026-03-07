@@ -5,7 +5,7 @@ import java.util.function.Consumer;
 
 public class TestMethodReferenceJ21 extends RefsExt {
    private void test() {
-      this.consume(x$0 -> this.accept(x$0));// 9
+      this.consume(this::accept);// 9
    }// 10
 
    private void test_() {
@@ -17,11 +17,11 @@ public class TestMethodReferenceJ21 extends RefsExt {
    }// 18
 
    private void test3(TestMethodReferenceJ21 ref) {
-      this.consume(x$0 -> ref.accept(x$0));// 21
+      this.consume(ref::accept);// 21
    }// 22
 
    private void test3_(TestMethodReferenceJ21 ref) {
-      this.consume(s -> ref.accept(s));// 25
+      this.consume(ref::accept);// 25
    }// 26
 
    private void test4(TestMethodReferenceJ21 ref) {
@@ -33,7 +33,7 @@ public class TestMethodReferenceJ21 extends RefsExt {
    }// 34
 
    private void test6() {
-      this.consume(x$0 -> rec$.accept(x$0));// 37
+      this.consume(this.ref()::accept);// 37
    }// 38
 
    private void test6_() {
@@ -55,19 +55,11 @@ public class TestMethodReferenceJ21 extends RefsExt {
 class 'pkg/TestMethodReferenceJ21' {
    method 'test ()V' {
       0      7
+      1      7
       7      7
       8      7
       9      7
       a      8
-   }
-
-   method 'lambda$test$0 (Lpkg/TestMethodReferenceJ21;Ljava/lang/String;)V' {
-      0      7
-      1      7
-      2      7
-      3      7
-      4      7
-      5      7
    }
 
    method 'test_ ()V' {
@@ -98,36 +90,20 @@ class 'pkg/TestMethodReferenceJ21' {
 
    method 'test3 (Lpkg/TestMethodReferenceJ21;)V' {
       0      19
+      1      19
       c      19
       d      19
       e      19
       f      20
    }
 
-   method 'lambda$test3$2 (Lpkg/TestMethodReferenceJ21;Ljava/lang/String;)V' {
-      0      19
-      1      19
-      2      19
-      3      19
-      4      19
-      5      19
-   }
-
    method 'test3_ (Lpkg/TestMethodReferenceJ21;)V' {
       0      23
+      1      23
       7      23
       8      23
       9      23
       a      24
-   }
-
-   method 'lambda$test3_$3 (Lpkg/TestMethodReferenceJ21;Ljava/lang/String;)V' {
-      0      23
-      1      23
-      2      23
-      3      23
-      4      23
-      5      23
    }
 
    method 'test4 (Lpkg/TestMethodReferenceJ21;)V' {
@@ -150,19 +126,14 @@ class 'pkg/TestMethodReferenceJ21' {
 
    method 'test6 ()V' {
       0      35
-      f      35
-      10      35
-      11      35
-      12      36
-   }
-
-   method 'lambda$test6$4 (Lpkg/TestMethodReferenceJ21;Ljava/lang/String;)V' {
-      0      35
       1      35
       2      35
       3      35
       4      35
-      5      35
+      f      35
+      10      35
+      11      35
+      12      36
    }
 
    method 'test6_ ()V' {

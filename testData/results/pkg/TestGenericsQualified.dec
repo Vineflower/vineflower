@@ -6,11 +6,11 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
 public class TestGenericsQualified {
-   public Comparator<String> field = Comparator.<String, Integer>comparing(s -> s.length()).thenComparing(i -> i.toString());// 10
+   public Comparator<String> field = Comparator.<String, Integer>comparing(s -> s.length()).thenComparing(String::toString);// 10
    public CompletableFuture<String> field2 = CompletableFuture.<String>supplyAsync(() -> "").thenCompose(s -> CompletableFuture.supplyAsync(() -> s + "2"));// 11
    public Optional<String> field3 = Optional.of("").map(s -> s + "3");// 12
-   public Stream<String> field4 = Stream.of("1", "2").sorted(Comparator.<String, Integer>comparing(s -> s.length()).thenComparing(i -> i.toString()));// 13 14
-   public Comparator<String> field5 = Comparator.comparing(String::length).thenComparing(i -> i.toString());// 15
+   public Stream<String> field4 = Stream.of("1", "2").sorted(Comparator.<String, Integer>comparing(s -> s.length()).thenComparing(String::toString));// 13 14
+   public Comparator<String> field5 = Comparator.comparing(String::length).thenComparing(String::toString);// 15
    public Comparator<TestGenericsQualified> field6 = Comparator.<TestGenericsQualified, Integer>comparing(TestGenericsQualified::get).reversed();// 16
 
    public int get() {
@@ -22,7 +22,7 @@ public class TestGenericsQualified {
    }
 
    public Comparator<String> method() {
-      return Comparator.<String, Integer>comparing(s -> s.length()).thenComparing(i -> i.toString());// 27
+      return Comparator.<String, Integer>comparing(s -> s.length()).thenComparing(String::toString);// 27
    }
 }
 
@@ -99,14 +99,6 @@ class 'pkg/TestGenericsQualified' {
       7      8
    }
 
-   method 'lambda$new$1 (Ljava/lang/String;)Ljava/lang/String;' {
-      0      8
-      1      8
-      2      8
-      3      8
-      4      8
-   }
-
    method 'lambda$new$2 ()Ljava/lang/String;' {
       0      9
       1      9
@@ -151,22 +143,6 @@ class 'pkg/TestGenericsQualified' {
       7      11
    }
 
-   method 'lambda$new$7 (Ljava/lang/String;)Ljava/lang/String;' {
-      0      11
-      1      11
-      2      11
-      3      11
-      4      11
-   }
-
-   method 'lambda$new$8 (Ljava/lang/String;)Ljava/lang/String;' {
-      0      12
-      1      12
-      2      12
-      3      12
-      4      12
-   }
-
    method 'get ()I' {
       0      16
       1      16
@@ -198,14 +174,6 @@ class 'pkg/TestGenericsQualified' {
       5      24
       6      24
       7      24
-   }
-
-   method 'lambda$method$10 (Ljava/lang/String;)Ljava/lang/String;' {
-      0      24
-      1      24
-      2      24
-      3      24
-      4      24
    }
 }
 
