@@ -538,7 +538,7 @@ public class SwitchStatement extends Statement {
   }
 
   public Optional<Statement> getDefaultCase() {
-    final var defaultEdge = this.getDefaultEdge();
+    StatEdge defaultEdge = this.getDefaultEdge();
     return defaultEdge != null ? Optional.of(defaultEdge.getDestination()) : Optional.empty();
   }
 
@@ -547,7 +547,7 @@ public class SwitchStatement extends Statement {
    * @param stat the case statement to be linked to
    */
   public void setDefaultCase(Statement stat) {
-    final var defaultCase = this.getDefaultCase();
+    Optional<Statement> defaultCase = this.getDefaultCase();
     if (defaultCase.isPresent()) {
       defaultCase.get().replaceWith(stat);
       return;
@@ -562,7 +562,7 @@ public class SwitchStatement extends Statement {
    * @param stat the case statement to be linked to
    */
   public void addCase(List<Exprent> values, Statement stat) {
-    final var caseCount = this.getCaseStatements().size();
+    int caseCount = this.getCaseStatements().size();
     this.addCaseInternal(this.getDefaultEdge() != null ? caseCount - 1 : caseCount, values, stat);
   }
 
@@ -577,7 +577,7 @@ public class SwitchStatement extends Statement {
   }
 
   private void addCaseInternal(int index, @Nullable List<Exprent> values, Statement stat) {
-    final var isAddDefault = values == null;
+    boolean isAddDefault = values == null;
 
     // Basichead is always the first stat
     this.getStats().add(1 + index, stat);
@@ -585,9 +585,9 @@ public class SwitchStatement extends Statement {
     this.getCaseValues().add(index, !isAddDefault ? values : Collections.singletonList(null));
 
     if (!isAddDefault) {
-      var newCaseEdgeLst = new ArrayList<StatEdge>();
+      ArrayList<StatEdge> newCaseEdgeLst = new ArrayList<>();
       for (int i = 0; i < values.size(); i++) {
-        final var edge = new StatEdge(StatEdge.TYPE_REGULAR, this.getBasichead(), stat);
+        StatEdge edge = new StatEdge(StatEdge.TYPE_REGULAR, this.getBasichead(), stat);
         newCaseEdgeLst.add(i, edge);
 
         this.getBasichead().addSuccessor(edge);
@@ -596,7 +596,7 @@ public class SwitchStatement extends Statement {
       this.getCaseEdges().add(index, newCaseEdgeLst);
     } else {
       // Just add the default and move on!
-      final var edge = new StatEdge(StatEdge.TYPE_REGULAR, this.getBasichead(), stat);
+      StatEdge edge = new StatEdge(StatEdge.TYPE_REGULAR, this.getBasichead(), stat);
       this.setDefaultEdge(edge);
     }
 
@@ -609,7 +609,7 @@ public class SwitchStatement extends Statement {
    * @param stat the case statement to remove
    */
   public void removeCase(Statement stat) {
-    final var index = this.caseStatements.indexOf(stat);
+    int index = this.caseStatements.indexOf(stat);
     if (index == -1) {
       throw new IllegalStateException("Tried to remove a case statement that isn't in the switch!");
     }
