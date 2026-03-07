@@ -551,7 +551,7 @@ public class SwitchStatement extends Statement {
       defaultCase.get().replaceWith(stat);
       return;
     }
-    
+
     this.addCaseInternal(0, null, stat);
   }
 
