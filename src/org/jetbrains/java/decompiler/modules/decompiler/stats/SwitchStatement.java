@@ -552,8 +552,7 @@ public class SwitchStatement extends Statement {
       return;
     }
     
-    final var index = this.getCaseStatements().size();
-    this.addCaseInternal(index, null, stat);
+    this.addCaseInternal(0, null, stat);
   }
 
   /**
