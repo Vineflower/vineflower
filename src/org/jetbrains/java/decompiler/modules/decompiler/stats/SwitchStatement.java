@@ -584,7 +584,7 @@ public class SwitchStatement extends Statement {
     this.getCaseStatements().add(index, stat);
     this.getCaseValues().add(index, !isAddDefault ? values : Collections.singletonList(null));
 
-    if (values != null) {
+    if (!isAddDefault) {
       var newCaseEdgeLst = new ArrayList<StatEdge>();
       for (int i = 0; i < values.size(); i++) {
         final var edge = new StatEdge(StatEdge.TYPE_REGULAR, this.getBasichead(), stat);
@@ -592,10 +592,10 @@ public class SwitchStatement extends Statement {
 
         this.getBasichead().addSuccessor(edge);
       }
-      this.getCaseEdges().add(index, newCaseEdgeLst);
-    }
 
-    if (isAddDefault) {
+      this.getCaseEdges().add(index, newCaseEdgeLst);
+    } else {
+      // Just add the default and move on!
       final var edge = new StatEdge(StatEdge.TYPE_REGULAR, this.getBasichead(), stat);
       this.setDefaultEdge(edge);
     }
