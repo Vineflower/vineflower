@@ -538,7 +538,8 @@ public class SwitchStatement extends Statement {
   }
 
   public Optional<Statement> getDefaultCase() {
-    return Optional.ofNullable(this.getDefaultEdge() != null ? this.getDefaultEdge().getDestination() : null);
+    final var defaultEdge = this.getDefaultEdge();
+    return defaultEdge != null ? Optional.of(defaultEdge.getDestination()) : Optional.empty();
   }
 
   /**
