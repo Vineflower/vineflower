@@ -541,22 +541,37 @@ public class SwitchStatement extends Statement {
     return Optional.ofNullable(this.getDefaultEdge() != null ? this.getDefaultEdge().getDestination() : null);
   }
 
+  /**
+   * Replaces the default case if it exists. Adds a new default case to the switch if it doesn't exist.
+   * @param stat the case statement to be linked to
+   */
   public void setDefaultCase(Statement stat) {
     final var defaultCase = this.getDefaultCase();
     if (defaultCase.isPresent()) {
       defaultCase.get().replaceWith(stat);
       return;
     }
-
+    
     final var index = this.getCaseStatements().size();
     this.addCaseInternal(index, null, stat);
   }
 
+  /**
+   * Adds a new case to the switch.
+   * @param values the list of non-null exprents to use as case values
+   * @param stat the case statement to be linked to
+   */
   public void addCase(List<@NotNull Exprent> values, Statement stat) {
     final var caseCount = this.getCaseStatements().size();
     this.addCaseInternal(this.getDefaultEdge() != null ? caseCount - 1 : caseCount, values, stat);
   }
 
+  /**
+   * Adds a new case to the switch.
+   * @param index the index of where the case should be added
+   * @param values the list of non-null exprents to use as case values
+   * @param stat the case statement to be linked to
+   */
   public void addCase(int index, List<@NotNull Exprent> values, Statement stat) {
     this.addCaseInternal(index, values, stat);
   }
@@ -567,7 +582,6 @@ public class SwitchStatement extends Statement {
     // Basichead is always the first stat
     this.getStats().add(1 + index, stat);
     this.getCaseStatements().add(index, stat);
-
     this.getCaseValues().add(index, !isAddDefault ? values : Collections.singletonList(null));
 
     if (values != null) {
@@ -589,6 +603,11 @@ public class SwitchStatement extends Statement {
     stat.setParent(this);
   }
 
+  /**
+   * Removes a case from the switch statement. This includes the case statement, values, and edges.
+   * You should NOT manually handle stats/values/edges if you are calling this method.
+   * @param stat the case statement to remove
+   */
   public void removeCase(Statement stat) {
     final var index = this.caseStatements.indexOf(stat);
     if (index == -1) {
@@ -600,7 +619,8 @@ public class SwitchStatement extends Statement {
 
   /**
    * Removes a case from the switch statement. This includes the case statement, values, and edges.
-   * @param index the index of the case
+   * You should NOT manually handle stats/values/edges if you are calling this method.
+   * @param index the index of the case to remove
    */
   public void removeCase(int index) {
     this.getCaseStatements().get(index).getAllPredecessorEdges().forEach(StatEdge::remove);
