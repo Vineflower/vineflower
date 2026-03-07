@@ -390,8 +390,7 @@ public class SimplifyExprentsHelper {
         && stat.getParent() instanceof IfStatement ifst && !ifst.isPatternMatched() && stat.getExprents().indexOf(first) == 0
         && assignment.getRight() instanceof FunctionExprent func && func.getFuncType() == FunctionType.CAST
         // Most expensive, do it last
-        && ifst.getHeadexprent().getAllExprents(true, false).stream().anyMatch(e -> e instanceof FunctionExprent f && f.getFuncType() == FunctionType.INSTANCEOF)
-      ) {
+        && ifst.getHeadexprent().getAllExprents(true, false).stream().anyMatch(e -> e instanceof FunctionExprent f && f.getFuncType() == FunctionType.INSTANCEOF)) {
         return false;
       }
 
@@ -489,16 +488,15 @@ public class SimplifyExprentsHelper {
    * where xxx is not a var exprent
    */
   private static Exprent isPPIorMMI(Exprent first) {
-    if (
-      first instanceof AssignmentExprent as &&
-        as.getRight() instanceof FunctionExprent func
-    ) {
+    if (first instanceof AssignmentExprent as &&
+      as.getRight() instanceof FunctionExprent func) {
 
       if (func.getFuncType() == FunctionType.ADD || func.getFuncType() == FunctionType.SUB) {
         Exprent econd = func.getLstOperands().get(0);
         Exprent econst = func.getLstOperands().get(1);
 
-        if (!(econst instanceof ConstExprent) && econd instanceof ConstExprent &&
+        if (!(econst instanceof ConstExprent) &&
+          econd instanceof ConstExprent &&
           func.getFuncType() == FunctionType.ADD) {
           econd = econst;
           econst = func.getLstOperands().get(0);
@@ -575,8 +573,7 @@ public class SimplifyExprentsHelper {
         constExpr.hasValueOne() &&
         af.getLeft().equals(econd) &&
         af.getRight().equals(as.getLeft()) &&
-        (af.getLeft().getExprentUse() & Exprent.MULTIPLE_USES) != 0
-      ) {
+        (af.getLeft().getExprentUse() & Exprent.MULTIPLE_USES) != 0) {
         FunctionType type = func.getFuncType() == FunctionType.ADD ? FunctionType.IPP : FunctionType.IMM;
 
         FunctionExprent ret = new FunctionExprent(type, af.getRight(), func.bytecode);
@@ -604,11 +601,9 @@ public class SimplifyExprentsHelper {
   // While this helps simplify stack vars, it also has can potentially make invalid code! When evaluating ppmm correctness, this is a good place to start.
   // TODO: fernflower preference?
   private static boolean inlinePPIAndMMI(Exprent expr, Exprent next) {
-    if (
-      expr instanceof FunctionExprent func &&
-        (func.getFuncType() == FunctionType.PPI || func.getFuncType() == FunctionType.MMI) &&
-        func.getLstOperands().get(0) instanceof VarExprent var
-    ) {
+    if (expr instanceof FunctionExprent func &&
+      (func.getFuncType() == FunctionType.PPI || func.getFuncType() == FunctionType.MMI) &&
+      func.getLstOperands().get(0) instanceof VarExprent var) {
 
       // Can't inline ppmm into next ppmm
       if (next instanceof FunctionExprent nextFunc && isPPMM(nextFunc)) {
@@ -681,8 +676,7 @@ public class SimplifyExprentsHelper {
         if (expr instanceof AssignmentExprent asExpr &&
           ex == asExpr.getLeft() &&
           ex instanceof VarExprent innerEx &&
-          innerEx.getIndex() == match.getIndex()
-        ) {
+          innerEx.getIndex() == match.getIndex()) {
           continue;
         }
 
@@ -717,8 +711,7 @@ public class SimplifyExprentsHelper {
       Exprent firstExpr = child.getExprents().get(child.getExprents().size() - 1);
 
       if (parent instanceof IfStatement ifStat &&
-        isQualifiedNewGetClass(firstExpr, ifStat.getHeadexprent().getCondition())
-      ) {
+        isQualifiedNewGetClass(firstExpr, ifStat.getHeadexprent().getCondition())) {
         child.getExprents().remove(firstExpr);
         return true;
       }
@@ -753,15 +746,13 @@ public class SimplifyExprentsHelper {
         while (!lstExprents.isEmpty()) {
           Exprent expr = lstExprents.removeFirst();
           lstExprents.addAll(expr.getAllExprents());
-          if (
-            expr instanceof NewExprent newExpr &&
-              newExpr.getConstructor() != null &&
-              !newExpr.getConstructor().getLstParameters().isEmpty() &&
-              (
-                newExpr.getConstructor().getLstParameters().get(0).equals(target) ||
-                  isUnambiguouslySameParam(invocation.isStatic(), target, newExpr.getConstructor().getLstParameters())
-              )
-          ) {
+          if (expr instanceof NewExprent newExpr &&
+            newExpr.getConstructor() != null &&
+            !newExpr.getConstructor().getLstParameters().isEmpty() &&
+            (
+              newExpr.getConstructor().getLstParameters().get(0).equals(target) ||
+                isUnambiguouslySameParam(invocation.isStatic(), target, newExpr.getConstructor().getLstParameters())
+            )) {
 
             String classname = newExpr.getNewType().value;
             ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(classname);
@@ -811,15 +802,13 @@ public class SimplifyExprentsHelper {
   // when assignments are updated at the very end of the processing pipeline. This method assumes assignment updating will always happen, otherwise it'll lead to duplicated code execution!
   // FIXME: Move to a more reasonable place or implement assignment merging in StackVarsProcessor!
   private static boolean isMethodArrayAssign(Exprent expr, Exprent next) {
-    if (
-      expr instanceof AssignmentExprent asf &&
-        next instanceof AssignmentExprent ass &&
-        asf.getLeft() instanceof VarExprent firstLeft &&
-        ass.getLeft() instanceof ArrayExprent secondLeft &&
-        secondLeft.getArray() instanceof VarExprent secondBase &&
-        firstLeft.getIndex() == secondBase.getIndex() &&
-        secondBase.isStack()
-    ) {
+    if (expr instanceof AssignmentExprent asf &&
+      next instanceof AssignmentExprent ass &&
+      asf.getLeft() instanceof VarExprent firstLeft &&
+      ass.getLeft() instanceof ArrayExprent secondLeft &&
+      secondLeft.getArray() instanceof VarExprent secondBase &&
+      firstLeft.getIndex() == secondBase.getIndex() &&
+      secondBase.isStack()) {
 
       boolean foundAssign = false;
       Exprent secondRight = ass.getRight();
@@ -843,11 +832,9 @@ public class SimplifyExprentsHelper {
 
   // propagate (var = new X) forward to the <init> invocation
   private static boolean isConstructorInvocationRemote(List<Exprent> list, int index) {
-    if (
-      list.get(index) instanceof AssignmentExprent as &&
-        as.getLeft() instanceof VarExprent varExpr &&
-        as.getRight() instanceof NewExprent newExpr
-    ) {
+    if (list.get(index) instanceof AssignmentExprent as &&
+      as.getLeft() instanceof VarExprent varExpr &&
+      as.getRight() instanceof NewExprent newExpr) {
 
       VarType newType = newExpr.getNewType();
       VarVersionPair leftPair = new VarVersionPair(varExpr);
@@ -925,10 +912,8 @@ public class SimplifyExprentsHelper {
       }
     }
 
-    if (
-      exprent instanceof InvocationExprent in &&
-        in.getInvocationType() == InvocationExprent.InvocationType.DYNAMIC
-    ) {
+    if (exprent instanceof InvocationExprent in &&
+      in.getInvocationType() == InvocationExprent.InvocationType.DYNAMIC) {
       String lambda_class_name = cl.qualifiedName + in.getInvokeDynamicClassSuffix();
       ClassNode lambda_class = DecompilerContext.getClassProcessor().getMapRootClasses().get(lambda_class_name);
 
@@ -955,11 +940,9 @@ public class SimplifyExprentsHelper {
       }
     }
 
-    if (
-      exprent instanceof InvocationExprent in &&
-        in.getFunctype() == InvocationExprent.Type.INIT &&
-        in.getInstance() instanceof NewExprent newExpr
-    ) {
+    if (exprent instanceof InvocationExprent in &&
+      in.getFunctype() == InvocationExprent.Type.INIT &&
+      in.getInstance() instanceof NewExprent newExpr) {
       newExpr.setConstructor(in);
       in.setInstance(null);
       return newExpr;
