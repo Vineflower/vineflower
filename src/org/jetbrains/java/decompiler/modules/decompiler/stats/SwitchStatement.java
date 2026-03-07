@@ -560,7 +560,7 @@ public class SwitchStatement extends Statement {
    * @param values the list of non-null exprents to use as case values
    * @param stat the case statement to be linked to
    */
-  public void addCase(List<@NotNull Exprent> values, Statement stat) {
+  public void addCase(List<Exprent> values, Statement stat) {
     final var caseCount = this.getCaseStatements().size();
     this.addCaseInternal(this.getDefaultEdge() != null ? caseCount - 1 : caseCount, values, stat);
   }
@@ -568,10 +568,10 @@ public class SwitchStatement extends Statement {
   /**
    * Adds a new case to the switch.
    * @param index the index of where the case should be added
-   * @param values the list of non-null exprents to use as case values
+   * @param values the list of exprents to use as case values
    * @param stat the case statement to be linked to
    */
-  public void addCase(int index, List<@NotNull Exprent> values, Statement stat) {
+  public void addCase(int index, List<Exprent> values, Statement stat) {
     this.addCaseInternal(index, values, stat);
   }
 
