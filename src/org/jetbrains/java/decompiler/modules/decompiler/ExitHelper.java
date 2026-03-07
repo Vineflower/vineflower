@@ -121,18 +121,18 @@ public final class ExitHelper {
             && ifst.getParent() instanceof SwitchStatement switchStat
             && ifst.getHeadexprent().getCondition() instanceof FunctionExprent funcExpr
             && funcExpr.getFuncType().equals(FunctionExprent.FunctionType.BOOL_NOT)) {
-              ifst.getHeadexprent().setCondition(funcExpr.getLstOperands().get(0));
+            ifst.getHeadexprent().setCondition(funcExpr.getLstOperands().get(0));
 
-              // Redirect if -> dest edge to if -> default case
-              // TODO(aoqia): What happens if the switch doesn't have a default case statement?
-              if (switchStat.getDefaultEdge() != null) {
-                final var defaultCase = switchStat.getDefaultEdge().getDestination().getFirstSuccessor().getDestination();
-                if (ifedge.getDestination().equals(defaultCase)) {
-                  ifst.removeSuccessor(realIfedge);
-                  ifst.addSuccessor(new StatEdge(StatEdge.TYPE_BREAK, realIfedge.getSource(), defaultCase,
-                    ifedge.closure));
-                }
+            // Redirect if -> dest edge to if -> default case
+            // TODO(aoqia): What happens if the switch doesn't have a default case statement?
+            if (switchStat.getDefaultEdge() != null) {
+              final var defaultCase = switchStat.getDefaultEdge().getDestination().getFirstSuccessor().getDestination();
+              if (ifedge.getDestination().equals(defaultCase)) {
+                ifst.removeSuccessor(realIfedge);
+                ifst.addSuccessor(new StatEdge(StatEdge.TYPE_BREAK, realIfedge.getSource(), defaultCase,
+                  ifedge.closure));
               }
+            }
           }
 
           StatEdge newedge = new StatEdge(StatEdge.TYPE_REGULAR, ifst.getFirst(), bstat);
