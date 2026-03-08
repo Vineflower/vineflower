@@ -1,5 +1,6 @@
 package org.jetbrains.java.decompiler.main.decompiler;
 
+import org.jetbrains.java.decompiler.api.ClassContent;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IResultSaver;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
@@ -68,12 +69,12 @@ public class DirectoryResultSaver implements IResultSaver {
   }
 
   @Override
-  public void saveClassFile(String path, String qualifiedName, String entryName, String content, int[] mapping) {
+  public void saveClassFile(String path, String qualifiedName, String entryName, ClassContent content) {
     Path entryPath = this.root.resolve(path).resolve(entryName);
 
     try (BufferedWriter writer = Files.newBufferedWriter(entryPath)) {
-      if (content != null) {
-        writer.write(content);
+      if (content.content() != null) {
+        writer.write(content.content());
       }
     } catch (IOException e) {
       throw new RuntimeException("Failed to save class", e);

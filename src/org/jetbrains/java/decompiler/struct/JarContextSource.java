@@ -1,6 +1,7 @@
 // Copyright 2000-2022 JetBrains s.r.o. and ForgeFlower contributors Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.struct;
 
+import org.jetbrains.java.decompiler.api.ClassContent;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.decompiler.SingleFileSaver;
 import org.jetbrains.java.decompiler.main.extern.IBytecodeProvider;
@@ -124,8 +125,8 @@ final class JarContextSource implements IContextSource, AutoCloseable {
       }
 
       @Override
-      public void acceptClass(String qualifiedName, String fileName, String content, int[] mapping) {
-        saver.saveClassEntry(relativePath, jarFile.getName(), qualifiedName, fileName, content, mapping);
+      public void acceptClass(String qualifiedName, String fileName, ClassContent content) {
+        saver.saveClassEntry(relativePath, jarFile.getName(), qualifiedName, fileName, content);
       }
 
       @Override

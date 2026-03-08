@@ -3,6 +3,7 @@ package org.jetbrains.java.decompiler.main.decompiler;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
@@ -10,10 +11,12 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
+import org.jetbrains.java.decompiler.api.ClassContent;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.extern.IResultSaver;
+import org.jetbrains.java.decompiler.struct.JavaClassContent;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.ZipFileCache;
 
@@ -50,17 +53,16 @@ public class SingleFileSaver implements IResultSaver, AutoCloseable {
       DecompilerContext.getLogger().writeMessage(message, ex);
     }
   }
-
   @Override
-  public void saveClassFile(String path, String qualifiedName, String entryName, String content, int[] mapping) {
+  public void saveClassFile(String path, String qualifiedName, String entryName, ClassContent content) {
     if (!checkEntry(entryName))
       return;
 
     try {
       output.putNextEntry(new ZipEntry(entryName));
 
-      if (content != null) {
-        output.write(content.getBytes(StandardCharsets.UTF_8));
+      if (content.content() != null) {
+        output.write(content.content().getBytes(StandardCharsets.UTF_8));
       }
     } catch (IOException ex) {
       String message = "Cannot write entry " + entryName + " to " + target;
@@ -113,21 +115,27 @@ public class SingleFileSaver implements IResultSaver, AutoCloseable {
 
   @Override
   public void saveClassEntry(String path, String archiveName, String qualifiedName, String entryName, String content) {
-    this.saveClassEntry(path, archiveName, qualifiedName, entryName, content, null);
+    JavaClassContent classContent = new JavaClassContent();
+    classContent.content = content;
+    this.saveClassEntry(path, archiveName, qualifiedName, entryName, classContent);
   }
 
   @Override
-  public void saveClassEntry(String path, String archiveName, String qualifiedName, String entryName, String content, int[] mapping) {
+  public void saveClassEntry(String path, String archiveName, String qualifiedName, String entryName, ClassContent content) {
     if (!checkEntry(entryName))
-        return;
+      return;
 
     try {
       ZipEntry entry = new ZipEntry(entryName);
-      if (mapping != null && DecompilerContext.getOption(IFernflowerPreferences.DUMP_CODE_LINES))
-        entry.setExtra(this.getCodeLineData(mapping));
+      Map<Integer, Integer> map = content.lineMapping();
+      if (!map.isEmpty() && DecompilerContext.getOption(IFernflowerPreferences.DUMP_CODE_LINES)) {
+        entry.setExtra(this.getCodeLineData(map));
+      }
       output.putNextEntry(entry);
-      if (content != null)
-          output.write(content.getBytes(StandardCharsets.UTF_8));
+      String code = content.content();
+      if (code != null) {
+        output.write(code.getBytes(StandardCharsets.UTF_8));
+      }
     }
     catch (IOException ex) {
       String message = "Cannot write entry " + entryName + " to " + target;

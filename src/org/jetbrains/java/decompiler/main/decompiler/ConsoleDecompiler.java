@@ -1,12 +1,14 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.main.decompiler;
 
+import org.jetbrains.java.decompiler.api.ClassContent;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.Fernflower;
 import org.jetbrains.java.decompiler.main.extern.IContextSource;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.extern.IResultSaver;
+import org.jetbrains.java.decompiler.struct.JavaClassContent;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.JrtFinder;
 import org.jetbrains.java.decompiler.util.ZipFileCache;
@@ -300,10 +302,15 @@ public class ConsoleDecompiler implements /* IBytecodeProvider, */ IResultSaver,
 
   @Override
   public void saveClassFile(String path, String qualifiedName, String entryName, String content, int[] mapping) {
+
+  }
+
+  @Override
+  public void saveClassFile(String path, String qualifiedName, String entryName, ClassContent content) {
     File file = new File(getAbsolutePath(path), entryName);
-    if (content != null) {
+    if (content.content() != null) {
       try (Writer out = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
-        out.write(content);
+        out.write(content.content());
       } catch (IOException ex) {
         DecompilerContext.getLogger().writeMessage("Cannot write class file " + file, ex);
       }
@@ -334,7 +341,7 @@ public class ConsoleDecompiler implements /* IBytecodeProvider, */ IResultSaver,
     if (entryName.lastIndexOf('/') != entryName.length() - 1) {
       entryName += '/';
     }
-    saveClassEntry(path, archiveName, null, entryName, null);
+    saveClassEntry(path, archiveName, null, entryName, (String) null);
   }
 
   @Override
@@ -365,11 +372,13 @@ public class ConsoleDecompiler implements /* IBytecodeProvider, */ IResultSaver,
 
   @Override
   public void saveClassEntry(String path, String archiveName, String qualifiedName, String entryName, String content) {
-    this.saveClassEntry(path, archiveName, qualifiedName, entryName, content, null);
+    JavaClassContent classContent = new JavaClassContent();
+    classContent.content = content;
+    this.saveClassEntry(path, archiveName, qualifiedName, entryName, classContent);
   }
 
   @Override
-  public void saveClassEntry(String path, String archiveName, String qualifiedName, String entryName, String content, int[] mapping) {
+  public void saveClassEntry(String path, String archiveName, String qualifiedName, String entryName, ClassContent content) {
     String file = new File(getAbsolutePath(path), archiveName).getPath();
 
     if (!checkEntry(entryName, file)) {
@@ -379,12 +388,14 @@ public class ConsoleDecompiler implements /* IBytecodeProvider, */ IResultSaver,
     try {
       ZipOutputStream out = mapArchiveStreams.get(file);
       ZipEntry entry = new ZipEntry(entryName);
-      if (mapping != null && DecompilerContext.getOption(IFernflowerPreferences.DUMP_CODE_LINES)) {
-        entry.setExtra(this.getCodeLineData(mapping));
+      Map<Integer, Integer> map = content.lineMapping();
+      if (!map.isEmpty() && DecompilerContext.getOption(IFernflowerPreferences.DUMP_CODE_LINES)) {
+        entry.setExtra(this.getCodeLineData(map));
       }
       out.putNextEntry(entry);
-      if (content != null) {
-        out.write(content.getBytes(StandardCharsets.UTF_8));
+      String code = content.content();
+      if (code != null) {
+        out.write(code.getBytes(StandardCharsets.UTF_8));
       }
     }
     catch (IOException ex) {

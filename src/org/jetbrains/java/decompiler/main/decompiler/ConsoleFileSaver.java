@@ -1,5 +1,6 @@
 package org.jetbrains.java.decompiler.main.decompiler;
 
+import org.jetbrains.java.decompiler.api.ClassContent;
 import org.jetbrains.java.decompiler.main.extern.IResultSaver;
 
 import java.io.File;
@@ -22,7 +23,7 @@ public class ConsoleFileSaver implements IResultSaver {
   }
 
   @Override
-  public void saveClassFile(String path, String qualifiedName, String entryName, String content, int[] mapping) {
+  public void saveClassFile(String path, String qualifiedName, String entryName, ClassContent content) {
     System.out.println("==== " + entryName + " ====");
     System.out.println(content);
   }

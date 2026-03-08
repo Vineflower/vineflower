@@ -197,15 +197,15 @@ public class ContextUnit {
       if (classCtx.pendingError != null) {
         TextBuffer buf = new TextBuffer();
         ClassWriter.writeException(buf, classCtx.pendingError);
-        classCtx.classContent = buf.convertToStringAndAllowDataDiscard();
+        classCtx.content.content = buf.convertToStringAndAllowDataDiscard();
         continue;
       }
 
       futures.add(pool.submit(() -> {
         DecompilerContext.setCurrentContext(classCtx.ctx);
-        classCtx.classContent = decompiledData.getClassContent(classCtx.cl);
+        classCtx.content.content = decompiledData.getClassContent(classCtx.cl);
         if (DecompilerContext.getOption(IFernflowerPreferences.BYTECODE_SOURCE_MAPPING)) {
-          classCtx.mapping = DecompilerContext.getBytecodeSourceMapper().getOriginalLinesMapping();
+          classCtx.content.lineMapping.putAll(DecompilerContext.getBytecodeSourceMapper().getOriginalLinesMap());
         }
       }));
     }
@@ -217,8 +217,8 @@ public class ContextUnit {
 
     // write to file
     for (final ClassContext cls : toDump) {
-      if (cls.classContent != null) {
-        sink.acceptClass(cls.cl.qualifiedName, cls.entryName, cls.classContent, cls.mapping);
+      if (cls.content.content != null) {
+        sink.acceptClass(cls.cl.qualifiedName, cls.entryName, cls.content);
       }
     }
 
@@ -290,8 +290,7 @@ public class ContextUnit {
     private final StructClass cl;
     DecompilerContext ctx;
     private final String entryName;
-    String classContent;
-    int /* @Nullable */[] mapping;
+    JavaClassContent content = new JavaClassContent();
     private Throwable pendingError;
 
     ClassContext(final StructClass cl, final String entryName) {

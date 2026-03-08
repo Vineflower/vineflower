@@ -1,6 +1,7 @@
 // Copyright 2000-2022 JetBrains s.r.o. and ForgeFlower contributors Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.struct;
 
+import org.jetbrains.java.decompiler.api.ClassContent;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler;
 import org.jetbrains.java.decompiler.main.extern.IBytecodeProvider;
@@ -121,8 +122,8 @@ public class DirectoryContextSource implements IContextSource {
       }
 
       @Override
-      public void acceptClass(String qualifiedName, String fileName, String content, int[] mapping) {
-        saver.saveClassFile("", qualifiedName, fileName, content, mapping);
+      public void acceptClass(String qualifiedName, String fileName, ClassContent content) {
+        saver.saveClassFile("", qualifiedName, fileName, content);
       }
 
       @Override

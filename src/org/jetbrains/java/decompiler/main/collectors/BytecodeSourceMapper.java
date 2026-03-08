@@ -106,4 +106,13 @@ public class BytecodeSourceMapper {
     }
     return res;
   }
+
+  public Map<Integer, Integer> getOriginalLinesMap() {
+    Map<Integer, Integer> map = new LinkedHashMap<>();
+    for (Entry<Integer, Integer> entry : linesMapping.entrySet()) {
+      map.put(entry.getKey(), entry.getValue() + offset_total + 1);
+    }
+
+    return map;
+  }
 }
