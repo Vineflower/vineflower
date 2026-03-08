@@ -106,31 +106,66 @@ public final class ExitHelper {
         dest = isExitEdge(ifedge);
 
         StatEdge realIfedge = null;
-        if (dest == null && ifst.hasSuccessor(StatEdge.TYPE_BREAK)) {
+        if (dest == null) {
           // If it's not the if edge, also check the first break out of the if.
-          // TODO(aoqia): This may be not accurate enough, like if the break out is a return after.
-          realIfedge = ifst.getSuccessorEdges(StatEdge.TYPE_BREAK).get(0);
-          dest = isExitEdge2(ifst, realIfedge);
+          // The real edge may also be a break from the if's first successor (and the basichead breaks to default stat)
+          if (ifst.hasSuccessor(StatEdge.TYPE_BREAK)) {
+            realIfedge = ifst.getSuccessorEdges(StatEdge.TYPE_BREAK).get(0);
+            dest = isRealIfEdge(ifst, realIfedge);
+          } else if (!ifst.getSuccessorEdges(StatEdge.TYPE_REGULAR).isEmpty()) {
+            Statement adjacentStat = ifst.getSuccessorEdges(StatEdge.TYPE_REGULAR).get(0).getDestination();
+
+            if (adjacentStat.hasSuccessor(StatEdge.TYPE_BREAK)) {
+              realIfedge = adjacentStat.getSuccessorEdges(StatEdge.TYPE_BREAK).get(0);
+              dest = isRealIfEdge(ifst, realIfedge);
+            }
+          }
         }
 
         if (dest != null) {
           BasicBlockStatement bstat = BasicBlockStatement.create();
           bstat.setExprents(DecHelper.copyExprentList(dest.getExprents()));
 
-          if (realIfedge != null
-            && ifst.getParent() instanceof SwitchStatement switchStat
-            && ifst.getHeadexprent().getCondition() instanceof FunctionExprent funcExpr
-            && funcExpr.getFuncType().equals(FunctionExprent.FunctionType.BOOL_NOT)) {
-            ifst.getHeadexprent().setCondition(funcExpr.getLstOperands().get(0));
+          // Store the old exit edge before changing any of the below.
+          // This is so we can replace the dest with an empty block if needed, and still keep the edge reference.
+          StatEdge oldexitedge = dest.getFirstSuccessor();
 
-            // Redirect if -> dest edge to if -> default case
-            // TODO(aoqia): What happens if the switch doesn't have a default case statement?
-            if (switchStat.getDefaultEdge() != null) {
-              final var defaultCase = switchStat.getDefaultEdge().getDestination().getFirstSuccessor().getDestination();
-              if (ifedge.getDestination().equals(defaultCase)) {
-                ifst.removeSuccessor(realIfedge);
-                ifst.addSuccessor(new StatEdge(StatEdge.TYPE_BREAK, realIfedge.getSource(), defaultCase,
-                  ifedge.closure));
+          if (realIfedge != null) {
+            boolean ifstInSeqence = ifst.getParent() instanceof SequenceStatement;
+            if (ifstInSeqence) {
+              // The if statement being in a sequence means we want more than just the dest's expr list.
+              bstat.getExprents().addAll(0, DecHelper.copyExprentList(realIfedge.getSource().getExprents()));
+            }
+
+            SwitchStatement switchStat = null;
+            if (ifst.getParent() instanceof SwitchStatement s) {
+              switchStat = s;
+            } else if (ifstInSeqence && ifst.getParent().getParent() instanceof SwitchStatement s) {
+              switchStat = s;
+            }
+
+            // If the if is negated e.g. `!var2.equals("1")`
+            if (switchStat != null
+              && ifst.getHeadexprent().getCondition() instanceof FunctionExprent funcExpr
+              && funcExpr.getFuncType().equals(FunctionExprent.FunctionType.BOOL_NOT)) {
+              // Invert if condition
+              ifst.getHeadexprent().setCondition(funcExpr.getLstOperands().get(0));
+
+              // Redirect if -> dest edge to if -> default case
+              if (switchStat.getDefaultEdge() != null) {
+                final var defaultCase = switchStat.getDefaultEdge().getDestination().getFirstSuccessor().getDestination();
+                if (ifedge.getDestination().equals(defaultCase)) {
+                  if (ifstInSeqence) {
+                    ifst.getSuccessorEdges(StatEdge.TYPE_REGULAR).get(0).changeSource(ifst.getParent());
+
+                    realIfedge.getSource().replaceWithEmpty();
+                    realIfedge.getDestination().replaceWithEmpty();
+                  } else {
+                    ifst.removeSuccessor(realIfedge);
+                  }
+
+                  ifst.addSuccessor(new StatEdge(StatEdge.TYPE_BREAK, ifst, defaultCase, ifedge.closure));
+                }
               }
             }
           }
@@ -143,7 +178,6 @@ public final class ExitHelper {
           ifst.getStats().addWithKey(bstat, bstat.id);
           bstat.setParent(ifst);
 
-          StatEdge oldexitedge = dest.getFirstSuccessor();
           StatEdge newexitedge = new StatEdge(StatEdge.TYPE_BREAK, bstat, oldexitedge.getDestination());
           bstat.addSuccessor(newexitedge);
           oldexitedge.closure.addLabeledEdge(newexitedge);
@@ -245,8 +279,7 @@ public final class ExitHelper {
     return null;
   }
 
-  // TODO(aoqia): Needs a better name or maybe can be merged with the original method?
-  private static Statement isExitEdge2(IfStatement ifst, StatEdge edge) {
+  private static Statement isRealIfEdge(IfStatement ifst, StatEdge edge) {
     Statement dest = edge.getDestination();
 
     // It should be a break edge that can be inlined and is explicit
