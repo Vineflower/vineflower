@@ -1,6 +1,6 @@
 package org.jetbrains.java.decompiler.modules.decompiler;
 
-import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.struct.StructClass;
 
@@ -125,5 +125,80 @@ public class TryHelper {
     }
 
     return false;
+  }
+
+  // After JDK 9+ try-with-resources reconstruction, temp return variables may
+  // be left over from the desugaring pattern:
+  //   try (...) { ...; var = value; }
+  //   return var;
+  // This pass inlines them to:
+  //   try (...) { ...; return value; }
+  public static boolean inlineTwrReturnVars(Statement stat) {
+    boolean changed = false;
+
+    for (Statement st : new ArrayList<>(stat.getStats())) {
+      if (inlineTwrReturnVars(st)) {
+        changed = true;
+      }
+    }
+
+    if (stat instanceof SequenceStatement) {
+      for (int i = 0; i < stat.getStats().size() - 1; i++) {
+        Statement curr = stat.getStats().get(i);
+        Statement next = stat.getStats().get(i + 1);
+
+        if (curr instanceof CatchStatement catchStat
+            && !catchStat.getResources().isEmpty()
+            && next instanceof BasicBlockStatement
+            && next.getExprents() != null
+            && next.getExprents().size() == 1
+            && next.getExprents().get(0) instanceof ExitExprent exitExpr
+            && exitExpr.getExitType() == ExitExprent.Type.RETURN
+            && exitExpr.getValue() instanceof VarExprent returnVar) {
+
+          Statement tryBody = catchStat.getFirst();
+          Statement lastInBody = findLastStatement(tryBody);
+
+          if (lastInBody != null
+              && lastInBody.getExprents() != null
+              && !lastInBody.getExprents().isEmpty()) {
+            List<Exprent> bodyExprents = lastInBody.getExprents();
+            Exprent lastExpr = bodyExprents.get(bodyExprents.size() - 1);
+
+            if (lastExpr instanceof AssignmentExprent assignment
+                && assignment.getCondType() == null
+                && assignment.getLeft() instanceof VarExprent assignVar
+                && assignVar.equals(returnVar)) {
+
+              ExitExprent newReturn = (ExitExprent) exitExpr.copy();
+              newReturn.replaceExprent(newReturn.getValue(), assignment.getRight().copy());
+              bodyExprents.set(bodyExprents.size() - 1, newReturn);
+
+              next.getExprents().clear();
+              changed = true;
+            }
+          }
+        }
+      }
+    }
+
+    return changed;
+  }
+
+  private static Statement findLastStatement(Statement stat) {
+    if (stat instanceof SequenceStatement) {
+      Statement last = stat.getStats().get(stat.getStats().size() - 1);
+      return findLastStatement(last);
+    }
+
+    if (stat instanceof CatchStatement) {
+      return findLastStatement(((CatchStatement) stat).getFirst());
+    }
+
+    if (stat.getExprents() != null) {
+      return stat;
+    }
+
+    return null;
   }
 }

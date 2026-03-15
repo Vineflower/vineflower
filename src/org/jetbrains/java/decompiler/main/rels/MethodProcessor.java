@@ -346,6 +346,14 @@ public class MethodProcessor implements Runnable {
         continue;
       }
 
+      // After try-with-resources reconstruction is complete, inline temp
+      // return variables left over from JDK 9+ TWR desugaring.
+      if (root.hasTryCatch() && TryHelper.inlineTwrReturnVars(root)) {
+        SequenceHelper.condenseSequences(root);
+        decompileRecord.add("InlineTwrReturnVars", root);
+        continue;
+      }
+
       if (InlineSingleBlockHelper.inlineSingleBlocks(root)) {
         decompileRecord.add("InlineSingleBlocks", root);
         continue;
