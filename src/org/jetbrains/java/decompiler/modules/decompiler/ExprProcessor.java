@@ -585,9 +585,9 @@ public class ExprProcessor implements CodeConstants {
                 if ((!invocation.isStatic() && invocation.getName().equals("getClass") && invocation.getStringDescriptor().equals("()Ljava/lang/Class;")) // J8
                   || (invocation.isStatic() && invocation.getClassname().equals("java/util/Objects") && invocation.getName().equals("requireNonNull") && invocation.getStringDescriptor().equals("(Ljava/lang/Object;)Ljava/lang/Object;"))) { // J9+
 
-                  // Ensure that these null checks are constant loads, LDC opcodes, null loads, or bi/sipushes.
+                  // Ensure that these null checks are constant loads, LDC opcodes, null loads, bi/sipushes, or astores.
                   int nextOpc = seq.getInstr(i + 1).opcode;
-                  if (nextOpc >= opc_aconst_null && nextOpc <= opc_ldc2_w) {
+                  if ((nextOpc >= opc_aconst_null && nextOpc <= opc_ldc2_w) || (nextOpc == opc_astore || (nextOpc >= opc_astore_0 && nextOpc <= opc_astore_3))) {
                     invocation.setSyntheticNullCheck();
                   }
                 }
