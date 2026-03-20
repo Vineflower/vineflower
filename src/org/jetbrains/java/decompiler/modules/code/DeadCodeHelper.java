@@ -692,21 +692,4 @@ public final class DeadCodeHelper {
       }
     }
   }
-
-  public static void cleanupThisVars(StructMethod mt, ControlFlowGraph graph) {
-//    if (mt.hasModifier(CodeConstants.ACC_STATIC)) {
-//      return;
-//    }
-//    for (BasicBlock block : graph.getBlocks()) {
-//      InstructionSequence seq = block.getSeq();
-//      for (int i = 0; i < seq.length() - 1; i++) {
-//        Instruction op1 = seq.getInstr(i);
-//        Instruction op2 = seq.getInstr(i + 1);
-//        if (op1.opcode == CodeConstants.opc_astore && op2.opcode == CodeConstants.opc_aload && op1.operand(0) == op2.operand(0)) {
-//          seq.removeInstruction(i);
-//          seq.removeInstruction(i);
-//        }
-//      }
-//    }
-  }
 }

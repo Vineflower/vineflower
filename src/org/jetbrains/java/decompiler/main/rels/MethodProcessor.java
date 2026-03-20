@@ -109,8 +109,6 @@ public class MethodProcessor implements Runnable {
     // TODO: move to the start, before jsr inlining
     DeadCodeHelper.connectDummyExitBlock(graph);
 
-    DeadCodeHelper.cleanupThisVars(mt, graph);
-
     DeadCodeHelper.removeGotos(graph);
 
     ExceptionDeobfuscator.removeCircularRanges(graph);
