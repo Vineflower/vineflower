@@ -3,6 +3,7 @@ package org.jetbrains.java.decompiler.main.rels;
 
 import org.jetbrains.java.decompiler.api.plugin.LanguageSpec;
 import org.jetbrains.java.decompiler.code.CodeConstants;
+import org.jetbrains.java.decompiler.code.MethodProperties;
 import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
@@ -10,6 +11,7 @@ import org.jetbrains.java.decompiler.main.collectors.VarNamesCollector;
 import org.jetbrains.java.decompiler.main.decompiler.CancelationManager;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
+import org.jetbrains.java.decompiler.modules.code.MethodPropertiesProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
@@ -23,7 +25,9 @@ import org.jetbrains.java.decompiler.util.DotExporter;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
@@ -36,6 +40,7 @@ public class ClassWrapper {
   private final VBStyleCollection<Exprent, String> staticFieldInitializers = new VBStyleCollection<>();
   private final VBStyleCollection<Exprent, String> dynamicFieldInitializers = new VBStyleCollection<>();
   private final VBStyleCollection<MethodWrapper, String> methods = new VBStyleCollection<>();
+  private final Map<String, MethodProperties> methodProperties = new HashMap<>();
 
   public ClassWrapper(StructClass classStruct) {
     this.classStruct = classStruct;
@@ -48,6 +53,13 @@ public class ClassWrapper {
 
     int maxSec = Integer.parseInt(DecompilerContext.getProperty(IFernflowerPreferences.MAX_PROCESSING_METHOD).toString());
     boolean testMode = DecompilerContext.getOption(IFernflowerPreferences.UNIT_TEST_MODE);
+
+    // Pre-process
+    for (StructMethod mt : classStruct.getMethods()) {
+      MethodProperties props = new MethodProperties();
+      MethodPropertiesProcessor.parse(mt, classStruct, props);
+      methodProperties.put(InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor()), props);
+    }
 
     for (StructMethod mt : classStruct.getMethods()) {
       DecompilerContext.getLogger().startMethod(mt.getName() + " " + mt.getDescriptor());
@@ -220,6 +232,10 @@ public class ClassWrapper {
     return methods.getWithKey(InterpreterUtil.makeUniqueKey(name, descriptor));
   }
 
+  public MethodProperties getMethodProperties(String name, String descriptor) {
+    return methodProperties.get(InterpreterUtil.makeUniqueKey(name, descriptor));
+  }
+
   public MethodWrapper getMethodWrapper(int index) {
     return methods.get(index);
   }
@@ -230,6 +246,10 @@ public class ClassWrapper {
 
   public VBStyleCollection<MethodWrapper, String> getMethods() {
     return methods;
+  }
+
+  public Map<String, MethodProperties> getMethodProperties() {
+    return methodProperties;
   }
 
   public Set<String> getHiddenMembers() {

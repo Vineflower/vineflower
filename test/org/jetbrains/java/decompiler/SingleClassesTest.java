@@ -818,8 +818,11 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestTryLoopReturnFinally");
     register(JASM, "TestNumberCompareToBoolean");
 
+    // TODO: this.ref() turned into rec$
     register(JAVA_21, "TestMethodReferenceJ21", "ext/RefsExt");
     register(JAVA_25, "TestMethodReferenceJ25", "ext/RefsExt");
+
+    register(JAVA_16_NODEBUG, "TestObjectLambda");
   }
 
   private void registerEntireClassPath() {

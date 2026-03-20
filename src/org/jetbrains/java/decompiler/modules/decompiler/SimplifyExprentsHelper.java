@@ -1,7 +1,6 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler;
 
-import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
@@ -90,13 +89,13 @@ public class SimplifyExprentsHelper {
         }
       }
     } else {
-      res = simplifyStackVarsExprents(expressions, cl, stat, firstInvocation);
+      res = simplifyStackVarsExprents(expressions, cl, ssa, stat, firstInvocation);
     }
 
     return res;
   }
 
-  private static boolean simplifyStackVarsExprents(List<Exprent> list, StructClass cl, Statement stat, boolean firstInvocation) {
+  private static boolean simplifyStackVarsExprents(List<Exprent> list, StructClass cl, SSAConstructorSparseEx ssa, Statement stat, boolean firstInvocation) {
     boolean res = false;
 
     int index = 0;
@@ -212,6 +211,12 @@ public class SimplifyExprentsHelper {
       // assignment on stack
       if (isStackAssignment(current, next)) {
         list.remove(index + 1);
+        res = true;
+        continue;
+      }
+
+      if (isInlinedMethodReferenceAssign(ssa, current, next)) {
+        list.remove(index);
         res = true;
         continue;
       }
@@ -515,6 +520,34 @@ public class SimplifyExprentsHelper {
       }
     }
 
+    return false;
+  }
+
+  private static boolean isInlinedMethodReferenceAssign(SSAConstructorSparseEx ssa, Exprent first, Exprent second) {
+    if (ssa == null) {
+      return false;
+    }
+
+    if (!(first instanceof AssignmentExprent assign)) {
+      return false;
+    }
+    if (!(assign.getLeft() instanceof VarExprent var)) {
+      return false;
+    }
+    if (var.getVarType().type != CodeType.OBJECT || var.getLVT() != null) {
+      return false;
+    }
+    if (ssa.getReadCount(var.getVarVersionPair()) == 1) {
+      for (Exprent expr : second.getAllExprents(true)) {
+        if (expr instanceof NewExprent lambda && lambda.isLambda() && !lambda.isMethodReference() && lambda.getConstructor().containsExprent(var) && lambda.getConstructor().getLstParameters().size() == 1) {
+          ClassWrapper wrapper = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_WRAPPER);
+          if (wrapper.getMethodProperties().get(lambda.getLambdaContentMethodKey()).isSyntheticReferenceLambda) {
+            lambda.getConstructor().replaceExprent(lambda.getConstructor().getLstParameters().get(0), assign.getRight());
+            return true;
+          }
+        }
+      }
+    }
     return false;
   }
 

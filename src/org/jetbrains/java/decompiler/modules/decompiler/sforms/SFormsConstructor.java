@@ -49,6 +49,8 @@ public abstract class SFormsConstructor {
   // set factory
   FastSparseSetFactory<Integer> factory;
 
+  private final Map<VarVersionPair, Integer> readCount = new HashMap<>();
+
 
   private SFormsFastMapDirect currentCatchableMap = null;
 
@@ -171,6 +173,8 @@ public abstract class SFormsConstructor {
         this.varReadMultipleVersions(stat, calcLiveVars, varExprent, varmap, versions);
         break;
     }
+
+    readCount.compute(varExprent.getVarVersionPair(), (k, v) -> v == null ? 1 : v + 1);
   }
 
   abstract void varReadSingleVersion(
@@ -497,6 +501,10 @@ public abstract class SFormsConstructor {
 
   protected int getNextFreeVersion(int var, Statement stat) {
     return this.lastversion.compute(var, (k, v) -> v == null ? 1 : v + 1);
+  }
+
+  public int getReadCount(VarVersionPair var) {
+    return readCount.getOrDefault(var, 0);
   }
   
   public DirectGraph getDirectGraph() {

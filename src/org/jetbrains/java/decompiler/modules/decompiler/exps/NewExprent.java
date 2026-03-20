@@ -860,6 +860,15 @@ public class NewExprent extends Exprent {
     return "";
   }
 
+
+  public String getLambdaContentMethodKey() {
+    ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(newType.value);
+    if (node != null && constructor != null) {
+      return InterpreterUtil.makeUniqueKey(node.lambdaInformation.content_method_name, node.lambdaInformation.content_method_descriptor);
+    }
+    return "";
+  }
+
   public void setInvocationInstance() {
     if (constructor != null) {
       constructor.setInvocationInstance();

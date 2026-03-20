@@ -5,8 +5,7 @@ import java.util.function.Consumer;
 
 public class TestMethodReferenceJ25 extends RefsExt {
    private void test() {
-      TestMethodReferenceJ25 var1 = this;
-      this.consume(x$0 -> var1.accept(x$0));// 9
+      this.consume(x$0 -> this.accept(x$0));// 9
    }// 10
 
    private void test_() {
@@ -18,8 +17,7 @@ public class TestMethodReferenceJ25 extends RefsExt {
    }// 18
 
    private void test3(TestMethodReferenceJ25 ref) {
-      TestMethodReferenceJ25 var2 = ref;
-      this.consume(x$0 -> var2.accept(x$0));// 21
+      this.consume(x$0 -> ref.accept(x$0));// 21
    }// 22
 
    private void test3_(TestMethodReferenceJ25 ref) {
@@ -35,8 +33,7 @@ public class TestMethodReferenceJ25 extends RefsExt {
    }// 34
 
    private void test6() {
-      TestMethodReferenceJ25 var1 = this.ref();
-      this.consume(x$0 -> var1.accept(x$0));// 37
+      this.consume(x$0 -> rec$.accept(x$0));// 37
    }// 38
 
    private void test6_() {
@@ -57,188 +54,179 @@ public class TestMethodReferenceJ25 extends RefsExt {
 
 class 'pkg/TestMethodReferenceJ25' {
    method 'test ()V' {
-      0      8
-      1      7
-      2      7
-      9      8
-      a      8
-      b      8
-      c      9
+      0      7
+      9      7
+      a      7
+      b      7
+      c      8
    }
 
    method 'lambda$test$0 (Lpkg/TestMethodReferenceJ25;Ljava/lang/String;)V' {
-      0      8
-      1      8
-      2      8
-      3      8
-      4      8
-      5      8
+      0      7
+      1      7
+      2      7
+      3      7
+      4      7
+      5      7
    }
 
    method 'test_ ()V' {
-      0      12
-      7      12
-      8      12
-      9      12
-      a      13
+      0      11
+      7      11
+      8      11
+      9      11
+      a      12
    }
 
    method 'lambda$test_$0 (Ljava/lang/String;)V' {
-      0      12
-      1      12
-      2      12
-      3      12
-      4      12
-      5      12
+      0      11
+      1      11
+      2      11
+      3      11
+      4      11
+      5      11
    }
 
    method 'test2 ()V' {
-      0      16
-      1      16
-      7      16
-      8      16
-      9      16
-      a      17
+      0      15
+      1      15
+      7      15
+      8      15
+      9      15
+      a      16
    }
 
    method 'test3 (Lpkg/TestMethodReferenceJ25;)V' {
-      0      21
-      1      20
-      7      20
-      e      21
-      f      21
-      10      21
-      11      22
+      0      19
+      e      19
+      f      19
+      10      19
+      11      20
    }
 
    method 'lambda$test3$0 (Lpkg/TestMethodReferenceJ25;Ljava/lang/String;)V' {
-      0      21
-      1      21
-      2      21
-      3      21
-      4      21
-      5      21
+      0      19
+      1      19
+      2      19
+      3      19
+      4      19
+      5      19
    }
 
    method 'test3_ (Lpkg/TestMethodReferenceJ25;)V' {
-      0      25
-      7      25
-      8      25
-      9      25
-      a      26
+      0      23
+      7      23
+      8      23
+      9      23
+      a      24
    }
 
    method 'lambda$test3_$0 (Lpkg/TestMethodReferenceJ25;Ljava/lang/String;)V' {
-      0      25
-      1      25
-      2      25
-      3      25
-      4      25
-      5      25
+      0      23
+      1      23
+      2      23
+      3      23
+      4      23
+      5      23
    }
 
    method 'test4 (Lpkg/TestMethodReferenceJ25;)V' {
-      0      29
-      1      29
-      c      29
-      d      29
-      e      29
-      f      30
+      0      27
+      1      27
+      c      27
+      d      27
+      e      27
+      f      28
    }
 
    method 'test5 (Lext/RefsExt;)V' {
-      0      33
-      1      33
-      c      33
-      d      33
-      e      33
-      f      34
+      0      31
+      1      31
+      c      31
+      d      31
+      e      31
+      f      32
    }
 
    method 'test6 ()V' {
-      0      38
-      1      37
-      2      37
-      3      37
-      4      37
-      a      37
-      11      38
-      12      38
-      13      38
-      14      39
+      0      35
+      11      35
+      12      35
+      13      35
+      14      36
    }
 
    method 'lambda$test6$0 (Lpkg/TestMethodReferenceJ25;Ljava/lang/String;)V' {
-      0      38
-      1      38
-      2      38
-      3      38
-      4      38
-      5      38
+      0      35
+      1      35
+      2      35
+      3      35
+      4      35
+      5      35
    }
 
    method 'test6_ ()V' {
-      0      42
-      7      42
-      8      42
-      9      42
-      a      43
+      0      39
+      7      39
+      8      39
+      9      39
+      a      40
    }
 
    method 'lambda$test6_$0 (Ljava/lang/String;)V' {
-      0      42
-      1      42
-      2      42
-      3      42
-      4      42
-      5      42
-      6      42
-      7      42
-      8      42
+      0      39
+      1      39
+      2      39
+      3      39
+      4      39
+      5      39
+      6      39
+      7      39
+      8      39
    }
 
    method 'test7 ()V' {
-      0      46
-      1      46
-      2      46
-      3      46
-      4      46
-      f      46
-      10      46
-      11      46
-      12      47
+      0      43
+      1      43
+      2      43
+      3      43
+      4      43
+      f      43
+      10      43
+      11      43
+      12      44
    }
 
    method 'ref ()Lpkg/TestMethodReferenceJ25;' {
-      0      50
-      1      50
+      0      47
+      1      47
    }
 
    method 'consume (Ljava/util/function/Consumer;)V' {
-      0      54
+      0      51
    }
 }
 
 Lines mapping:
-9 <-> 9
-10 <-> 10
-13 <-> 13
-14 <-> 14
-17 <-> 17
-18 <-> 18
-21 <-> 22
-22 <-> 23
-25 <-> 26
-26 <-> 27
-29 <-> 30
-30 <-> 31
-33 <-> 34
-34 <-> 35
-37 <-> 39
-38 <-> 40
-41 <-> 43
-42 <-> 44
-45 <-> 47
-46 <-> 48
-49 <-> 51
-54 <-> 55
+9 <-> 8
+10 <-> 9
+13 <-> 12
+14 <-> 13
+17 <-> 16
+18 <-> 17
+21 <-> 20
+22 <-> 21
+25 <-> 24
+26 <-> 25
+29 <-> 28
+30 <-> 29
+33 <-> 32
+34 <-> 33
+37 <-> 36
+38 <-> 37
+41 <-> 40
+42 <-> 41
+45 <-> 44
+46 <-> 45
+49 <-> 48
+54 <-> 52
