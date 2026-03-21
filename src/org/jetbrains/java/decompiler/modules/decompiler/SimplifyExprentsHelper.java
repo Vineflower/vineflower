@@ -988,7 +988,7 @@ public class SimplifyExprentsHelper {
   private static boolean buildIff(Statement stat, SSAConstructorSparseEx ssa) {
     if (stat instanceof IfStatement statement && stat.getExprents() == null) {
       Exprent ifHeadExpr = statement.getHeadexprent();
-      BitSet ifHeadExprBytecode = (ifHeadExpr == null ? null : ifHeadExpr.bytecode);
+      Exprent.BytecodeRange ifHeadExprBytecode = (ifHeadExpr == null ? null : ifHeadExpr.bytecode);
 
       if (statement.iftype == IfStatement.IFTYPE_IFELSE) {
         Statement ifStatement = statement.getIfstat();

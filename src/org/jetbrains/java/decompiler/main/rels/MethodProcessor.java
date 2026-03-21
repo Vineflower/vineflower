@@ -19,6 +19,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.decompose.DomHelper;
 import org.jetbrains.java.decompiler.modules.code.ExceptionDeobfuscator;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.struct.StructClass;
@@ -87,9 +88,9 @@ public class MethodProcessor implements Runnable {
   public static RootStatement codeToJava(StructClass cl, StructMethod mt, MethodDescriptor md, VarProcessor varProc, LanguageSpec spec) throws IOException {
     CancelationManager.checkCanceled();
 
-    debugCurrentlyDecompiling.set(null);
-    debugCurrentCFG.set(null);
-    debugCurrentDecompileRecord.set(null);
+    debugCurrentlyDecompiling.remove();
+    debugCurrentCFG.remove();
+    debugCurrentDecompileRecord.remove();
 
     boolean isInitializer = CodeConstants.CLINIT_NAME.equals(mt.getName()); // for now static initializer only
     PluginContext pluginContext = PluginContext.getCurrentContext();
@@ -252,6 +253,12 @@ public class MethodProcessor implements Runnable {
 
     // Main loop
     while (true) {
+      if (root.isSimple() && root.getFirst().getExprents().size() <= 1) {
+        LabelHelper.identifyLabels(root);
+        decompileRecord.add("IdentifyLabels", root);
+        break;
+      }
+
       decompileRecord.incrementMainLoop();
       decompileRecord.add("Start", root);
 
@@ -307,11 +314,6 @@ public class MethodProcessor implements Runnable {
       // Apply post processing transformations
       if (SecondaryFunctionsHelper.identifySecondaryFunctions(root, varProc)) {
         decompileRecord.add("IdentifySecondary", root);
-        continue;
-      }
-
-      if (IntersectionCastProcessor.makeIntersectionCasts(root)) {
-        decompileRecord.add("intersectionCasts", root);
         continue;
       }
 
@@ -443,6 +445,10 @@ public class MethodProcessor implements Runnable {
       decompileRecord.add("HideEmptyDefault", root);
     }
 
+    if (IntersectionCastProcessor.makeIntersectionCasts(root)) {
+      decompileRecord.add("intersectionCasts", root);
+    }
+
     if (GenericsProcessor.qualifyChains(root)) {
       decompileRecord.add("QualifyGenericChains", root);
     }
@@ -475,6 +481,8 @@ public class MethodProcessor implements Runnable {
     // Debug print the decompile record
     DotExporter.toDotFile(decompileRecord, mt, "decompileRecord", false);
 
+    // Delete unneeded data now that processing is complete
+    ExprProcessor.releaseResources(root, varProc);
     mt.releaseResources();
 
     return root;

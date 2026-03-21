@@ -57,7 +57,7 @@ public abstract class Exprent implements IMatchable {
 
   public final Type type;
   public final int id;
-  public BitSet bytecode = null;  // offsets of bytecode instructions decompiled to this exprent
+  public BytecodeRange bytecode = null;  // offsets of bytecode instructions decompiled to this exprent
 
   protected Exprent(Type type) {
     this.type = type;
@@ -175,29 +175,29 @@ public abstract class Exprent implements IMatchable {
 
   public void replaceExprent(Exprent oldExpr, Exprent newExpr) { }
 
-  public void addBytecodeOffsets(BitSet bytecodeOffsets) {
+  public void addBytecodeOffsets(BytecodeRange bytecodeOffsets) {
     if (bytecodeOffsets != null) {
       if (bytecode == null) {
-        bytecode = new BitSet();
+        bytecode = new BytecodeRange();
       }
       bytecode.or(bytecodeOffsets);
     }
   }
 
-  public abstract void getBytecodeRange(BitSet values);
+  public abstract void getBytecodeRange(BytecodeRange values);
 
-  protected void measureBytecode(BitSet values) {
+  protected void measureBytecode(BytecodeRange values) {
     if (bytecode != null && values != null) {
       values.or(bytecode);
     }
   }
 
-  protected static void measureBytecode(BitSet values, Exprent exprent) {
+  protected static void measureBytecode(BytecodeRange values, Exprent exprent) {
     if (exprent != null)
       exprent.getBytecodeRange(values);
   }
 
-  protected static void measureBytecode(BitSet values, List<? extends Exprent> list) {
+  protected static void measureBytecode(BytecodeRange values, List<? extends Exprent> list) {
     if (list != null && !list.isEmpty()) {
       for (Exprent e : list)
         e.getBytecodeRange(values);
@@ -366,6 +366,135 @@ public abstract class Exprent implements IMatchable {
   public String toString() {
     try (var v = DecompilerContext.getImportCollector().lock()) {
       return toJava(0).convertToStringAndAllowDataDiscard();
+    }
+  }
+
+  public static class BytecodeRange {
+    private BytecodeSet set = new BytecodeSet.Empty();
+
+    public BytecodeRange() {
+
+    }
+
+    public BytecodeRange(BytecodeSet set) {
+      this.set = set;
+    }
+
+    public void or(BytecodeRange range) {
+//      System.out.print(set + " | " + range.set + " -> ");
+      this.set = set.or(range.set);
+
+//      System.out.println(set);
+    }
+
+    public BitSet asBitSet() {
+      return set.set();
+    }
+
+    public int length() {
+      return asBitSet().length();
+    }
+  }
+
+  public interface BytecodeSet {
+
+    BytecodeSet or(BytecodeSet other);
+
+    BitSet set();
+
+    class Empty implements BytecodeSet {
+
+      @Override
+      public BytecodeSet or(BytecodeSet other) {
+        if (other instanceof Empty) {
+          return this;
+        } else if (other instanceof Range r) {
+          return new Range(r.start, r.end);
+        } else if (other instanceof Bits b) {
+          Bits set = new Bits(new BitSet());
+          set.or(b);
+          return set;
+        }
+
+        throw new IllegalStateException();
+      }
+
+      @Override
+      public BitSet set() {
+        return new BitSet();
+      }
+
+      @Override
+      public String toString() {
+        return "Nil";
+      }
+    }
+
+    // Inclusive range
+    class Range implements BytecodeSet {
+      public final int start;
+      public final int end;
+
+      public Range(int start, int end) {
+        this.start = start;
+        this.end = end;
+      }
+
+      @Override
+      public BytecodeSet or(BytecodeSet other) {
+        if (other instanceof Empty) {
+          return this;
+        } else if (other instanceof Range r) {
+          if (r.start == start && r.end == end) {
+            return this;
+          } if (r.end > end && r.start >= start && r.start <= end + 1) {
+            return new Range(start, r.end);
+          } else if (r.start < start && r.end <= end && r.end >= start - 1) {
+            return new Range(start, r.end);
+          }
+        }
+
+        BitSet set = set();
+        set.or(other.set());
+
+        return new Bits(set);
+      }
+
+      @Override
+      public BitSet set() {
+        BitSet set = new BitSet();
+        set.set(start, end + 1);
+        return set;
+      }
+
+      @Override
+      public String toString() {
+        return "[" + start + "-" + end + "]";
+      }
+    }
+
+    class Bits implements BytecodeSet {
+      private final BitSet set;
+
+      public Bits(BitSet set) {
+        this.set = set;
+      }
+
+      @Override
+      public BytecodeSet or(BytecodeSet other) {
+        set.or(other.set());
+        return this;
+      }
+
+      @Override
+      public BitSet set() {
+        return set;
+      }
+
+      @Override
+      public String toString() {
+        return set.toString();
+      }
     }
   }
 }

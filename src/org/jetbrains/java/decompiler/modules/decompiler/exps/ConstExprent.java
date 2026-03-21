@@ -20,8 +20,8 @@ import java.util.function.Function;
 
 public class ConstExprent extends Exprent {
   private static final Map<Integer, String> CHAR_ESCAPES = new HashMap<>();
-  private static final Map<Double, Function<BitSet, TextBuffer>> UNINLINED_DOUBLES = new HashMap<>();
-  private static final Map<Float, Function<BitSet, TextBuffer>> UNINLINED_FLOATS = new HashMap<>();
+  private static final Map<Double, Function<BytecodeRange, TextBuffer>> UNINLINED_DOUBLES = new HashMap<>();
+  private static final Map<Float, Function<BytecodeRange, TextBuffer>> UNINLINED_FLOATS = new HashMap<>();
   private static final Set<Object> NO_PAREN_VALUES = new HashSet<>();
 
   static {
@@ -134,20 +134,20 @@ public class ConstExprent extends Exprent {
   private final boolean boolPermitted;
   private boolean wasCondy = false;
 
-  public ConstExprent(int val, boolean boolPermitted, BitSet bytecodeOffsets) {
+  public ConstExprent(int val, boolean boolPermitted, BytecodeRange bytecodeOffsets) {
     this(guessType(val, boolPermitted), val, boolPermitted, bytecodeOffsets);
   }
 
-  public ConstExprent(VarType constType, Object value, BitSet bytecodeOffsets) {
+  public ConstExprent(VarType constType, Object value, BytecodeRange bytecodeOffsets) {
     this(constType, value, false, bytecodeOffsets);
   }
 
-  public ConstExprent(VarType constType, Object value, BitSet bytecodeOffsets, boolean wasCondy) {
+  public ConstExprent(VarType constType, Object value, BytecodeRange bytecodeOffsets, boolean wasCondy) {
     this(constType, value, false, bytecodeOffsets);
     this.wasCondy = wasCondy;
   }
 
-  protected ConstExprent(VarType constType, Object value, boolean boolPermitted, BitSet bytecodeOffsets) {
+  protected ConstExprent(VarType constType, Object value, boolean boolPermitted, BytecodeRange bytecodeOffsets) {
     super(Type.CONST);
     this.constType = constType;
     this.value = value;
@@ -386,15 +386,15 @@ public class ConstExprent extends Exprent {
     return super.getPrecedence();
   }
 
-  private static TextBuffer getPiDouble(BitSet bytecode) {
+  private static TextBuffer getPiDouble(BytecodeRange bytecode) {
     return getDouble(bytecode, "PI", "java/lang/Math");
   }
 
-  private static TextBuffer getDouble(BitSet bytecode, String name, String className) {
+  private static TextBuffer getDouble(BytecodeRange bytecode, String name, String className) {
     return new FieldExprent(name, className, true, null, FieldDescriptor.DOUBLE_DESCRIPTOR, bytecode).toJava(0);
   }
 
-  private static TextBuffer getFloat(BitSet bytecode, String name, String className) {
+  private static TextBuffer getFloat(BytecodeRange bytecode, String name, String className) {
     return new FieldExprent(name, className, true, null, FieldDescriptor.FLOAT_DESCRIPTOR, bytecode).toJava(0);
   }
 
@@ -640,7 +640,7 @@ public class ConstExprent extends Exprent {
   }
 
   @Override
-  public void getBytecodeRange(BitSet values) {
+  public void getBytecodeRange(BytecodeRange values) {
     measureBytecode(values);
   }
 

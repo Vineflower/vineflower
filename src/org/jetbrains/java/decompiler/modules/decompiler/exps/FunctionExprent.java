@@ -149,7 +149,7 @@ public class FunctionExprent extends Exprent {
   private boolean needsCast = true;
   private boolean disableNewlineGroupCreation = false;
 
-  public FunctionExprent(FunctionType funcType, ListStack<Exprent> stack, BitSet bytecodeOffsets) {
+  public FunctionExprent(FunctionType funcType, ListStack<Exprent> stack, BytecodeRange bytecodeOffsets) {
     this(funcType, new ArrayList<>(), bytecodeOffsets);
 
     if (funcType.arity == 1) {
@@ -165,7 +165,7 @@ public class FunctionExprent extends Exprent {
     }
   }
 
-  public FunctionExprent(FunctionType funcType, List<Exprent> operands, BitSet bytecodeOffsets) {
+  public FunctionExprent(FunctionType funcType, List<Exprent> operands, BytecodeRange bytecodeOffsets) {
     super(Type.FUNCTION);
     this.funcType = funcType;
     this.lstOperands = operands;
@@ -173,7 +173,7 @@ public class FunctionExprent extends Exprent {
     addBytecodeOffsets(bytecodeOffsets);
   }
 
-  public FunctionExprent(FunctionType funcType, Exprent operand, BitSet bytecodeOffsets) {
+  public FunctionExprent(FunctionType funcType, Exprent operand, BytecodeRange bytecodeOffsets) {
     this(funcType, new ArrayList<>(1), bytecodeOffsets);
     lstOperands.add(operand);
   }
@@ -845,7 +845,7 @@ public class FunctionExprent extends Exprent {
   }
 
   @Override
-  public void getBytecodeRange(BitSet values) {
+  public void getBytecodeRange(BytecodeRange values) {
     measureBytecode(values, lstOperands);
     measureBytecode(values);
   }

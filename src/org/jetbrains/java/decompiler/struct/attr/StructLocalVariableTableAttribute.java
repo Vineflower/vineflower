@@ -2,6 +2,7 @@
 package org.jetbrains.java.decompiler.struct.attr;
 
 import org.jetbrains.java.decompiler.code.BytecodeVersion;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.consts.ConstantPool;
@@ -77,9 +78,9 @@ public class StructLocalVariableTableAttribute extends StructGeneralAttribute {
   }
 
   public Stream<LocalVariable> matchingVars(Statement stat) {
-    BitSet values = new BitSet();
+    Exprent.BytecodeRange values = new Exprent.BytecodeRange();
     stat.getOffset(values);
-    return getRange(values.nextSetBit(0), values.length() - 1);
+    return getRange(values.asBitSet().nextSetBit(0), values.length() - 1);
   }
 
   public Stream<LocalVariable> getRange(int start, int end) {

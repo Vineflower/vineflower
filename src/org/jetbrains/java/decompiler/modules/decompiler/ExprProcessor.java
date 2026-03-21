@@ -212,10 +212,10 @@ public class ExprProcessor implements CodeConstants {
 
       Instruction instr = seq.getInstr(i);
       Integer bytecode_offset = block.getOldOffset(i);
-      BitSet bytecode_offsets = null;
+      Exprent.BytecodeRange bytecode_offsets = null;
       if (bytecode_offset >= 0) {
-        bytecode_offsets = new BitSet();
-        bytecode_offsets.set(bytecode_offset, bytecode_offset + instr.length);
+        bytecode_offsets = new Exprent.BytecodeRange(new Exprent.BytecodeSet.Range(bytecode_offset, bytecode_offset + instr.length - 1));
+//        bytecode_offsets.set();
       }
 
       switch (instr.opcode) {
@@ -308,7 +308,7 @@ public class ExprProcessor implements CodeConstants {
           Exprent expr = stack.pop();
           int varindex = instr.operand(0);
           if (bytecode_offsets != null) { //TODO: Figure out why this nulls in some cases
-            bytecode_offsets.set(bytecode_offset, bytecode_offset + instr.length);
+            bytecode_offsets.or(new Exprent.BytecodeRange(new Exprent.BytecodeSet.Range(bytecode_offset, bytecode_offset + instr.length - 1)));
           }
           varExprent = new VarExprent(varindex, varTypes[instr.opcode - opc_istore], varProcessor, bytecode_offsets);
           varExprent.setBackingInstr(instr);
@@ -744,6 +744,23 @@ public class ExprProcessor implements CodeConstants {
           }
         }
       }
+    }
+  }
+
+  public static void releaseResources(RootStatement stat, VarProcessor varProc) {
+    releaseResources(stat);
+
+    varProc.getVarVersions().getTypeProcessor().getUpperBounds().clear();
+  }
+
+  private static void releaseResources(Statement stat) {
+    for (Statement st : stat.getStats()) {
+      releaseResources(st);
+    }
+
+    if (stat instanceof BasicBlockStatement block) {
+      ((ArrayList<Integer>)block.getBlock().getInstrOldOffsets()).trimToSize();
+      ((ArrayList<Exprent>) block.getExprents()).trimToSize();
     }
   }
 

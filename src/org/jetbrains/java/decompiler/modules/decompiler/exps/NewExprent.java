@@ -47,11 +47,11 @@ public class NewExprent extends Exprent {
   private List<VarType> genericArgs = new ArrayList<>();
   private VarType inferredLambdaType = null;
 
-  public NewExprent(VarType newType, ListStack<Exprent> stack, int arrayDim, BitSet bytecodeOffsets) {
+  public NewExprent(VarType newType, ListStack<Exprent> stack, int arrayDim, BytecodeRange bytecodeOffsets) {
     this(newType, getDimensions(arrayDim, stack), bytecodeOffsets);
   }
 
-  public NewExprent(VarType newType, List<Exprent> lstDims, BitSet bytecodeOffsets) {
+  public NewExprent(VarType newType, List<Exprent> lstDims, BytecodeRange bytecodeOffsets) {
     super(Type.NEW);
     this.newType = newType;
     this.lstDims = lstDims;
@@ -784,7 +784,7 @@ public class NewExprent extends Exprent {
   }
 
   @Override
-  public void getBytecodeRange(BitSet values) {
+  public void getBytecodeRange(BytecodeRange values) {
     measureBytecode(values, lstArrayElements);
     measureBytecode(values, lstDims);
     measureBytecode(values, constructor);

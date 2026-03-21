@@ -17,7 +17,7 @@ public class SwitchHeadExprent extends Exprent {
   private Exprent value;
   private List<List<Exprent>> caseValues = new ArrayList<>();
 
-  public SwitchHeadExprent(Exprent value, BitSet bytecodeOffsets) {
+  public SwitchHeadExprent(Exprent value, BytecodeRange bytecodeOffsets) {
     super(Type.SWITCH_HEAD);
     this.value = value;
 
@@ -116,7 +116,7 @@ public class SwitchHeadExprent extends Exprent {
   }
 
   @Override
-  public void getBytecodeRange(BitSet values) {
+  public void getBytecodeRange(BytecodeRange values) {
     if (caseValues != null && !caseValues.isEmpty()) {
       for (List<Exprent> l : caseValues) {
         if (l != null && !l.isEmpty()) {
