@@ -1,0 +1,54 @@
+package pkg;
+
+public class TestAnonymousClassJ25 {
+   public int value;
+
+   public void consume(TestAnonymousClassJ25 inst) {
+   }// 8
+
+   public void test() {
+      this.consume(new TestAnonymousClassJ25() {// 11
+         @Override
+         public void test() {
+            System.out.println(this.value);// 14
+         }// 15
+      });
+   }// 17
+}
+
+class 'pkg/TestAnonymousClassJ25' {
+   method 'consume (Lpkg/TestAnonymousClassJ25;)V' {
+      0      6
+   }
+
+   method 'test ()V' {
+      0      9
+      9      9
+      a      9
+      b      9
+      c      15
+   }
+}
+
+class 'pkg/TestAnonymousClassJ25$1' {
+   method 'test ()V' {
+      0      12
+      1      12
+      2      12
+      3      12
+      4      12
+      5      12
+      6      12
+      7      12
+      8      12
+      9      12
+      a      13
+   }
+}
+
+Lines mapping:
+8 <-> 7
+11 <-> 10
+14 <-> 13
+15 <-> 14
+17 <-> 16

@@ -823,6 +823,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_25, "TestMethodReferenceJ25", "ext/RefsExt");
 
     register(JAVA_16_NODEBUG, "TestObjectLambda");
+    register(JAVA_25, "TestAnonymousClassJ25");
   }
 
   private void registerEntireClassPath() {
