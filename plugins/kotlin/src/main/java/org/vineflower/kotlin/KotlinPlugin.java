@@ -1,6 +1,7 @@
 package org.vineflower.kotlin;
 
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.java.decompiler.api.ClassAttributeRegistry;
 import org.jetbrains.java.decompiler.api.plugin.Plugin;
 import org.jetbrains.java.decompiler.api.plugin.LanguageSpec;
 import org.jetbrains.java.decompiler.api.plugin.PluginOptions;

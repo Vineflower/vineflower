@@ -260,6 +260,11 @@ public class KotlinWriter implements StatementWriter, Flags {
         return;
       }
 
+      if (ktData != null && ktData.metadata instanceof KotlinMetadata.SyntheticClass) {
+        writeLambda(node, buffer, indent, ktData);
+        return;
+      }
+
       Optional<ClassNode> companion;
       if (ktData != null && ktData.metadata instanceof KotlinMetadata.Class cls && cls.proto().hasCompanionObjectName()) {
         String name = ktData.nameResolver.resolve(cls.proto().getCompanionObjectName());
@@ -423,6 +428,7 @@ public class KotlinWriter implements StatementWriter, Flags {
           wrapper.getHiddenMembers().contains(InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor())) ||
           mt.getName().equals("<init>") && mt.getDescriptor().equals("(Lkotlin/jvm/internal/DefaultConstructorMarker;)V") ||
           companion.map(c -> c.getWrapper().getMethods().containsKey(InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor()))).orElse(false) && mt.hasModifier(CodeConstants.ACC_STATIC) ||
+          mt.getName().contains("$lambda$") ||
           methodsToIgnore.contains(mt);
         if (hide) continue;
 
@@ -493,15 +499,119 @@ public class KotlinWriter implements StatementWriter, Flags {
           .append("}");
       }
 
-      buffer.appendLineSeparator();
-
       if (node.type != ClassNode.Type.ANONYMOUS) {
-        innerBuffer.appendLineSeparator();
+        buffer.appendLineSeparator();
       }
     } finally {
       DecompilerContext.setProperty(DecompilerContext.CURRENT_CLASS_NODE, outerNode);
       DecompilerContext.getLogger().endWriteClass();
     }
+  }
+
+  private void writeLambda(ClassNode node, TextBuffer buffer, int indent, KotlinMetadata ktData) {
+    Map<StructMethod, KFunction> functions = ktData.getFunctions();
+    if (functions == null || functions.isEmpty()) {
+      DecompilerContext.getLogger().writeMessage("No Kotlin function information for lambda class " + node.simpleName, IFernflowerLogger.Severity.WARN);
+      buffer.append("{").appendLineSeparator();
+      appendComment(buffer, "Could not decompile lambda - root function was not found. Is this a suspend lambda?", indent + 1);
+      buffer.appendIndent(indent).append("}");
+      return;
+    }
+    KFunction representation = functions.values().iterator().next();
+    StructMethod mt = representation.methodStruct();
+    StructClass cl = node.classStruct;
+
+    buffer.append("{");
+
+    int index = 0;
+    for (KParameter param : representation.parameters()) {
+      if (index > 0) {
+        buffer.append(", ");
+      } else {
+        buffer.append(" ");
+      }
+
+      buffer.appendVariable(param.name(), true, true, cl.qualifiedName, mt.getName(), mt.methodDescriptor(), index, mt.getName());
+      buffer.append(": ").append(param.type().stringify(indent + 1));
+      index += param.type().stackSize;
+    }
+
+    if (representation.parameters().length > 0) {
+      buffer.append(" ->");
+    }
+
+    buffer.appendLineSeparator();
+
+    MethodWrapper methodWrapper = representation.methodSupplier().apply(node.getWrapper());
+    RootStatement root = methodWrapper.root;
+
+    if (root != null && methodWrapper.decompileError == null) { // check for existence
+      try {
+        // Avoid generating imports for ObjectMethods during root.toJava(...)
+        TextBuffer code = root.toJava(indent + 1);
+        code.addBytecodeMapping(root.getDummyExit().bytecode);
+        buffer.append(code, cl.qualifiedName, InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor()));
+      } catch (Throwable t) {
+        String message = "Method " + mt.getName() + " " + mt.getDescriptor() + " in class " + cl.qualifiedName + " couldn't be written.";
+        DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.WARN, t);
+        methodWrapper.decompileError = t;
+      }
+    }
+
+    if (methodWrapper.decompileError != null) {
+      dumpError(buffer, methodWrapper, indent + 1);
+    }
+
+    buffer.appendIndent(indent).append("}");
+  }
+
+  public static TextBuffer stringifyReference(int indent, ClassesProcessor.ClassNode node, BitSet bytecode, Exprent receiver) {
+    // Attempt to extract the real reference from <init>
+    MethodWrapper init = node.getWrapper().getMethodWrapper("<init>", receiver != null ? "(Ljava/lang/Object;)V" : "()V");
+    if (init == null) {
+      return null;
+    }
+
+    List<Exprent> exprents = init.root.getFirst().getExprents();
+    if (exprents == null || exprents.size() != 1) {
+      return null;
+    }
+
+    TextBuffer buf = new TextBuffer();
+    buf.addBytecodeMapping(bytecode);
+
+    Exprent superCall = exprents.get(0);
+    List<Exprent> parameters = ((InvocationExprent) superCall).getLstParameters();
+
+    int parameterIndex = receiver == null ? 1 : 2;
+    String classRef = ((ConstExprent) parameters.get(parameterIndex++)).getValue().toString();
+    String methodRef = ((ConstExprent) parameters.get(parameterIndex++)).getValue().toString();
+    String methodAndDesc = ((ConstExprent) parameters.get(parameterIndex++)).getValue().toString();
+
+    StructClass cl = DecompilerContext.getStructContext().getClass(classRef);
+
+    String desc = methodAndDesc.substring(methodRef.length());
+
+    if (methodRef.equals("<init>")) {
+      buf.append("::");
+      VarType classType = new VarType(classRef, true);
+      buf.appendMethod(KTypes.getKotlinType(classType), false, classRef, methodRef, desc);
+      return buf;
+    }
+
+    if (receiver != null) {
+      buf.append(receiver.toJava(indent));
+    } else {
+      // Add class name, unless it is top-level
+      if (cl == null || !cl.hasAttribute(KotlinMetadata.KEY) || !(cl.getAttribute(KotlinMetadata.KEY).metadata instanceof KotlinMetadata.File)) {
+        VarType classType = new VarType(classRef, true);
+        buf.appendTypeName(KTypes.getKotlinType(classType), classType);
+      }
+    }
+
+    buf.append("::");
+    buf.appendMethod(methodRef, false, classRef, methodRef, desc);
+    return buf;
   }
 
   private void writeKotlinFile(ClassNode node, TextBuffer buffer, int indent, KotlinMetadata ktData) {
@@ -726,7 +836,30 @@ public class KotlinWriter implements StatementWriter, Flags {
 
   private void writeClassDefinition(ClassNode node, TextBuffer buffer, int indent, KotlinMetadata ktData, int kotlinFlags) {
     if (node.type == ClassNode.Type.ANONYMOUS) {
-      buffer.append(" {").appendLineSeparator();
+      if (ktData == null || !(ktData.metadata instanceof KotlinMetadata.Class cls)) {
+        throw new IllegalStateException("Anonymous class does not have Class Kotlin metadata");
+      }
+
+      buffer.append("object");
+
+      boolean first = true;
+      for (ProtoBuf.Type supertype : cls.proto().getSupertypeList()) {
+        KType kType = KType.from(supertype, ktData.nameResolver);
+        if (VarType.VARTYPE_OBJECT.equals(kType)) {
+          // skip Any / Object supertype
+          continue;
+        }
+
+        if (first) {
+          buffer.append(" : ");
+          first = false;
+        } else {
+          buffer.append(", ");
+        }
+
+        buffer.append(kType.stringify(indent));
+      }
+
       return;
     }
 

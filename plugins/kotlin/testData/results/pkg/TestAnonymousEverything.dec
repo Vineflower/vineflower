@@ -1,0 +1,621 @@
+package pkg
+
+import java.util.function.Consumer
+import kotlin.jvm.functions.Function0
+import kotlin.jvm.functions.Function1
+import kotlin.jvm.functions.Function2
+import kotlin.jvm.internal.SourceDebugExtension
+import kotlin.jvm.internal.Ref.IntRef
+import kotlin.reflect.KFunction
+
+@SourceDebugExtension(["SMAP\nTestAnonymousEverything.kt\nKotlin\n*S Kotlin\n*F\n+ 1 TestAnonymousEverything.kt\npkg/TestAnonymousEverything\n+ 2 fake.kt\nkotlin/jvm/internal/FakeKt\n*L\n1#1,120:1\n1#2:121\n*E\n"])
+public class TestAnonymousEverything {
+   public fun testPlainLambda() {
+      { x: Int, y: Int ->
+         x + y// 7
+      }(1, 2)// 8
+   }// 9
+
+   public fun testSerializableLambda() {
+      ({ x, y ->// 13
+         x + y// 12
+      } as Function2)(1, 2)
+   }// 14
+
+   public fun testAnonymousObject() {
+      object {// 17 22
+         public fun foo(x: Int, y: Int): Int {
+            return x + y// 19
+         }
+      }.foo(1, 2)
+   }// 23
+
+   public fun testFunctionAnonymousObject() {
+      object : (Int, Int) -> Int {// 26 31
+         public open operator fun invoke(x: Int, y: Int): Int {
+            return x + y// 28
+         }
+      }.invoke(1, 2)
+   }// 32
+
+   public fun testAnonymousFunction() {
+      { x: Int, y: Int ->
+         x + y// 35
+      }(1, 2)// 36
+   }// 37
+
+   public fun add(x: Int, y: Int): Int {
+      return x + y// 39
+   }
+
+   public fun testFunctionReference() {
+      ((this::add as KFunction) as Function2)(1, 2)// 42 43
+   }// 44
+
+   public fun testConstructorReference() {
+      ((::Any as KFunction) as Function0)()// 47 48
+   }// 49
+
+   public fun testNoTypeReference() {
+      (CollectionsKt::listOf as Function1)(1)// 52 53
+   }// 54
+
+   public fun testMultipleSubtypes() {
+      val obj: Any = object : Runnable, Consumer<Unit> {// 57
+         public open fun run() {
+            System.out.println("Runnable.run")
+         }// 58
+
+         public open fun accept(t: Unit) {
+            System.out.println("Consumer.accept")
+         }// 59
+      }
+      obj.run()// 62
+      obj.accept(Unit.INSTANCE)// 63
+   }// 64
+
+   public fun testNestedLambdas() {
+      { x: Int ->
+         ({ y: Int ->
+            `$x` + y// 68
+         }(1) as java.lang.Number).intValue()// 69
+      }(1)// 71
+   }// 72
+
+   public fun testCapturedLocalVariables() {
+      val x: IntRef = new IntRef()// 75
+      x.element = 1
+      { 
+         `$x`.element++// 76
+      }()// 77
+      { 
+         `$y`// 80
+      }()// 81
+   }// 82
+
+   public fun testEarlyReturn() {
+      val lambda: Function1 = lambda_6@{ x: Int ->// 85
+         if (x == 0) {// 86
+            return@lambda_6 42// 87
+         } else if (x == -2147483648) {// 90
+            return@lambda_6 2147483647// 91
+         } else {
+            return@lambda_6 if (x < 0) 0 else x + 1// 94 95 98
+         }
+      }
+      lambda(1)// 100
+      lambda(-1)// 101
+   }// 102
+
+   public fun testThrows() {
+      val lambda: Function1 = { x: Int ->// 105
+         if (x < 0) {// 106
+            throw new IllegalArgumentException("x must be >= 0")// 107
+         } else if (x == 2147483647) {
+            throw new IllegalArgumentException("x must not be Int.MAX_VALUE".toString())// 110
+         } else {
+            x + 1// 112
+         }
+      }
+   }// 114
+
+   public fun testIgnoredParams() {
+      { var0: Int, var1: Any ->
+         Unit.INSTANCE// 117
+      }(1, 2)// 118
+   }// 119
+}
+
+class 'pkg/TestAnonymousEverything' {
+   method 'testPlainLambda$lambda$0 (II)I' {
+      0      14
+      1      14
+      2      14
+   }
+
+   method 'testPlainLambda ()V' {
+      7      15
+      8      15
+      9      15
+      a      15
+      b      15
+      c      15
+      d      15
+      e      15
+      f      15
+      10      15
+      11      15
+      12      15
+      13      15
+      15      16
+   }
+
+   method 'testSerializableLambda ()V' {
+      0      21
+      1      21
+      2      21
+      3      19
+      4      19
+      5      19
+      7      19
+      8      21
+      9      21
+      a      21
+      b      21
+      c      21
+      d      21
+      e      21
+      f      21
+      10      21
+      11      21
+      12      21
+      13      21
+      14      21
+      16      22
+   }
+
+   method 'testAnonymousObject ()V' {
+      0      25
+      1      25
+      2      25
+      8      25
+      9      29
+      a      29
+      b      29
+      c      29
+      d      29
+      f      30
+   }
+
+   method 'testFunctionAnonymousObject ()V' {
+      0      33
+      1      33
+      2      33
+      8      33
+      9      37
+      a      37
+      b      37
+      c      37
+      d      37
+      f      38
+   }
+
+   method 'testAnonymousFunction$lambda$1 (II)I' {
+      0      42
+      1      42
+      2      42
+   }
+
+   method 'testAnonymousFunction ()V' {
+      7      43
+      8      43
+      9      43
+      a      43
+      b      43
+      c      43
+      d      43
+      e      43
+      f      43
+      10      43
+      11      43
+      12      43
+      13      43
+      15      44
+   }
+
+   method 'add (II)I' {
+      0      47
+      1      47
+      2      47
+      3      47
+   }
+
+   method 'testFunctionReference ()V' {
+      0      51
+      1      51
+      2      51
+      4      51
+      8      51
+      9      51
+      a      51
+      c      51
+      d      51
+      e      51
+      f      51
+      10      51
+      11      51
+      12      51
+      13      51
+      14      51
+      15      51
+      16      51
+      17      51
+      18      51
+      19      51
+      1a      51
+      1b      51
+      1c      51
+      1e      52
+   }
+
+   method 'testConstructorReference ()V' {
+      0      55
+      1      55
+      2      55
+      3      55
+      4      55
+      5      55
+      7      55
+      8      55
+      9      55
+      a      55
+      b      55
+      c      55
+      d      55
+      e      55
+      f      55
+      11      56
+   }
+
+   method 'testNoTypeReference ()V' {
+      0      59
+      1      59
+      2      59
+      3      59
+      4      59
+      5      59
+      7      59
+      8      59
+      9      59
+      a      59
+      b      59
+      c      59
+      d      59
+      e      59
+      f      59
+      10      59
+      12      60
+   }
+
+   method 'testMultipleSubtypes ()V' {
+      0      63
+      1      63
+      2      63
+      7      63
+      8      72
+      9      72
+      a      72
+      b      72
+      c      73
+      d      73
+      e      73
+      f      73
+      10      73
+      11      73
+      12      73
+      13      74
+   }
+
+   method 'testNestedLambdas$lambda$3 (I)I' {
+      8      80
+      9      80
+      a      80
+      b      80
+      c      80
+      d      80
+      e      80
+      f      80
+      10      80
+      11      78
+      12      78
+      13      78
+      14      80
+      15      80
+      16      80
+   }
+
+   method 'testNestedLambdas$lambda$3$lambda$2 (II)I' {
+      0      79
+      1      79
+      2      79
+   }
+
+   method 'testNestedLambdas ()V' {
+      7      81
+      8      81
+      9      81
+      a      81
+      b      81
+      c      81
+      d      81
+      e      81
+      f      81
+      11      82
+   }
+
+   method 'testCapturedLocalVariables ()V' {
+      7      85
+      8      86
+      9      86
+      a      86
+      b      86
+      c      86
+      15      89
+      16      89
+      17      89
+      18      89
+      19      89
+      27      92
+      28      92
+      29      92
+      2a      92
+      2b      92
+      2d      93
+   }
+
+   method 'testCapturedLocalVariables$lambda$4 (Lkotlin/jvm/internal/Ref$IntRef;)I' {
+      6      88
+      7      88
+      8      88
+      9      88
+      e      88
+   }
+
+   method 'testCapturedLocalVariables$lambda$5 (I)I' {
+      0      91
+   }
+
+   method 'testEarlyReturn ()V' {
+      5      96
+      6      105
+      7      105
+      8      105
+      9      105
+      a      105
+      b      105
+      c      105
+      d      105
+      e      105
+      f      105
+      11      106
+      12      106
+      13      106
+      14      106
+      15      106
+      16      106
+      17      106
+      18      106
+      19      106
+      1a      106
+      1c      107
+   }
+
+   method 'testEarlyReturn$lambda$6 (I)I' {
+      0      97
+      1      97
+      2      97
+      3      97
+      4      98
+      5      98
+      7      99
+      8      99
+      9      99
+      a      99
+      b      99
+      c      99
+      d      100
+      e      100
+      10      102
+      11      102
+      12      102
+      13      102
+      14      102
+      16      102
+      17      102
+      18      102
+   }
+
+   method 'testThrows ()V' {
+      5      110
+      6      119
+   }
+
+   method 'testThrows$lambda$8 (I)I' {
+      0      111
+      1      111
+      2      111
+      3      111
+      8      112
+      9      112
+      d      112
+      e      113
+      f      113
+      10      113
+      11      113
+      12      113
+      13      113
+      19      113
+      1a      113
+      1b      113
+      1e      114
+      1f      114
+      25      114
+      26      114
+      27      114
+      28      114
+      2c      114
+      2d      116
+      2e      116
+      2f      116
+   }
+
+   method 'testIgnoredParams$lambda$9 (ILjava/lang/Object;)Lkotlin/Unit;' {
+      6      123
+      7      123
+      8      123
+   }
+
+   method 'testIgnoredParams ()V' {
+      7      124
+      8      124
+      9      124
+      a      124
+      b      124
+      c      124
+      d      124
+      e      124
+      f      124
+      10      124
+      11      124
+      12      124
+      13      124
+      15      125
+   }
+}
+
+class 'pkg/TestAnonymousEverything$testSerializableLambda$lambda$1' {
+   method 'invoke (II)Ljava/lang/Integer;' {
+      0      20
+      1      20
+      2      20
+      3      20
+      4      20
+      5      20
+   }
+}
+
+class 'pkg/TestAnonymousEverything$testAnonymousObject$obj$1' {
+   method 'foo (II)I' {
+      0      27
+      1      27
+      2      27
+      3      27
+   }
+}
+
+class 'pkg/TestAnonymousEverything$testFunctionAnonymousObject$obj$1' {
+   method 'invoke (II)Ljava/lang/Integer;' {
+      0      35
+      1      35
+      2      35
+      3      35
+      4      35
+      5      35
+      6      35
+   }
+}
+
+class 'pkg/TestAnonymousEverything$testMultipleSubtypes$obj$1' {
+   method 'run ()V' {
+      0      65
+      1      65
+      2      65
+      3      65
+      4      65
+      6      65
+      7      65
+      8      65
+      9      66
+   }
+
+   method 'accept (Lkotlin/Unit;)V' {
+      6      69
+      7      69
+      8      69
+      9      69
+      a      69
+      c      69
+      d      69
+      e      69
+      f      70
+   }
+}
+
+Lines mapping:
+7 <-> 15
+8 <-> 16
+9 <-> 17
+12 <-> 21
+13 <-> 20
+14 <-> 23
+17 <-> 26
+19 <-> 28
+22 <-> 26
+23 <-> 31
+26 <-> 34
+28 <-> 36
+31 <-> 34
+32 <-> 39
+35 <-> 43
+36 <-> 44
+37 <-> 45
+39 <-> 48
+42 <-> 52
+43 <-> 52
+44 <-> 53
+47 <-> 56
+48 <-> 56
+49 <-> 57
+52 <-> 60
+53 <-> 60
+54 <-> 61
+57 <-> 64
+58 <-> 67
+59 <-> 71
+62 <-> 73
+63 <-> 74
+64 <-> 75
+68 <-> 80
+69 <-> 81
+71 <-> 82
+72 <-> 83
+75 <-> 86
+76 <-> 89
+77 <-> 90
+80 <-> 92
+81 <-> 93
+82 <-> 94
+85 <-> 97
+86 <-> 98
+87 <-> 99
+90 <-> 100
+91 <-> 101
+94 <-> 103
+95 <-> 103
+98 <-> 103
+100 <-> 106
+101 <-> 107
+102 <-> 108
+105 <-> 111
+106 <-> 112
+107 <-> 113
+110 <-> 115
+112 <-> 117
+114 <-> 120
+117 <-> 124
+118 <-> 125
+119 <-> 126
+Not mapped:
+67
+79
+121

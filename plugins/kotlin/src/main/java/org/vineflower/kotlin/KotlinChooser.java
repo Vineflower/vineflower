@@ -83,8 +83,16 @@ public class KotlinChooser implements LanguageChooser {
         return;
       }
 
+      int k = (int) ((ConstExprent) anno.getParValues().get(kIndex)).getValue();
+
       if (d1Index == -1) {
-        DecompilerContext.getLogger().writeMessage("No d1 attribute (data) in class metadata for class " + cl.qualifiedName + ", cannot continue Kotlin parsing", IFernflowerLogger.Severity.WARN);
+        boolean functionRef = cl.superClass.getString().equals("kotlin/jvm/internal/FunctionReferenceImpl");
+        if (functionRef) {
+          cl.getAttributes().put(KotlinMetadata.KEY, new KotlinMetadata(new KotlinMetadata.FunctionReference(cl), null));
+        }
+
+        String resolution = functionRef ? "assuming function reference" : "cannot continue Kotlin parsing";
+        DecompilerContext.getLogger().writeMessage("No d1 attribute (data) in class metadata for class " + cl.qualifiedName + ", " + resolution, IFernflowerLogger.Severity.WARN);
         return;
       }
 
@@ -92,7 +100,6 @@ public class KotlinChooser implements LanguageChooser {
         DecompilerContext.getLogger().writeMessage("No d2 attribute (strings) in class metadata for class " + cl.qualifiedName, IFernflowerLogger.Severity.WARN);
       }
 
-      int k = (int) ((ConstExprent) anno.getParValues().get(kIndex)).getValue();
       Exprent d1 = anno.getParValues().get(d1Index);
       Exprent d2 = d2Index != -1 ? anno.getParValues().get(d2Index) : null;
 

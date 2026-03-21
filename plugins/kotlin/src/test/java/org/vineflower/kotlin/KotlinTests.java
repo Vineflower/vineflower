@@ -93,5 +93,6 @@ public class KotlinTests extends SingleClassesTestBase {
     register(KOTLIN_OLD, "TestClassicStringInterpolation");
     register(KOTLIN, "TestCompanionObject");
     register(KOTLIN, "TestEnumClass");
+    register(KOTLIN, "TestAnonymousEverything");
   }
 }

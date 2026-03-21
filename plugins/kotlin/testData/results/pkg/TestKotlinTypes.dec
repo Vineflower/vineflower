@@ -1,31 +1,27 @@
 package pkg
 
 public class TestKotlinTypes {
-   public final val consumer: (Int) -> Unit = TestKotlinTypes::consumer$lambda$0
+   public final val consumer: (Int) -> Unit = { it: Int ->
+      Unit.INSTANCE// 8
+   }
 
    public fun throwAlways(): Nothing {
       throw new Exception()// 5
    }
-
-   @JvmStatic
-   fun `consumer$lambda$0`(it: Int): Unit {
-      return Unit.INSTANCE// 8
-   }
 }
 
 class 'pkg/TestKotlinTypes' {
-   method 'throwAlways ()Ljava/lang/Void;' {
-      7      6
+   method 'consumer$lambda$0 (I)Lkotlin/Unit;' {
+      0      4
+      1      4
+      2      4
    }
 
-   method 'consumer$lambda$0 (I)Lkotlin/Unit;' {
-      0      11
-      1      11
-      2      11
-      3      11
+   method 'throwAlways ()Ljava/lang/Void;' {
+      7      8
    }
 }
 
 Lines mapping:
-5 <-> 7
-8 <-> 12
+5 <-> 9
+8 <-> 5
