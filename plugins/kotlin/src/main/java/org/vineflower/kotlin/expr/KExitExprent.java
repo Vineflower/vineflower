@@ -1,0 +1,51 @@
+package org.vineflower.kotlin.expr;
+
+import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.ExitExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
+import org.jetbrains.java.decompiler.struct.gen.VarType;
+import org.jetbrains.java.decompiler.util.TextBuffer;
+import org.vineflower.kotlin.struct.KType;
+
+public class KExitExprent extends ExitExprent implements KExprent {
+  private String lambdaName;
+
+  public KExitExprent(ExitExprent expr) {
+    super(expr.getExitType(), expr.getValue(), expr.getRetType(), expr.bytecode, expr.getMethodDescriptor());
+  }
+  
+  public void setLambdaName(String name) {
+    lambdaName = name;
+  }
+
+  @Override
+  public TextBuffer toJava(int indent) {
+    if (getExitType().equals(Type.THROW)) {
+      return super.toJava(indent);
+    }
+
+    MethodWrapper outerMethod = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
+    if (outerMethod != null) {
+      TextBuffer buf = new TextBuffer();
+
+      if (lambdaName != null) {
+        buf.append("return@").append(lambdaName);
+        if (VarType.VARTYPE_VOID.equals(getRetType()) || KType.UNIT.equals(getRetType())) {
+          return buf;
+        }
+        buf.append(" ");
+      }
+
+      //TODO check if not casting ever breaks something
+      return buf.append(getValue().toJava(indent));
+    }
+
+    return super.toJava(indent);
+  }
+
+  @Override
+  public Exprent copy() {
+    return new KExitExprent((ExitExprent) super.copy());
+  }
+}

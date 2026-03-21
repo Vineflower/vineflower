@@ -1,0 +1,64 @@
+package pkg;
+
+public class TestAssertInterface3 {
+   public int test() {
+      return 5;// 13
+   }
+
+   static {
+      assert new TestAssertInterface3().test() > 4;// 17
+   }// 18
+
+   public interface Interface {
+      void empty();
+
+      default void test(int x) {
+         assert x > 10;// 8
+      }// 9
+   }
+}
+
+class 'pkg/TestAssertInterface3' {
+   method 'test ()I' {
+      0      4
+      1      4
+   }
+
+   method '<clinit> ()V' {
+      1d      8
+      1e      8
+      1f      8
+      20      8
+      21      8
+      22      8
+      23      8
+      28      8
+      29      8
+      2a      8
+      2c      9
+   }
+}
+
+class 'pkg/TestAssertInterface3$Interface' {
+   method 'test (I)V' {
+      6      15
+      7      15
+      8      15
+      9      15
+      a      15
+      b      15
+      10      15
+      11      15
+      12      15
+      14      16
+   }
+}
+
+Lines mapping:
+8 <-> 16
+9 <-> 17
+13 <-> 5
+17 <-> 9
+18 <-> 10
+Not mapped:
+3

@@ -7,9 +7,11 @@ import org.jetbrains.java.decompiler.api.plugin.StatementWriter;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.Instruction;
 import org.jetbrains.java.decompiler.code.InstructionSequence;
+import org.jetbrains.java.decompiler.code.MethodProperties;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.plugins.PluginContext;
+import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectEdgeType;
 import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.util.collections.ListStack;
@@ -49,7 +51,9 @@ public class ExprProcessor implements CodeConstants {
   }
 
   private static final VarType[] consts = {
-    VarType.VARTYPE_INT, VarType.VARTYPE_FLOAT, VarType.VARTYPE_LONG, VarType.VARTYPE_DOUBLE, VarType.VARTYPE_CLASS, VarType.VARTYPE_STRING
+    VarType.VARTYPE_INT, VarType.VARTYPE_FLOAT, VarType.VARTYPE_LONG, VarType.VARTYPE_DOUBLE, VarType.VARTYPE_CLASS, VarType.VARTYPE_STRING,
+    VarType.VARTYPE_VOID, VarType.VARTYPE_VOID, VarType.VARTYPE_VOID, VarType.VARTYPE_VOID, VarType.VARTYPE_VOID, VarType.VARTYPE_VOID,
+    VarType.VARTYPE_VOID, VarType.VARTYPE_METHODTYPE
   };
 
   private static final VarType[] varTypes = {
@@ -707,7 +711,7 @@ public class ExprProcessor implements CodeConstants {
     }
 
     for (Exprent ex : stat.getVarDefinitions()) {
-      markExprOddity(root, ex);
+      markExprOddity(root, ex, true);
     }
 
     if (stat instanceof BasicBlockStatement) {
@@ -716,18 +720,25 @@ public class ExprProcessor implements CodeConstants {
       }
 
       for (Exprent ex : stat.getExprents()) {
-        markExprOddity(root, ex);
+        markExprOddity(root, ex, true);
       }
+    }
+
+    if (stat instanceof IfStatement ifSt) {
+      markExprOddity(root, ifSt.getHeadexprent(), false);
     }
   }
 
-  private static void markExprOddity(RootStatement root, Exprent ex) {
+  private static void markExprOddity(RootStatement root, Exprent ex, boolean block) {
     if (ex instanceof MonitorExprent) {
       root.addComment("$VF: Could not create synchronized statement, marking monitor enters and exits", true);
     }
-    if (ex instanceof IfExprent) {
+    if (block && ex instanceof IfExprent) {
       root.addComment("$VF: Accidentally destroyed if statement, the decompiled code is not correct!", true);
     }
+
+    ClassWrapper wrapper = AssertProcessor.getHoldingClass();
+    MethodProperties prop = wrapper.getMethodProperties("<clinit>", "()V");
 
     for (Exprent e : ex.getAllExprents(true, true)) {
       if (e instanceof VarExprent) {
@@ -741,6 +752,12 @@ public class ExprProcessor implements CodeConstants {
           List<Exprent> operands = func.getLstOperands();
           if (isInvalidTypeName(operands.get(1).toString())) {
             root.addComment("$VF: Could not properly define all variable types!", true);
+          }
+        }
+      } else if (e instanceof FieldExprent field) {
+        if (prop != null && prop.assertField != null && root.mt != prop.mt) {
+          if (field.getName().equals(prop.assertField.getName()) && field.getClassname().equals(wrapper.getClassStruct().qualifiedName)) {
+            root.addComment("$VF: Could not resugar all assert statements!", true);
           }
         }
       }

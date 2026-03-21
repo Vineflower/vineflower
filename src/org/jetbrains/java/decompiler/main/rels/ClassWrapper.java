@@ -5,6 +5,7 @@ import org.jetbrains.java.decompiler.api.plugin.LanguageSpec;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.MethodProperties;
 import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
+import org.jetbrains.java.decompiler.main.ClassesProcessor;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.main.collectors.VarNamesCollector;
@@ -36,19 +37,22 @@ public class ClassWrapper {
   // When not null, this skips processing of every method except the one with the name specified.
   private static final String DEBUG_METHOD_FILTER = null;
   private final StructClass classStruct;
+  private final ClassesProcessor.ClassNode node;
   private final Set<String> hiddenMembers = new HashSet<>();
   private final VBStyleCollection<Exprent, String> staticFieldInitializers = new VBStyleCollection<>();
   private final VBStyleCollection<Exprent, String> dynamicFieldInitializers = new VBStyleCollection<>();
   private final VBStyleCollection<MethodWrapper, String> methods = new VBStyleCollection<>();
   private final Map<String, MethodProperties> methodProperties = new HashMap<>();
 
-  public ClassWrapper(StructClass classStruct) {
-    this.classStruct = classStruct;
+  public ClassWrapper(ClassesProcessor.ClassNode node) {
+    this.classStruct = node.classStruct;
+    this.node = node;
   }
 
   public void init(LanguageSpec spec) {
     DecompilerContext.setProperty(DecompilerContext.CURRENT_CLASS, classStruct);
     DecompilerContext.setProperty(DecompilerContext.CURRENT_CLASS_WRAPPER, this);
+    DecompilerContext.setProperty(DecompilerContext.CURRENT_CLASS_NODE, node);
     DecompilerContext.getLogger().startClass(classStruct.qualifiedName);
 
     int maxSec = Integer.parseInt(DecompilerContext.getProperty(IFernflowerPreferences.MAX_PROCESSING_METHOD).toString());
@@ -56,7 +60,7 @@ public class ClassWrapper {
 
     // Pre-process
     for (StructMethod mt : classStruct.getMethods()) {
-      MethodProperties props = new MethodProperties();
+      MethodProperties props = new MethodProperties(mt);
       MethodPropertiesProcessor.parse(mt, classStruct, props);
       methodProperties.put(InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor()), props);
     }

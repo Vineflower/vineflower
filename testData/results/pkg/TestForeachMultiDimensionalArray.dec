@@ -10,7 +10,7 @@ public class TestForeachMultiDimensionalArray {
          switch (1) {// 9
             case 0:
                try {
-                  ElementType vvv8x = ElementType.METHOD;// 12
+                  ElementType vvv8 = ElementType.METHOD;// 12
                } catch (Exception vvv8) {// 13
                } finally {
                   ;

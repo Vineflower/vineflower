@@ -9,7 +9,7 @@ public class TestSwitchPatternMatchingConstructor1 {
       this(switch (s) {// 9
          case null -> "null";// 12
          case TestSwitchPatternMatchingConstructor1.Triangle t when t.calculateArea() > 100.0 -> "Large triangle";// 10
-         case TestSwitchPatternMatchingConstructor1.Triangle tx -> "Small triangle";// 11
+         case TestSwitchPatternMatchingConstructor1.Triangle t -> "Small triangle";// 11
          default -> "Non-triangle";// 13
       });
    }// 15

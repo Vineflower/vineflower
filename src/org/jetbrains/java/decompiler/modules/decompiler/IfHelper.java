@@ -1,15 +1,15 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler;
 
+import org.jetbrains.java.decompiler.code.MethodProperties;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
+import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.IfNode.EdgeType;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.ExitExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.IfExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
+import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.util.DotExporter;
 
 import java.util.*;
@@ -142,7 +142,8 @@ public final class IfHelper {
           IfStatement ifchild = (IfStatement) ifbranch.value;
           Statement ifinner = ifbranch.innerNode.value;
 
-          if (ifchild.getFirst().getExprents().isEmpty() && !ifchild.hasPPMM()) {
+          // Don't move $assertionsDisabled into the right hand side of if statements, which could create incorrect code.
+          if (ifchild.getFirst().getExprents().isEmpty() && !ifchild.hasPPMM() && !hasAssertField(ifchild.getHeadexprent())) {
 
             ifparent.getIfEdge().remove();
             ifchild.getFirstSuccessor().remove();
@@ -927,5 +928,21 @@ public final class IfHelper {
     }
 
     return stat instanceof BasicBlockStatement bb && !bb.getExprents().isEmpty() && bb.getExprents().get(bb.getExprents().size() - 1) instanceof ExitExprent;
+  }
+
+  private static boolean hasAssertField(Exprent expr) {
+    ClassWrapper wrapper = AssertProcessor.getHoldingClass();
+    MethodProperties prop = wrapper.getMethodProperties("<clinit>", "()V");
+
+    if (prop != null && prop.assertField != null) {
+      StructField fd = prop.assertField;
+      for (Exprent ex : expr.getAllExprents(true, true)) {
+        if (ex instanceof FieldExprent field && field.getName().equals(fd.getName()) && field.getClassname().equals(wrapper.getClassStruct().qualifiedName)) {
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 }

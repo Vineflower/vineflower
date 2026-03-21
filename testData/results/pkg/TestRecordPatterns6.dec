@@ -16,7 +16,7 @@ public class TestRecordPatterns6 {
       while (true) {
          return (String)(switch (var2) {// 19
             case TestRecordPatterns6.I.R1(String s) -> s;// 20
-            case TestRecordPatterns6.I.R3(String sx) -> sx;// 21
+            case TestRecordPatterns6.I.R3(String s) -> s;// 21
             default -> throw new IllegalStateException();// 22
          });
       }

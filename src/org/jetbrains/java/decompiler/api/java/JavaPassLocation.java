@@ -5,30 +5,52 @@ package org.jetbrains.java.decompiler.api.java;
  */
 public enum JavaPassLocation {
   /**
+   * Runs after the CFG has been constructed, and no refinement steps have taken place.
+   * Returning true has no effect.
+   */
+  CFG_CONSTRUCTION(false),
+
+  /**
+   * Runs just before the CFG has been parsed into a statement.
+   * Returning true has no effect.
+   */
+  CFG_PRE_STATEMENT(false),
+
+  /**
    * Runs before most resugaring passes run in the main loop.
    * Returning true has no effect.
    */
   BEFORE_MAIN(false),
+
   /**
    * Runs during the loop statement resugaring loop.
    * Returning true restarts the loop.
    */
   IN_LOOP_DECOMP(true),
+
   /**
    * Runs during the main loop, after labels have been resolved.
    * Returning true restarts the loop.
    */
   MAIN_LOOP(true),
+
   /**
    * Runs after the main loop has finished, before variable definitions have been resolved.
    * Returning true has no effect.
    */
   AFTER_MAIN(false),
+
   /**
    * Runs at the last moment to make changes to the decompiled code, after variable definitions have been resolved.
    * Returning true has no effect.
    */
-  AT_END(false);
+  AT_END(false),
+
+  /**
+   * Runs right before the class is written.
+   * Returning true has no effect.
+   */
+  LATE_PROCESSING(false);
 
   private final boolean loop;
 

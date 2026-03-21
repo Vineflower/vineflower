@@ -1,6 +1,8 @@
 package org.vineflower.kotlin;
 
+import org.vineflower.kotlin.struct.*;
 import org.vineflower.kt.metadata.ProtoBuf;
+import org.vineflower.kt.metadata.deserialization.Flags;
 import org.vineflower.kt.metadata.jvm.JvmProtoBuf;
 import org.vineflower.kt.protobuf.ExtensionRegistryLite;
 import org.jetbrains.java.decompiler.api.plugin.LanguageChooser;
@@ -16,9 +18,10 @@ import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
 import org.jetbrains.java.decompiler.util.Key;
 import org.vineflower.kotlin.metadata.BitEncoding;
 import org.vineflower.kotlin.metadata.MetadataNameResolver;
-import org.vineflower.kotlin.metadata.KotlinMetadata;
 
 import java.io.ByteArrayInputStream;
+import java.util.Arrays;
+import java.util.List;
 
 public class KotlinChooser implements LanguageChooser {
   private static final Key<?>[] ANNOTATION_ATTRIBUTES = {
@@ -54,7 +57,7 @@ public class KotlinChooser implements LanguageChooser {
   }
 
   public static void parseMetadataFor(StructClass cl) {
-    if (cl.getAttribute(KotlinMetadata.KEY) != null) {
+    if (cl.getAttribute(KElement.KEY) != null) {
       return;
     }
 
@@ -83,8 +86,16 @@ public class KotlinChooser implements LanguageChooser {
         return;
       }
 
+      int k = (int) ((ConstExprent) anno.getParValues().get(kIndex)).getValue();
+
       if (d1Index == -1) {
-        DecompilerContext.getLogger().writeMessage("No d1 attribute (data) in class metadata for class " + cl.qualifiedName + ", cannot continue Kotlin parsing", IFernflowerLogger.Severity.WARN);
+        boolean functionRef = cl.superClass.getString().equals("kotlin/jvm/internal/FunctionReferenceImpl");
+        if (functionRef) {
+          cl.getAttributes().put(KElement.KEY, new KFunctionReference());
+        }
+
+        String resolution = functionRef ? "assuming function reference" : "cannot continue Kotlin parsing";
+        DecompilerContext.getLogger().writeMessage("No d1 attribute (data) in class metadata for class " + cl.qualifiedName + ", " + resolution, IFernflowerLogger.Severity.WARN);
         return;
       }
 
@@ -92,7 +103,6 @@ public class KotlinChooser implements LanguageChooser {
         DecompilerContext.getLogger().writeMessage("No d2 attribute (strings) in class metadata for class " + cl.qualifiedName, IFernflowerLogger.Severity.WARN);
       }
 
-      int k = (int) ((ConstExprent) anno.getParValues().get(kIndex)).getValue();
       Exprent d1 = anno.getParValues().get(d1Index);
       Exprent d2 = d2Index != -1 ? anno.getParValues().get(d2Index) : null;
 
@@ -111,24 +121,41 @@ public class KotlinChooser implements LanguageChooser {
         resolver = null;
       }
 
-      KotlinMetadata.Metadata metadata;
       if (k == 1) { // Class file
         ProtoBuf.Class pcl = ProtoBuf.Class.parseFrom(input, EXTENSIONS);
-        metadata = new KotlinMetadata.Class(cl, pcl);
+        KProperty.parse(cl, pcl.getPropertyList(), resolver, null);
+        KFunction.parse(cl, resolver, pcl.getTypeTable(), pcl.getFunctionList(), false, null);
+        KConstructor.parse(cl, pcl, resolver);
+        cl.getAttributes().put(KElement.KEY, new KClass(pcl, resolver));
       } else if (k == 2) { // File facade
         ProtoBuf.Package pcl = ProtoBuf.Package.parseFrom(input, EXTENSIONS);
-        metadata = new KotlinMetadata.File(cl, pcl);
+        KProperty.parse(cl, pcl.getPropertyList(), resolver, null);
+        KFunction.parse(cl, resolver, pcl.getTypeTable(), pcl.getFunctionList(), false, null);
+        cl.getAttributes().put(KElement.KEY, new KFile(pcl, resolver, null));
       } else if (k == 3) { // Synthetic class
         ProtoBuf.Function func = ProtoBuf.Function.parseFrom(input, EXTENSIONS);
-        metadata = new KotlinMetadata.SyntheticClass(cl, func);
-      } else if (k == 5) { // Multi-file facade
+        KFunction.parse(cl, resolver, func.getTypeTable(), List.of(func), true, null);
+        if (!cl.hasAttribute(KElement.KEY)) {
+          cl.getAttributes().put(KElement.KEY, KFunction.FAILED_LAMBDA);
+        }
+      } else if (k == 4) { // Multi-file facade
+        cl.getAttributes().put(KElement.KEY, new KMultifileFacade(Arrays.asList(data1)));
+      } else if (k == 5) { // Multi-file part
         ProtoBuf.Package pcl = ProtoBuf.Package.parseFrom(input, EXTENSIONS);
-        metadata = new KotlinMetadata.MultifileClass(cl, pcl);
-      } else {
-        return;
-      }
+        KProperty.parse(cl, pcl.getPropertyList(), resolver, null);
+        KFunction.parse(cl, resolver, pcl.getTypeTable(), pcl.getFunctionList(), false, null);
 
-      cl.getAttributes().put(KotlinMetadata.KEY, new KotlinMetadata(metadata, resolver));
+        String multifileName;
+        int xsIndex = anno.getParNames().indexOf("xs");
+        if (xsIndex != -1) {
+          multifileName = (String) ((ConstExprent) anno.getParValues().get(xsIndex)).getValue();
+        } else {
+          DecompilerContext.getLogger().writeMessage("No xs attribute (extra string; multifile part name) in class metadata for class " + cl.qualifiedName, IFernflowerLogger.Severity.WARN);
+          multifileName = cl.qualifiedName.split("__")[0];
+        }
+
+        cl.getAttributes().put(KElement.KEY, new KFile(pcl, resolver, multifileName));
+      }
     } catch (Exception e) {
       DecompilerContext.getLogger().writeMessage("Failed to parse metadata for class " + cl.qualifiedName, IFernflowerLogger.Severity.WARN, e);
     }

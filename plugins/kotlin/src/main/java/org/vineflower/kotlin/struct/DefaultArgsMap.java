@@ -1,5 +1,9 @@
 package org.vineflower.kotlin.struct;
 
+import org.jetbrains.java.decompiler.struct.StructClass;
+import org.jetbrains.java.decompiler.struct.attr.StructAnnDefaultAttribute;
+import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
+import org.vineflower.kotlin.expr.KNewExprent;
 import org.vineflower.kt.metadata.deserialization.Flags;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
@@ -18,6 +22,7 @@ import org.vineflower.kotlin.util.KUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class DefaultArgsMap {
   private final Map<KParameter, Exprent> map;
@@ -126,6 +131,36 @@ public class DefaultArgsMap {
     }
 
     return new DefaultArgsMap(map, defaults.methodStruct);
+  }
+
+  public static DefaultArgsMap fromAnnotation(StructClass cl) {
+    KConstructor primaryConstructor = cl.getAttribute(KConstructor.PRIMARY_CONSTRUCTOR);
+    if (primaryConstructor == null) {
+      return new DefaultArgsMap(Map.of(), null);
+    }
+
+    Map<String, StructAnnDefaultAttribute> defaultsByName = cl.getMethods().stream()
+      .filter(mt -> mt.getAttribute(KElement.KEY) instanceof KProperty)
+      .filter(mt -> mt.hasAttribute(StructGeneralAttribute.ATTRIBUTE_ANNOTATION_DEFAULT))
+      .collect(Collectors.toMap(mt -> ((KProperty) mt.getAttribute(KElement.KEY)).name(), mt -> mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_ANNOTATION_DEFAULT)));
+
+    Map<KParameter, Exprent> defaults = new HashMap<>();
+    for (KParameter param : primaryConstructor.parameters()) {
+      StructAnnDefaultAttribute attr = defaultsByName.get(param.name());
+      if (attr == null) {
+        continue;
+      }
+
+      Exprent kexpr = KUtils.replaceExprent(attr.getDefaultValue());
+      Exprent expr = kexpr == null ? attr.getDefaultValue() : kexpr;
+      if (expr instanceof KNewExprent newExpr) {
+        newExpr.setInAnnotation(true);
+      }
+
+      defaults.put(param, expr);
+    }
+
+    return new DefaultArgsMap(defaults, null);
   }
 
   public TextBuffer toJava(KParameter parameter, int indent) {

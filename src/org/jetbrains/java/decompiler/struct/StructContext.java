@@ -107,11 +107,11 @@ public class StructContext {
   private StructClass tryLoadClass(final ContextUnit unitForClass, final String key) {
     try {
       DecompilerContext.getLogger().writeMessage("Loading Class: " + key + " from " + unitForClass.getName(), IFernflowerLogger.Severity.INFO);
-      final byte[] classBytes = unitForClass.getClassBytes(key);
-      if (classBytes == null) {
+      StructClass clazz = unitForClass.tryLoadClass(key);
+      if (clazz == null) {
         return null;
       }
-      StructClass clazz = StructClass.create(new DataInputFullStream(classBytes), unitForClass.isOwn());
+
       if (!key.equals(clazz.qualifiedName)) {
         // also place the class in the right key if it's wrong
         this.unitsByClassName.put(clazz.qualifiedName, unitForClass);
@@ -148,7 +148,7 @@ public class StructContext {
       .filter(ContextUnit::isOwn)
       .flatMap(unit -> unit.getClassNames().stream())
       .map(name -> Objects.requireNonNull(this.getClass(name), () -> "Could not find class " + name))
-      .collect(Collectors.toUnmodifiableList());
+      .toList();
   }
 
   public void reloadContext() throws IOException {
@@ -361,6 +361,8 @@ public class StructContext {
   }
 
   public void clear() {
+    this.pluginContext.close();
+
     try {
       this.saver.close();
     } catch (final IOException ex) {

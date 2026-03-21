@@ -1,5 +1,7 @@
 package pkg;
 
+import java.util.Random;
+
 public class TestLoopFinally {
   public void test() {
     for (int i = 0; i < 10; i++) {
@@ -249,5 +251,27 @@ public class TestLoopFinally {
         }
       }
     }
+  }
+
+  public void testComplex(Object o) {
+    boolean b = true;
+    do {
+      try {
+        while (new Random().nextBoolean()) {
+
+        }
+      } finally {
+        synchronized (o) {
+          if (new Random().nextBoolean() && new Random().nextBoolean()) {
+            if (new Random().nextBoolean()) {
+              b = false;
+            } else {
+              System.out.println("a");
+            }
+          }
+        }
+      }
+
+    } while (b);
   }
 }

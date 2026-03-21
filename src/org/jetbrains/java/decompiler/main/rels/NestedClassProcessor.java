@@ -667,6 +667,17 @@ public class NestedClassProcessor {
               }
             }
 
+            if (CodeConstants.INIT_NAME.equals(method.methodStruct.getName())
+              && exprent instanceof InvocationExprent inv
+              && inv.isStatic()
+              && inv.getClassname().equals("java/util/Objects")
+              && inv.getName().equals("requireNonNull")
+              && inv.getStringDescriptor().equals("(Ljava/lang/Object;)Ljava/lang/Object;")
+              && inv.getLstParameters().get(0) instanceof VarExprent varExp
+              && mapParamsToNewVars.containsKey(varExp.getIndex())) {
+              return null;
+            }
+
             Exprent ret = replaceExprent(exprent);
 
             return ret == null ? exprent : ret;

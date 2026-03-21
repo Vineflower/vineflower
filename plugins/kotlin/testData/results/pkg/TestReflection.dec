@@ -23,9 +23,9 @@ public class TestReflection {
    }// 20
 
    public fun testFunctionReference() {
-      val f: KFunction = <unknownclass>.INSTANCE as KFunction// 23
-      System.out.println(<unknownclass>.INSTANCE as KFunction)// 24
-      (f as Function1).invoke(new TestReflection())// 25
+      val f: KFunction = TestReflection::testClassReference as KFunction// 23
+      System.out.println(TestReflection::testClassReference as KFunction)// 24
+      (f as Function1)(TestReflection())// 25
    }// 26
 
    public fun testThis() {
@@ -71,6 +71,9 @@ class 'pkg/TestReflection' {
    }
 
    method 'testPrimitiveType ()V' {
+      0      17
+      1      17
+      2      17
       3      17
       4      17
       5      17
@@ -81,6 +84,9 @@ class 'pkg/TestReflection' {
    }
 
    method 'testInferredPrimitive ()V' {
+      0      21
+      1      21
+      2      21
       3      21
       4      21
       5      21

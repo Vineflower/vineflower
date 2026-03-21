@@ -35,7 +35,7 @@ public data class TestDataClass(dataClassVal: Regex, variableWithVeryLongName: I
       requestLineWrapsIfTheParamListIsTooLong: List<String> = this.requestLineWrapsIfTheParamListIsTooLong,
       nullability: String? = this.nullability
    ): TestDataClass {
-      return new TestDataClass(dataClassVal, variableWithVeryLongName, requestLineWrapsIfTheParamListIsTooLong, nullability)
+      return TestDataClass(dataClassVal, variableWithVeryLongName, requestLineWrapsIfTheParamListIsTooLong, nullability)
    }
 
    public open fun toString(): String {

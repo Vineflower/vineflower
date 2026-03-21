@@ -23,4 +23,69 @@ public class TestAsserts {
     assert i> 1 && i < 5;
     return 1;
   }
+
+  public void test1(int x) {
+    System.out.println("a");
+    assert x > 5;
+    if (x == 7) {
+      System.out.println("b");
+    }
+
+    System.out.println("c");
+  }
+
+  public void test2(int x) {
+    System.out.println("a");
+    if (x == 7) {
+      System.out.println("b");
+    }
+    assert x > 5;
+
+
+    System.out.println("c");
+  }
+
+  public static class InnerStatic {
+    public void test3(int x) {
+      System.out.println("a");
+      assert x > 10;
+    }
+  }
+
+  public class Inner {
+    public void test4(int x) {
+      System.out.println("a");
+      assert x > 10;
+    }
+  }
+
+  public void test5(int x) {
+    System.out.println("a");
+    if (x == 7) {
+      System.out.println("b");
+    }
+    assert false;
+
+
+    System.out.println("c");
+  }
+
+  public void test6(int x) {
+    System.out.println("a");
+    if (x > 7) {
+      assert x > 10;
+      System.out.println("c");
+    }
+
+    System.out.println("c");
+  }
+
+  public void test7(int x) {
+    System.out.println("a");
+    if (x > 7) {
+      assert x > 10;
+    }
+
+    System.out.println("c");
+  }
 }
