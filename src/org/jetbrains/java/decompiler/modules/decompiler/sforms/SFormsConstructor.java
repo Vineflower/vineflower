@@ -374,7 +374,7 @@ public abstract class SFormsConstructor {
         break;
       }
 
-      if (parent instanceof CatchAllStatement || parent instanceof CatchStatement) {
+      if (parent instanceof FinallyStatement || parent instanceof CatchStatement) {
         if (parent.getFirst() == stat) {
           return parent;
         }
@@ -396,15 +396,8 @@ public abstract class SFormsConstructor {
     SFormsFastMapDirect map;
 
     switch (stat.type) {
-      case CATCH_ALL:
       case TRY_CATCH:
-
-        List<VarExprent> lstVars;
-        if (stat instanceof CatchAllStatement) {
-          lstVars = ((CatchAllStatement) stat).getVars();
-        } else {
-          lstVars = ((CatchStatement) stat).getVars();
-        }
+        List<VarExprent> lstVars = ((CatchStatement) stat).getVars();
 
         for (int i = 1; i < stat.getStats().size(); i++) {
           int varindex = lstVars.get(i - 1).getIndex();

@@ -8,7 +8,7 @@ import java.nio.file.Path;
 
 public class TestTryWithResourcesNestedLoop {
    public static InputStream test(Path base, Path overlay, int width, int left, int top, int right, int bottom) throws IOException {
-      ByteArrayInputStream var72;
+      ByteArrayInputStream var201;
       try (
          InputStream lv = Files.newInputStream(base);// 11
          InputStream lv2 = Files.newInputStream(overlay);// 12
@@ -32,11 +32,11 @@ public class TestTryWithResourcesNestedLoop {
 
             byte[] ary = new byte[lv3.available()];// 29
             lv3.read(ary);// 30
-            var72 = new ByteArrayInputStream(ary);
+            var201 = new ByteArrayInputStream(ary);
          }
       }
 
-      return var72;// 31
+      return var201;// 31
    }
 }
 

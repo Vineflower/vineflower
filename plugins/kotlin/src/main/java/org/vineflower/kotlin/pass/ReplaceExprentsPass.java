@@ -28,9 +28,9 @@ public class ReplaceExprentsPass implements Pass {
     exprLists.add(stat.getExprents());
     exprLists.add(stat.getVarDefinitions());
 
-    if (stat instanceof CatchAllStatement || stat instanceof CatchStatement) {
+    if (stat instanceof CatchStatement catchStat) {
       // Special handling for catch declarations
-      List<VarExprent> vars = stat instanceof CatchAllStatement ? ((CatchAllStatement)stat).getVars() : ((CatchStatement)stat).getVars();
+      List<VarExprent> vars = catchStat.getVars();
       for (int i = 0; i < vars.size(); i++) {
         VarExprent expr = vars.get(i);
         KVarExprent map = new KVarExprent(expr);
@@ -38,11 +38,7 @@ public class ReplaceExprentsPass implements Pass {
         vars.set(i, map);
       }
 
-      if (stat instanceof CatchAllStatement catchAll && catchAll.getMonitor() != null) {
-        catchAll.setMonitor(new KVarExprent(catchAll.getMonitor()));
-      } else if (stat instanceof CatchStatement catchStat) {
-        exprLists.add(catchStat.getResources());
-      }
+      exprLists.add(catchStat.getResources());
     } else if (stat instanceof DoStatement doStat) {
       exprLists.add(doStat.getInitExprentList());
       exprLists.add(doStat.getConditionExprentList());
@@ -55,14 +51,6 @@ public class ReplaceExprentsPass implements Pass {
       exprLists.add(switchStat.getHeadexprentList());
     } else if (stat instanceof SynchronizedStatement syncStat) {
       exprLists.add(syncStat.getHeadexprentList());
-    } else if (stat instanceof CatchAllStatement || stat instanceof CatchStatement) {
-      List<VarExprent> vars = stat instanceof CatchAllStatement ? ((CatchAllStatement)stat).getVars() : ((CatchStatement)stat).getVars();
-      for (int i = 0; i < vars.size(); i++) {
-        VarExprent expr = vars.get(i);
-        KVarExprent map = new KVarExprent(expr);
-        map.setDeclarationType(KVarExprent.DeclarationType.EXCEPTION_TYPE);
-        vars.set(i, map);
-      }
     }
 
     for (List<Exprent> exprs : exprLists) {

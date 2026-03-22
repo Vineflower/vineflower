@@ -55,20 +55,20 @@ public class TestTryReturn {
    public boolean testFinally3(boolean b, boolean c, int a, Supplier<Boolean> supplier) {
       boolean var5;
       try {
-         if (!b) {// 50
-            if (a > 0) {// 54
-               return a == 1;// 55
-            }
+         if (b) {// 50
+            return c && supplier.get();// 51
+         }
 
+         if (a <= 0) {// 54
             return supplier.get();// 58
          }
 
-         var5 = c && supplier.get();
+         var5 = a == 1;
       } finally {
          System.out.println("Finally");// 60
       }
 
-      return var5;// 51
+      return var5;// 55
    }
 
    public boolean testFinally4(Supplier<Boolean> supplier) {
@@ -133,43 +133,20 @@ public class TestTryReturn {
    }
 
    public void testParsingFailure() {
-      // $VF: Couldn't be decompiled
-      // Bytecode:
-      // 00: bipush 116
-      // 02: istore 1
-      // 03: iload 1
-      // 04: bipush 113
-      // 06: if_icmpeq 2a
-      // 09: getstatic java/lang/System.out Ljava/io/PrintStream;
-      // 0c: iload 1
-      // 0d: invokevirtual java/io/PrintStream.println (C)V
-      // 10: getstatic java/lang/System.out Ljava/io/PrintStream;
-      // 13: iload 1
-      // 14: invokevirtual java/io/PrintStream.println (C)V
-      // 17: return
-      // 18: astore 2
-      // 19: getstatic java/lang/System.out Ljava/io/PrintStream;
-      // 1c: iload 1
-      // 1d: invokevirtual java/io/PrintStream.println (C)V
-      // 20: return
-      // 21: astore 3
-      // 22: getstatic java/lang/System.out Ljava/io/PrintStream;
-      // 25: iload 1
-      // 26: invokevirtual java/io/PrintStream.println (C)V
-      // 29: return
-      // 2a: getstatic java/lang/System.out Ljava/io/PrintStream;
-      // 2d: iload 1
-      // 2e: invokevirtual java/io/PrintStream.println (C)V
-      // 31: return
-      // 32: astore 4
-      // 34: getstatic java/lang/System.out Ljava/io/PrintStream;
-      // 37: iload 1
-      // 38: invokevirtual java/io/PrintStream.println (C)V
-      // 3b: return
-      // try (5 -> 8): 12 java/lang/Exception
-      // try (5 -> 8): 17 null
-      // try (2 -> 8): 26 null
-      // try (26 -> 27): 26 null
+      char var1 = 't';// 123
+
+      try {
+         if (var1 != 'q') {// 125
+            try {
+               System.out.println(var1);// 127
+            } catch (Exception var8) {
+            } catch (Throwable var9) {
+            }
+         }
+      } finally {
+         System.out.println(var1);// 135
+         return;// 136
+      }
    }
 
    public void testPostdomFailure() {
@@ -181,9 +158,8 @@ public class TestTryReturn {
                System.out.println(2);// 148
             } catch (Exception var9) {// 149
                System.out.println(3);// 150
-            } finally {
-               continue;
             }
+         } catch (Throwable var15) {// 153
          } finally {
             byte var7 = 28;// 156
          }
@@ -355,38 +331,38 @@ class 'pkg/TestTryReturn' {
       1      57
       2      57
       3      57
-      4      65
-      5      65
-      6      65
-      7      65
-      8      65
-      9      65
-      a      65
-      b      65
-      c      65
-      d      65
-      e      65
-      12      65
-      13      65
-      14      65
-      15      65
-      16      65
-      17      65
-      1d      65
-      1e      65
-      27      70
-      28      70
-      29      70
-      2a      58
-      2b      58
-      2c      58
-      2d      58
-      2e      59
-      2f      59
-      30      59
-      31      59
-      32      59
-      44      59
+      4      58
+      5      58
+      6      58
+      7      58
+      8      58
+      9      58
+      a      58
+      b      58
+      c      58
+      d      58
+      e      58
+      12      58
+      13      58
+      14      58
+      15      58
+      16      58
+      17      58
+      29      58
+      2a      61
+      2b      61
+      2c      61
+      2d      61
+      2e      65
+      2f      65
+      30      65
+      31      65
+      32      65
+      38      65
+      39      65
+      42      70
+      43      70
+      44      70
       45      62
       46      62
       47      62
@@ -553,145 +529,173 @@ class 'pkg/TestTryReturn' {
       22      129
    }
 
+   method 'testParsingFailure ()V' {
+      0      135
+      1      135
+      2      135
+      3      138
+      4      138
+      5      138
+      6      138
+      7      138
+      8      138
+      9      140
+      a      140
+      b      140
+      c      140
+      d      140
+      e      140
+      f      140
+      34      146
+      35      146
+      36      146
+      37      146
+      38      146
+      39      146
+      3a      146
+      3b      147
+   }
+
    method 'testPostdomFailure ()V' {
-      0      175
-      1      175
-      2      175
-      3      175
-      4      175
-      5      175
-      6      175
-      e      177
-      f      177
-      10      177
-      14      180
-      15      180
-      16      180
-      17      180
-      18      180
-      19      180
-      1a      180
-      21      181
-      22      182
-      23      182
-      24      182
-      25      182
-      26      182
-      27      182
-      28      182
-      3a      187
-      3b      187
-      3c      187
-      3d      187
-      41      190
+      0      152
+      1      152
+      2      152
+      3      152
+      4      152
+      5      152
+      6      152
+      e      154
+      f      154
+      10      154
+      14      157
+      15      157
+      16      157
+      17      157
+      18      157
+      19      157
+      1a      157
+      21      158
+      22      159
+      23      159
+      24      159
+      25      159
+      26      159
+      27      159
+      28      159
+      2f      161
+      3a      163
+      3b      163
+      3c      163
+      3d      163
+      41      166
    }
 
    method 'testVarWrong ()V' {
-      0      194
-      1      194
-      2      194
-      3      194
-      4      194
-      5      194
-      6      194
-      7      194
-      b      195
-      e      196
-      f      197
-      10      197
-      11      197
-      12      197
-      16      204
-      17      198
-      18      198
-      19      198
-      1a      198
-      1b      198
-      1c      198
-      1d      198
-      21      199
-      24      202
-      25      202
-      26      202
-      27      202
+      0      170
+      1      170
+      2      170
+      3      170
+      4      170
+      5      170
+      6      170
+      7      170
+      b      171
+      e      172
+      f      173
+      10      173
+      11      173
+      12      173
+      16      180
+      17      174
+      18      174
+      19      174
+      1a      174
+      1b      174
+      1c      174
+      1d      174
+      21      175
+      24      178
+      25      178
+      26      178
+      27      178
    }
 
    method 'testInvalidUse ()V' {
-      0      207
-      1      207
-      2      208
-      3      208
-      4      208
-      5      213
-      6      213
-      7      213
-      8      213
-      9      213
-      a      213
-      b      213
-      13      214
-      14      215
-      15      220
-      16      220
-      17      220
-      18      220
-      19      220
-      1a      220
-      1b      220
-      26      222
-      36      229
-      39      224
-      3a      224
-      3b      224
-      3c      224
-      3d      224
-      3e      224
-      3f      224
-      4a      221
-      4f      227
-      50      227
-      51      227
-      52      227
-      53      227
-      54      227
-      55      227
+      0      183
+      1      183
+      2      184
+      3      184
+      4      184
+      5      189
+      6      189
+      7      189
+      8      189
+      9      189
+      a      189
+      b      189
+      13      190
+      14      191
+      15      196
+      16      196
+      17      196
+      18      196
+      19      196
+      1a      196
+      1b      196
+      26      198
+      36      205
+      39      200
+      3a      200
+      3b      200
+      3c      200
+      3d      200
+      3e      200
+      3f      200
+      4a      197
+      4f      203
+      50      203
+      51      203
+      52      203
+      53      203
+      54      203
+      55      203
    }
 
    method 'returnInCatch ()V' {
-      0      234
-      1      234
-      2      234
-      3      234
-      4      234
-      5      234
-      6      234
-      7      234
-      10      245
-      11      245
-      12      245
-      13      236
-      14      237
-      15      237
-      16      237
-      17      237
-      18      237
-      19      237
-      1a      237
-      1b      237
-      24      242
-      26      239
-      27      239
-      28      239
-      29      239
-      2a      239
-      2b      239
-      2c      239
-      2d      239
-      30      245
-      31      245
-      33      245
-      34      245
-      35      245
+      0      210
+      1      210
+      2      210
+      3      210
+      4      210
+      5      210
+      6      210
+      7      210
+      10      221
+      11      221
+      12      221
+      13      212
+      14      213
+      15      213
+      16      213
+      17      213
+      18      213
+      19      213
+      1a      213
+      1b      213
+      24      218
+      26      215
+      27      215
+      28      215
+      29      215
+      2a      215
+      2b      215
+      2c      215
+      2d      215
+      30      221
+      31      221
+      33      221
+      34      221
+      35      221
    }
 }
 
@@ -712,9 +716,9 @@ Lines mapping:
 43 <-> 52
 45 <-> 52
 50 <-> 58
-51 <-> 71
-54 <-> 59
-55 <-> 60
+51 <-> 59
+54 <-> 62
+55 <-> 71
 58 <-> 63
 60 <-> 68
 65 <-> 75
@@ -743,39 +747,45 @@ Lines mapping:
 113 <-> 126
 114 <-> 127
 117 <-> 130
-143 <-> 176
-145 <-> 178
-148 <-> 181
-149 <-> 182
-150 <-> 183
-156 <-> 188
-159 <-> 191
-164 <-> 195
-165 <-> 197
-166 <-> 198
-167 <-> 205
-169 <-> 199
-170 <-> 200
-173 <-> 203
-174 <-> 196
-178 <-> 208
-179 <-> 209
-181 <-> 214
-182 <-> 215
-183 <-> 216
-185 <-> 221
-186 <-> 223
-187 <-> 230
-190 <-> 225
-194 <-> 228
-195 <-> 222
-200 <-> 235
-201 <-> 237
-202 <-> 238
-203 <-> 243
-205 <-> 240
-206 <-> 246
-208 <-> 246
+123 <-> 136
+125 <-> 139
+127 <-> 141
+135 <-> 147
+136 <-> 148
+143 <-> 153
+145 <-> 155
+148 <-> 158
+149 <-> 159
+150 <-> 160
+153 <-> 162
+156 <-> 164
+159 <-> 167
+164 <-> 171
+165 <-> 173
+166 <-> 174
+167 <-> 181
+169 <-> 175
+170 <-> 176
+173 <-> 179
+174 <-> 172
+178 <-> 184
+179 <-> 185
+181 <-> 190
+182 <-> 191
+183 <-> 192
+185 <-> 197
+186 <-> 199
+187 <-> 206
+190 <-> 201
+194 <-> 204
+195 <-> 198
+200 <-> 211
+201 <-> 213
+202 <-> 214
+203 <-> 219
+205 <-> 216
+206 <-> 222
+208 <-> 222
 Not mapped:
 20
 35
@@ -783,7 +793,8 @@ Not mapped:
 84
 103
 118
-153
+128
+131
 157
 175
 191

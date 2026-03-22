@@ -5,11 +5,13 @@ public class TestTrySplit {
       Object obj = null;// 5
 
       try {
-         obj = new Object();// 7
-         return;// 17
-      } catch (ArithmeticException ex) {// 8
-         if (obj != null) {// 9
-            System.out.println("a");// 10
+         try {
+            obj = new Object();// 7
+            return;// 17
+         } catch (ArithmeticException ex) {// 8
+            if (obj != null) {// 9
+               System.out.println("a");// 10
+            }
          }
 
          throwMyException(ex.getMessage());// 13
@@ -18,8 +20,27 @@ public class TestTrySplit {
       }
    }// 14
 
+   public void testFlat() {
+      Object obj = null;// 21
+
+      try {
+         try {
+            obj = new Object();// 27
+            return;// 45
+         } catch (ArithmeticException ex) {// 28
+            if (obj != null) {// 29
+               System.out.println("a");// 30
+            }
+         }
+
+         throwMyException(ex.getMessage());// 33
+      } finally {
+         System.out.println("b");// 38
+      }
+   }// 42
+
    public static void throwMyException(String message) {
-      throw new RuntimeException(message);// 21
+      throw new RuntimeException(message);// 48
    }
 }
 
@@ -27,55 +48,107 @@ class 'pkg/TestTrySplit' {
    method 'test ()V' {
       0      4
       1      4
-      9      7
-      12      8
-      15      9
-      16      10
-      17      10
-      18      10
-      19      10
-      1a      11
-      1b      11
-      1c      11
-      1d      11
-      1e      11
-      1f      11
-      20      11
-      21      11
-      22      14
-      23      14
-      24      14
-      25      14
-      26      14
-      27      14
-      28      14
-      31      18
-      33      16
-      34      16
-      35      16
-      36      16
-      37      16
-      38      16
-      39      16
-      3a      16
+      9      8
+      12      9
+      15      10
+      16      11
+      17      11
+      18      11
+      19      11
+      1a      12
+      1b      12
+      1c      12
+      1d      12
+      1e      12
+      1f      12
+      20      12
+      21      12
+      22      16
+      23      16
+      24      16
+      25      16
+      26      16
+      27      16
+      28      16
+      31      20
+      33      18
+      34      18
+      35      18
+      36      18
+      37      18
+      38      18
+      39      18
+      3a      18
+   }
+
+   method 'testFlat ()V' {
+      0      23
+      1      23
+      9      27
+      d      29
+      e      30
+      f      30
+      10      30
+      11      30
+      12      31
+      13      31
+      14      31
+      15      31
+      16      31
+      17      31
+      18      31
+      19      31
+      1a      35
+      1b      35
+      1c      35
+      1d      35
+      1e      35
+      1f      35
+      20      35
+      28      37
+      29      37
+      2a      37
+      2b      37
+      2c      37
+      2d      37
+      2e      37
+      2f      37
+      3a      39
+      43      28
    }
 
    method 'throwMyException (Ljava/lang/String;)V' {
-      4      21
-      8      21
+      4      42
+      8      42
    }
 }
 
 Lines mapping:
 5 <-> 5
-7 <-> 8
-8 <-> 10
-9 <-> 11
-10 <-> 12
-13 <-> 15
-14 <-> 19
-16 <-> 17
-17 <-> 9
-21 <-> 22
+7 <-> 9
+8 <-> 11
+9 <-> 12
+10 <-> 13
+13 <-> 17
+14 <-> 21
+16 <-> 19
+17 <-> 10
+21 <-> 24
+27 <-> 28
+28 <-> 30
+29 <-> 31
+30 <-> 32
+33 <-> 36
+38 <-> 38
+42 <-> 40
+45 <-> 29
+48 <-> 43
 Not mapped:
 18
+34
+35
+36
+37
+39
+41
+44

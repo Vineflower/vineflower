@@ -9,7 +9,6 @@ import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.InstructionSequence;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
-import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.StrongConnectivityHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
@@ -18,20 +17,18 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.struct.match.IMatchable;
 import org.jetbrains.java.decompiler.struct.match.MatchEngine;
 import org.jetbrains.java.decompiler.struct.match.MatchNode;
-import org.jetbrains.java.decompiler.struct.match.MatchNode.RuleValue;
 import org.jetbrains.java.decompiler.util.StartEndPair;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
 
 import java.util.*;
-import java.util.Map.Entry;
 
 public abstract class Statement implements IMatchable {
   public enum StatementType {
     ROOT("Root"), BASIC_BLOCK("Block"), SEQUENCE("Seq"), DUMMY_EXIT("Exit"),
     GENERAL("General"),
     IF("If"), DO("Do"), SWITCH("Switch"),
-    SYNCHRONIZED("Monitor"), TRY_CATCH("Catch"), CATCH_ALL("CatchAll"),
+    SYNCHRONIZED("Monitor"), TRY_CATCH("Catch"), FINALLY("Finally"),
 
     // Catch all for plugins
     OTHER("YouHaveMetATerribleFate");

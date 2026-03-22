@@ -1,6 +1,7 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.code;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.java.decompiler.code.*;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
@@ -21,11 +22,11 @@ public final class ExceptionDeobfuscator {
 
   private static final class Range {
     private final BasicBlock handler;
-    private final String uniqueStr;
+    private final @NotNull String uniqueStr;
     private final Set<BasicBlock> protectedRange;
     private final ExceptionRangeCFG rangeCFG;
 
-    private Range(BasicBlock handler, String uniqueStr, Set<BasicBlock> protectedRange, ExceptionRangeCFG rangeCFG) {
+    private Range(BasicBlock handler, @NotNull String uniqueStr, Set<BasicBlock> protectedRange, ExceptionRangeCFG rangeCFG) {
       this.handler = handler;
       this.uniqueStr = uniqueStr;
       this.protectedRange = protectedRange;
@@ -57,87 +58,88 @@ public final class ExceptionDeobfuscator {
     // process aggregated ranges
     for (Range range : lstRanges) {
 
-      if (range.uniqueStr != null) {
+      BasicBlock handler = range.handler;
+      InstructionSequence seq = handler.getSeq();
 
-        BasicBlock handler = range.handler;
-        InstructionSequence seq = handler.getSeq();
+      Instruction firstinstr;
+      if (seq.length() <= 0) {
+        continue;
+      }
 
-        Instruction firstinstr;
-        if (seq.length() > 0) {
-          firstinstr = seq.getInstr(0);
+      firstinstr = seq.getInstr(0);
 
-          if (firstinstr.opcode == CodeConstants.opc_pop ||
-              firstinstr.opcode == CodeConstants.opc_astore) {
-            Set<BasicBlock> setrange = new HashSet<>(range.protectedRange);
+      if (firstinstr.opcode != CodeConstants.opc_pop &&
+        firstinstr.opcode != CodeConstants.opc_astore) {
+        continue;
+      }
 
-            for (Range range_super : lstRanges) { // finally or strict superset
+      Set<BasicBlock> setrange = new HashSet<>(range.protectedRange);
 
-              if (range != range_super) {
+      for (Range range_super : lstRanges) { // finally or strict superset
+        if (range == range_super) {
+          continue;
+        }
 
-                Set<BasicBlock> setrange_super = new HashSet<>(range_super.protectedRange);
+        Set<BasicBlock> setrange_super = new HashSet<>(range_super.protectedRange);
 
-                if (!setrange.contains(range_super.handler) && !setrange_super.contains(handler)
-                    && (range_super.uniqueStr == null || setrange_super.containsAll(setrange))) {
+        if (!setrange.contains(range_super.handler) && !setrange_super.contains(handler)
+            && (range_super.uniqueStr.equals("java/lang/Throwable") || setrange_super.containsAll(setrange))) {
 
-                  if (range_super.uniqueStr == null) {
-                    setrange_super.retainAll(setrange);
-                  }
-                  else {
-                    setrange_super.removeAll(setrange);
-                  }
+          if (range_super.uniqueStr.equals("java/lang/Throwable")) {
+            setrange_super.retainAll(setrange);
+          }
+          else {
+            setrange_super.removeAll(setrange);
+          }
 
-                  if (!setrange_super.isEmpty()) {
+          if (!setrange_super.isEmpty()) {
 
-                    BasicBlock newblock = handler;
+            BasicBlock newblock = handler;
 
-                    // split the handler
-                    if (seq.length() > 1) {
-                      newblock = new BasicBlock(++graph.last_id);
-                      InstructionSequence newseq = new InstructionSequence();
-                      newseq.addInstruction(firstinstr.clone());
+            // split the handler
+            if (seq.length() > 1) {
+              newblock = new BasicBlock(++graph.last_id);
+              InstructionSequence newseq = new InstructionSequence();
+              newseq.addInstruction(firstinstr.clone());
 
-                      newblock.setSeq(newseq);
-                      graph.getBlocks().addWithKey(newblock, newblock.id);
+              newblock.setSeq(newseq);
+              graph.getBlocks().addWithKey(newblock, newblock.id);
 
 
-                      List<BasicBlock> lstTemp = new ArrayList<>();
-                      lstTemp.addAll(handler.getPreds());
-                      lstTemp.addAll(handler.getPredExceptions());
+              List<BasicBlock> lstTemp = new ArrayList<>();
+              lstTemp.addAll(handler.getPreds());
+              lstTemp.addAll(handler.getPredExceptions());
 
-                      // replace predecessors
-                      for (BasicBlock pred : lstTemp) {
-                        pred.replaceSuccessor(handler, newblock);
-                      }
+              // replace predecessors
+              for (BasicBlock pred : lstTemp) {
+                pred.replaceSuccessor(handler, newblock);
+              }
 
-                      // replace handler
-                      for (ExceptionRangeCFG range_ext : graph.getExceptions()) {
-                        if (range_ext.getHandler() == handler) {
-                          range_ext.setHandler(newblock);
-                        }
-                        else if (range_ext.getProtectedRange().contains(handler)) {
-                          newblock.addSuccessorException(range_ext.getHandler());
-                          range_ext.getProtectedRange().add(newblock);
-                        }
-                      }
-
-                      newblock.addSuccessor(handler);
-                      if (graph.getFirst() == handler) {
-                        graph.setFirst(newblock);
-                      }
-
-                      // remove the first pop in the handler
-                      seq.removeInstruction(0);
-                    }
-
-                    newblock.addSuccessorException(range_super.handler);
-                    range_super.rangeCFG.getProtectedRange().add(newblock);
-
-                    handler = range.rangeCFG.getHandler();
-                    seq = handler.getSeq();
-                  }
+              // replace handler
+              for (ExceptionRangeCFG range_ext : graph.getExceptions()) {
+                if (range_ext.getHandler() == handler) {
+                  range_ext.setHandler(newblock);
+                }
+                else if (range_ext.getProtectedRange().contains(handler)) {
+                  newblock.addSuccessorException(range_ext.getHandler());
+                  range_ext.getProtectedRange().add(newblock);
                 }
               }
+
+              newblock.addSuccessor(handler);
+              if (graph.getFirst() == handler) {
+                graph.setFirst(newblock);
+              }
+
+              // remove the first pop in the handler
+              seq.removeInstruction(0);
             }
+
+            newblock.addSuccessorException(range_super.handler);
+            range_super.rangeCFG.getProtectedRange().add(newblock);
+
+            handler = range.rangeCFG.getHandler();
+            seq = handler.getSeq();
           }
         }
       }

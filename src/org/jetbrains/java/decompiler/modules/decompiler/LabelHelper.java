@@ -240,7 +240,7 @@ public final class LabelHelper {
 
     switch (stat.type) {
       case TRY_CATCH:
-      case CATCH_ALL:
+      case FINALLY:
 
         for (Statement st : stat.getStats()) {
           HashMap<Statement, List<StatEdge>> mapEdges1 = setExplicitEdges(st);

@@ -33,8 +33,8 @@ public class TryHelper {
         if (TryWithResourcesProcessor.makeTryWithResourceJ11(trySt)) {
           ret = true;
         }
-      } else if (stat instanceof CatchAllStatement trySt && trySt.isFinally()) {
-        if (TryWithResourcesProcessor.makeTryWithResource(trySt)) {
+      } else if (stat instanceof FinallyStatement finStat) {
+        if (TryWithResourcesProcessor.makeTryWithResource(finStat)) {
           ret = true;
         }
       }

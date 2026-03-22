@@ -11,20 +11,20 @@ public class TestUnnamedVar1 {
          TestUnnamedVar1.Point var10000 = var2;
 
          try {
-            var8 = var10000.x();
-         } catch (Throwable var7) {// 12
-            throw new MatchException(var7.toString(), var7);
+            var12 = var10000.x();
+         } catch (Throwable var11) {// 12
+            throw new MatchException(var11.toString(), var11);
          }
 
-         int var4 = var8;
+         int var4 = var12;
          if (true) {
             int x = var4;
             var10000 = var2;
 
             try {
                var10000.y();
-            } catch (Throwable var6) {
-               throw new MatchException(var6.toString(), var6);
+            } catch (Throwable var10) {
+               throw new MatchException(var10.toString(), var10);
             }
 
             System.out.println(x);// 13
@@ -33,7 +33,7 @@ public class TestUnnamedVar1 {
    }// 15
 
    public void test1(Object o) {
-      if (o instanceof TestUnnamedVar1.Point(int x, Object var8)) {// 18
+      if (o instanceof TestUnnamedVar1.Point(int x, Object var12)) {// 18
          System.out.println(x);// 19
       }
    }// 21

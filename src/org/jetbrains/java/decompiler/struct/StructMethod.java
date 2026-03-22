@@ -340,7 +340,7 @@ public class StructMethod extends StructMember {
       int excClass = in.readUnsignedShort();
       String exceptionClass;
       if (excClass == 0) {
-        exceptionClass = null;
+        exceptionClass = "java/lang/Throwable";
       } else {
         exceptionClass = pool.getPrimitiveConstant(excClass).getString();
       }

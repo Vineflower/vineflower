@@ -265,40 +265,55 @@ public final class DomHelper implements GraphParser {
               next = next.getFirst();
             }
 
-            if (next instanceof CatchAllStatement ca) {
+            Statement tryBlock;
+            Statement handler;
+            boolean isFinally;
 
+            if (next instanceof CatchStatement catchStat && catchStat.isSingleCatchAll()) {
+              tryBlock = catchStat.getFirst();
+              handler = catchStat.getHandler(0);
+              isFinally = false;
+            } else if (next instanceof FinallyStatement finStat) {
+              tryBlock = finStat.getFirst();
+              handler = finStat.getHandler();
+              isFinally = true;
+            } else {
+              continue;
+            }
+
+            {
               // See if the head of the synchronized is suitable.
               // In most cases, the synchronized block will contain a monitorexit in the exit block of the catchall.
               // If the synchronized statement ends in a throw expression, check for that too.
-              boolean headOk = ca.getFirst().containsMonitorExitOrAthrow();
+              boolean headOk = tryBlock.containsMonitorExitOrAthrow();
 
               // In case the statement has no exit points, it will not have a monitorexit on the exit block because
               // there is no exit block. Consider it ok too.
               if (!headOk) {
-                headOk = hasNoExits(ca.getFirst());
+                headOk = hasNoExits(tryBlock);
               }
 
               // In the final case, we may have incorporated all the monitorexits into a finally block, which should be
               // semantically identical. Handle that too.
               if (!headOk) {
-                headOk = ca.isFinally();
+                headOk = isFinally;
               }
 
               // If the body of the monitor ends in a throw, it won't have a monitor exit as the catch handler will call it.
               // We will also not have a monitorexit in an infinite loop as there is no way to leave the statement.
               // However, the handler *must* have a monitorexit!
-              if (headOk && ca.getHandler().containsMonitorExit()) {
+              if (headOk && handler.containsMonitorExit()) {
 
                 // remove monitorexit
-                ca.getFirst().markMonitorexitDead();
-                ca.getHandler().markMonitorexitDead();
+                tryBlock.markMonitorexitDead();
+                handler.markMonitorexitDead();
 
                 // Sometimes trailing monitorexits occur in our or our parent's successor edges too, remove them too.
-                for (StatEdge edge : ca.getSuccessorEdgeView(StatEdge.TYPE_REGULAR)) {
+                for (StatEdge edge : next.getSuccessorEdgeView(StatEdge.TYPE_REGULAR)) {
                   edge.getDestination().markMonitorexitDead();
                 }
 
-                for (StatEdge edge : ca.getParent().getSuccessorEdgeView(StatEdge.TYPE_REGULAR)) {
+                for (StatEdge edge : next.getParent().getSuccessorEdgeView(StatEdge.TYPE_REGULAR)) {
                   edge.getDestination().markMonitorexitDead();
                 }
 
@@ -315,16 +330,16 @@ public final class DomHelper implements GraphParser {
                 stat.setFirst(stat.getStats().get(0));
 
                 // new statement
-                SynchronizedStatement sync = new SynchronizedStatement(current, ca.getFirst(), ca.getHandler());
+                SynchronizedStatement sync = new SynchronizedStatement(current, tryBlock, handler);
                 sync.setAllParent();
 
-                for (StatEdge edge : new HashSet<>(ca.getLabelEdges())) {
+                for (StatEdge edge : new HashSet<>(next.getLabelEdges())) {
                   sync.addLabeledEdge(edge);
                 }
 
-                current.addSuccessor(new StatEdge(StatEdge.TYPE_REGULAR, current, ca.getFirst()));
+                current.addSuccessor(new StatEdge(StatEdge.TYPE_REGULAR, current, tryBlock));
 
-                ca.getParent().replaceStatement(ca, sync);
+                next.replaceWith(sync);
                 found = true;
                 res = true;
                 break;
@@ -833,10 +848,6 @@ public final class DomHelper implements GraphParser {
     }
 
     if ((res = CatchStatement.isHead(head)) != null) {
-      return res;
-    }
-
-    if ((res = CatchAllStatement.isHead(head)) != null) {
       return res;
     }
 

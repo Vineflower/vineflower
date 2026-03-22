@@ -82,7 +82,7 @@ public final class RootStatement extends Statement {
       buildContentFlagsStat(st);
     }
 
-    if (stat instanceof CatchStatement || stat instanceof CatchAllStatement) {
+    if (stat instanceof CatchStatement || stat instanceof FinallyStatement) {
       this.flags.hasTryCatch = true;
     } else if (stat instanceof DoStatement) {
       this.flags.hasLoops = true;

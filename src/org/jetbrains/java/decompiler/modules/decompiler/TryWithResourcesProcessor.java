@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
  */
 public final class TryWithResourcesProcessor {
   // Make try with resources with the old style bytecode (J8)
-  public static boolean makeTryWithResource(CatchAllStatement finallyStat) {
+  public static boolean makeTryWithResource(FinallyStatement finallyStat) {
     Statement handler = finallyStat.getHandler();
 
     // The finally block has a specific statement structure we can check for

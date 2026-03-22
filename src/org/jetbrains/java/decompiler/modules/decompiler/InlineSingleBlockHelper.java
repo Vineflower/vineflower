@@ -197,7 +197,7 @@ public final class InlineSingleBlockHelper {
         break;
       }
 
-      if (parent instanceof CatchStatement || parent instanceof CatchAllStatement) {
+      if (parent instanceof CatchStatement || parent instanceof FinallyStatement) {
         if (parent.getFirst() == from) {
           return false;
         }

@@ -7,7 +7,7 @@ public class TestTryVar {
             x = y + i;// 7
             x = 5000 - i;// 8
             x = y / y;// 9
-         } catch (Throwable var5) {// 10
+         } catch (Throwable var6) {// 10
          }
       }
 
@@ -19,7 +19,7 @@ public class TestTryVar {
          try {
             x = y + i;// 21
             x = (x += 5000 - i / (7 - i)) / y;// 22
-         } catch (Throwable var5) {// 23
+         } catch (Throwable var6) {// 23
          }
       }
 

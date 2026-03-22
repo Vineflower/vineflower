@@ -31,9 +31,9 @@ public class TestTryWithResourcesMulti {
          try (FileWriter writer = new FileWriter(file)) {// 27
             scanner.next();// 28
             writer.write("hello");// 29
-         } catch (Exception var34) {// 30
+         } catch (Exception var89) {// 30
          }
-      } catch (IOException var37) {// 32
+      } catch (IOException var92) {// 32
       }
    }// 34
 

@@ -151,28 +151,16 @@ public class FlattenStatementsHelper {
         this.addEdges(node, stat.getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL));
         return node;
       }
-      case CATCH_ALL:
-      case TRY_CATCH: { // TODO: should these 2 paths be split?
+      case TRY_CATCH: {
+        CatchStatement catchStat = (CatchStatement) stat;
         DirectNode node = this.createDirectNode(stat, DirectNodeType.TRY);
         this.addDestination(stat, node);
 
-        boolean isFinally = stat instanceof CatchAllStatement && ((CatchAllStatement) stat).isFinally();
-
         VBStyleCollection<Statement, Integer> stats = stat.getStats();
 
-        int endCatchIndex = isFinally ? stats.size() - 1 : stats.size();
-
-        if (stat instanceof CatchStatement) {
-          CatchStatement catchStat = (CatchStatement) stat;
-          List<Exprent> resources = catchStat.getResources();
-          if (!resources.isEmpty()) {
-            node.exprents = resources;
-          }
-        }
-
-
-        if (isFinally) {
-          this.finallyNodesStack.push(this.createDirectNode(stat, DirectNodeType.FINALLY));
+        List<Exprent> resources = catchStat.getResources();
+        if (!resources.isEmpty()) {
+          node.exprents = resources;
         }
 
         List<DirectNode> tryNodes = new ArrayList<>();
@@ -182,7 +170,9 @@ public class FlattenStatementsHelper {
         node.addSuccessor(DirectEdge.of(node, tryBlock));
 
         ValidationHelper.validateTrue(tryNodes == this.tryNodesStack.pop(), "tryNodesStack is broken");
+
         if (!this.tryNodesStack.isEmpty()) {
+          // propagate inner try blocks captures to outer try blocks
           this.tryNodesStack.peek().addAll(tryNodes);
         }
 
@@ -196,7 +186,7 @@ public class FlattenStatementsHelper {
         node.addSuccessor(DirectEdge.of(node, combinedCatchNode));
 
         // catch blocks
-        for (int i = 1; i < endCatchIndex; i++) {
+        for (int i = 1; i < stats.size(); i++) {
           Statement st = stats.get(i);
 
           // TODO: add catch variable to this node
@@ -207,24 +197,51 @@ public class FlattenStatementsHelper {
           catchNode.addSuccessor(DirectEdge.of(catchNode, handlerNode));
         }
 
-        if (isFinally) {
+        return node;
+      }
+      case FINALLY:{
+        FinallyStatement finallyStat = (FinallyStatement) stat;
+        DirectNode node = this.createDirectNode(stat, DirectNodeType.TRY);
+        this.addDestination(stat, node);
 
-          Statement st = stats.get(endCatchIndex);
-          DirectNode finallyNode = this.finallyNodesStack.pop();
-          ValidationHelper.validateTrue(
-            finallyNode.statement == stat && finallyNode.type == DirectNodeType.FINALLY,
-            "stackFinally is broken");
-          combinedCatchNode.addSuccessor(DirectEdge.of(combinedCatchNode, finallyNode));
+        DirectNode finallyNode = this.createDirectNode(stat, DirectNodeType.FINALLY);
+        this.finallyNodesStack.push(finallyNode);
 
-          this.finallyNodesStack.push(this.createDirectNode(stat, DirectNodeType.FINALLY_END));
-          DirectNode finallyBlockNode = this.flattenStatement(st);
-          finallyNode.addSuccessor(DirectEdge.of(finallyNode, finallyBlockNode));
+        List<DirectNode> tryNodes = new ArrayList<>();
+        this.tryNodesStack.add(tryNodes);
 
-          DirectNode finallyEndNode = this.finallyNodesStack.pop();
-          ValidationHelper.validateTrue(
-            finallyEndNode.statement == stat && finallyEndNode.type == DirectNodeType.FINALLY_END,
-            "stackFinally is broken");
+        DirectNode tryBlock = this.flattenStatement(stat.getFirst());
+        node.addSuccessor(DirectEdge.of(node, tryBlock));
+
+        ValidationHelper.validateTrue(tryNodes == this.tryNodesStack.pop(), "tryNodesStack is broken");
+        if (!this.tryNodesStack.isEmpty()) {
+          // propagate inner try blocks captures to outer try blocks
+          this.tryNodesStack.peek().addAll(tryNodes);
         }
+
+        DirectNode combinedCatchNode = this.createDirectNode(stat, DirectNodeType.COMBINED_CATCH);
+
+        for (DirectNode innerTryNode : tryNodes) {
+          innerTryNode.addSuccessor(DirectEdge.exception(innerTryNode, combinedCatchNode));
+        }
+
+        // TODO: should this be an exception edge for catch blocks?
+        node.addSuccessor(DirectEdge.of(node, combinedCatchNode));
+
+        Statement st = finallyStat.getHandler();
+        ValidationHelper.validateTrue(
+          finallyNode == this.finallyNodesStack.pop(),
+          "finallyNodesStack is broken");
+        combinedCatchNode.addSuccessor(DirectEdge.of(combinedCatchNode, finallyNode));
+
+        DirectNode finallyEndNode = this.createDirectNode(stat, DirectNodeType.FINALLY_END);
+        this.finallyNodesStack.push(finallyEndNode);
+        DirectNode finallyBlockNode = this.flattenStatement(st);
+        finallyNode.addSuccessor(DirectEdge.of(finallyNode, finallyBlockNode));
+
+        ValidationHelper.validateTrue(
+          finallyEndNode == this.finallyNodesStack.pop(),
+          "finallyNodesStack is broken");
 
         return node;
       }

@@ -1,6 +1,7 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.code.cfg;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 
 import java.util.ArrayList;
@@ -8,27 +9,23 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ExceptionRangeCFG {
-  private final List<BasicBlock> protectedRange; // FIXME: replace with set
-  private BasicBlock handler;
-  private List<String> exceptionTypes;
+  private final @NotNull List<BasicBlock> protectedRange; // FIXME: replace with set
+  private @NotNull BasicBlock handler;
+  private final @NotNull List<String> exceptionTypes;
 
-  public ExceptionRangeCFG(List<BasicBlock> protectedRange, BasicBlock handler, List<String> exceptionType) {
+  public ExceptionRangeCFG(@NotNull List<BasicBlock> protectedRange, @NotNull BasicBlock handler, @NotNull List<String> exceptionType) {
     this.protectedRange = protectedRange;
     this.handler = handler;
 
-    if (exceptionType != null) {
-      this.exceptionTypes = new ArrayList<>(exceptionType);
-    }
+    this.exceptionTypes = new ArrayList<>(exceptionType);
   }
 
-  public ExceptionRangeCFG(List<BasicBlock> protectedRange, BasicBlock handler, String exceptionType) {
+  public ExceptionRangeCFG(@NotNull List<BasicBlock> protectedRange, @NotNull BasicBlock handler, @NotNull String exceptionType) {
     this.protectedRange = protectedRange;
     this.handler = handler;
 
-    if (exceptionType != null) {
-      this.exceptionTypes = new ArrayList<>();
-      this.exceptionTypes.add(exceptionType);
-    }
+    this.exceptionTypes = new ArrayList<>();
+    this.exceptionTypes.add(exceptionType);
   }
 
   public boolean isCircular() {
@@ -42,13 +39,8 @@ public class ExceptionRangeCFG {
 
     buf.append("exceptionType:");
 
-    if (exceptionTypes == null) {
-      buf.append(" null");
-    }
-    else {
-      for (String exception_type : exceptionTypes) {
-        buf.append(" ").append(exception_type);
-      }
+    for (String exception_type : exceptionTypes) {
+      buf.append(" ").append(exception_type);
     }
 
     buf.append(new_line_separator);
@@ -63,36 +55,27 @@ public class ExceptionRangeCFG {
     return buf.toString();
   }
 
-  public BasicBlock getHandler() {
+  public @NotNull BasicBlock getHandler() {
     return handler;
   }
 
-  public void setHandler(BasicBlock handler) {
+  public void setHandler(@NotNull BasicBlock handler) {
     this.handler = handler;
   }
 
-  public List<BasicBlock> getProtectedRange() {
+  public @NotNull List<BasicBlock> getProtectedRange() {
     return protectedRange;
   }
 
-  public List<String> getExceptionTypes() {
+  public @NotNull List<String> getExceptionTypes() {
     return this.exceptionTypes;
   }
 
-  public void addExceptionType(String exceptionType) {
-    if (this.exceptionTypes == null) {
-      return;
-    }
-
-    if (exceptionType == null) {
-      this.exceptionTypes = null;
-    }
-    else {
-      this.exceptionTypes.add(exceptionType);
-    }
+  public void addExceptionType(@NotNull String exceptionType) {
+    this.exceptionTypes.add(exceptionType);
   }
 
-  public String getUniqueExceptionsString() {
-    return exceptionTypes != null ? exceptionTypes.stream().distinct().collect(Collectors.joining(":")) : null;
+  public @NotNull String getUniqueExceptionsString() {
+    return exceptionTypes.stream().distinct().collect(Collectors.joining(":"));
   }
 }

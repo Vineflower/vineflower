@@ -8,7 +8,7 @@ public class TestRecordPatterns9 {
       if (i instanceof TestRecordPatterns9.Sealed.R1(int v)) {// 15
          return v;// 16
       } else {
-         return i instanceof TestRecordPatterns9.Sealed.R2(String var11) ? var11 : null;// 17 21
+         return i instanceof TestRecordPatterns9.Sealed.R2(String var15) ? var15 : null;// 17 21
       }
    }
 

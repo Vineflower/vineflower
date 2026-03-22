@@ -456,7 +456,7 @@ public class DotExporter {
       case TRY_CATCH: return "Try Catch";
       case BASIC_BLOCK: return "Basic Block #" + ((BasicBlockStatement)st).getBlock().getId();
       case SYNCHRONIZED: return "Synchronized";
-      case CATCH_ALL: return "Catch All";
+      case FINALLY: return "Finally";
       case ROOT: return "Root";
       case DUMMY_EXIT: return "Dummy Exit";
       case SEQUENCE: return "Sequence";

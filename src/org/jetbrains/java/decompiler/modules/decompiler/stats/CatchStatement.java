@@ -245,6 +245,16 @@ public class CatchStatement extends Statement {
     }
   }
 
+  public boolean isSingleCatchAll(){
+    // Checks if the exception types allow for this to be converted to a finally
+    if (this.stats.size() != 2) {
+      return false;
+    }
+    List<String> excStrings = this.getExctStrings().get(0);
+    return excStrings.size() == 1 && excStrings.get(0).equals("java/lang/Throwable");
+  }
+
+
   // *****************************************************************************
   // getter and setter methods
   // *****************************************************************************
@@ -273,5 +283,9 @@ public class CatchStatement extends Statement {
     }
 
     return vars;
+  }
+
+  public Statement getHandler(int index) {
+    return this.getStats().get(index + 1);
   }
 }

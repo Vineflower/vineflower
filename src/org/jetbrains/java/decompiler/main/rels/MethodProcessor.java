@@ -206,6 +206,10 @@ public class MethodProcessor implements Runnable {
 
     root.buildContentFlags();
 
+    if (CatchHelper.condenseTryCatch(root)){
+      decompileRecord.add("CondenseTryCatch", root);
+    }
+
     //		LabelHelper.lowContinueLabels(root, new HashSet<StatEdge>());
 
     SequenceHelper.condenseSequences(root);

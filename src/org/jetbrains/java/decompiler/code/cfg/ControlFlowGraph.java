@@ -86,14 +86,8 @@ public class ControlFlowGraph implements CodeConstants {
             .append(new_line_separator);
         }
         else {
-          List<String> exceptionTypes = range.getExceptionTypes();
-          if (exceptionTypes == null) {
-            buf.append(">>>>>>>>(exception) Block ").append(handler.id).append("\t").append("NULL").append(new_line_separator);
-          }
-          else {
-            for (String exceptionType : exceptionTypes) {
-              buf.append(">>>>>>>>(exception) Block ").append(handler.id).append("\t").append(exceptionType).append(new_line_separator);
-            }
+          for (String exceptionType : range.getExceptionTypes()) {
+            buf.append(">>>>>>>>(exception) Block ").append(handler.id).append("\t").append(exceptionType).append(new_line_separator);
           }
         }
       }

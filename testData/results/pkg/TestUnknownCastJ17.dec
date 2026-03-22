@@ -11,7 +11,7 @@ public class TestUnknownCastJ17 {
 
       try {
          throw new RuntimeException();// 28
-      } catch (Exception var14) {// 29
+      } catch (Exception var24) {// 29
       }
    }// 31
 

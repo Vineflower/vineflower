@@ -6,10 +6,10 @@ public class TestFinallyThrow {
          try {
             System.out.println(1);// 7
          } finally {
-            label97: {
+            label100: {
                try {
                   if (!b) {// 10
-                     break label97;
+                     break label100;
                   }
                } catch (Exception e) {// 13
                   throw e;// 14
@@ -26,14 +26,11 @@ public class TestFinallyThrow {
    public void test1(RuntimeException t) {
       try {
          System.out.println(1);// 24
-         throw t;
       } catch (Throwable e) {// 25
          e.printStackTrace();// 26
       } finally {
-         ;
+         throw t;// 28
       }
-
-      throw t;// 28
    }
 
    public void test2(RuntimeException t) {
@@ -85,34 +82,32 @@ class 'pkg/TestFinallyThrow' {
       4      27
       5      27
       6      27
-      7      28
-      8      28
-      9      29
-      a      30
-      b      30
-      c      30
-      d      30
-      e      35
-      f      35
+      9      28
+      a      29
+      b      29
+      c      29
+      d      29
+      11      31
+      12      31
    }
 
    method 'test2 (Ljava/lang/RuntimeException;)V' {
-      0      40
-      1      40
-      2      40
-      3      40
-      4      40
-      5      40
-      6      40
-      7      41
-      8      41
-      9      42
-      a      43
-      b      43
-      c      43
-      d      43
-      14      48
-      15      48
+      0      37
+      1      37
+      2      37
+      3      37
+      4      37
+      5      37
+      6      37
+      7      38
+      8      38
+      9      39
+      a      40
+      b      40
+      c      40
+      d      40
+      14      45
+      15      45
    }
 }
 
@@ -124,14 +119,14 @@ Lines mapping:
 14 <-> 15
 16 <-> 17
 24 <-> 28
-25 <-> 30
-26 <-> 31
-28 <-> 36
-35 <-> 41
-36 <-> 42
-37 <-> 43
-38 <-> 44
-43 <-> 49
+25 <-> 29
+26 <-> 30
+28 <-> 32
+35 <-> 38
+36 <-> 39
+37 <-> 40
+38 <-> 41
+43 <-> 46
 Not mapped:
 9
 17

@@ -508,7 +508,9 @@ public class MergeHelper {
       }
 
       // Cannot delete try or catch blocks with finally, or synchronized
-      if (stat.getParent() instanceof CatchStatement || stat.getParent() instanceof CatchAllStatement || stat.getParent() instanceof SynchronizedStatement) {
+      if (stat.getParent() instanceof CatchStatement ||
+        stat.getParent() instanceof FinallyStatement ||
+        stat.getParent() instanceof SynchronizedStatement) {
         return;
       }
 

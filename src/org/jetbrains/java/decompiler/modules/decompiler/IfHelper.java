@@ -798,7 +798,7 @@ public final class IfHelper {
       switch (stat.type) {
         case SEQUENCE:
           return hasDirectEndEdge(stat.getStats().getLast(), from);
-        case CATCH_ALL:
+        case FINALLY:
         case TRY_CATCH:
           for (Statement st : stat.getStats()) {
             if (hasDirectEndEdge(st, from)) {

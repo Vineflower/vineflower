@@ -11,7 +11,7 @@ public class TestTryWithResources {
    public static void test1() {
       try (FileSystem fileSystem = FileSystems.getFileSystem(TestTryWithResources.class.getResource("NOT").toURI())) {// 13
          fileSystem.getPath("PATH", "TO", "FILE");// 14
-      } catch (URISyntaxException | IOException var13) {// 16
+      } catch (URISyntaxException | IOException var27) {// 16
       }
    }// 17
 
@@ -21,7 +21,7 @@ public class TestTryWithResources {
          InputStream stream = Files.newInputStream(fileSystem.getPath("PATH", "TO", "FILE"));// 21
       ) {
          stream.read();// 22
-      } catch (URISyntaxException | IOException var32) {// 24
+      } catch (URISyntaxException | IOException var81) {// 24
       }
    }// 25
 
@@ -29,10 +29,10 @@ public class TestTryWithResources {
       try (FileSystem fileSystem = FileSystems.getFileSystem(TestTryWithResources.class.getResource("NOT").toURI())) {// 28
          try (InputStream stream = Files.newInputStream(fileSystem.getPath("PATH", "TO", "FILE"))) {// 29
             stream.read();// 30
-         } catch (IOException var34) {// 32
-         } catch (Exception var35) {// 33
+         } catch (IOException var95) {// 32
+         } catch (Exception var96) {// 33
          }
-      } catch (URISyntaxException | IOException var38) {// 35
+      } catch (URISyntaxException | IOException var99) {// 35
       }
    }// 36
 }
