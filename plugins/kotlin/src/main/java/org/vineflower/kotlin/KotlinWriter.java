@@ -127,10 +127,6 @@ public class KotlinWriter implements StatementWriter, Flags {
       if (cl.hasModifier(CodeConstants.ACC_ENUM) && DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM)) {
         EnumProcessor.clearEnum(wrapper);
       }
-
-      if (DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ASSERTIONS)) {
-        AssertProcessor.buildAssertions(node);
-      }
     } catch (Throwable t) {
       DecompilerContext.getLogger().writeMessage("Class " + node.simpleName + " couldn't be written.",
         IFernflowerLogger.Severity.WARN,

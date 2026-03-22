@@ -1,0 +1,28 @@
+package pkg;
+
+public interface TestAssertInterface1 {
+   void empty();
+
+   default void test(int x) {
+      assert x > 10;// 7
+   }// 8
+}
+
+class 'pkg/TestAssertInterface1' {
+   method 'test (I)V' {
+      6      6
+      7      6
+      8      6
+      9      6
+      a      6
+      b      6
+      10      6
+      11      6
+      12      6
+      14      7
+   }
+}
+
+Lines mapping:
+7 <-> 7
+8 <-> 8

@@ -131,10 +131,6 @@ public class ClassWriter implements StatementWriter {
         EnumProcessor.clearEnum(wrapper);
       }
 
-      if (DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ASSERTIONS)) {
-        AssertProcessor.buildAssertions(node);
-      }
-
       for (MethodWrapper mw : wrapper.getMethods()) {
         DecompilerContext.resetMethod(mw);
         RecordHelper.fixupCanonicalConstructor(mw, cl);

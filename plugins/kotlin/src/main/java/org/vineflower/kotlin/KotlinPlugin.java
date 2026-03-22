@@ -54,6 +54,7 @@ public class KotlinPlugin implements Plugin {
       .addPass("CondenseSequences_1", WrappedPass.of(ctx -> SequenceHelper.condenseSequences(ctx.getRoot())))
       .addPass("StackVars", new StackVarInitialPass())
       .addPass("InlineIfPPMM", ctx -> PPandMMHelper.inlinePPIandMMIIf(ctx.getRoot()))
+      .addPass("BuildAsserts", WrappedPass.of(ctx -> AssertProcessor.buildAssertions(ctx.getRoot())))
       .addPass("MainLoop",
         new LoopingPassBuilder("Main")
           .addFallthroughPass("ResetEdges", WrappedPass.of(ctx -> LabelHelper.cleanUpEdges(ctx.getRoot())))

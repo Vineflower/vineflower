@@ -247,6 +247,10 @@ public class MethodProcessor implements Runnable {
       decompileRecord.add("SimplifyStringConcat", root);
     }
 
+    if (AssertProcessor.buildAssertions(root)) {
+      decompileRecord.add("BuildAsserts", root);
+    }
+
     // Plugin passes to run before the main decompilation loop
     pluginContext.runPasses(JavaPassLocation.BEFORE_MAIN, pctx);
 

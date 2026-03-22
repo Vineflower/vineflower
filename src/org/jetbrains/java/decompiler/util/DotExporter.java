@@ -738,9 +738,9 @@ public class DotExporter {
     int count = DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.DOT_FILE_COUNTER);
 
     return new File(root,
-      count + "_" +
       mt.getName().replace('<', '.').replace('>', '_') +
-        mt.getDescriptor().replace('/', '.') +
+        mt.getDescriptor().replace('/', '.') + "_" +
+        count +
         '_' + suffix + ".dot");
   }
 

@@ -824,6 +824,10 @@ public class SingleClassesTest extends SingleClassesTestBase {
 
     register(JAVA_16_NODEBUG, "TestObjectLambda");
     register(JAVA_25, "TestAnonymousClassJ25");
+    register(JAVA_25, "TestAssertInterface1");
+    register(JAVA_25, "TestAssertInterface2");
+    register(JAVA_25, "TestAssertInterface3");
+    register(JAVA_25, "TestAssertsEnabled");
   }
 
   private void registerEntireClassPath() {

@@ -791,6 +791,8 @@ public class VarDefinitionHelper {
           VarType t1 = this.varproc.getVarType(ret.getKey());
           VarType t2 = this.varproc.getVarType(ret.getValue());
 
+          ValidationHelper.assertTrue(t1 != null && t2 != null, "Var types not processed! Is the graph broken?");
+
           if (t1.higherEqualInLatticeThan(t2) || t2.higherEqualInLatticeThan(t1)) {
             // TODO: this only checks for totally disjoint types, there are instances where merging is incorrect with primitives
 
