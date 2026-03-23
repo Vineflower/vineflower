@@ -80,6 +80,7 @@ public final class ExitHelper {
   // }
   // ...
   //
+  // TODO: This function needs to be refactored into multiple functions in the future.
   private static int integrateExits(Statement stat) {
     int ret = 0;
 
@@ -188,7 +189,6 @@ public final class ExitHelper {
         }
       }
     }
-
 
     if (stat.getAllSuccessorEdges().size() == 1
       && stat.getAllSuccessorEdges().get(0).getType() == StatEdge.TYPE_BREAK
@@ -309,10 +309,6 @@ public final class ExitHelper {
    *   return -1;
    * } </pre>
    * <p>
-   * Given the code example above, the goal is to find the real/desired break edge.
-   * If this edge is found, later code external to this function will essentially swap the two blocks
-   *   such that the desired block will be inside the if statement and the label break outside,
-   *   which usually disolves the label.
    * @param ifst the if statement block
    * @param edge the break edge from the if block to the desired destination block ('observed' break edge)
    * @return the desired destination block containing a single exit exprent, or null if no such block was found.
