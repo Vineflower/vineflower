@@ -282,7 +282,7 @@ public final class ExitHelper {
   private static Statement isRealIfEdge(IfStatement ifst, StatEdge edge) {
     Statement dest = edge.getDestination();
 
-    // NOTE(aoqia): A cheap check to avoid processing unwanted things (see TestSwitchLoop#test with this check disabled)
+    // A cheap check to avoid processing unwanted things (see TestSwitchLoop#test with this check disabled)
     //   If there is better and more specific checks for this, please add them instead.
     if (ifst.getBasichead().getExprents() == null || !ifst.getBasichead().getExprents().isEmpty()) {
       return null;
