@@ -1,6 +1,7 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler;
 
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement.EdgeDirection;
@@ -81,7 +82,6 @@ public final class ExitHelper {
   //
   private static int integrateExits(Statement stat) {
     int ret = 0;
-    Statement dest;
 
     if (stat.getExprents() == null) {
       while (true) {
@@ -102,39 +102,38 @@ public final class ExitHelper {
 
       if (stat instanceof IfStatement ifst && ifst.getIfstat() == null) {
         StatEdge ifedge = ifst.getIfEdge();
+        Statement dest = isExitEdge(ifedge);
 
-        dest = isExitEdge(ifedge);
-
-        StatEdge realIfedge = null;
+        StatEdge ifBreakEdge = null;
         if (dest == null) {
           // If it's not the if edge, also check the first break out of the if.
           // The real edge may also be a break from the if's first successor (and the basichead breaks to default stat)
           if (ifst.hasSuccessor(StatEdge.TYPE_BREAK)) {
-            realIfedge = ifst.getSuccessorEdges(StatEdge.TYPE_BREAK).get(0);
-            dest = isRealIfEdge(ifst, realIfedge);
+            ifBreakEdge = ifst.getSuccessorEdges(StatEdge.TYPE_BREAK).get(0);
+            dest = findIfBreakEdge(ifst, ifBreakEdge);
           } else if (!ifst.getSuccessorEdges(StatEdge.TYPE_REGULAR).isEmpty()) {
             Statement adjacentStat = ifst.getSuccessorEdges(StatEdge.TYPE_REGULAR).get(0).getDestination();
 
             if (adjacentStat.hasSuccessor(StatEdge.TYPE_BREAK)) {
-              realIfedge = adjacentStat.getSuccessorEdges(StatEdge.TYPE_BREAK).get(0);
-              dest = isRealIfEdge(ifst, realIfedge);
+              ifBreakEdge = adjacentStat.getSuccessorEdges(StatEdge.TYPE_BREAK).get(0);
+              dest = findIfBreakEdge(ifst, ifBreakEdge);
             }
           }
         }
 
         if (dest != null) {
-          BasicBlockStatement bstat = BasicBlockStatement.create();
-          bstat.setExprents(DecHelper.copyExprentList(dest.getExprents()));
+          BasicBlockStatement newBlock = BasicBlockStatement.create();
+          newBlock.setExprents(DecHelper.copyExprentList(dest.getExprents()));
 
           // Store the old exit edge before changing any of the below.
           // This is so we can replace the dest with an empty block if needed, and still keep the edge reference.
           StatEdge oldexitedge = dest.getFirstSuccessor();
 
-          if (realIfedge != null) {
+          if (ifBreakEdge != null) {
             boolean ifstInSeqence = ifst.getParent() instanceof SequenceStatement;
             if (ifstInSeqence) {
               // The if statement being in a sequence means we want more than just the dest's expr list.
-              bstat.getExprents().addAll(0, DecHelper.copyExprentList(realIfedge.getSource().getExprents()));
+              newBlock.getExprents().addAll(0, DecHelper.copyExprentList(ifBreakEdge.getSource().getExprents()));
             }
 
             SwitchStatement switchStat = null;
@@ -144,24 +143,24 @@ public final class ExitHelper {
               switchStat = s;
             }
 
-            // If the if is negated e.g. `!var2.equals("1")`
+            // If the if is negated e.g. `!var2.equals("1")`, invert it.
             if (switchStat != null
               && ifst.getHeadexprent().getCondition() instanceof FunctionExprent funcExpr
               && funcExpr.getFuncType().equals(FunctionExprent.FunctionType.BOOL_NOT)) {
-              // Invert if condition
+              // Invert the condition
               ifst.getHeadexprent().setCondition(funcExpr.getLstOperands().get(0));
 
-              // Redirect if -> dest edge to if -> default case
+              // Redirect if -> dest edge to if -> default case and remove dest block
               if (switchStat.getDefaultEdge() != null) {
                 final var defaultCase = switchStat.getDefaultEdge().getDestination().getFirstSuccessor().getDestination();
                 if (ifedge.getDestination().equals(defaultCase)) {
                   if (ifstInSeqence) {
                     ifst.getSuccessorEdges(StatEdge.TYPE_REGULAR).get(0).changeSource(ifst.getParent());
 
-                    realIfedge.getSource().replaceWithEmpty();
-                    realIfedge.getDestination().replaceWithEmpty();
+                    ifBreakEdge.getSource().replaceWithEmpty();
+                    ifBreakEdge.getDestination().replaceWithEmpty();
                   } else {
-                    ifst.removeSuccessor(realIfedge);
+                    ifst.removeSuccessor(ifBreakEdge);
                   }
 
                   ifst.addSuccessor(new StatEdge(StatEdge.TYPE_BREAK, ifst, defaultCase, ifedge.closure));
@@ -170,16 +169,19 @@ public final class ExitHelper {
             }
           }
 
-          StatEdge newedge = new StatEdge(StatEdge.TYPE_REGULAR, ifst.getFirst(), bstat);
+          // Link the new block to the if statement
+          StatEdge newedge = new StatEdge(StatEdge.TYPE_REGULAR, ifst.getFirst(), newBlock);
           ifst.getFirst().removeSuccessor(ifedge);
           ifst.getFirst().addSuccessor(newedge);
           ifst.setIfEdge(newedge);
-          ifst.setIfstat(bstat);
-          ifst.getStats().addWithKey(bstat, bstat.id);
-          bstat.setParent(ifst);
+          ifst.setIfstat(newBlock);
+          ifst.getStats().addWithKey(newBlock, newBlock.id);
+          newBlock.setParent(ifst);
 
-          StatEdge newexitedge = new StatEdge(StatEdge.TYPE_BREAK, bstat, oldexitedge.getDestination());
-          bstat.addSuccessor(newexitedge);
+          // Re-create the old block's exit edge but for the new block.
+          // The edge is exiting to the default case dest / out of the label block that encapsulates the switch.
+          StatEdge newexitedge = new StatEdge(StatEdge.TYPE_BREAK, newBlock, oldexitedge.getDestination());
+          newBlock.addSuccessor(newexitedge);
           oldexitedge.closure.addLabeledEdge(newexitedge);
 
           ret = 1;
@@ -197,7 +199,7 @@ public final class ExitHelper {
       }
 
       StatEdge destedge = stat.getAllSuccessorEdges().get(0);
-      dest = isExitEdge(destedge);
+      Statement dest = isExitEdge(destedge);
       if (dest == null) {
         return ret;
       }
@@ -279,7 +281,44 @@ public final class ExitHelper {
     return null;
   }
 
-  private static Statement isRealIfEdge(IfStatement ifst, StatEdge edge) {
+  /**
+   * Checks to see if a valid break edge from the if block to the desired destination block exists.
+   * In this configuration, the if's basichead will actually have a break edge out of the label.
+   * The "switch" refers to when the if is actually a case statement in a switch statement.
+   * This may be the result of the compiler arbitrarily inverting if conditions,
+   *   so the desired if exprents are in a different block.
+   * <p>
+   * <pre> {@code
+   *   label19: {
+   *     switch (...) {
+   *       case ...:
+   *         if (...) {
+   *           // Observed break edge found from `ifst.getBasichead()`
+   *           break label19;
+   *         }
+   *
+   *         // Real/desired block here!
+   *         return 1;
+   *       case ...:
+   *         ...
+   *       default:
+   *     }
+   *   }
+   *
+   *   // Usually the default case statement block when the switch has an empty default case
+   *   return -1;
+   * } </pre>
+   * <p>
+   * Given the code example above, the goal is to find the real/desired break edge.
+   * If this edge is found, later code external to this function will essentially swap the two blocks
+   *   such that the desired block will be inside the if statement and the label break outside,
+   *   which usually disolves the label.
+   * @param ifst the if statement block
+   * @param edge the break edge from the if block to the desired destination block ('observed' break edge)
+   * @return the desired destination block containing a single exit exprent, or null if no such block was found.
+   */
+  // Use nullable annotation instead of optional because this function may be in a hot path
+  private static @Nullable Statement findIfBreakEdge(IfStatement ifst, StatEdge edge) {
     Statement dest = edge.getDestination();
 
     // A cheap check to avoid processing unwanted things (see TestSwitchLoop#test with this check disabled)
