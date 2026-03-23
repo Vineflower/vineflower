@@ -353,11 +353,11 @@ public final class ExitHelper {
     }
 
     List<Exprent> data = dest.getExprents();
-    if (data != null && data.size() == 1 && data.get(0) instanceof ExitExprent) {
-      return dest;
+    if (data == null || data.size() != 1 || !(data.get(0) instanceof ExitExprent)) {
+      return null;
     }
 
-    return null;
+    return dest;
   }
 
   private static boolean isOnlyEdge(StatEdge edge) {
