@@ -314,7 +314,11 @@ public final class ExitHelper {
    * @return the desired destination block containing a single exit exprent, or null if no such block was found.
    */
   // Use nullable annotation instead of optional because this function may be in a hot path
-  private static @Nullable Statement findIfBreakEdge(IfStatement ifst, StatEdge edge) {
+  private static Statement findIfBreakEdge(IfStatement ifst, @Nullable StatEdge edge) {
+    if (edge == null) {
+      return null;
+    }
+
     Statement dest = edge.getDestination();
 
     // A cheap check to avoid processing unwanted things (see TestSwitchLoop#test with this check disabled)
