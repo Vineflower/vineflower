@@ -828,6 +828,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_25, "TestAssertInterface2");
     register(JAVA_25, "TestAssertInterface3");
     register(JAVA_25, "TestAssertsEnabled");
+    register(JAVA_8, "TestFloatPiAdd");
   }
 
   private void registerEntireClassPath() {

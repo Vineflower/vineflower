@@ -575,10 +575,13 @@ public class ConstExprent extends Exprent {
       case SHORT:
       case SHORTCHAR:
       case INT:
-      case LONG:
-      case DOUBLE:
-      case FLOAT:
         return ((Number)value).intValue() == 1;
+      case LONG:
+        return (Long) value == 1;
+      case DOUBLE:
+        return (Double) value == 1.0;
+      case FLOAT:
+        return (Float) value == 1.F;
     }
 
     return false;
