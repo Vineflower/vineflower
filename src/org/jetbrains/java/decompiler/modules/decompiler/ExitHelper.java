@@ -342,6 +342,7 @@ public final class ExitHelper {
     if (!edge.labeled
       && !isOnlyEdge(edge)
       && (!ifst.getParent().equals(edge.closure)
+        || !ifst.getParent().hasAnySuccessor()
         || !edge.getDestination().equals(ifst.getParent().getFirstSuccessor().getDestination()))) {
       return null;
     }
