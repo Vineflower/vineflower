@@ -103,6 +103,12 @@ public class ClassesProcessor implements CodeConstants {
       excludedMatcher = Pattern.compile(excludedRegex).matcher("");
     }
 
+    Matcher includedMatcher = null;
+    String includedRegex = DecompilerContext.getProperty(IFernflowerPreferences.INCLUDED_CLASSES).toString();
+    if (!includedRegex.isEmpty()) {
+      includedMatcher = Pattern.compile(includedRegex).matcher("");
+    }
+
     // Filter any duplicate classes
 
     List<StructClass> ownClasses = context.getOwnClasses();
@@ -119,9 +125,14 @@ public class ClassesProcessor implements CodeConstants {
 
     // create class nodes
     for (StructClass cl : classes) {
+      // Include & exclude
       if (excludedMatcher != null && excludedMatcher.reset(cl.qualifiedName).matches()) {
         continue;
       }
+      if (includedMatcher != null && !includedMatcher.reset(cl.qualifiedName).matches()) {
+        continue;
+      }
+
       if (!mapRootClasses.containsKey(cl.qualifiedName)) {
         if (bDecompileInner) {
           StructInnerClassesAttribute inner = cl.getAttribute(StructGeneralAttribute.ATTRIBUTE_INNER_CLASSES);

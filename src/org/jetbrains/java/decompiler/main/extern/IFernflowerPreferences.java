@@ -398,6 +398,11 @@ public interface IFernflowerPreferences {
   @Type(DecompilerOption.Type.STRING)
   String EXCLUDED_CLASSES = "excluded-classes";
 
+  @Name("Included Classes")
+  @Description("Include classes in decompilation only if their fully qualified names match the specified regular expression.")
+  @Type(DecompilerOption.Type.STRING)
+  String INCLUDED_CLASSES = "included-classes";
+
   @Name("Validate inner classes names")
   @Description("Validates that the inner class name is correct (if it is separated using \"$\" for example BaseClass$InnerClass). If not then inner class won't be processed.")
   @Type(DecompilerOption.Type.BOOLEAN)
@@ -486,6 +491,7 @@ public interface IFernflowerPreferences {
     defaults.put(REMOVE_IMPORTS, "0");
     defaults.put(MARK_CORRESPONDING_SYNTHETICS, "0");
     defaults.put(EXCLUDED_CLASSES, "");
+    defaults.put(INCLUDED_CLASSES, "");
     defaults.put(VALIDATE_INNER_CLASSES_NAMES, "1");
     defaults.put(PRETTIFY_IFS, "1");
     defaults.put(METHOD_TO_DECOMPILE, "");
