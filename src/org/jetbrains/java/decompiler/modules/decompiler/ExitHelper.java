@@ -132,7 +132,7 @@ public final class ExitHelper {
 
           if (ifBreakEdge != null) {
             boolean ifstInSeqence = ifst.getParent() instanceof SequenceStatement;
-            if (ifstInSeqence) {
+            if (ifstInSeqence && ifBreakEdge.getSource().getExprents() != null) {
               // The if statement being in a sequence means we want more than just the dest's expr list.
               newBlock.getExprents().addAll(0, DecHelper.copyExprentList(ifBreakEdge.getSource().getExprents()));
             }
