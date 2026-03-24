@@ -83,7 +83,7 @@ public final class AssertProcessor {
       if (condition instanceof FunctionExprent func && func.getFuncType() == FunctionType.NE && func.getLstOperands().get(0) instanceof FieldExprent field
         && className.equals(field.getClassname())
         && key.equals(InterpreterUtil.makeUniqueKey(field.getName(), field.getDescriptor().descriptorString))
-        && func.getLstOperands().get(1) instanceof ConstExprent con && con.getIntValue() == 0) {
+        && func.getLstOperands().get(1) instanceof ConstExprent con && con.getValue() != null && con.getIntValue() == 0) {
         stat.replaceWithEmpty();
         res = true;
       }
@@ -355,7 +355,7 @@ public final class AssertProcessor {
             // Check for "assert assertsEnabled = true;" pattern
             if (stat.getBasichead().getExprents().get(0) instanceof AssignmentExprent assign) {
               Exprent right = assign.getRight();
-              if (fexpr.getLstOperands().get(0).equals(right) && fexpr.getLstOperands().get(1) instanceof ConstExprent con && con.getIntValue() == 0) {
+              if (fexpr.getLstOperands().get(0).equals(right) && fexpr.getLstOperands().get(1) instanceof ConstExprent con && con.getValue() != null && con.getIntValue() == 0) {
                 AssertResult res = new AssertResult(assign, true);
                 res.negate = false;
                 res.assignment = true;
@@ -395,7 +395,7 @@ public final class AssertProcessor {
       // The pattern is "<assert field> == false"
       if (fparam.getFuncType() == FunctionType.EQ &&
         fparam.getLstOperands().get(0) instanceof FieldExprent fdparam &&
-        fparam.getLstOperands().get(1) instanceof ConstExprent con && con.getIntValue() == 0) {
+        fparam.getLstOperands().get(1) instanceof ConstExprent con && con.getValue() != null && con.getIntValue() == 0) {
         return classname.equals(fdparam.getClassname()) &&
           key.equals(InterpreterUtil.makeUniqueKey(fdparam.getName(), fdparam.getDescriptor().descriptorString));
       }
