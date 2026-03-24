@@ -249,6 +249,11 @@ public final class AssertProcessor {
     }
 
     if (res.replaceParent) {
+      if (!parent.getParent().getBasichead().getExprents().isEmpty()) {
+        Statement pParent = parent.getParent();
+        parent = new SequenceStatement(List.of(parent.getParent().getBasichead(), parent));
+        parent.setParent(pParent);
+      }
       parent.getParent().replaceWith(parent);
     }
 
