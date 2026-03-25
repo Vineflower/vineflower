@@ -11,12 +11,17 @@ import org.vineflower.kotlin.util.KTypes;
 import java.util.Objects;
 
 public class KType extends VarType {
-  public static final KType UNIT = new KType(VARTYPE_VOID, "kotlin/Unit", false, null, null, null);
-  public static final KType NOTHING = new KType(new VarType("java/lang/Void", true), "kotlin/Nothing", false, null, null, null);
+  public static final KType UNIT = new KType(VARTYPE_VOID, "kotlin/Unit", false, false, null, null, null);
+  public static final KType NOTHING = new KType(new VarType("java/lang/Void", true), "kotlin/Nothing", false, false, null, null, null);
+  public static final KType UBYTE = new KType(VARTYPE_BYTE, "kotlin/UByte", false, true, null, null, null);
+  public static final KType USHORT = new KType(VARTYPE_SHORT, "kotlin/UShort", false, true, null, null, null);
+  public static final KType UINT = new KType(VARTYPE_INT, "kotlin/UInt", false, true, null, null, null);
+  public static final KType ULONG = new KType(VARTYPE_LONG, "kotlin/ULong", false, true, null, null, null);
 
   public final String kotlinType;
   public final boolean isNullable;
   public final TypeArgument @Nullable [] typeArguments;
+  public final boolean isUnsignedType;
 
   @Nullable
   public final String typeParameterName;
@@ -28,12 +33,14 @@ public class KType extends VarType {
     VarType type,
     String kotlinType,
     boolean isNullable,
+    boolean isUnsignedType,
     TypeArgument @Nullable [] typeArguments,
     @Nullable String typeParameterName,
     @Nullable String typeAliasName) {
     super(type.type, type.arrayDim, type.value, type.typeFamily, type.stackSize);
     this.kotlinType = kotlinType;
     this.isNullable = isNullable;
+    this.isUnsignedType = isUnsignedType;
     this.typeArguments = typeArguments;
     this.typeParameterName = typeParameterName;
     this.typeAliasName = typeAliasName;
@@ -43,14 +50,20 @@ public class KType extends VarType {
     String kotlinType = type.hasClassName() ? nameResolver.resolve(type.getClassName()) : "kotlin/Any";
     boolean isNullable = type.getNullable();
 
-    // short-circuit for `Unit`
-    if ("kotlin/Unit".equals(kotlinType) && !isNullable) {
-      return UNIT;
-    }
-
-    // similar short-circuit for `Nothing`
-    if ("kotlin/Nothing".equals(kotlinType) && !isNullable) {
-      return NOTHING;
+    // short-circuit for known types
+    if (!isNullable) {
+      KType existing = switch (kotlinType) {
+        case "kotlin/Unit" -> UNIT;
+        case "kotlin/Nothing" -> NOTHING;
+        case "kotlin/UByte" -> UBYTE;
+        case "kotlin/UShort" -> USHORT;
+        case "kotlin/UInt" -> UINT;
+        case "kotlin/ULong" -> ULONG;
+        default -> null;
+      };
+      if (existing != null) {
+        return existing;
+      }
     }
 
     TypeArgument[] typeArguments = null;
@@ -76,7 +89,7 @@ public class KType extends VarType {
     String typeParameterName = type.hasTypeParameterName() ? nameResolver.resolve(type.getTypeParameterName()) : null;
     String typeAliasName = type.hasTypeAliasName() ? nameResolver.resolve(type.getTypeAliasName()) : null;
 
-    return new KType(varType, kotlinType, isNullable, typeArguments, typeParameterName, typeAliasName);
+    return new KType(varType, kotlinType, isNullable, false, typeArguments, typeParameterName, typeAliasName);
   }
 
   public static KType from(int tableIndex, MetadataNameResolver resolver, ProtoBuf.TypeTable typeTable) {

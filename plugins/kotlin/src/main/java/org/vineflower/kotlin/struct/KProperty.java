@@ -1,5 +1,6 @@
 package org.vineflower.kotlin.struct;
 
+import org.vineflower.kotlin.expr.KConstExprent;
 import org.vineflower.kt.metadata.ProtoBuf;
 import org.vineflower.kt.metadata.deserialization.Flags;
 import org.vineflower.kt.metadata.jvm.JvmProtoBuf;
@@ -354,7 +355,8 @@ public record KProperty(
       } else if (field.hasAttribute(StructGeneralAttribute.ATTRIBUTE_CONSTANT_VALUE)) {
         StructConstantValueAttribute attr = field.getAttribute(StructGeneralAttribute.ATTRIBUTE_CONSTANT_VALUE);
         PrimitiveConstant constant = fieldContainer.getPool().getPrimitiveConstant(attr.getIndex());
-        initializer = ignored -> new ConstExprent(varType, constant.value, null);
+        VarType constType = type != null ? type : varType;
+        initializer = ignored -> new KConstExprent(new ConstExprent(constType, constant.value, null));
       } else if (field.hasModifier(CodeConstants.ACC_STATIC)) {
         initializer = wrapper -> wrapper.getStaticFieldInitializers().getWithKey(key);
       } else {
