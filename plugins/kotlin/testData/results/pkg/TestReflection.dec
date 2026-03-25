@@ -25,7 +25,7 @@ public class TestReflection {
    public fun testFunctionReference() {
       val f: KFunction = TestReflection::testClassReference as KFunction// 23
       System.out.println(TestReflection::testClassReference as KFunction)// 24
-      (f as Function1)(new TestReflection())// 25
+      (f as Function1)(TestReflection())// 25
    }// 26
 
    public fun testThis() {

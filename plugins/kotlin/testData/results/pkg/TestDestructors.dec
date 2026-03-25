@@ -26,7 +26,7 @@ public class TestDestructors {
    public fun destructorImpossible(x: Pair<String, Nothing>): String {
       val a: java.lang.String = x.component1() as java.lang.String// 38
       x.component2()
-      throw new KotlinNothingValueException()
+      throw KotlinNothingValueException()
    }
 
    public fun destructExtensionFunction(x: Int) {

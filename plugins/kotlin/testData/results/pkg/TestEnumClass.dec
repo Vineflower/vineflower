@@ -26,7 +26,7 @@ public enum class TestEnumClass(number: Int = 4) {
    @JvmStatic
    @JvmSynthetic
    fun `$values`(): Array<TestEnumClass> {
-      new TestEnumClass[]{A, B, C, D}
+      arrayOf(A, B, C, D)
    }
 }
 

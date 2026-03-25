@@ -43,6 +43,7 @@ public class NewExprent extends Exprent {
   private boolean anonymous;
   private boolean lambda;
   private boolean methodReference = false;
+
   private boolean enumConst;
   private List<VarType> genericArgs = new ArrayList<>();
   private VarType inferredLambdaType = null;
@@ -534,7 +535,7 @@ public class NewExprent extends Exprent {
     return node != null && node.type == ClassNode.Type.ANONYMOUS;
   }
 
-  private static TextBuffer getQualifiedNewInstance(String classname, List<Exprent> lstParams, int indent) {
+  public static TextBuffer getQualifiedNewInstance(String classname, List<Exprent> lstParams, int indent) {
     ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(classname);
 
     if (node != null && node.type != ClassNode.Type.ROOT && node.type != ClassNode.Type.LOCAL
@@ -841,6 +842,10 @@ public class NewExprent extends Exprent {
 
   public void setAnonymous(boolean anonymous) {
     this.anonymous = anonymous;
+  }
+
+  public boolean isEnumConst() {
+    return enumConst;
   }
 
   public void setEnumConst(boolean enumConst) {
