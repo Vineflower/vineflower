@@ -297,29 +297,15 @@ public record KProperty(
       StructField field = null;
       StructClass fieldContainer = classStruct;
       if (jvmProp.hasField()) {
-        if (jvmProp.getField().hasName() && jvmProp.getField().hasDesc()) {
-          String fieldName = nameResolver.resolve(jvmProp.getField().getName());
-          String fieldDesc = nameResolver.resolve(jvmProp.getField().getDesc());
+        String fieldName = jvmProp.getField().hasName() ? nameResolver.resolve(jvmProp.getField().getName()) : name;
+        String fieldDesc = jvmProp.getField().hasDesc() ? nameResolver.resolve(jvmProp.getField().getDesc()) : propDesc;
+
+        if (fieldName != null && fieldDesc != null) {
           field = classStruct.getField(fieldName, fieldDesc);
 
           if (companionParent != null) {
             // Companion objects put fields in the parent class sometimes
             StructField inParent = companionParent.getField(fieldName, fieldDesc);
-            if (inParent != null) {
-              inParent.getAttributes().put(KElement.KEY, KHiddenElement.COMPANION_ITEM);
-
-              if (field == null) {
-                field = inParent;
-                fieldContainer = companionParent;
-              }
-            }
-          }
-        } else if (propDesc != null) {
-          field = classStruct.getField(name, propDesc);
-          
-          if (companionParent != null) {
-            // Companion objects put fields in the parent class sometimes
-            StructField inParent = companionParent.getField(name, propDesc);
             if (inParent != null) {
               inParent.getAttributes().put(KElement.KEY, KHiddenElement.COMPANION_ITEM);
 
