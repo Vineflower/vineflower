@@ -1625,8 +1625,14 @@ public class VarDefinitionHelper {
     } else {
       if (stat instanceof CatchStatement) {
         // Resources and catch vars are only in context in certain statements
-      } else if (stat instanceof SwitchStatement) {
+      } else if (stat instanceof SwitchStatement switchStat) {
+        // Variables defined in case values and case guards are only in context in their respective statements
+        Exprent exp = switchStat.getHeadexprent();
+        List<Exprent> exprents = exp.getAllExprents(true, true);
 
+        for (Exprent exprent : exprents) {
+          iterateClashingExprent(stat, mt, varDefinitions, exprent, liveVarDefs, curVarDefs, nameMap, seenMethods);
+        }
       } else {
         // Process var definitions in statement head
         for (Exprent exp : stat.getStatExprents()) {
@@ -1658,6 +1664,7 @@ public class VarDefinitionHelper {
     if (iterate) {
       for (Statement st : stat.getStats()) {
         Set<VarInMethod> stVars = new HashSet<>();
+        Set<VarInMethod> tmpVars = new HashSet<>();
         boolean remove = false;
         if (stat instanceof IfStatement) {
           IfStatement ifstat = (IfStatement)stat;
@@ -1694,12 +1701,40 @@ public class VarDefinitionHelper {
             }
             remove = true;
           }
+        } else if (stat instanceof SwitchStatement switchStat) {
+          int i = switchStat.getCaseStatements().indexOf(st);
+          if (i >= 0) {
+            // Process var definitions in case values
+            for (Exprent exp : switchStat.getCaseValues().get(i)) {
+              if (exp != null) {
+                List<Exprent> exprents = exp.getAllExprents(true, true);
+
+                for (Exprent exprent : exprents) {
+                  iterateClashingExprent(st, mt, varDefinitions, exprent, liveVarDefs, tmpVars, nameMap, seenMethods);
+                }
+              }
+            }
+            // Process var definitions in case guard
+            if (switchStat.getCaseGuards().size() > i) {
+              Exprent exp = switchStat.getCaseGuards().get(i);
+              if (exp != null) {
+                List<Exprent> exprents = exp.getAllExprents(true, true);
+
+                for (Exprent exprent : exprents) {
+                  iterateClashingExprent(st, mt, varDefinitions, exprent, liveVarDefs, tmpVars, nameMap, seenMethods);
+                }
+              }
+            }
+          }
         }
+        liveVarDefs.addAll(tmpVars);
 
         iterateClashingNames(st, mt, varDefinitions, liveVarDefs, stVars, nameMap, seenMethods);
         if (remove) {
           clearStatement(varDefinitions, liveVarDefs, nameMap, st);
         }
+        liveVarDefs.removeAll(tmpVars);
+        tmpVars.forEach(nameMap::remove);
       }
     }
 
