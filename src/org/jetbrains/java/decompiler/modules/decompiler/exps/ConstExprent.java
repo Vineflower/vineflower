@@ -4,6 +4,7 @@ package org.jetbrains.java.decompiler.modules.decompiler.exps;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
+import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.FieldDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.TypeFamily;
@@ -153,6 +154,7 @@ public class ConstExprent extends Exprent {
     this.value = value;
     this.boolPermitted = boolPermitted;
     addBytecodeOffsets(bytecodeOffsets);
+    ValidationHelper.assertTrue(constType != VarType.VARTYPE_VOID, "Must not make const type with type void");
 
     if (constType.equals(VarType.VARTYPE_CLASS) && value != null) {
       String stringVal = value.toString();
@@ -343,11 +345,17 @@ public class ConstExprent extends Exprent {
       case OBJECT:
         if (constType.equals(VarType.VARTYPE_STRING)) {
           return buf.append(convertStringToJava(value.toString(), ascii)).enclose("\"", "\"");
-        }
-        else if (constType.equals(VarType.VARTYPE_CLASS)) {
+        } else if (constType.equals(VarType.VARTYPE_CLASS)) {
           String stringVal = value.toString();
           VarType type = new VarType(stringVal, !stringVal.startsWith("["));
           return buf.appendCastTypeName(type).append(".class");
+        } else if (constType.equals(VarType.VARTYPE_METHODTYPE)) {
+          if (DecompilerContext.getOption(IFernflowerPreferences.DECOMPILER_COMMENTS)) {
+            buf.append("/* $VF: MethodType constant */ ");
+          }
+          DecompilerContext.getImportCollector().getShortName(constType.value.replaceAll("/", "."));
+          buf.append("MethodType.fromMethodDescriptorString(\"" + value + "\", null)");
+          return buf;
         }
     }
 

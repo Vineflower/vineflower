@@ -42,6 +42,8 @@ public class VarType {
   public static final VarType VARTYPE_LONG_OBJ = new VarType(CodeType.OBJECT, 0, "java/lang/Long");
   public static final VarType VARTYPE_VOID = new VarType(CodeType.VOID);
 
+  public static final VarType VARTYPE_METHODTYPE = new VarType(CodeType.OBJECT, 0, "java/lang/invoke/MethodType");
+
   public static final Map<VarType, VarType> UNBOXING_TYPES = new HashMap<>();
 
   static {
