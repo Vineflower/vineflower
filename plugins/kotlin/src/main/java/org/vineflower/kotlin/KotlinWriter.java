@@ -2,6 +2,7 @@
 package org.vineflower.kotlin;
 
 import org.jetbrains.java.decompiler.modules.decompiler.*;
+import org.vineflower.kotlin.util.KEnumProcessor;
 import org.vineflower.kotlin.util.KotlinObjectProcessors;
 import org.vineflower.kt.metadata.ProtoBuf;
 import org.vineflower.kt.metadata.deserialization.Flags;
@@ -125,7 +126,7 @@ public class KotlinWriter implements StatementWriter, Flags {
       }
 
       if (cl.hasModifier(CodeConstants.ACC_ENUM) && DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM)) {
-        EnumProcessor.clearEnum(wrapper);
+        KEnumProcessor.clearEnum(wrapper);
       }
 
       KotlinObjectProcessors.parseWithCompanion(node);
