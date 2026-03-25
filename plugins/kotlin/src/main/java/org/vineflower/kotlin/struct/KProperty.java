@@ -295,6 +295,7 @@ public record KProperty(
       }
 
       StructField field = null;
+      StructClass fieldContainer = classStruct;
       if (jvmProp.hasField()) {
         if (jvmProp.getField().hasName() && jvmProp.getField().hasDesc()) {
           String fieldName = nameResolver.resolve(jvmProp.getField().getName());
@@ -309,6 +310,7 @@ public record KProperty(
 
               if (field == null) {
                 field = inParent;
+                fieldContainer = companionParent;
               }
             }
           }
@@ -323,6 +325,7 @@ public record KProperty(
 
               if (field == null) {
                 field = inParent;
+                fieldContainer = companionParent;
               }
             }
           }
@@ -364,7 +367,7 @@ public record KProperty(
         initializer = null;
       } else if (field.hasAttribute(StructGeneralAttribute.ATTRIBUTE_CONSTANT_VALUE)) {
         StructConstantValueAttribute attr = field.getAttribute(StructGeneralAttribute.ATTRIBUTE_CONSTANT_VALUE);
-        PrimitiveConstant constant = classStruct.getPool().getPrimitiveConstant(attr.getIndex());
+        PrimitiveConstant constant = fieldContainer.getPool().getPrimitiveConstant(attr.getIndex());
         initializer = ignored -> new ConstExprent(varType, constant.value, null);
       } else if (field.hasModifier(CodeConstants.ACC_STATIC)) {
         initializer = wrapper -> wrapper.getStaticFieldInitializers().getWithKey(key);
@@ -382,6 +385,20 @@ public record KProperty(
       }
       if (setterMethod != null) {
         setterMethod.getAttributes().put(KElement.KEY, kprop);
+      }
+
+      if (classStruct != fieldContainer) {
+        // pretend the field is present in the class if it's a companion field in the parent class
+        // why do you do this kotlin
+        if (field != null) {
+          classStruct.getFields().addWithKey(field, InterpreterUtil.makeUniqueKey(field.getName(), field.getDescriptor()));
+        }
+        if (getterMethod != null) {
+          classStruct.getMethods().addWithKey(getterMethod, InterpreterUtil.makeUniqueKey(getterMethod.getName(), getterMethod.getDescriptor()));
+        }
+        if (setterMethod != null) {
+          classStruct.getMethods().addWithKey(setterMethod, InterpreterUtil.makeUniqueKey(setterMethod.getName(), setterMethod.getDescriptor()));
+        }
       }
     }
   }
