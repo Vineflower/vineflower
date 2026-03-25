@@ -1583,13 +1583,11 @@ public class VarDefinitionHelper {
     Set<String> seenMethods = new HashSet<>();
     seenMethods.add(InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor()));
 
-    iterateClashingNames(root, mt, varDefinitions, liveVarDefs, nameMap, seenMethods);
+    iterateClashingNames(root, mt, varDefinitions, liveVarDefs, new HashSet<>(), nameMap, seenMethods);
   }
 
   private void iterateClashingNames(Statement stat, StructMethod mt, Map<Statement, Set<VarInMethod>> varDefinitions,
-                                    Set<VarInMethod> liveVarDefs, Map<VarInMethod, String> nameMap, Set<String> seenMethods) {
-    Set<VarInMethod> curVarDefs = new HashSet<>();
-
+                                    Set<VarInMethod> liveVarDefs, Set<VarInMethod> curVarDefs, Map<VarInMethod, String> nameMap, Set<String> seenMethods) {
     boolean shouldRemoveAtEnd = false;
 
     // Process var definitions as owned by the parent- they come before the statement, and so their scope extends past the actual statement.
@@ -1597,7 +1595,7 @@ public class VarDefinitionHelper {
       Set<VarInMethod> upDefs = new HashSet<>();
       iterateClashingExprent(stat, mt, varDefinitions, exprent, liveVarDefs, upDefs, nameMap, seenMethods);
       liveVarDefs.addAll(upDefs);
-      varDefinitions.put(stat.getParent(), upDefs);
+      varDefinitions.computeIfAbsent(stat.getParent(), parent -> new HashSet<>()).addAll(upDefs);
     }
 
     // Process head of if first. The head comes *before* the actual if() expression, and so it must be owned by the if's parent.
@@ -1611,7 +1609,7 @@ public class VarDefinitionHelper {
       }
 
       liveVarDefs.addAll(upDefs);
-      varDefinitions.put(stat.getParent(), upDefs);
+      varDefinitions.computeIfAbsent(stat.getParent(), parent -> new HashSet<>()).addAll(upDefs);
     }
 
     // If this is a basic block, iterate all exprents
@@ -1625,12 +1623,24 @@ public class VarDefinitionHelper {
         }
       }
     } else {
-      // Process var definitions in statement head
-      for (Exprent exp : stat.getStatExprents()) {
+      if (stat instanceof CatchStatement) {
+        // Resources and catch vars are only in context in certain statements
+      } else if (stat instanceof SwitchStatement switchStat) {
+        // Variables defined in case values and case guards are only in context in their respective statements
+        Exprent exp = switchStat.getHeadexprent();
         List<Exprent> exprents = exp.getAllExprents(true, true);
 
         for (Exprent exprent : exprents) {
           iterateClashingExprent(stat, mt, varDefinitions, exprent, liveVarDefs, curVarDefs, nameMap, seenMethods);
+        }
+      } else {
+        // Process var definitions in statement head
+        for (Exprent exp : stat.getStatExprents()) {
+          List<Exprent> exprents = exp.getAllExprents(true, true);
+
+          for (Exprent exprent : exprents) {
+            iterateClashingExprent(stat, mt, varDefinitions, exprent, liveVarDefs, curVarDefs, nameMap, seenMethods);
+          }
         }
       }
 
@@ -1653,6 +1663,9 @@ public class VarDefinitionHelper {
     List<Statement> deferred = new ArrayList<>();
     if (iterate) {
       for (Statement st : stat.getStats()) {
+        Set<VarInMethod> stVars = new HashSet<>();
+        Set<VarInMethod> tmpVars = new HashSet<>();
+        boolean remove = false;
         if (stat instanceof IfStatement) {
           IfStatement ifstat = (IfStatement)stat;
 
@@ -1666,9 +1679,62 @@ public class VarDefinitionHelper {
           if (st == stat.getBasichead()) {
             continue;
           }
-        }
+        } else if (stat instanceof CatchStatement catchStat) {
+          if (catchStat.getFirst() == st) {
+            // Process var definitions in resources
+            for (Exprent exp : catchStat.getResources()) {
+              List<Exprent> exprents = exp.getAllExprents(true, true);
 
-        iterateClashingNames(st, mt, varDefinitions, liveVarDefs, nameMap, seenMethods);
+              for (Exprent exprent : exprents) {
+                iterateClashingExprent(st, mt, varDefinitions, exprent, liveVarDefs, stVars, nameMap, seenMethods);
+              }
+            }
+            remove = true;
+          } else if (catchStat.getStats().indexOf(st) > 0) {
+            // Process var definitions in catch
+            int i = catchStat.getStats().indexOf(st);
+            VarExprent exp = catchStat.getVars().get(i - 1);
+            List<Exprent> exprents = exp.getAllExprents(true, true);
+
+            for (Exprent exprent : exprents) {
+              iterateClashingExprent(st, mt, varDefinitions, exprent, liveVarDefs, stVars, nameMap, seenMethods);
+            }
+            remove = true;
+          }
+        } else if (stat instanceof SwitchStatement switchStat) {
+          int i = switchStat.getCaseStatements().indexOf(st);
+          if (i >= 0) {
+            // Process var definitions in case values
+            for (Exprent exp : switchStat.getCaseValues().get(i)) {
+              if (exp != null) {
+                List<Exprent> exprents = exp.getAllExprents(true, true);
+
+                for (Exprent exprent : exprents) {
+                  iterateClashingExprent(st, mt, varDefinitions, exprent, liveVarDefs, tmpVars, nameMap, seenMethods);
+                }
+              }
+            }
+            // Process var definitions in case guard
+            if (switchStat.getCaseGuards().size() > i) {
+              Exprent exp = switchStat.getCaseGuards().get(i);
+              if (exp != null) {
+                List<Exprent> exprents = exp.getAllExprents(true, true);
+
+                for (Exprent exprent : exprents) {
+                  iterateClashingExprent(st, mt, varDefinitions, exprent, liveVarDefs, tmpVars, nameMap, seenMethods);
+                }
+              }
+            }
+          }
+        }
+        liveVarDefs.addAll(tmpVars);
+
+        iterateClashingNames(st, mt, varDefinitions, liveVarDefs, stVars, nameMap, seenMethods);
+        if (remove) {
+          clearStatement(varDefinitions, liveVarDefs, nameMap, st);
+        }
+        liveVarDefs.removeAll(tmpVars);
+        tmpVars.forEach(nameMap::remove);
       }
     }
 
@@ -1685,7 +1751,7 @@ public class VarDefinitionHelper {
     // Process deferred statements
     if (iterate) {
       for (Statement st : deferred) {
-        iterateClashingNames(st, mt, varDefinitions, liveVarDefs, nameMap, seenMethods);
+        iterateClashingNames(st, mt, varDefinitions, liveVarDefs, new HashSet<>(), nameMap, seenMethods);
       }
     }
 
@@ -1698,10 +1764,12 @@ public class VarDefinitionHelper {
 
   private void clearStatement(Map<Statement, Set<VarInMethod>> varDefinitions, Set<VarInMethod> liveVarDefs, Map<VarInMethod, String> nameMap, Statement st) {
     Set<VarInMethod> removed = varDefinitions.remove(st);
-    liveVarDefs.removeAll(removed);
+    if (removed != null) {
+      liveVarDefs.removeAll(removed);
 
-    for (VarInMethod vvp : removed) {
-      nameMap.remove(vvp);
+      for (VarInMethod vvp : removed) {
+        nameMap.remove(vvp);
+      }
     }
   }
 
@@ -1748,7 +1816,7 @@ public class VarDefinitionHelper {
             }
 
             // Iterate clashing names with the lambda's body, with the context of the outer method
-            vardef.iterateClashingNames(mw.root, mt2, varDefinitions, liveVarDefs, nameMap, seenMethods);
+            vardef.iterateClashingNames(mw.root, mt2, varDefinitions, liveVarDefs, new HashSet<>(), nameMap, seenMethods);
 
             for (Entry<VarVersionPair, String> e : vardef.getClashingNames().entrySet()) {
               mw.varproc.setClashingName(e.getKey(), e.getValue());
@@ -1802,7 +1870,7 @@ public class VarDefinitionHelper {
               }
 
               // Iterate clashing names with the lambda's body, with the context of the outer method
-              vardef.iterateClashingNames(mw.root, mt2, varDefinitions, liveVarDefs, nameMap, seenMethods);
+              vardef.iterateClashingNames(mw.root, mt2, varDefinitions, liveVarDefs, new HashSet<>(), nameMap, seenMethods);
 
               for (Entry<VarVersionPair, String> e : vardef.getClashingNames().entrySet()) {
                 mw.varproc.setClashingName(e.getKey(), e.getValue());

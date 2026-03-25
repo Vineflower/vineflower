@@ -6,8 +6,8 @@ public class TestSwitchPatternMatchingInstanceof2 {
          case Number n when n instanceof Integer i:// 6
             System.out.println(i);
             break;
-         case Number nx:// 7
-            System.out.println(nx);
+         case Number n:// 7
+            System.out.println(n);
             break;
          case String s:// 8
             System.out.println(s);

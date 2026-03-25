@@ -9,7 +9,7 @@ public class TestSwitchPatternMatching16 {
          case Number n when n.hashCode() != 0:// 14
             System.out.println("Normal number: " + n);// 15
             break;// 16
-         case Integer ix:// 18
+         case Integer i:// 18
             if (Math.random() < 0.5) {// 31
                int oh = 0;// 32
                int hello = 3;// 33
@@ -17,8 +17,8 @@ public class TestSwitchPatternMatching16 {
                System.out.println("hello");// 36
             }
             break;
-         case Number nx:// 21
-            System.out.println("Number: " + nx);// 22
+         case Number n:// 21
+            System.out.println("Number: " + n);// 22
             break;// 23
          default:
             System.out.println("default");// 26

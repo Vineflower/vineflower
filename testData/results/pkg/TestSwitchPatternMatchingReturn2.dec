@@ -4,7 +4,7 @@ public class TestSwitchPatternMatchingReturn2 {
    public int test(Object o) {
       return switch (o) {// 5
          case Integer i when i > 100 -> -i;// 6
-         case Integer ix -> ix;// 7
+         case Integer i -> i;// 7
          case String s -> s.length();// 8
          default -> 0;// 9
       };

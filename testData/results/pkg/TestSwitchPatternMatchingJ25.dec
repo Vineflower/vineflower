@@ -61,7 +61,7 @@ public class TestSwitchPatternMatchingJ25 {
       while (true) {
          return switch (var2) {// 61
             case TestSwitchPatternMatchingJ25.Test6a(int i) -> Integer.toString(i);// 62
-            case TestSwitchPatternMatchingJ25.Test6b(int ix) -> Integer.toString(ix);// 63
+            case TestSwitchPatternMatchingJ25.Test6b(int i) -> Integer.toString(i);// 63
             default -> throw new RuntimeException();// 64
          };
       }

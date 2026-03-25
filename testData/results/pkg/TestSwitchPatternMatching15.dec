@@ -9,11 +9,11 @@ public class TestSwitchPatternMatching15 {
          case Number n when n.hashCode() != 0:// 9
             System.out.println("Normal number: " + n);// 10
             break;// 11
-         case Integer ix:// 12
-            System.out.println(ix);// 13
+         case Integer i:// 12
+            System.out.println(i);// 13
             break;// 14
-         case Number nx:// 15
-            System.out.println("Number: " + nx);// 16
+         case Number n:// 15
+            System.out.println("Number: " + n);// 16
             break;// 17
          default:
       }

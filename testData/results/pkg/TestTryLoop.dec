@@ -33,7 +33,7 @@ public class TestTryLoop {
             return false;// 32
          } catch (ServiceConfigurationError e) {// 33
             System.out.println(1);// 34
-         } catch (NoClassDefFoundError ex) {// 35
+         } catch (NoClassDefFoundError e) {// 35
             System.out.println(2);// 36
          }
       }
