@@ -158,7 +158,7 @@ public class MethodProcessor implements Runnable {
       PassContext pctx = new PassContext(root, graph, mt, cl, varProc, decompileRecord);
       spec.pass.run(pctx);
 
-      return root;
+      return pctx.getRoot();
     }
 
     DotExporter.toDotFile(graph, mt, "cfgParsed", true);
@@ -253,6 +253,8 @@ public class MethodProcessor implements Runnable {
 
     // Plugin passes to run before the main decompilation loop
     pluginContext.runPasses(JavaPassLocation.BEFORE_MAIN, pctx);
+    root = pctx.getRoot();
+    debugCurrentlyDecompiling.set(root);
 
     // Main loop
     while (true) {
@@ -284,8 +286,12 @@ public class MethodProcessor implements Runnable {
 
           // Plugin passes to run inside the merge loop
           if (pluginContext.runPasses(JavaPassLocation.IN_LOOP_DECOMP, pctx)) {
+            root = pctx.getRoot();
+            debugCurrentlyDecompiling.set(root);
             continue;
           }
+          root = pctx.getRoot();
+          debugCurrentlyDecompiling.set(root);
 
           if (IfHelper.mergeAllIfs(root)) {
             decompileRecord.add("MergeAllIfs", root);
@@ -368,8 +374,12 @@ public class MethodProcessor implements Runnable {
   
       // Apply main loop plugin passes
       if (pluginContext.runPasses(JavaPassLocation.MAIN_LOOP, pctx)) {
+        root = pctx.getRoot();
+        debugCurrentlyDecompiling.set(root);
         continue;
       }
+      root = pctx.getRoot();
+      debugCurrentlyDecompiling.set(root);
 
       // initializer may have at most one return point, so no transformation of method exits permitted
       if (!isInitializer && ExitHelper.condenseExits(root)) {
@@ -433,6 +443,8 @@ public class MethodProcessor implements Runnable {
 
     // Apply plugin passes before setting variable definitions
     pluginContext.runPasses(JavaPassLocation.AFTER_MAIN, pctx);
+    root = pctx.getRoot();
+    debugCurrentlyDecompiling.set(root);
 
     varProc.setVarDefinitions(root);
     decompileRecord.add("SetVarDefinitions", root);
@@ -457,6 +469,8 @@ public class MethodProcessor implements Runnable {
 
     // Apply plugin passes after setting variable definitions
     pluginContext.runPasses(JavaPassLocation.AT_END, pctx);
+    root = pctx.getRoot();
+    debugCurrentlyDecompiling.set(root);
 
     // must be the last invocation, because it makes the statement structure inconsistent
     // FIXME: new edge type needed

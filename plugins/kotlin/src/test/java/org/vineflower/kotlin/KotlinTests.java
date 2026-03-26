@@ -39,7 +39,21 @@ public class KotlinTests extends SingleClassesTestBase {
     register(KOTLIN, "TestSmartCasts");
     register(KOTLIN, "TestTailrecFunctions");
     register(KOTLIN, "TestTryCatchExpressions");
+    register(KOTLIN, "TestTryCatchFinally");
+    register(KOTLIN, "TestTryCatchNested");
+    register(KOTLIN, "TestTryCatchThrowable");
+    register(KOTLIN, "TestTryFinally");
     register(KOTLIN, "TestTryFinallyExpressions");
+    register(KOTLIN, "TestTryLoop");
+    register(KOTLIN, "TestTryLoop2");
+    register(KOTLIN, "TestTryLoopNoCatch");
+    register(KOTLIN, "TestTryLoopRecompile");
+    register(KOTLIN, "TestTryLoopReturnFinally");
+    register(KOTLIN, "TestTryLoopSimpleFinally");
+    register(KOTLIN, "TestTryReturn");
+    register(KOTLIN, "TestTrySplit");
+    register(KOTLIN, "TestTrySynchronized");
+    register(KOTLIN, "TestTryVar");
     register(KOTLIN, "TestVars");
     // TODO: handle lambdas
     register(KOTLIN, "TestNonInlineLambda");
