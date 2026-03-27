@@ -154,8 +154,24 @@ public class KotlinWriter implements StatementWriter, Flags {
   }
 
   public void writeClassHeader(StructClass cl, TextBuffer buffer, ImportCollector importCollector) {
+    int index = cl.qualifiedName.lastIndexOf('/');
+    boolean hasPackage = index >= 0;
+
     KElement ktData = cl.getAttribute(KElement.KEY);
-    if (ktData instanceof KFile) {
+    if (ktData instanceof KFile file) {
+      if (file.multifileName() != null) {
+        buffer.append("@file:JvmMultifileClass").appendLineSeparator();
+
+        if (hasPackage) {
+          String pkg = cl.qualifiedName.substring(0, cl.qualifiedName.lastIndexOf('/'));
+          buffer.append("@file:JvmName(\"");
+          buffer.append(file.multifileName().startsWith(pkg) ? file.multifileName().substring(pkg.length() + 1) : file.multifileName());
+          buffer.append("\")").appendLineSeparator();
+        } else {
+          buffer.append("@file:JvmName(\"").append(file.multifileName()).append("\")").appendLineSeparator();
+        }
+      }
+
       for (Key<?> key : ANNOTATION_ATTRIBUTES) {
         StructAnnotationAttribute attr = cl.getAttribute((Key<StructAnnotationAttribute>) key);
         if (attr != null) {
@@ -165,14 +181,17 @@ public class KotlinWriter implements StatementWriter, Flags {
             }
 
             KAnnotationExprent kAnnotationExprent = new KAnnotationExprent(expr, KAnnotationExprent.UseSiteTarget.FILE);
-            buffer.append(kAnnotationExprent.toJava(0)).appendLineSeparator().appendLineSeparator();
+            buffer.append(kAnnotationExprent.toJava(0)).appendLineSeparator();
           }
         }
       }
+
+      if (!buffer.containsOnlyWhitespaces()) {
+        buffer.appendLineSeparator();
+      }
     }
 
-    int index = cl.qualifiedName.lastIndexOf('/');
-    if (index >= 0) {
+    if (hasPackage) {
       buffer.append("package ");
 
       String[] packageParts = cl.qualifiedName.substring(0, index).split("/");
@@ -224,6 +243,21 @@ public class KotlinWriter implements StatementWriter, Flags {
       KElement ktData = cl.getAttribute(KElement.KEY);
 
       DecompilerContext.getLogger().startWriteClass(cl.qualifiedName);
+
+      if (ktData instanceof KMultifileFacade facade) {
+        buffer.append("/*").appendLineSeparator()
+          .append(" * This is a multifile facade. The actual implementations of the functions are in the following files:").appendLineSeparator();
+
+        for (String file : facade.files()) {
+          buffer.append(" * ").append(file).appendLineSeparator();
+        }
+
+        buffer.append(" */").appendLineSeparator();
+
+        if (!DecompilerContext.getOption(KotlinOptions.DECOMPILE_FACADES)) {
+          return;
+        }
+      }
 
       int kotlinFlags;
       if (ktData == null) {

@@ -131,7 +131,7 @@ public class KotlinChooser implements LanguageChooser {
         ProtoBuf.Package pcl = ProtoBuf.Package.parseFrom(input, EXTENSIONS);
         KProperty.parse(cl, pcl.getPropertyList(), resolver, null);
         KFunction.parse(cl, resolver, pcl.getTypeTable(), pcl.getFunctionList(), false, null);
-        cl.getAttributes().put(KElement.KEY, new KFile(pcl, resolver, false));
+        cl.getAttributes().put(KElement.KEY, new KFile(pcl, resolver, null));
       } else if (k == 3) { // Synthetic class
         ProtoBuf.Function func = ProtoBuf.Function.parseFrom(input, EXTENSIONS);
         KFunction.parse(cl, resolver, func.getTypeTable(), List.of(func), true, null);
@@ -144,7 +144,17 @@ public class KotlinChooser implements LanguageChooser {
         ProtoBuf.Package pcl = ProtoBuf.Package.parseFrom(input, EXTENSIONS);
         KProperty.parse(cl, pcl.getPropertyList(), resolver, null);
         KFunction.parse(cl, resolver, pcl.getTypeTable(), pcl.getFunctionList(), false, null);
-        cl.getAttributes().put(KElement.KEY, new KFile(pcl, resolver, true));
+
+        String multifileName;
+        int xsIndex = anno.getParNames().indexOf("xs");
+        if (xsIndex != -1) {
+          multifileName = (String) ((ConstExprent) anno.getParValues().get(xsIndex)).getValue();
+        } else {
+          DecompilerContext.getLogger().writeMessage("No xs attribute (extra string; multifile part name) in class metadata for class " + cl.qualifiedName, IFernflowerLogger.Severity.WARN);
+          multifileName = cl.qualifiedName.split("__")[0];
+        }
+
+        cl.getAttributes().put(KElement.KEY, new KFile(pcl, resolver, multifileName));
       }
     } catch (Exception e) {
       DecompilerContext.getLogger().writeMessage("Failed to parse metadata for class " + cl.qualifiedName, IFernflowerLogger.Severity.WARN, e);
