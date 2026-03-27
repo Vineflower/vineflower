@@ -108,6 +108,6 @@ public class KotlinTests extends SingleClassesTestBase {
     register(KOTLIN, "TestCompanionObject");
     register(KOTLIN, "TestEnumClass");
     register(KOTLIN, "TestAnonymousEverything");
-    register(KOTLIN, "TestPropertyAccess");
+    register(KOTLIN, "TestPropertyAccess", "ext/Person");
   }
 }
