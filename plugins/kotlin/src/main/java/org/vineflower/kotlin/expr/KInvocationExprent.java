@@ -58,7 +58,11 @@ public class KInvocationExprent extends InvocationExprent implements KExprent {
       TextBuffer buf = new TextBuffer();
       buf.addBytecodeMapping(bytecode);
       if (getInstance() != null) {
-        buf.append(getInstance().toJava(indent)).append('.');
+        TextBuffer instanceBuf = getInstance().toJava(indent);
+        if (getInstance().getPrecedence() > getPrecedence()) {
+          instanceBuf.enclose("(", ")");
+        }
+        buf.append(instanceBuf).append('.');
       }
       buf.append(property.name());
       if (propertyMethod == KProperty.PropertyMethod.SETTER) {
