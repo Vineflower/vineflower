@@ -81,7 +81,7 @@ public class KInvocationExprent extends InvocationExprent implements KExprent {
         Exprent instance = isExtensionFunction ? getLstParameters().get(0) : getInstance();
         Exprent arg = isExtensionFunction ? getLstParameters().get(1) : getLstParameters().get(0);
         TextBuffer instanceBuf = instance.toJava(indent);
-        if (getInstance().getPrecedence() > getPrecedence()) {
+        if (instance.getPrecedence() > getPrecedence()) {
           instanceBuf.enclose("(", ")");
         }
         buf.append(instanceBuf)
