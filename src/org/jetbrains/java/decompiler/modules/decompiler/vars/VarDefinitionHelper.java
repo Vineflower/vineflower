@@ -8,9 +8,7 @@ import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.VarNamesCollector;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
-import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
-import org.jetbrains.java.decompiler.modules.decompiler.StackVarsProcessor;
-import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
+import org.jetbrains.java.decompiler.modules.decompiler.*;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
@@ -1593,7 +1591,7 @@ public class VarDefinitionHelper {
     // Process var definitions as owned by the parent- they come before the statement, and so their scope extends past the actual statement.
     for (Exprent exprent : stat.getVarDefinitions()) {
       Set<VarInMethod> upDefs = new HashSet<>();
-      iterateClashingExprent(stat, mt, varDefinitions, exprent, liveVarDefs, upDefs, nameMap, seenMethods);
+      iterateClashingExprent(stat, mt, varDefinitions, exprent, liveVarDefs, upDefs, nameMap, seenMethods, new HashSet<>(), new HashSet<>());
       liveVarDefs.addAll(upDefs);
       varDefinitions.computeIfAbsent(stat.getParent(), parent -> new HashSet<>()).addAll(upDefs);
     }
@@ -1603,9 +1601,7 @@ public class VarDefinitionHelper {
       Set<VarInMethod> upDefs = new HashSet<>();
       BasicBlockStatement basic = stat.getBasichead();
       for (Exprent exprent : basic.getExprents()) {
-        for (Exprent ex : exprent.getAllExprents(true, true)) {
-          iterateClashingExprent(basic, mt, varDefinitions, ex, liveVarDefs, upDefs, nameMap, seenMethods);
-        }
+        iterateClashingExprent(basic, mt, varDefinitions, exprent, liveVarDefs, upDefs, nameMap, seenMethods, new HashSet<>(), new HashSet<>());
       }
 
       liveVarDefs.addAll(upDefs);
@@ -1613,34 +1609,101 @@ public class VarDefinitionHelper {
     }
 
     // If this is a basic block, iterate all exprents
+    Map<Statement, Set<VarInMethod>> statementVars = new HashMap<>();
+    Set<VarInMethod> post = new HashSet<>();
     if (stat.getExprents() != null) {
       for (Exprent exprent : stat.getExprents()) {
-        for (Exprent ex : exprent.getAllExprents(true, true)) {
-          // Sort order from getAllExprents here is crucial!
-          // Say, for example, "MyType t = method(t -> ....);"
-          // It is imperative that the lhs of the assign comes first, so that any defs in the rhs can be properly seen.
-          iterateClashingExprent(stat, mt, varDefinitions, ex, liveVarDefs, curVarDefs, nameMap, seenMethods);
-        }
+        // Sort order here is crucial!
+        // Say, for example, "MyType t = method(t -> ....);"
+        // It is imperative that the lhs of the assign comes first, so that any defs in the rhs can be properly seen.
+        iterateClashingExprent(stat, mt, varDefinitions, exprent, liveVarDefs, curVarDefs, nameMap, seenMethods, new HashSet<>(), new HashSet<>());
       }
     } else {
-      if (stat instanceof CatchStatement) {
+      if (stat instanceof CatchStatement catchStat) {
         // Resources and catch vars are only in context in certain statements
+        for (int i = 0; i < catchStat.getStats().size(); i++) {
+          Statement st = catchStat.getStats().get(i);
+          Set<VarInMethod> stVars = new HashSet<>();
+          if (i == 0) {
+            // Process var definitions in resources
+            for (Exprent exp : catchStat.getResources()) {
+              iterateClashingExprent(st, mt, varDefinitions, exp, liveVarDefs, stVars, nameMap, seenMethods, new HashSet<>(), new HashSet<>());
+            }
+          } else {
+            // Process var definitions in catch
+            VarExprent exp = catchStat.getVars().get(i - 1);
+            iterateClashingExprent(st, mt, varDefinitions, exp, liveVarDefs, stVars, nameMap, seenMethods, new HashSet<>(), new HashSet<>());
+          }
+          liveVarDefs.removeAll(stVars);
+          statementVars.put(st, stVars);
+        }
       } else if (stat instanceof SwitchStatement switchStat) {
         // Variables defined in case values and case guards are only in context in their respective statements
-        Exprent exp = switchStat.getHeadexprent();
-        List<Exprent> exprents = exp.getAllExprents(true, true);
+        Exprent headExp = switchStat.getHeadexprent();
+        iterateClashingExprent(stat, mt, varDefinitions, headExp, liveVarDefs, curVarDefs, nameMap, seenMethods, new HashSet<>(), new HashSet<>());
+        for (int i = 0; i < switchStat.getCaseStatements().size(); i++) {
+          Statement st = switchStat.getCaseStatements().get(i);
+          Set<VarInMethod> stVars = new HashSet<>();
+          // Process var definitions in case values
+          for (Exprent exp : switchStat.getCaseValues().get(i)) {
+            if (exp != null) {
+              iterateClashingExprent(st, mt, varDefinitions, exp, liveVarDefs, stVars, nameMap, seenMethods, new HashSet<>(), new HashSet<>());
+            }
+          }
+          // Process var definitions in case guard
+          if (switchStat.getCaseGuards().size() > i) {
+            Exprent exp = switchStat.getCaseGuards().get(i);
+            if (exp != null) {
+              iterateClashingExprent(st, mt, varDefinitions, exp, liveVarDefs, stVars, nameMap, seenMethods, new HashSet<>(), new HashSet<>());
+            }
+          }
+          liveVarDefs.removeAll(stVars);
+          statementVars.put(st, stVars);
+        }
+      } else if (stat instanceof IfStatement ifStat) {
+        Set<VarInMethod> whenTrue = new HashSet<>();
+        Set<VarInMethod> whenFalse = new HashSet<>();
+        iterateClashingExprent(stat, mt, varDefinitions, ifStat.getHeadexprent().getCondition(), liveVarDefs, curVarDefs, nameMap, seenMethods, whenTrue, whenFalse);
+        boolean ifCompleteNormally = ifStat.getIfstat() == null || !ifStat.getIfstat().getSuccessorEdges(StatEdge.TYPE_REGULAR).isEmpty();
+        boolean elseCompleteNormally = ifStat.getElsestat() == null || !ifStat.getElsestat().getSuccessorEdges(StatEdge.TYPE_REGULAR).isEmpty();
+        if (ifStat.getIfstat() != null) {
+          statementVars.put(ifStat.getIfstat(), whenTrue);
+        }
 
-        for (Exprent exprent : exprents) {
-          iterateClashingExprent(stat, mt, varDefinitions, exprent, liveVarDefs, curVarDefs, nameMap, seenMethods);
+        if (ifStat.getElsestat() != null) {
+          statementVars.put(ifStat.getElsestat(), whenFalse);
+        }
+
+        if (!ifCompleteNormally && elseCompleteNormally) {
+          post = whenFalse;
+        } else if (ifCompleteNormally && !elseCompleteNormally) {
+          post = whenTrue;
+        }
+      } else if (stat instanceof DoStatement doStat) {
+        Set<VarInMethod> whenTrue = new HashSet<>();
+        Set<VarInMethod> whenFalse = new HashSet<>();
+        if (doStat.getInitExprent() != null) {
+          iterateClashingExprent(stat, mt, varDefinitions, doStat.getInitExprent(), liveVarDefs, curVarDefs, nameMap, seenMethods, new HashSet<>(), new HashSet<>());
+        }
+        if (doStat.getConditionExprent() != null) {
+          iterateClashingExprent(stat, mt, varDefinitions, doStat.getConditionExprent(), liveVarDefs, curVarDefs, nameMap, seenMethods, whenTrue, whenFalse);
+        }
+        if (doStat.getIncExprent() != null) {
+          liveVarDefs.addAll(whenTrue);
+          iterateClashingExprent(doStat, mt, varDefinitions, doStat.getIncExprent(), liveVarDefs, curVarDefs, nameMap, seenMethods, new HashSet<>(), new HashSet<>());
+          liveVarDefs.removeAll(whenTrue);
+        }
+
+        if (doStat.getLooptype() == DoStatement.Type.WHILE || doStat.getLooptype() == DoStatement.Type.FOR) {
+          statementVars.put(doStat.getFirst(), whenTrue);
+        }
+        if (doStat.getSuccessorEdges(StatEdge.TYPE_BREAK).isEmpty()) {
+          post = whenFalse;
         }
       } else {
         // Process var definitions in statement head
         for (Exprent exp : stat.getStatExprents()) {
-          List<Exprent> exprents = exp.getAllExprents(true, true);
-
-          for (Exprent exprent : exprents) {
-            iterateClashingExprent(stat, mt, varDefinitions, exprent, liveVarDefs, curVarDefs, nameMap, seenMethods);
-          }
+          iterateClashingExprent(stat, mt, varDefinitions, exp, liveVarDefs, curVarDefs, nameMap, seenMethods, new HashSet<>(), new HashSet<>());
         }
       }
 
@@ -1661,80 +1724,24 @@ public class VarDefinitionHelper {
     }
 
     List<Statement> deferred = new ArrayList<>();
+    boolean seperate = stat instanceof IfStatement || stat instanceof CatchStatement;
     if (iterate) {
       for (Statement st : stat.getStats()) {
         Set<VarInMethod> stVars = new HashSet<>();
-        Set<VarInMethod> tmpVars = new HashSet<>();
-        boolean remove = false;
+        Set<VarInMethod> tmpVars = statementVars.getOrDefault(st, new HashSet<>());
         if (stat instanceof IfStatement) {
-          IfStatement ifstat = (IfStatement)stat;
-
-          if (ifstat.getElsestat() == st) {
-            // Defer else blocks of if statements, as they are independent from the context of the if block
-            deferred.add(st);
-            continue;
-          }
-
           // We've already looked at the head- don't look again!
           if (st == stat.getBasichead()) {
             continue;
           }
-        } else if (stat instanceof CatchStatement catchStat) {
-          if (catchStat.getFirst() == st) {
-            // Process var definitions in resources
-            for (Exprent exp : catchStat.getResources()) {
-              List<Exprent> exprents = exp.getAllExprents(true, true);
-
-              for (Exprent exprent : exprents) {
-                iterateClashingExprent(st, mt, varDefinitions, exprent, liveVarDefs, stVars, nameMap, seenMethods);
-              }
-            }
-            remove = true;
-          } else if (catchStat.getStats().indexOf(st) > 0) {
-            // Process var definitions in catch
-            int i = catchStat.getStats().indexOf(st);
-            VarExprent exp = catchStat.getVars().get(i - 1);
-            List<Exprent> exprents = exp.getAllExprents(true, true);
-
-            for (Exprent exprent : exprents) {
-              iterateClashingExprent(st, mt, varDefinitions, exprent, liveVarDefs, stVars, nameMap, seenMethods);
-            }
-            remove = true;
-          }
-        } else if (stat instanceof SwitchStatement switchStat) {
-          int i = switchStat.getCaseStatements().indexOf(st);
-          if (i >= 0) {
-            // Process var definitions in case values
-            for (Exprent exp : switchStat.getCaseValues().get(i)) {
-              if (exp != null) {
-                List<Exprent> exprents = exp.getAllExprents(true, true);
-
-                for (Exprent exprent : exprents) {
-                  iterateClashingExprent(st, mt, varDefinitions, exprent, liveVarDefs, tmpVars, nameMap, seenMethods);
-                }
-              }
-            }
-            // Process var definitions in case guard
-            if (switchStat.getCaseGuards().size() > i) {
-              Exprent exp = switchStat.getCaseGuards().get(i);
-              if (exp != null) {
-                List<Exprent> exprents = exp.getAllExprents(true, true);
-
-                for (Exprent exprent : exprents) {
-                  iterateClashingExprent(st, mt, varDefinitions, exprent, liveVarDefs, tmpVars, nameMap, seenMethods);
-                }
-              }
-            }
-          }
         }
         liveVarDefs.addAll(tmpVars);
-
         iterateClashingNames(st, mt, varDefinitions, liveVarDefs, stVars, nameMap, seenMethods);
-        if (remove) {
-          clearStatement(varDefinitions, liveVarDefs, nameMap, st);
-        }
         liveVarDefs.removeAll(tmpVars);
-        tmpVars.forEach(nameMap::remove);
+        if (seperate) {
+          clearStatement(varDefinitions, liveVarDefs, nameMap, st);
+          clearStatement(varDefinitions, liveVarDefs, nameMap, stat);
+        }
       }
     }
 
@@ -1751,7 +1758,10 @@ public class VarDefinitionHelper {
     // Process deferred statements
     if (iterate) {
       for (Statement st : deferred) {
+        Set<VarInMethod> tmpVars = statementVars.getOrDefault(st, new HashSet<>());
+        liveVarDefs.addAll(tmpVars);
         iterateClashingNames(st, mt, varDefinitions, liveVarDefs, new HashSet<>(), nameMap, seenMethods);
+        liveVarDefs.removeAll(tmpVars);
       }
     }
 
@@ -1759,6 +1769,11 @@ public class VarDefinitionHelper {
       if (st.getParent() == stat && deferred.contains(st)) {
         clearStatement(varDefinitions, liveVarDefs, nameMap, st);
       }
+    }
+
+    if (!(stat instanceof RootStatement)) {
+      varDefinitions.computeIfAbsent(stat.getParent(), st -> new HashSet<>()).addAll(post);
+      liveVarDefs.addAll(post);
     }
   }
 
@@ -1774,7 +1789,8 @@ public class VarDefinitionHelper {
   }
 
   private void iterateClashingExprent(Statement stat, StructMethod mt, Map<Statement, Set<VarInMethod>> varDefinitions, Exprent exprent,
-                                      Set<VarInMethod> liveVarDefs, Set<VarInMethod> curVarDefs, Map<VarInMethod, String> nameMap, Set<String> seenMethods) {
+                                      Set<VarInMethod> liveVarDefs, Set<VarInMethod> curVarDefs, Map<VarInMethod, String> nameMap, Set<String> seenMethods, Set<VarInMethod> whenTrue, Set<VarInMethod> whenFalse) {
+    boolean iterate = true;
     if (exprent instanceof NewExprent) {
       NewExprent newExprent = (NewExprent) exprent;
       // Check if this is a lambda with a body
@@ -1803,7 +1819,7 @@ public class VarDefinitionHelper {
                 // Try to perform a rename
                 String name = mw.varproc.getVarName(vvp);
                 String original = name;
-                name = rename(nameMap, name);
+                name = rename(nameMap, name, liveVarDefs);
 
                 // Did we rename? If so, we should add it to the name map and set as clashing
                 if (original != null && !original.equals(name)) {
@@ -1857,7 +1873,7 @@ public class VarDefinitionHelper {
                   // Try to perform a rename
                   String name = mw.varproc.getVarName(vvp);
                   String original = name;
-                  name = rename(nameMap, name);
+                  name = rename(nameMap, name, liveVarDefs);
 
                   // Did we rename? If so, we should add it to the name map and set as clashing
                   if (original != null && !original.equals(name)) {
@@ -1892,14 +1908,16 @@ public class VarDefinitionHelper {
       VarExprent var = (VarExprent) exprent;
 
       if (var.isDefinition()) {
-        curVarDefs.add(new VarInMethod(var.getVarVersionPair(), mt));
+        VarInMethod def = new VarInMethod(var.getVarVersionPair(), mt);
+        curVarDefs.add(def);
+        liveVarDefs.add(def);
 
         // Only process vars that have lvt as the default var<index>_<version> names can never conflict
         if (var.getLVT() != null || this.varproc.getVarName(var.getVarVersionPair()) != null) {
           String name = var.getLVT() == null ? this.varproc.getVarName(var.getVarVersionPair()) : var.getLVT().getName();
 
           String originalName = name;
-          name = rename(nameMap, name);
+          name = rename(nameMap, name, liveVarDefs);
 
           boolean scopedSwitch = false;
           if (!originalName.equals(name)) {
@@ -1958,10 +1976,61 @@ public class VarDefinitionHelper {
         }
       }
     }
+    
+    if (exprent instanceof FunctionExprent function) {
+      iterate = false;
+      // https://docs.oracle.com/javase/specs/jls/se25/html/jls-6.html#jls-6.3.1
+      switch (function.getFuncType()) {
+      case BOOLEAN_AND -> {
+        for (Exprent exp : function.getLstOperands()) {
+          liveVarDefs.addAll(whenTrue);
+          iterateClashingExprent(stat, mt, varDefinitions, exp, liveVarDefs, curVarDefs, nameMap, seenMethods, whenTrue, new HashSet<>());
+        }
+        liveVarDefs.removeAll(whenTrue);
+      }
+      case BOOLEAN_OR -> {
+        for (Exprent exp : function.getLstOperands()) {
+          liveVarDefs.addAll(whenFalse);
+          iterateClashingExprent(stat, mt, varDefinitions, exp, liveVarDefs, curVarDefs, nameMap, seenMethods, new HashSet<>(), whenFalse);
+        }
+        liveVarDefs.removeAll(whenFalse);
+      }
+      case BOOL_NOT -> {
+        iterateClashingExprent(stat, mt, varDefinitions, function.getLstOperands().get(0), liveVarDefs, curVarDefs, nameMap, seenMethods, whenFalse, whenTrue);
+      }
+      case TERNARY -> {
+        Set<VarInMethod> subWhenTrue = new HashSet<>();
+        Set<VarInMethod> subWhenFalse = new HashSet<>();
+        iterateClashingExprent(stat, mt, varDefinitions, function.getLstOperands().get(0), liveVarDefs, curVarDefs, nameMap, seenMethods, subWhenTrue, subWhenFalse);
+        liveVarDefs.addAll(subWhenTrue);
+        iterateClashingExprent(stat, mt, varDefinitions, function.getLstOperands().get(1), liveVarDefs, curVarDefs, nameMap, seenMethods, new HashSet<>(), new HashSet<>());
+        liveVarDefs.removeAll(subWhenTrue);
+        liveVarDefs.addAll(subWhenFalse);
+        iterateClashingExprent(stat, mt, varDefinitions, function.getLstOperands().get(2), liveVarDefs, curVarDefs, nameMap, seenMethods, new HashSet<>(), new HashSet<>());
+        liveVarDefs.removeAll(subWhenFalse);
+      }
+      case INSTANCEOF -> {
+        if (function.getLstOperands().size() > 2) {
+          iterateClashingExprent(stat, mt, varDefinitions, function.getLstOperands().get(0), liveVarDefs, curVarDefs, nameMap, seenMethods, new HashSet<>(), new HashSet<>());
+          iterateClashingExprent(stat, mt, varDefinitions, function.getLstOperands().get(2), liveVarDefs, whenTrue, nameMap, seenMethods, new HashSet<>(), new HashSet<>());
+          liveVarDefs.removeAll(whenTrue);
+        } else {
+          iterate = true;
+        }
+      }
+      default -> iterate = true;
+      }
+    }
+
+    if (iterate) {
+      for (Exprent exp : exprent.getAllExprents()) {
+        iterateClashingExprent(stat, mt, varDefinitions, exp, liveVarDefs, curVarDefs, nameMap, seenMethods, new HashSet<>(), new HashSet<>());
+      }
+    }
   }
 
-  private static @NotNull String rename(Map<VarInMethod, String> nameMap, String name) {
-    while (nameMap.containsValue(name)) {
+  private static @NotNull String rename(Map<VarInMethod, String> nameMap, String name, Set<VarInMethod> liveVarDefs) {
+    while (liveVarDefs.stream().map(nameMap::get).anyMatch(name::equals)) {
       name += "x";
     }
     return name;

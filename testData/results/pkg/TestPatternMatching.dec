@@ -39,8 +39,8 @@ public class TestPatternMatching {
          obj = obj.toString();// 39
       }
 
-      <unknown> str;
-      System.out.println(str.hashCode());// 41
+      <unknown> strx;
+      System.out.println(strx.hashCode());// 41
    }
 
    public void testInvertedLoopUnused(Object obj) {
