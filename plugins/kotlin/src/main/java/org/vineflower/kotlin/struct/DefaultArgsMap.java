@@ -3,6 +3,7 @@ package org.vineflower.kotlin.struct;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.attr.StructAnnDefaultAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
+import org.vineflower.kotlin.expr.KNewExprent;
 import org.vineflower.kt.metadata.deserialization.Flags;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
@@ -152,6 +153,10 @@ public class DefaultArgsMap {
 
       Exprent kexpr = KUtils.replaceExprent(attr.getDefaultValue());
       Exprent expr = kexpr == null ? attr.getDefaultValue() : kexpr;
+      if (expr instanceof KNewExprent newExpr) {
+        newExpr.setInAnnotation(true);
+      }
+
       defaults.put(param, expr);
     }
 

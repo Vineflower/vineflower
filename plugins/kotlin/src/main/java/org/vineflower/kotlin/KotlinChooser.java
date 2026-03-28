@@ -135,6 +135,9 @@ public class KotlinChooser implements LanguageChooser {
       } else if (k == 3) { // Synthetic class
         ProtoBuf.Function func = ProtoBuf.Function.parseFrom(input, EXTENSIONS);
         KFunction.parse(cl, resolver, func.getTypeTable(), List.of(func), true, null);
+        if (!cl.hasAttribute(KElement.KEY)) {
+          cl.getAttributes().put(KElement.KEY, KFunction.FAILED_LAMBDA);
+        }
       } else if (k == 4) { // Multi-file facade
         cl.getAttributes().put(KElement.KEY, new KMultifileFacade(Arrays.asList(data1)));
       } else if (k == 5) { // Multi-file part

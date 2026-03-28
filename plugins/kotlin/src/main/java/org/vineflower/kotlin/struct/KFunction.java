@@ -23,6 +23,7 @@ import org.vineflower.kotlin.metadata.MetadataNameResolver;
 import org.vineflower.kotlin.util.KUtils;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -41,6 +42,24 @@ public record KFunction(
   StructClass classStruct,
   StructMethod methodStruct
 ) implements KElement, Flags {
+  public static final KFunction FAILED_LAMBDA = new KFunction(
+    "failed-lambda",
+    new KParameter[0],
+    List.of(),
+    KType.NOTHING,
+    0,
+    List.of(),
+    wrapper -> null,
+    null,
+    null,
+    false,
+    wrapper -> {
+      throw new IllegalStateException("Attempted to read default arguments for failed lambda");
+    },
+    null,
+    null
+  );
+
   public static void parse(StructClass classStruct, @Nullable MetadataNameResolver resolver, ProtoBuf.TypeTable typeTable, List<ProtoBuf.Function> protoFunctions, boolean isSyntheticFunction, StructClass companionParent) {
     if (resolver == null) {
       return;
@@ -96,7 +115,8 @@ public record KFunction(
             //TODO suspend function support at large
             continue;
           }
-          throw new IllegalStateException("Couldn't find method " + name + " " + desc + " in class " + classStruct.qualifiedName);
+          DecompilerContext.getLogger().writeMessage("Couldn't find method " + name + " " + desc + " in class " + classStruct.qualifiedName, IFernflowerLogger.Severity.ERROR);
+          continue;
         }
 
         if (companionParent != null) {

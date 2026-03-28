@@ -491,13 +491,13 @@ public class KotlinWriter implements StatementWriter, Flags {
   }
 
   private void writeLambda(ClassNode node, TextBuffer buffer, int indent, KFunction function) {
-//    if (functions == null || functions.isEmpty()) {
-//      DecompilerContext.getLogger().writeMessage("No Kotlin function information for lambda class " + node.simpleName, IFernflowerLogger.Severity.WARN);
-//      buffer.append("{").appendLineSeparator();
-//      appendComment(buffer, "Could not decompile lambda - root function was not found. Is this a suspend lambda?", indent + 1);
-//      buffer.appendIndent(indent).append("}");
-//      return;
-//    }
+    if (function == KFunction.FAILED_LAMBDA) {
+      DecompilerContext.getLogger().writeMessage("No Kotlin function information for lambda class " + node.simpleName, IFernflowerLogger.Severity.WARN);
+      buffer.append("{").appendLineSeparator();
+      appendComment(buffer, "Could not decompile lambda - root function was not found. Is this a suspend lambda?", indent + 1);
+      buffer.appendIndent(indent).append("}");
+      return;
+    }
     StructMethod mt = function.methodStruct();
     StructClass cl = node.classStruct;
 
