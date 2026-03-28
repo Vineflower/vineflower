@@ -28,7 +28,7 @@ public class TestTrySynchronized {
       var stream: InputStream = null// 28
 
       try {
-         stream = this.getInputStream()// 30
+         stream = this.inputStream// 30
          synchronized (monitor) {// 32
             System.out.println("Inside second synchronized block.")// 33
          }

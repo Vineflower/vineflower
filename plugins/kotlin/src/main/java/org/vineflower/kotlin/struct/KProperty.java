@@ -1,5 +1,6 @@
 package org.vineflower.kotlin.struct;
 
+import org.jetbrains.java.decompiler.util.Key;
 import org.vineflower.kotlin.expr.KConstExprent;
 import org.vineflower.kt.metadata.ProtoBuf;
 import org.vineflower.kt.metadata.deserialization.Flags;
@@ -370,9 +371,11 @@ public record KProperty(
       }
       if (getterMethod != null) {
         getterMethod.getAttributes().put(KElement.KEY, kprop);
+        getterMethod.getAttributes().put(PropertyMethod.KEY, PropertyMethod.GETTER);
       }
       if (setterMethod != null) {
         setterMethod.getAttributes().put(KElement.KEY, kprop);
+        setterMethod.getAttributes().put(PropertyMethod.KEY, PropertyMethod.SETTER);
       }
 
       if (classStruct != fieldContainer) {
@@ -389,5 +392,12 @@ public record KProperty(
         }
       }
     }
+  }
+  
+  public enum PropertyMethod {
+    GETTER,
+    SETTER;
+    
+    public static final Key<PropertyMethod> KEY = Key.of(PropertyMethod.class.getName());
   }
 }
