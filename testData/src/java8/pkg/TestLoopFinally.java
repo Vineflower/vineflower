@@ -1,6 +1,8 @@
 package pkg;
 
+import java.io.File;
 import java.util.Random;
+import java.util.Scanner;
 
 public class TestLoopFinally {
   public void test() {
@@ -273,5 +275,16 @@ public class TestLoopFinally {
       }
 
     } while (b);
+  }
+
+  public void test10(File file, int i) {
+    try {
+      new Scanner(file);
+    } catch (Exception e) {
+    } finally {
+      for (int k = 0; k < i; k++) {
+        System.out.println(k);
+      }
+    }
   }
 }
