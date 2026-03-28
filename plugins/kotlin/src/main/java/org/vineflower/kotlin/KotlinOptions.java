@@ -29,6 +29,11 @@ public interface KotlinOptions {
   @Description("If Kotlin decompilation is disabled, metadata will not be parsed. If enabled, this will always parse Kotlin metadata for use by other plugins.")
   @Type(DecompilerOption.Type.BOOLEAN)
   String ALWAYS_EXPORT_METADATA = "kt-export-metadata";
+  
+  @Name("Decompile facades")
+  @Description("Decompile multi-file facades into their wrapper-function classes.")
+  @Type(DecompilerOption.Type.BOOLEAN)
+  String DECOMPILE_FACADES = "kt-decompile-facades";
 
   static void addDefaults(PluginOptions.AddDefaults cons) {
     cons.addDefault(SHOW_PUBLIC_VISIBILITY, "1");
@@ -36,5 +41,6 @@ public interface KotlinOptions {
     cons.addDefault(UNKNOWN_DEFAULT_ARG_STRING, "...");
     cons.addDefault(COLLAPSE_STRING_CONCATENATION, "1");
     cons.addDefault(ALWAYS_EXPORT_METADATA, "0");
+    cons.addDefault(DECOMPILE_FACADES, "0");
   }
 }
