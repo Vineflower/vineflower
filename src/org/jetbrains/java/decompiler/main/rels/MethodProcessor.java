@@ -169,16 +169,6 @@ public class MethodProcessor implements Runnable {
     }
 
     pluginContext.runPasses(JavaPassLocation.CFG_PRE_STATEMENT, pctx);
-    if (spec != null) {
-      DecompileRecord decompileRecord = new DecompileRecord(mt);
-
-      RootStatement root = spec.graphParser.createStatement(graph, mt);
-
-      PassContext pctx = new PassContext(root, graph, mt, cl, varProc, decompileRecord);
-      spec.pass.run(pctx);
-
-      return pctx.getRoot();
-    }
 
     DotExporter.toDotFile(graph, mt, "cfgParsed", true);
     RootStatement root = DomHelper.parseGraph(graph, mt, 0);
