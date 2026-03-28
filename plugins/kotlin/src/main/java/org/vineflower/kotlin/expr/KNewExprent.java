@@ -17,7 +17,9 @@ import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.vineflower.kotlin.KotlinChooser;
 import org.vineflower.kotlin.KotlinWriter;
-import org.vineflower.kotlin.metadata.KotlinMetadata;
+import org.vineflower.kotlin.struct.KClass;
+import org.vineflower.kotlin.struct.KElement;
+import org.vineflower.kotlin.struct.KFunctionReference;
 import org.vineflower.kotlin.struct.KType;
 import org.vineflower.kotlin.util.KExprProcessor;
 import org.vineflower.kotlin.util.KTypes;
@@ -53,8 +55,8 @@ public class KNewExprent extends NewExprent implements KExprent {
     TextBuffer buf = new TextBuffer();
     ClassesProcessor.ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(getNewType().value);
     if (node != null && new KotlinChooser().isLanguage(node.classStruct)) {
-      KotlinMetadata ktData = node.classStruct.getAttribute(KotlinMetadata.KEY);
-      if (ktData.metadata instanceof KotlinMetadata.FunctionReference) {
+      KElement ktData = node.classStruct.getAttribute(KElement.KEY);
+      if (ktData instanceof KFunctionReference) {
         Exprent receiver = getConstructor().getLstParameters().get(0);
         TextBuffer ref = KotlinWriter.stringifyReference(indent, node, bytecode, receiver);
         if (ref != null) {
@@ -62,7 +64,7 @@ public class KNewExprent extends NewExprent implements KExprent {
         }
       }
 
-      if (node.type == ClassesProcessor.ClassNode.Type.LOCAL && ktData.metadata instanceof KotlinMetadata.Class) {
+      if (node.type == ClassesProcessor.ClassNode.Type.LOCAL && ktData instanceof KClass) {
         // Work around the Java-targeted anonymous class verification
         node.type = ClassesProcessor.ClassNode.Type.ANONYMOUS;
         buf.addBytecodeMapping(bytecode);

@@ -1,9 +1,9 @@
 package org.vineflower.kotlin.struct;
 
+import org.vineflower.kotlin.expr.KConstExprent;
 import org.vineflower.kt.metadata.ProtoBuf;
 import org.vineflower.kt.metadata.deserialization.Flags;
 import org.vineflower.kt.metadata.jvm.JvmProtoBuf;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
@@ -28,9 +28,7 @@ import org.vineflower.kotlin.util.KTypes;
 import org.vineflower.kotlin.util.KUtils;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Function;
 
 public record KProperty(
@@ -44,7 +42,7 @@ public record KProperty(
   @Nullable Function<ClassWrapper, Exprent> initializer,
   @Nullable List<AnnotationExprent> annotations,
   StructClass classStruct
-) implements Flags {
+) implements KElement, Flags {
   private static final AnnotationExprent DEPRECATED_ANNOTATION = new AnnotationExprent(
     new VarType("kotlin/Deprecated").value,
     List.of("message"),
@@ -195,10 +193,10 @@ public record KProperty(
     return buf;
   }
 
-  public static @NotNull Data parse(StructClass classStruct, List<ProtoBuf.Property> protoProperties, @NotNull MetadataNameResolver nameResolver) {
-    List<KProperty> properties = new ArrayList<>();
-    Set<StructField> associatedFields = new HashSet<>();
-    Set<StructMethod> associatedMethods = new HashSet<>();
+  public static void parse(StructClass classStruct, List<ProtoBuf.Property> protoProperties, @Nullable MetadataNameResolver nameResolver, StructClass companionParent) {
+    if (nameResolver == null) {
+      return;
+    }
 
     for (ProtoBuf.Property property : protoProperties) {
       int flags = property.getFlags();
@@ -207,17 +205,17 @@ public record KProperty(
 
       List<AnnotationExprent> annotations = new ArrayList<>();
       if (jvmProp.hasSyntheticMethod()) {
-        // Properties containing annotations receive a synthetic methodSupplier which has the annotations in place of the property.
+        // Properties containing annotations receive a synthetic method which has the annotations in place of the property.
         // https://github.com/JetBrains/kotlin/blob/master/core/metadata.jvm/src/jvm_metadata.proto#L84
         JvmProtoBuf.JvmMethodSignature syntheticMethod = jvmProp.getSyntheticMethod();
         String methodName = nameResolver.resolve(syntheticMethod.getName());
         String desc = nameResolver.resolve(syntheticMethod.getDesc());
         StructMethod method = classStruct.getMethod(methodName, desc);
         if (method != null) {
-          associatedMethods.add(method);
+          method.getAttributes().put(KElement.KEY, KHiddenElement.GENERIC);
           if (method.hasAttribute(StructGeneralAttribute.ATTRIBUTE_RUNTIME_VISIBLE_ANNOTATIONS)) {
             StructAnnotationAttribute attribute = method.getAttribute(StructGeneralAttribute.ATTRIBUTE_RUNTIME_VISIBLE_ANNOTATIONS);
-            annotations = attribute.getAnnotations();
+            annotations.addAll(attribute.getAnnotations());
           }
           if (method.hasAttribute(StructGeneralAttribute.ATTRIBUTE_RUNTIME_INVISIBLE_ANNOTATIONS)) {
             StructAnnotationAttribute attribute = method.getAttribute(StructGeneralAttribute.ATTRIBUTE_RUNTIME_INVISIBLE_ANNOTATIONS);
@@ -243,7 +241,7 @@ public record KProperty(
         String delegateDesc = nameResolver.resolve(jvmProp.getField().getDesc());
         delegateField = classStruct.getField(delegateFieldName, delegateDesc);
         if (delegateField != null) {
-          associatedFields.add(delegateField);
+          delegateField.getAttributes().put(KElement.KEY, KHiddenElement.GENERIC);
           String key = InterpreterUtil.makeUniqueKey(delegateFieldName, delegateDesc);
           if (delegateField.hasModifier(CodeConstants.ACC_STATIC)) {
             delegateSupplier = wrapper -> wrapper.getStaticFieldInitializers().getWithKey(key);
@@ -254,56 +252,83 @@ public record KProperty(
       }
 
       KPropertyAccessor getter = null;
+      StructMethod getterMethod = null;
       if (HAS_GETTER.get(flags)) {
         String methodName = nameResolver.resolve(jvmProp.getGetter().getName());
         String desc = nameResolver.resolve(jvmProp.getGetter().getDesc());
-        StructMethod method = classStruct.getMethod(methodName, desc);
-        if (method != null) {
+        getterMethod = classStruct.getMethod(methodName, desc);
+        if (getterMethod != null) {
           Function<ClassWrapper, MethodWrapper> supplier = wrapper -> wrapper.getMethodWrapper(methodName, desc);
           getter = new KPropertyAccessor(property.getGetterFlags(), supplier);
-          associatedMethods.add(method);
 
           if (propDesc == null) {
-            propDesc = method.getDescriptor().substring(method.getDescriptor().indexOf(')') + 1);
+            propDesc = getterMethod.getDescriptor().substring(getterMethod.getDescriptor().indexOf(')') + 1);
+          }
+        }
+
+        if (companionParent != null) {
+          StructMethod inParent = companionParent.getMethod(methodName, desc);
+          if (inParent != null) {
+            inParent.getAttributes().put(KElement.KEY, KHiddenElement.COMPANION_ITEM);
           }
         }
       }
 
       KPropertyAccessor setter = null;
+      StructMethod setterMethod = null;
       String setterParamName = null;
       if (HAS_SETTER.get(flags)) {
         String methodName = nameResolver.resolve(jvmProp.getSetter().getName());
         String desc = nameResolver.resolve(jvmProp.getSetter().getDesc());
-        StructMethod method = classStruct.getMethod(methodName, desc);
-        if (method != null) {
+        setterMethod = classStruct.getMethod(methodName, desc);
+        if (setterMethod != null) {
           Function<ClassWrapper, MethodWrapper> supplier = wrapper -> wrapper.getMethodWrapper(methodName, desc);
           setter = new KPropertyAccessor(property.getSetterFlags(), supplier);
-          associatedMethods.add(method);
           setterParamName = nameResolver.resolve(property.getSetterValueParameter().getName());
         }
-      }
 
-      StructField field = null;
-      if (propDesc != null) {
-        field = classStruct.getField(name, propDesc);
-        if (field != null) {
-          associatedFields.add(field);
-        }
-      } else {
-        VBStyleCollection<StructField, String> fields = classStruct.getFields();
-        for (StructField f : fields) {
-          if (f.getName().equals(name)) {
-            field = f;
-            propDesc = f.getDescriptor();
-            associatedFields.add(field);
-            break;
+        if (companionParent != null) {
+          StructMethod inParent = companionParent.getMethod(methodName, desc);
+          if (inParent != null) {
+            inParent.getAttributes().put(KElement.KEY, KHiddenElement.COMPANION_ITEM);
           }
         }
       }
 
-      if (HAS_ANNOTATIONS.get(flags) && annotations == null && field != null) {
-        annotations = new ArrayList<>();
+      StructField field = null;
+      StructClass fieldContainer = classStruct;
+      if (jvmProp.hasField()) {
+        String fieldName = jvmProp.getField().hasName() ? nameResolver.resolve(jvmProp.getField().getName()) : name;
+        String fieldDesc = jvmProp.getField().hasDesc() ? nameResolver.resolve(jvmProp.getField().getDesc()) : propDesc;
 
+        if (fieldName != null && fieldDesc != null) {
+          field = classStruct.getField(fieldName, fieldDesc);
+
+          if (companionParent != null) {
+            // Companion objects put fields in the parent class sometimes
+            StructField inParent = companionParent.getField(fieldName, fieldDesc);
+            if (inParent != null) {
+              inParent.getAttributes().put(KElement.KEY, KHiddenElement.COMPANION_ITEM);
+
+              if (field == null) {
+                field = inParent;
+                fieldContainer = companionParent;
+              }
+            }
+          }
+        } else {
+          VBStyleCollection<StructField, String> fields = classStruct.getFields();
+          for (StructField f : fields) {
+            if (f.getName().equals(name)) {
+              field = f;
+              propDesc = f.getDescriptor();
+              break;
+            }
+          }
+        }
+      }
+
+      if (HAS_ANNOTATIONS.get(flags) && annotations.isEmpty() && field != null) {
         if (field.hasAttribute(StructGeneralAttribute.ATTRIBUTE_RUNTIME_VISIBLE_ANNOTATIONS)) {
           StructAnnotationAttribute attribute = field.getAttribute(StructGeneralAttribute.ATTRIBUTE_RUNTIME_VISIBLE_ANNOTATIONS);
           annotations.addAll(attribute.getAnnotations());
@@ -329,23 +354,40 @@ public record KProperty(
         initializer = null;
       } else if (field.hasAttribute(StructGeneralAttribute.ATTRIBUTE_CONSTANT_VALUE)) {
         StructConstantValueAttribute attr = field.getAttribute(StructGeneralAttribute.ATTRIBUTE_CONSTANT_VALUE);
-        PrimitiveConstant constant = classStruct.getPool().getPrimitiveConstant(attr.getIndex());
-        initializer = ignored -> new ConstExprent(varType, constant.value, null);
+        PrimitiveConstant constant = fieldContainer.getPool().getPrimitiveConstant(attr.getIndex());
+        VarType constType = type != null ? type : varType;
+        initializer = ignored -> new KConstExprent(new ConstExprent(constType, constant.value, null));
       } else if (field.hasModifier(CodeConstants.ACC_STATIC)) {
         initializer = wrapper -> wrapper.getStaticFieldInitializers().getWithKey(key);
       } else {
         initializer = wrapper -> wrapper.getDynamicFieldInitializers().getWithKey(key);
       }
 
-      properties.add(new KProperty(name, type, flags, getter, setter, setterParamName, field, initializer, annotations, classStruct));
+      KProperty kprop = new KProperty(name, type, flags, getter, setter, setterParamName, field, initializer, annotations, classStruct);
+
+      if (field != null) {
+        field.getAttributes().put(KElement.KEY, kprop);
+      }
+      if (getterMethod != null) {
+        getterMethod.getAttributes().put(KElement.KEY, kprop);
+      }
+      if (setterMethod != null) {
+        setterMethod.getAttributes().put(KElement.KEY, kprop);
+      }
+
+      if (classStruct != fieldContainer) {
+        // pretend the field is present in the class if it's a companion field in the parent class
+        // why do you do this kotlin
+        if (field != null) {
+          classStruct.getFields().addWithKey(field, InterpreterUtil.makeUniqueKey(field.getName(), field.getDescriptor()));
+        }
+        if (getterMethod != null) {
+          classStruct.getMethods().addWithKey(getterMethod, InterpreterUtil.makeUniqueKey(getterMethod.getName(), getterMethod.getDescriptor()));
+        }
+        if (setterMethod != null) {
+          classStruct.getMethods().addWithKey(setterMethod, InterpreterUtil.makeUniqueKey(setterMethod.getName(), setterMethod.getDescriptor()));
+        }
+      }
     }
-
-    return new Data(properties, associatedFields, associatedMethods);
   }
-
-  public record Data(
-    @NotNull List<KProperty> properties,
-    @NotNull Set<StructField> associatedFields,
-    @NotNull Set<StructMethod> associatedMethods
-  ) { }
 }
