@@ -4,10 +4,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.api.plugin.Plugin;
 import org.jetbrains.java.decompiler.api.plugin.LanguageSpec;
 import org.jetbrains.java.decompiler.api.plugin.PluginOptions;
-import org.jetbrains.java.decompiler.api.plugin.pass.LoopingPassBuilder;
-import org.jetbrains.java.decompiler.api.plugin.pass.MainPassBuilder;
-import org.jetbrains.java.decompiler.api.plugin.pass.Pass;
-import org.jetbrains.java.decompiler.api.plugin.pass.WrappedPass;
+import org.jetbrains.java.decompiler.api.plugin.pass.*;
 import org.jetbrains.java.decompiler.main.ClassesProcessor;
 import org.jetbrains.java.decompiler.main.rels.NestedClassProcessor;
 import org.jetbrains.java.decompiler.main.rels.NestedMemberAccess;
@@ -47,11 +44,13 @@ public class KotlinPlugin implements Plugin {
     return new LanguageSpec("kotlin", new KotlinChooser(), new DomHelper(), new KotlinWriter(), makePass(), makeCfgPass(), getRootProcessor(), "kt");
   }
 
-  private static Consumer<ClassesProcessor.ClassNode> getRootProcessor() {
+  private static ClassPass getRootProcessor() {
     return root -> {
       new NestedClassProcessor().processClass(root, root);
 
       new NestedMemberAccess().propagateMemberAccess(root);
+
+      return true;
     };
   }
 
