@@ -76,6 +76,10 @@ public class KotlinChooser implements LanguageChooser {
       }
     }
 
+    if (anno == null) {
+      return;
+    }
+
     try {
       int kIndex = anno.getParNames().indexOf("k");
       int d1Index = anno.getParNames().indexOf("d1");
