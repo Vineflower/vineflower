@@ -3,12 +3,72 @@ package pkg;
 public class TestAsserts {
    public static int foo() {
       int i = 1;// 21
-
       assert i > 1;// 22
-
       assert i > 1 && i < 5;// 23
-
       return 1;// 24
+   }
+
+   public void test1(int x) {
+      System.out.println("a");// 28
+      assert x > 5;// 29
+      if (x == 7) {// 30
+         System.out.println("b");// 31
+      }
+
+      System.out.println("c");// 34
+   }// 35
+
+   public void test2(int x) {
+      System.out.println("a");// 38
+      if (x == 7) {// 39
+         System.out.println("b");// 40
+      }
+
+      assert x > 5;// 42
+      System.out.println("c");// 45
+   }// 46
+
+   public void test5(int x) {
+      System.out.println("a");// 63
+      if (x == 7) {// 64
+         System.out.println("b");// 65
+      }
+
+      assert false;
+      System.out.println("c");// 70
+   }// 71
+
+   public void test6(int x) {
+      System.out.println("a");// 74
+      if (x > 7) {// 75
+         assert x > 10;// 76
+         System.out.println("c");// 77
+      }
+
+      System.out.println("c");// 80
+   }// 81
+
+   public void test7(int x) {
+      System.out.println("a");// 84
+      if (x > 7) {// 85
+         assert x > 10;// 86
+      }
+
+      System.out.println("c");// 89
+   }// 90
+
+   public class Inner {
+      public void test4(int x) {
+         System.out.println("a");// 57
+         assert x > 10;// 58
+      }// 59
+   }
+
+   public static class InnerStatic {
+      public void test3(int x) {
+         System.out.println("a");// 50
+         assert x > 10;// 51
+      }// 52
    }
 }
 
@@ -16,28 +76,312 @@ class 'pkg/TestAsserts' {
    method 'foo ()I' {
       0      4
       1      4
-      8      6
-      9      6
-      a      6
-      b      6
-      c      6
-      1b      8
-      1c      8
-      1d      8
-      1e      8
-      1f      8
-      20      8
-      21      8
-      22      8
-      23      8
-      24      8
-      2d      10
-      2e      10
+      8      5
+      9      5
+      a      5
+      b      5
+      c      5
+      11      5
+      12      5
+      13      5
+      1b      6
+      1c      6
+      1d      6
+      1e      6
+      1f      6
+      20      6
+      21      6
+      22      6
+      23      6
+      24      6
+      29      6
+      2a      6
+      2b      6
+      2d      7
+      2e      7
+   }
+
+   method 'test1 (I)V' {
+      0      11
+      1      11
+      2      11
+      3      11
+      4      11
+      5      11
+      6      11
+      7      11
+      e      12
+      f      12
+      10      12
+      11      12
+      12      12
+      17      12
+      18      12
+      19      12
+      1b      13
+      1c      13
+      1d      13
+      1e      13
+      1f      13
+      20      13
+      21      14
+      22      14
+      23      14
+      24      14
+      25      14
+      26      14
+      27      14
+      28      14
+      29      17
+      2a      17
+      2b      17
+      2c      17
+      2d      17
+      2e      17
+      2f      17
+      30      17
+      31      18
+   }
+
+   method 'test2 (I)V' {
+      0      21
+      1      21
+      2      21
+      3      21
+      4      21
+      5      21
+      6      21
+      7      21
+      8      22
+      9      22
+      a      22
+      b      22
+      c      22
+      d      22
+      e      23
+      f      23
+      10      23
+      11      23
+      12      23
+      13      23
+      14      23
+      15      23
+      1c      26
+      1d      26
+      1e      26
+      1f      26
+      20      26
+      25      26
+      26      26
+      27      26
+      29      27
+      2a      27
+      2b      27
+      2c      27
+      2d      27
+      2e      27
+      2f      27
+      30      27
+      31      28
+   }
+
+   method 'test5 (I)V' {
+      0      31
+      1      31
+      2      31
+      3      31
+      4      31
+      5      31
+      6      31
+      7      31
+      8      32
+      9      32
+      a      32
+      b      32
+      c      32
+      d      32
+      e      33
+      f      33
+      10      33
+      11      33
+      12      33
+      13      33
+      14      33
+      15      33
+      24      37
+      25      37
+      26      37
+      27      37
+      28      37
+      29      37
+      2a      37
+      2b      37
+      2c      38
+   }
+
+   method 'test6 (I)V' {
+      0      41
+      1      41
+      2      41
+      3      41
+      4      41
+      5      41
+      6      41
+      7      41
+      8      42
+      9      42
+      a      42
+      b      42
+      c      42
+      d      42
+      14      43
+      15      43
+      16      43
+      17      43
+      18      43
+      19      43
+      1e      43
+      1f      43
+      20      43
+      22      44
+      23      44
+      24      44
+      25      44
+      26      44
+      27      44
+      28      44
+      29      44
+      2a      47
+      2b      47
+      2c      47
+      2d      47
+      2e      47
+      2f      47
+      30      47
+      31      47
+      32      48
+   }
+
+   method 'test7 (I)V' {
+      0      51
+      1      51
+      2      51
+      3      51
+      4      51
+      5      51
+      6      51
+      7      51
+      8      52
+      9      52
+      a      52
+      b      52
+      c      52
+      d      52
+      14      53
+      15      53
+      16      53
+      17      53
+      18      53
+      19      53
+      1e      53
+      1f      53
+      20      53
+      22      56
+      23      56
+      24      56
+      25      56
+      26      56
+      27      56
+      28      56
+      29      56
+      2a      57
+   }
+}
+
+class 'pkg/TestAsserts$Inner' {
+   method 'test4 (I)V' {
+      0      61
+      1      61
+      2      61
+      3      61
+      4      61
+      5      61
+      6      61
+      7      61
+      e      62
+      f      62
+      10      62
+      11      62
+      12      62
+      13      62
+      18      62
+      19      62
+      1a      62
+      1c      63
+   }
+}
+
+class 'pkg/TestAsserts$InnerStatic' {
+   method 'test3 (I)V' {
+      0      68
+      1      68
+      2      68
+      3      68
+      4      68
+      5      68
+      6      68
+      7      68
+      e      69
+      f      69
+      10      69
+      11      69
+      12      69
+      13      69
+      18      69
+      19      69
+      1a      69
+      1c      70
    }
 }
 
 Lines mapping:
 21 <-> 5
-22 <-> 7
-23 <-> 9
-24 <-> 11
+22 <-> 6
+23 <-> 7
+24 <-> 8
+28 <-> 12
+29 <-> 13
+30 <-> 14
+31 <-> 15
+34 <-> 18
+35 <-> 19
+38 <-> 22
+39 <-> 23
+40 <-> 24
+42 <-> 27
+45 <-> 28
+46 <-> 29
+50 <-> 69
+51 <-> 70
+52 <-> 71
+57 <-> 62
+58 <-> 63
+59 <-> 64
+63 <-> 32
+64 <-> 33
+65 <-> 34
+70 <-> 38
+71 <-> 39
+74 <-> 42
+75 <-> 43
+76 <-> 44
+77 <-> 45
+80 <-> 48
+81 <-> 49
+84 <-> 52
+85 <-> 53
+86 <-> 54
+89 <-> 57
+90 <-> 58
+Not mapped:
+67

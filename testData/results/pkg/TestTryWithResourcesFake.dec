@@ -36,7 +36,6 @@ public class TestTryWithResourcesFake {
       }
 
       assert sc.isConnected();// 38
-
       return sc;// 39
    }
 }
@@ -94,8 +93,14 @@ class 'pkg/TestTryWithResourcesFake' {
       4c      37
       4d      37
       4e      37
-      5a      39
-      5b      39
+      4f      37
+      50      37
+      51      37
+      56      37
+      57      37
+      58      37
+      5a      38
+      5b      38
    }
 }
 
@@ -112,7 +117,7 @@ Lines mapping:
 34 <-> 32
 36 <-> 35
 38 <-> 38
-39 <-> 40
+39 <-> 39
 Not mapped:
 30
 35

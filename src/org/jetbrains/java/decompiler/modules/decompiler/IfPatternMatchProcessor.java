@@ -301,8 +301,9 @@ public final class IfPatternMatchProcessor {
     Map<BasicBlockStatement, List<Exprent>> remove = new HashMap<>();
     // Statements that ought to be destroyed as a result of creating the pattern
     List<Statement> toDestroy = new ArrayList<>();
+    List<StatEdge> removeEdge = new ArrayList<>();
 
-    PatternData pattern = getChildPattern(cl, storeVariable, type, branch, 1, toDestroy, remove);
+    PatternData pattern = getChildPattern(cl, storeVariable, type, branch, 1, toDestroy, remove, removeEdge);
     if (pattern == null) {
       return null;
     }
@@ -324,10 +325,12 @@ public final class IfPatternMatchProcessor {
       e.getKey().getExprents().removeAll(e.getValue());
     }
 
+    removeEdge.forEach(StatEdge::remove);
+
     return pattern.exp;
   }
 
-  private static PatternData getChildPattern(StructClass cl, Exprent storeVariable, VarType type, Statement branch, int stIdx, List<Statement> toDestroy, Map<BasicBlockStatement, List<Exprent>> remove) {
+  private static PatternData getChildPattern(StructClass cl, Exprent storeVariable, VarType type, Statement branch, int stIdx, List<Statement> toDestroy, Map<BasicBlockStatement, List<Exprent>> remove, List<StatEdge> removeEdge) {
     // Iteratively go through the sequence to see if it extracts from the record
 
     // The general strategy is to identify an "extracting try" [1] for each record component.
@@ -435,38 +438,68 @@ public final class IfPatternMatchProcessor {
                 }
               }
             }
-          } else if (next instanceof IfStatement ifSt && ifSt.iftype == IfStatement.IFTYPE_IF && ifSt.getHeadexprent().getCondition() instanceof FunctionExprent func) {
-            // Is the next statement an if with an instanceof inside? It might be a type-improving if. Search inside it too.
-            FunctionExprent function = null;
+          } else if (next instanceof IfStatement ifSt && ifSt.iftype == IfStatement.IFTYPE_IF) {
             boolean found = false;
             boolean inverted = false;
-            if (func.getFuncType() == FunctionType.INSTANCEOF) {
-              found = true;
-              function = func;
-            } else if (func.getFuncType() == FunctionType.BOOL_NOT && func.getLstOperands().get(0) instanceof FunctionExprent inner && inner.getFuncType() == FunctionType.INSTANCEOF) {
-              found = true;
-              inverted = true;
-              function = inner;
-            }
-
-            if (found) {
-              // "<stackVar> = <originalVar>;" idiom
-              // Ensure this is the right idiom be fore we mark it for destruction.
-              if (branch.getBasichead().getExprents().size() == 1) {
-                if (branch.getBasichead().getExprents().get(0) instanceof AssignmentExprent assign
-                  && assign.getLeft() instanceof VarExprent && assign.getRight() instanceof VarExprent) {
-                  toDestroy.add(branch.getBasichead());
+            if (ifSt.getHeadexprent().getCondition() instanceof FunctionExprent func) {
+              // Is the next statement an if with an instanceof inside? It might be a type-improving if. Search inside it too.
+              FunctionExprent function = null;
+              if (func.getFuncType() == FunctionType.INSTANCEOF) {
+                found = true;
+                function = func;
+              } else if (func.getFuncType() == FunctionType.BOOL_NOT && func.getLstOperands().get(0) instanceof FunctionExprent inner && inner.getFuncType() == FunctionType.INSTANCEOF) {
+                found = true;
+                inverted = true;
+                function = inner;
+              }
+  
+              if (found) {
+                // "<stackVar> = <originalVar>;" idiom
+                // Ensure this is the right idiom be fore we mark it for destruction.
+                if (branch.getBasichead().getExprents().size() == 1) {
+                  if (branch.getBasichead().getExprents().get(0) instanceof AssignmentExprent assign
+                    && assign.getLeft() instanceof VarExprent && assign.getRight() instanceof VarExprent) {
+                    toDestroy.add(branch.getBasichead());
+                  }
+                }
+  
+                // Find any nested record patterns
+                Exprent store = function.getLstOperands().size() > 2 ? function.getLstOperands().get(2) : function.getLstOperands().get(0);
+                if (store instanceof VarExprent variable) {
+                  patternStores.add(new PatternStore(c, DecompilerContext.getStructContext().getClass(variable.getExprType().value), variable.getExprType(), variable));
+                  vars.put(c, variable);
+                  ok = true;
+                } else if (store instanceof PatternExprent pattern) {
+                  vars.put(c, pattern);
+                  ok = true;
                 }
               }
-
-              // Find any nested record patterns
-              Exprent store = function.getLstOperands().size() > 2 ? function.getLstOperands().get(2) : function.getLstOperands().get(0);
-              if (store instanceof VarExprent variable) {
-                patternStores.add(new PatternStore(c, DecompilerContext.getStructContext().getClass(variable.getExprType().value), variable.getExprType(), variable));
-                vars.put(c, variable);
-                ok = true;
+            } else if (ifSt.getHeadexprent().getCondition() instanceof ConstExprent constExp && constExp.hasBooleanValue()) {
+              BasicBlockStatement stat = null;
+              List<Exprent> exprents = null;
+              if ((int) constExp.getValue() == 1) {
+                stat = ifSt.getIfstat().getBasichead();
+                exprents = stat.getExprents();
+              } else if (stIdx + 1 < branch.getStats().size()) {
+                stat = branch.getStats().get(stIdx + 1).getBasichead();
+                exprents = stat.getExprents();
+                inverted = true;
               }
 
+              if (stat != null
+                  && exprents.size() >= 1
+                  && exprents.get(0) instanceof AssignmentExprent assignment
+                  && assignment.getLeft() instanceof VarExprent store
+                  && assignment.getRight() instanceof VarExprent) {
+                found = true;
+                vars.put(c, store);
+                ok = true;
+                List<Exprent> toRemove = remove.computeIfAbsent(stat, block -> new ArrayList<>());
+                toRemove.add(assignment);
+              }
+            }
+  
+            if (found) {
               toDestroy.add(ifSt);
 
               if (inverted) {
@@ -497,18 +530,18 @@ public final class IfPatternMatchProcessor {
       if (st instanceof CatchStatement) {
         // The matched trys will have a single assignment in the try body and a throw in the catch. These have break edges
         // that should be removed
-        st.getStats().get(0).getSuccessorEdges(StatEdge.TYPE_BREAK).forEach(StatEdge::remove);
-        st.getStats().get(1).getSuccessorEdges(StatEdge.TYPE_BREAK).forEach(StatEdge::remove);
+        st.getStats().get(0).getSuccessorEdges(StatEdge.TYPE_BREAK).forEach(removeEdge::add);
+        st.getStats().get(1).getSuccessorEdges(StatEdge.TYPE_BREAK).forEach(removeEdge::add);
       } else if (st instanceof IfStatement) {
-        st.getSuccessorEdges(StatEdge.TYPE_BREAK).forEach(StatEdge::remove);
+        st.getSuccessorEdges(StatEdge.TYPE_BREAK).forEach(removeEdge::add);
       }
     }
 
     if (branch != original) {
       if (branch.getParent() instanceof IfStatement ifSt) {
         // If we had to dig inside an if to find the body content, delete any breaks it has and any head->if body successors
-        ifSt.getSuccessorEdges(StatEdge.TYPE_BREAK).forEach(StatEdge::remove);
-        ifSt.getFirst().getSuccessorEdges(StatEdge.TYPE_REGULAR).forEach(StatEdge::remove);
+        ifSt.getSuccessorEdges(StatEdge.TYPE_BREAK).forEach(removeEdge::add);
+        ifSt.getFirst().getSuccessorEdges(StatEdge.TYPE_REGULAR).forEach(removeEdge::add);
       }
     }
 
@@ -516,13 +549,15 @@ public final class IfPatternMatchProcessor {
     for (PatternStore patternStore : patternStores) {
       List<Statement> tmpToDestroy = new ArrayList<>();
       Map<BasicBlockStatement, List<Exprent>> tmpRemove = new HashMap<>();
-      PatternData patternData = getChildPattern(patternStore.cl, patternStore.store, patternStore.type, branch, stIdx, tmpToDestroy, tmpRemove);
+      List<StatEdge> tmpRemoveEdge = new ArrayList<>();
+      PatternData patternData = getChildPattern(patternStore.cl, patternStore.store, patternStore.type, branch, stIdx, tmpToDestroy, tmpRemove, tmpRemoveEdge);
       if (patternData != null) {
         vars.put(patternStore.component, patternData.exp);
         branch = patternData.stat;
         stIdx = patternData.index;
         toDestroy.addAll(tmpToDestroy);
         remove.putAll(tmpRemove);
+        removeEdge.addAll(tmpRemoveEdge);
       }
     }
 

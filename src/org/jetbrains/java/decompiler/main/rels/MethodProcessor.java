@@ -7,7 +7,6 @@ import org.jetbrains.java.decompiler.api.plugin.pass.PassContext;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.FullInstructionSequence;
 import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
-import org.jetbrains.java.decompiler.code.cfg.ExceptionRangeCFG;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.main.decompiler.CancelationManager;
@@ -17,7 +16,7 @@ import org.jetbrains.java.decompiler.main.plugins.PluginContext;
 import org.jetbrains.java.decompiler.modules.code.DeadCodeHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.*;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.DomHelper;
-import org.jetbrains.java.decompiler.modules.decompiler.deobfuscator.ExceptionDeobfuscator;
+import org.jetbrains.java.decompiler.modules.code.ExceptionDeobfuscator;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
@@ -170,6 +169,16 @@ public class MethodProcessor implements Runnable {
     }
 
     pluginContext.runPasses(JavaPassLocation.CFG_PRE_STATEMENT, pctx);
+    if (spec != null) {
+      DecompileRecord decompileRecord = new DecompileRecord(mt);
+
+      RootStatement root = spec.graphParser.createStatement(graph, mt);
+
+      PassContext pctx = new PassContext(root, graph, mt, cl, varProc, decompileRecord);
+      spec.pass.run(pctx);
+
+      return pctx.getRoot();
+    }
 
     DotExporter.toDotFile(graph, mt, "cfgParsed", true);
     RootStatement root = DomHelper.parseGraph(graph, mt, 0);
@@ -256,8 +265,14 @@ public class MethodProcessor implements Runnable {
       decompileRecord.add("SimplifyStringConcat", root);
     }
 
+    if (AssertProcessor.buildAssertions(root)) {
+      decompileRecord.add("BuildAsserts", root);
+    }
+
     // Plugin passes to run before the main decompilation loop
     pluginContext.runPasses(JavaPassLocation.BEFORE_MAIN, pctx);
+    root = pctx.getRoot();
+    debugCurrentlyDecompiling.set(root);
 
     // Main loop
     while (true) {
@@ -289,8 +304,12 @@ public class MethodProcessor implements Runnable {
 
           // Plugin passes to run inside the merge loop
           if (pluginContext.runPasses(JavaPassLocation.IN_LOOP_DECOMP, pctx)) {
+            root = pctx.getRoot();
+            debugCurrentlyDecompiling.set(root);
             continue;
           }
+          root = pctx.getRoot();
+          debugCurrentlyDecompiling.set(root);
 
           if (IfHelper.mergeAllIfs(root)) {
             decompileRecord.add("MergeAllIfs", root);
@@ -373,8 +392,12 @@ public class MethodProcessor implements Runnable {
   
       // Apply main loop plugin passes
       if (pluginContext.runPasses(JavaPassLocation.MAIN_LOOP, pctx)) {
+        root = pctx.getRoot();
+        debugCurrentlyDecompiling.set(root);
         continue;
       }
+      root = pctx.getRoot();
+      debugCurrentlyDecompiling.set(root);
 
       // initializer may have at most one return point, so no transformation of method exits permitted
       if (!isInitializer && ExitHelper.condenseExits(root)) {
@@ -438,6 +461,8 @@ public class MethodProcessor implements Runnable {
 
     // Apply plugin passes before setting variable definitions
     pluginContext.runPasses(JavaPassLocation.AFTER_MAIN, pctx);
+    root = pctx.getRoot();
+    debugCurrentlyDecompiling.set(root);
 
     varProc.setVarDefinitions(root);
     decompileRecord.add("SetVarDefinitions", root);
@@ -462,6 +487,8 @@ public class MethodProcessor implements Runnable {
 
     // Apply plugin passes after setting variable definitions
     pluginContext.runPasses(JavaPassLocation.AT_END, pctx);
+    root = pctx.getRoot();
+    debugCurrentlyDecompiling.set(root);
 
     // must be the last invocation, because it makes the statement structure inconsistent
     // FIXME: new edge type needed

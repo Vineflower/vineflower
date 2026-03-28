@@ -46,4 +46,22 @@ public class TestSwitchPatternMatchingJ25 {
       default:
     }
   }
+  
+  record Test5(Object o) {}
+  public String test5(Object o) {
+    return switch (o) {
+      case Test5(Test5(Test5 t)) -> t.toString();
+      default -> null;
+    };
+  }
+  
+  record Test6a(int i) {}
+  record Test6b(int i) {}
+  public String test6(Object o) {
+    return switch (o) {
+      case Test6a(int i) -> Integer.toString(i);
+      case Test6b(int i) -> Integer.toString(i);
+      default -> throw new RuntimeException();
+    };
+  }
 }

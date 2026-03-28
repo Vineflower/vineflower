@@ -398,6 +398,11 @@ public interface IFernflowerPreferences {
   @Type(DecompilerOption.Type.STRING)
   String EXCLUDED_CLASSES = "excluded-classes";
 
+  @Name("Included Classes")
+  @Description("Include classes in decompilation only if their fully qualified names match the specified regular expression.")
+  @Type(DecompilerOption.Type.STRING)
+  String INCLUDED_CLASSES = "included-classes";
+
   @Name("Validate inner classes names")
   @Description("Validates that the inner class name is correct (if it is separated using \"$\" for example BaseClass$InnerClass). If not then inner class won't be processed.")
   @Type(DecompilerOption.Type.BOOLEAN)
@@ -407,6 +412,11 @@ public interface IFernflowerPreferences {
   @Description("Use heuristics to restructure if statements to make them clearer to read.")
   @Type(DecompilerOption.Type.BOOLEAN)
   String PRETTIFY_IFS = "prettify-ifs";
+
+  @Name("Method to decompile")
+  @Description("Option to decompile a single method. Set to owner + \".\" + name + descriptor, e.g. foo/Bar.baz()V, or simply name + descriptor if you're only decompiling a single file and the method belongs to the root class.")
+  @Type(DecompilerOption.Type.STRING)
+  String METHOD_TO_DECOMPILE = "method-to-decompile";
 
   Map<String, Object> DEFAULTS = getDefaults();
 
@@ -453,7 +463,7 @@ public interface IFernflowerPreferences {
     defaults.put(DECOMPILE_PREVIEW, "1"); // Preview features are useful to decompile in almost all cases
 
     defaults.put(INCLUDE_ENTIRE_CLASSPATH, "0");
-    defaults.put(INCLUDE_JAVA_RUNTIME, "");
+    defaults.put(INCLUDE_JAVA_RUNTIME, "1");
     defaults.put(EXPLICIT_GENERIC_ARGUMENTS, "0");
     defaults.put(INLINE_SIMPLE_LAMBDAS, "1");
 
@@ -481,8 +491,10 @@ public interface IFernflowerPreferences {
     defaults.put(REMOVE_IMPORTS, "0");
     defaults.put(MARK_CORRESPONDING_SYNTHETICS, "0");
     defaults.put(EXCLUDED_CLASSES, "");
+    defaults.put(INCLUDED_CLASSES, "");
     defaults.put(VALIDATE_INNER_CLASSES_NAMES, "1");
     defaults.put(PRETTIFY_IFS, "1");
+    defaults.put(METHOD_TO_DECOMPILE, "");
 
     return Collections.unmodifiableMap(defaults);
   }

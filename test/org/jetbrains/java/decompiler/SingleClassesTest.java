@@ -1,6 +1,7 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler;
 
+import net.fabricmc.fernflower.api.FabricJavadocStyle;
 import net.fabricmc.fernflower.api.IFabricJavadocProvider;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.struct.StructClass;
@@ -98,6 +99,29 @@ public class SingleClassesTest extends SingleClassesTestBase {
         return "Method javadoc for '" + structMethod.getName() + "'";
       }
     });
+    registerSet("Markdown Javadoc", () -> {
+      register(JAVA_8, "TestMarkdownJavadoc");
+    }, IFabricJavadocProvider.PROPERTY_NAME, new IFabricJavadocProvider() {
+      @Override
+      public String getClassDoc(StructClass structClass) {
+        return "Class javadoc for '" + structClass.qualifiedName + "'";
+      }
+
+      @Override
+      public String getFieldDoc(StructClass structClass, StructField structField) {
+        return "Field javadoc for '" + structField.getName() + "'";
+      }
+
+      @Override
+      public String getMethodDoc(StructClass structClass, StructMethod structMethod) {
+        return "Method javadoc for '" + structMethod.getName() + "'";
+      }
+
+      @Override
+      public FabricJavadocStyle getClassJavadocStyle(StructClass structClass) {
+        return FabricJavadocStyle.MARKDOWN;
+      }
+    });
     // TODO: converter renaming different on different platforms?
     registerSet("Renaming", () -> registerFailable(JAVA_8, "TestRenameEntities"),
       IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
@@ -153,6 +177,26 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.FORCE_JSR_INLINE, "1",
       IFernflowerPreferences.LAMBDA_TO_ANONYMOUS_CLASS, "1",
       IFernflowerPreferences.VERIFY_PRE_POST_VARIABLE_MERGES, "1"
+    );
+    registerSet("Single method", this::registerSingleMethod,
+      IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
+      IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
+      IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
+      IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
+      IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
+      IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "1",
+      IFernflowerPreferences.VERIFY_PRE_POST_VARIABLE_MERGES, "1",
+      IFernflowerPreferences.METHOD_TO_DECOMPILE, "test()V"
+    );
+    registerSet("Single method in inner class", this::registerSingleMethodInInnerClass,
+      IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
+      IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
+      IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
+      IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
+      IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
+      IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "1",
+      IFernflowerPreferences.VERIFY_PRE_POST_VARIABLE_MERGES, "1",
+      IFernflowerPreferences.METHOD_TO_DECOMPILE, "pkg/TestSingleMethodInInnerClass$Inner.test()V"
     );
     // TODO: user renamer class test
   }
@@ -657,6 +701,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: foreach array index increment is added into default branch of switch statement
     // TODO: clashing names processor wrongly uses catch's vars in try block
     register(JAVA_8, "TestForeachMultiDimensionalArray");
+    // TODO: large amount of code is deleted
     register(JAVA_17_PREVIEW, "TestUnknownCastJ17");
     // TODO: These variables shouldn't be merged, and should be split because each version is used once and has a different type use
     register(JAVA_8_NODEBUG, "TestVarIndex");
@@ -773,6 +818,19 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestTryLoopSimpleFinally");
     register(JAVA_8, "TestTryLoopReturnFinally");
     register(JASM, "TestNumberCompareToBoolean");
+
+    // TODO: this.ref() turned into rec$
+    register(JAVA_21, "TestMethodReferenceJ21", "ext/RefsExt");
+    register(JAVA_25, "TestMethodReferenceJ25", "ext/RefsExt");
+
+    register(JAVA_16_NODEBUG, "TestObjectLambda");
+    register(JAVA_25, "TestAnonymousClassJ25");
+    register(JAVA_25, "TestAssertInterface1");
+    register(JAVA_25, "TestAssertInterface2");
+    register(JAVA_25, "TestAssertInterface3");
+    register(JAVA_25, "TestAssertsEnabled");
+    register(JAVA_8, "TestFloatPiAdd");
+    register(JAVA_25, "TestAssertPatternMatching");
   }
 
   private void registerEntireClassPath() {
@@ -915,5 +973,13 @@ public class SingleClassesTest extends SingleClassesTestBase {
   private void registerLambdaToAnonymousClass() {
     register(JAVA_8, "TestLambdaToAnonymousClass");
     register(JAVA_8, "TestLambdaToAnonymousClass2");
+  }
+
+  private void registerSingleMethod() {
+    register(JAVA_8, "TestSingleMethod");
+  }
+
+  private void registerSingleMethodInInnerClass() {
+    register(JAVA_8, "TestSingleMethodInInnerClass");
   }
 }

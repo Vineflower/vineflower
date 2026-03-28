@@ -46,7 +46,6 @@ public class StackVarsProcessor {
   public static void simplifyStackVars(RootStatement root, StructMethod mt, StructClass cl, StackSimplifyOptions options) {
     Set<Integer> setReorderedIfs = new HashSet<>();
     SSAUConstructorSparseEx ssau = null;
-
     while (true) {
       boolean found = false;
       boolean first = ssau == null;

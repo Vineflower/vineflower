@@ -9,8 +9,8 @@ public class TestSwitchPatternMatchingInstanceof1 {
          case Integer i:// 7
             System.out.println(i);
             break;
-         case String sx:// 8
-            System.out.println(sx);
+         case String s:// 8
+            System.out.println(s);
             break;
          default:
             System.out.println("Default");// 9

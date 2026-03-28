@@ -15,18 +15,18 @@ public class TestSwitchPatternMatching13 {
 
             System.out.println("Larger triangle: " + t);// 10
             break;// 11
-         case TestSwitchPatternMatching13.Triangle tx when tx.calculateArea() > 50.0:// 12
+         case TestSwitchPatternMatching13.Triangle t when t.calculateArea() > 50.0:// 12
             System.out.println("Smaller triangle");// 13
             break;
-         case TestSwitchPatternMatching13.Triangle txx when txx.calculateArea() > 100.0:// 14
+         case TestSwitchPatternMatching13.Triangle t when t.calculateArea() > 100.0:// 14
             System.out.println("Large triangle");// 15
 
             while (Math.random() > 0.5) {// 16
                System.out.println("Keep going");// 17
             }
             break;
-         case TestSwitchPatternMatching13.Triangle txxx:// 20
-            if (txxx.hashCode() > 0) {// 21
+         case TestSwitchPatternMatching13.Triangle t:// 20
+            if (t.hashCode() > 0) {// 21
                System.out.println("Small positive-hash triangle");// 22
             }
 

@@ -1,6 +1,7 @@
 package org.vineflower.kotlin;
 
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.java.decompiler.api.ClassAttributeRegistry;
 import org.jetbrains.java.decompiler.api.plugin.Plugin;
 import org.jetbrains.java.decompiler.api.plugin.LanguageSpec;
 import org.jetbrains.java.decompiler.api.plugin.PluginOptions;
@@ -80,6 +81,7 @@ public class KotlinPlugin implements Plugin {
       .addPass("CondenseSequences_1", WrappedPass.of(ctx -> SequenceHelper.condenseSequences(ctx.getRoot())))
       .addPass("StackVars", new StackVarInitialPass())
       .addPass("InlineIfPPMM", ctx -> PPandMMHelper.inlinePPIandMMIIf(ctx.getRoot()))
+      .addPass("BuildAsserts", WrappedPass.of(ctx -> AssertProcessor.buildAssertions(ctx.getRoot())))
       .addPass("MainLoop",
         new LoopingPassBuilder("Main")
           .addFallthroughPass("ResetEdges", WrappedPass.of(ctx -> LabelHelper.cleanUpEdges(ctx.getRoot())))

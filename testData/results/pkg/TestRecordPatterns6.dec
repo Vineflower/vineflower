@@ -1,7 +1,5 @@
 package pkg;
 
-import java.util.Objects;
-
 public class TestRecordPatterns6 {
    public Object test1(TestRecordPatterns6.I in) {
       return switch (in) {// 11
@@ -13,13 +11,12 @@ public class TestRecordPatterns6 {
    }
 
    public String test2(TestRecordPatterns6.I in) {
-      Objects.requireNonNull(in);
       TestRecordPatterns6.I var2 = in;
 
       while (true) {
          return (String)(switch (var2) {// 19
             case TestRecordPatterns6.I.R1(String s) -> s;// 20
-            case TestRecordPatterns6.I.R3(String sx) -> sx;// 21
+            case TestRecordPatterns6.I.R3(String s) -> s;// 21
             default -> throw new IllegalStateException();// 22
          });
       }
@@ -39,110 +36,107 @@ public class TestRecordPatterns6 {
 
 class 'pkg/TestRecordPatterns6' {
    method 'test1 (Lpkg/TestRecordPatterns6$I;)Ljava/lang/Object;' {
-      0      6
-      10      6
-      11      6
-      12      6
-      13      6
-      14      6
-      15      6
-      16      6
-      17      6
-      18      6
-      19      6
-      1a      6
-      1b      6
-      1c      6
-      1d      6
-      1e      6
-      1f      6
-      20      6
-      21      6
-      22      6
-      23      6
-      24      6
-      25      6
-      26      6
-      27      6
-      28      6
-      29      6
-      2a      6
-      2b      6
-      30      10
-      31      10
-      35      10
-      45      7
-      46      7
-      47      7
-      48      7
-      5b      8
-      5c      8
-      5d      8
-      5e      8
-      5f      8
-      60      8
-      61      8
-      74      9
-      75      9
-      76      9
-      77      9
-      78      6
+      0      4
+      10      4
+      11      4
+      12      4
+      13      4
+      14      4
+      15      4
+      16      4
+      17      4
+      18      4
+      19      4
+      1a      4
+      1b      4
+      1c      4
+      1d      4
+      1e      4
+      1f      4
+      20      4
+      21      4
+      22      4
+      23      4
+      24      4
+      25      4
+      26      4
+      27      4
+      28      4
+      29      4
+      2a      4
+      2b      4
+      30      8
+      31      8
+      35      8
+      45      5
+      46      5
+      47      5
+      48      5
+      5b      6
+      5c      6
+      5d      6
+      5e      6
+      5f      6
+      60      6
+      61      6
+      74      7
+      75      7
+      76      7
+      77      7
+      78      4
    }
 
    method 'test2 (Lpkg/TestRecordPatterns6$I;)Ljava/lang/String;' {
-      0      15
-      2      15
-      3      15
-      4      15
-      6      16
-      9      19
-      10      19
-      11      19
-      12      19
-      13      19
-      14      19
-      15      19
-      16      19
-      17      19
-      18      19
-      19      19
-      1a      19
-      1b      19
-      1c      19
-      1d      19
-      1e      19
-      1f      19
-      20      19
-      21      19
-      22      19
-      23      19
-      24      19
-      25      19
-      26      19
-      27      19
-      28      19
-      29      19
-      2a      19
-      2b      19
-      46      20
-      47      20
-      48      20
-      49      20
-      64      21
-      65      21
-      66      21
-      67      21
-      72      22
-      73      19
+      0      13
+      6      13
+      9      16
+      10      16
+      11      16
+      12      16
+      13      16
+      14      16
+      15      16
+      16      16
+      17      16
+      18      16
+      19      16
+      1a      16
+      1b      16
+      1c      16
+      1d      16
+      1e      16
+      1f      16
+      20      16
+      21      16
+      22      16
+      23      16
+      24      16
+      25      16
+      26      16
+      27      16
+      28      16
+      29      16
+      2a      16
+      2b      16
+      46      17
+      47      17
+      48      17
+      49      17
+      64      18
+      65      18
+      66      18
+      67      18
+      72      19
+      73      16
    }
 }
 
 Lines mapping:
-11 <-> 7
-12 <-> 8
-13 <-> 9
-14 <-> 10
-19 <-> 20
-20 <-> 21
-21 <-> 22
-22 <-> 23
+11 <-> 5
+12 <-> 6
+13 <-> 7
+14 <-> 8
+19 <-> 17
+20 <-> 18
+21 <-> 19
+22 <-> 20

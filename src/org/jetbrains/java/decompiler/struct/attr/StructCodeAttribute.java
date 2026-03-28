@@ -5,6 +5,7 @@ import org.jetbrains.java.decompiler.code.BytecodeVersion;
 import org.jetbrains.java.decompiler.struct.StructMember;
 import org.jetbrains.java.decompiler.struct.consts.ConstantPool;
 import org.jetbrains.java.decompiler.util.DataInputFullStream;
+import org.jetbrains.java.decompiler.util.Key;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -30,7 +31,7 @@ import java.util.Map;
 public class StructCodeAttribute extends StructGeneralAttribute {
   public int localVariables = 0;
   public byte[] codeAndExceptionData;
-  public Map<String, StructGeneralAttribute> codeAttributes;
+  public Map<Key<?>, Object> codeAttributes;
 
   @Override
   public void initContent(DataInputFullStream data, ConstantPool pool, BytecodeVersion version) throws IOException {

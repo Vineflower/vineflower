@@ -47,6 +47,34 @@ public class TestSwitchPatternMatchingJ25 {
          default:
       }
    }// 48
+
+   public String test5(Object o) {
+      return switch (o) {// 52
+         case TestSwitchPatternMatchingJ25.Test5(TestSwitchPatternMatchingJ25.Test5(TestSwitchPatternMatchingJ25.Test5 t)) -> t.toString();// 53
+         default -> null;// 54
+      };
+   }
+
+   public String test6(Object o) {
+      Object var2 = o;
+
+      while (true) {
+         return switch (var2) {// 61
+            case TestSwitchPatternMatchingJ25.Test6a(int i) -> Integer.toString(i);// 62
+            case TestSwitchPatternMatchingJ25.Test6b(int i) -> Integer.toString(i);// 63
+            default -> throw new RuntimeException();// 64
+         };
+      }
+   }
+
+   record Test5(Object o) {
+   }
+
+   record Test6a(int i) {
+   }
+
+   record Test6b(int i) {
+   }
 }
 
 class 'pkg/TestSwitchPatternMatchingJ25' {
@@ -307,6 +335,89 @@ class 'pkg/TestSwitchPatternMatchingJ25' {
       51      45
       54      48
    }
+
+   method 'test5 (Ljava/lang/Object;)Ljava/lang/String;' {
+      0      51
+      10      51
+      11      51
+      12      51
+      13      51
+      14      51
+      15      51
+      16      51
+      17      51
+      18      51
+      19      51
+      1a      51
+      1b      51
+      1c      51
+      1d      51
+      1e      51
+      1f      51
+      20      51
+      21      51
+      22      51
+      23      51
+      54      52
+      55      52
+      56      52
+      57      52
+      5e      52
+      5f      52
+      60      52
+      66      53
+      6a      51
+   }
+
+   method 'test6 (Ljava/lang/Object;)Ljava/lang/String;' {
+      0      58
+      6      58
+      9      61
+      10      61
+      11      61
+      12      61
+      13      61
+      14      61
+      15      61
+      16      61
+      17      61
+      18      61
+      19      61
+      1a      61
+      1b      61
+      1c      61
+      1d      61
+      1e      61
+      1f      61
+      20      61
+      21      61
+      22      61
+      23      61
+      24      61
+      25      61
+      26      61
+      27      61
+      28      61
+      29      61
+      2a      61
+      2b      61
+      43      62
+      44      62
+      45      62
+      46      62
+      4d      62
+      4e      62
+      4f      62
+      6c      63
+      6d      63
+      6e      63
+      6f      63
+      76      63
+      77      63
+      78      63
+      85      64
+      86      61
+   }
 }
 
 Lines mapping:
@@ -334,3 +445,10 @@ Lines mapping:
 44 <-> 45
 45 <-> 46
 48 <-> 49
+52 <-> 52
+53 <-> 53
+54 <-> 54
+61 <-> 62
+62 <-> 63
+63 <-> 64
+64 <-> 65

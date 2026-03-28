@@ -17,6 +17,7 @@ import org.jetbrains.java.decompiler.struct.gen.generics.GenericMain;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.util.DataInputFullStream;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
+import org.jetbrains.java.decompiler.util.Key;
 import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
 
 import java.io.IOException;
@@ -91,11 +92,11 @@ public class StructClass extends StructMember {
       methods.addWithKey(method, key);
     }
 
-    Map<String, StructGeneralAttribute> attributes = readAttributes(in, pool, bytecodeVersion);
+    Map<Key<?>, Object> attributes = readAttributes(in, pool, bytecodeVersion);
 
     GenericClassDescriptor signature = null;
     if (DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_GENERIC_SIGNATURES)) {
-      StructGenericSignatureAttribute signatureAttr = (StructGenericSignatureAttribute)attributes.get(StructGeneralAttribute.ATTRIBUTE_SIGNATURE.name);
+      StructGenericSignatureAttribute signatureAttr = (StructGenericSignatureAttribute)attributes.get(StructGeneralAttribute.ATTRIBUTE_SIGNATURE);
       if (signatureAttr != null) {
         signature = GenericMain.parseClassSignature(qualifiedName, signatureAttr.getSignature());
       }
@@ -120,7 +121,7 @@ public class StructClass extends StructMember {
   private ConstantPool pool;
 
   private StructClass(int accessFlags,
-                      Map<String, StructGeneralAttribute> attributes,
+                      Map<Key<?>, Object> attributes,
                       String qualifiedName,
                       PrimitiveConstant superClass,
                       boolean own,

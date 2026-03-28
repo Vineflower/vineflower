@@ -2,20 +2,38 @@ package org.vineflower.kotlin.expr;
 
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.InvocationExprent;
+import org.jetbrains.java.decompiler.struct.gen.VarType;
+import org.jetbrains.java.decompiler.util.TextBuffer;
+import org.vineflower.kotlin.util.KTypes;
 
 public class KInvocationExprent extends InvocationExprent implements KExprent {
-  private boolean shadowStaticBase = false;
-
   public KInvocationExprent(InvocationExprent expr) {
     super(expr);
   }
 
-  public boolean isShadowStaticBase() {
-    return shadowStaticBase;
-  }
+  @Override
+  public TextBuffer toJava(int indent) {
+    if (KTypes.isFunctionType(new VarType(getClassname(), true))) {
+      TextBuffer buf = new TextBuffer();
+      TextBuffer instanceBuf = getInstance().toJava(indent);
+      if (getInstance().getPrecedence() > getPrecedence()) {
+        instanceBuf.enclose("(", ")");
+      }
+      buf.append(instanceBuf);
+      if (getLstParameters().isEmpty()) {
+        buf.appendMethod("()", false, getClassname(), getName(), getDescriptor());
+        buf.addBytecodeMapping(bytecode);
+        return buf;
+      }
 
-  public void setShadowStaticBase(boolean shadowStaticBase) {
-    this.shadowStaticBase = shadowStaticBase;
+      buf.appendMethod("(", false, getClassname(), getName(), getDescriptor());
+      buf.append(appendParamList(indent));
+      buf.appendMethod(")", false, getClassname(), getName(), getDescriptor());
+      buf.addBytecodeMapping(bytecode);
+      return buf;
+    }
+
+    return super.toJava(indent);
   }
 
   @Override

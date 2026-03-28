@@ -1,0 +1,156 @@
+package pkg
+
+import java.io.FileInputStream
+import java.io.InputStream
+
+public class TestTrySynchronized {
+   private final val inputStream: InputStream?
+      private final get() {
+         return null// 41
+      }
+
+
+   @Throws(java/lang/Exception::class)
+   public fun case01() {
+      synchronized (monitor) {// 10
+         System.out.println("Inside synchronized block.")// 11
+      }
+
+      var stream: InputStream = null// 14
+
+      try {
+         stream = FileInputStream("nul") as InputStream// 16
+      } catch (var4: java.lang.Throwable) {// 17
+         stream.close()// 18
+      }
+   }// 20
+
+   @Throws(java/lang/Exception::class)
+   public fun case02() {
+      synchronized (monitor) {// 24
+         System.out.println("Inside first synchronized block.")// 25
+      }
+
+      var stream: InputStream = null// 28
+
+      try {
+         stream = this.getInputStream()// 30
+         synchronized (monitor) {// 32
+            System.out.println("Inside second synchronized block.")// 33
+         }
+      } catch (var6: java.lang.Throwable) {// 35
+         stream.close()// 36
+      }
+   }// 38
+
+   public companion object {
+      private final val monitor: TestTrySynchronized
+   }
+}
+
+class 'pkg/TestTrySynchronized' {
+   method 'getInputStream ()Ljava/io/InputStream;' {
+      0      8
+      1      8
+   }
+
+   method 'case01 ()V' {
+      0      14
+      1      14
+      2      14
+      4      14
+      5      14
+      9      15
+      a      15
+      b      15
+      c      15
+      d      15
+      f      15
+      10      15
+      11      15
+      18      16
+      21      18
+      22      18
+      28      21
+      29      21
+      2d      21
+      2e      21
+      2f      21
+      30      21
+      34      22
+      35      23
+      3a      23
+      3b      23
+      3c      23
+      3d      25
+   }
+
+   method 'case02 ()V' {
+      0      29
+      1      29
+      2      29
+      4      29
+      5      29
+      9      30
+      a      30
+      b      30
+      c      30
+      d      30
+      f      30
+      10      30
+      11      30
+      18      31
+      21      33
+      22      33
+      24      36
+      25      36
+      26      36
+      27      36
+      28      36
+      29      37
+      2a      37
+      2b      37
+      2d      37
+      2e      37
+      33      38
+      34      38
+      35      38
+      36      38
+      37      38
+      39      38
+      3a      38
+      3b      38
+      43      39
+      4e      40
+      4f      41
+      54      41
+      55      41
+      56      41
+      57      43
+   }
+}
+
+Lines mapping:
+10 <-> 15
+11 <-> 16
+14 <-> 19
+16 <-> 22
+17 <-> 23
+18 <-> 24
+20 <-> 26
+24 <-> 30
+25 <-> 31
+28 <-> 34
+30 <-> 37
+32 <-> 38
+33 <-> 39
+35 <-> 41
+36 <-> 42
+38 <-> 44
+41 <-> 9
+Not mapped:
+12
+15
+26
+29
+34

@@ -50,27 +50,27 @@ class DomTracer {
   }
 
   void error(Statement stat, String s) {
-    this.add(stat, s, Map.of(stat, "fillcolor=coral1,style=filled"));
+    this.add(stat, s, Map.of(stat, "fillcolor=" + DotExporter.BG_DOM_ERROR + ",style=filled"));
   }
 
   void warn(Statement stat, String s) {
-    this.add(stat, s, Map.of(stat, "fillcolor=tan1,style=filled"));
+    this.add(stat, s, Map.of(stat, "fillcolor=" + DotExporter.BG_DOM_WARN + ",style=filled"));
   }
 
   void info(Statement stat, String s) {
-    this.add(stat, s, Map.of(stat, "fillcolor=lightblue,style=filled"));
+    this.add(stat, s, Map.of(stat, "fillcolor=" + DotExporter.BG_DOM_INFO + ",style=filled"));
   }
 
   void success(Statement stat, String s) {
-    this.add(stat, s, Map.of(stat, "fillcolor=lawngreen,style=filled"));
+    this.add(stat, s, Map.of(stat, "fillcolor=" + DotExporter.BG_DOM_SUCCESS + ",style=filled"));
   }
 
   void successCreated(Statement stat, String s, Statement newStat) {
     Map<Statement, String> props = new HashMap<>();
-    props.put(stat, "fillcolor=orange,style=filled");
-    props.put(newStat, "fillcolor=lawngreen,style=filled");
+    props.put(stat, "fillcolor=" + DotExporter.BG_DOM_OLDSTAT + ",style=filled");
+    props.put(newStat, "fillcolor=" + DotExporter.BG_DOM_NEWSTAT + ",style=filled");
     for (Statement st : newStat.getStats()) {
-      props.put(st, "fillcolor=pink,style=filled");
+      props.put(st, "fillcolor=" + DotExporter.BG_DOM_NEWSTAT_CHILDREN + ",style=filled");
     }
     this.add(stat, s, props);
   }

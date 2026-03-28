@@ -8,6 +8,8 @@ public class TestRecordPatterns8 {
     record R1(int x) implements Sealed {}
 
     record R2(String s) implements Sealed {}
+
+    record R3(int x, String s) implements Sealed {}
   }
 
   public Object test1(File f) {
@@ -73,6 +75,20 @@ public class TestRecordPatterns8 {
       Sealed i = get("aaaa");
       if (i instanceof Sealed.R1(int v)) {
         return v;
+      }
+      System.out.println("end");
+    } catch (FileNotFoundException e) {
+      return e;
+    }
+
+    return null;
+  }
+
+  public Object test6(File f) {
+    try {
+      Sealed i = get("aaaa");
+      if (i instanceof Sealed.R3(int v, String s)) {
+        return v + s.length();
       }
       System.out.println("end");
     } catch (FileNotFoundException e) {

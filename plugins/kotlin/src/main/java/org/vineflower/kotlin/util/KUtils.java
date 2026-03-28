@@ -43,6 +43,10 @@ public class KUtils {
       return new KAnnotationExprent((AnnotationExprent) ex);
     } else if (ex instanceof SwitchHeadExprent) {
       return new KSwitchHeadExprent((SwitchHeadExprent) ex);
+    } else if (ex instanceof NewExprent) {
+      return new KNewExprent((NewExprent) ex);
+    } else if (ex instanceof ExitExprent) {
+      return new KExitExprent((ExitExprent) ex);
     }
 
     return null;
@@ -50,7 +54,7 @@ public class KUtils {
 
   public static void appendVisibility(TextBuffer buf, ProtoBuf.Visibility visibility) {
     switch (visibility) {
-      case LOCAL -> buf.append("// $VF: local visibility outside of method")
+      case LOCAL -> buf.append("// $VF: local visibility outside of methodSupplier")
         .appendLineSeparator()
         .append("internal ");
       case PRIVATE_TO_THIS -> buf.append("private ");

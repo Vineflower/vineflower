@@ -1,5 +1,8 @@
 package org.vineflower.kotlin.struct;
 
+import org.jetbrains.java.decompiler.struct.StructClass;
+import org.jetbrains.java.decompiler.struct.attr.StructAnnDefaultAttribute;
+import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
 import org.vineflower.kt.metadata.deserialization.Flags;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
@@ -18,6 +21,7 @@ import org.vineflower.kotlin.util.KUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class DefaultArgsMap {
   private final Map<KParameter, Exprent> map;
@@ -34,17 +38,17 @@ public class DefaultArgsMap {
     }
 
     /*
-     * Kotlin's method to define default arguments is a bit odd. The default values are stored in a separate method
-     * which is called in place of the actual method when defaults are needed. The method containing the defaults
+     * Kotlin's methodSupplier to define default arguments is a bit odd. The default values are stored in a separate methodSupplier
+     * which is called in place of the actual methodSupplier when defaults are needed. The methodSupplier containing the defaults
      * contains two extra arguments, a bitmask and a value that is always null. The bitmask specifies which arguments
-     * should be replaced with defaults, and it corresponds one-to-one with all the parameters of the actual method,
+     * should be replaced with defaults, and it corresponds one-to-one with all the parameters of the actual methodSupplier,
      * including non-defaulted ones. Constructors follow the same pattern, but the null extra parameter has a type of
      * `DefaultConstructorMarker` instead of `Object`, and the default wrappers are true constructors.
      *
      * In the case of 32 or more parameters, additional bitmask fields are created as needed.
      *
-     * For a method defined as `fun foo(arg1: Int = 42, arg2: String, arg3: Any? = null)`,
-     * the method containing its default values would look like this:
+     * For a methodSupplier defined as `fun foo(arg1: Int = 42, arg2: String, arg3: Any? = null)`,
+     * the methodSupplier containing its default values would look like this:
      *
      * String foo$default(int arg1, String arg2, Object arg3, int bitmask, Object alwaysNull) {
      *   if ((bitmask & 0b001) != 0) {
@@ -58,7 +62,7 @@ public class DefaultArgsMap {
      *   return foo(arg1, arg2, arg3);
      * }
      *
-     * To parse this, the method graph is traversed, and for each if statement, the condition of the statement is
+     * To parse this, the methodSupplier graph is traversed, and for each if statement, the condition of the statement is
      * checked to see if it matches the pattern Kotlin uses, and the if-true branch is checked to see if it is a
      * simple assignment. If both are true, it assumes that the assignment is a default value check and extracts
      * the assigned value.
@@ -126,6 +130,32 @@ public class DefaultArgsMap {
     }
 
     return new DefaultArgsMap(map, defaults.methodStruct);
+  }
+
+  public static DefaultArgsMap fromAnnotation(StructClass cl) {
+    KConstructor primaryConstructor = cl.getAttribute(KConstructor.PRIMARY_CONSTRUCTOR);
+    if (primaryConstructor == null) {
+      return new DefaultArgsMap(Map.of(), null);
+    }
+
+    Map<String, StructAnnDefaultAttribute> defaultsByName = cl.getMethods().stream()
+      .filter(mt -> mt.getAttribute(KElement.KEY) instanceof KProperty)
+      .filter(mt -> mt.hasAttribute(StructGeneralAttribute.ATTRIBUTE_ANNOTATION_DEFAULT))
+      .collect(Collectors.toMap(mt -> ((KProperty) mt.getAttribute(KElement.KEY)).name(), mt -> mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_ANNOTATION_DEFAULT)));
+
+    Map<KParameter, Exprent> defaults = new HashMap<>();
+    for (KParameter param : primaryConstructor.parameters()) {
+      StructAnnDefaultAttribute attr = defaultsByName.get(param.name());
+      if (attr == null) {
+        continue;
+      }
+
+      Exprent kexpr = KUtils.replaceExprent(attr.getDefaultValue());
+      Exprent expr = kexpr == null ? attr.getDefaultValue() : kexpr;
+      defaults.put(param, expr);
+    }
+
+    return new DefaultArgsMap(defaults, null);
   }
 
   public TextBuffer toJava(KParameter parameter, int indent) {

@@ -36,7 +36,7 @@ public class TestNullableOperator {
       if (x != null) {// 21
          return x
       } else {
-         throw new Exception()
+         throw Exception()
       }
    }
 
@@ -50,7 +50,7 @@ public class TestNullableOperator {
       if (x != null) {// 29
          x.printStackTrace()
       } else {
-         throw new Exception()
+         throw Exception()
       }
    }
 

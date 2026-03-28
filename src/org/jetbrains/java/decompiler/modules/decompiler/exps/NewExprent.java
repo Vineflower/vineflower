@@ -43,6 +43,7 @@ public class NewExprent extends Exprent {
   private boolean anonymous;
   private boolean lambda;
   private boolean methodReference = false;
+
   private boolean enumConst;
   private List<VarType> genericArgs = new ArrayList<>();
   private VarType inferredLambdaType = null;
@@ -534,7 +535,7 @@ public class NewExprent extends Exprent {
     return node != null && node.type == ClassNode.Type.ANONYMOUS;
   }
 
-  private static TextBuffer getQualifiedNewInstance(String classname, List<Exprent> lstParams, int indent) {
+  public static TextBuffer getQualifiedNewInstance(String classname, List<Exprent> lstParams, int indent) {
     ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(classname);
 
     if (node != null && node.type != ClassNode.Type.ROOT && node.type != ClassNode.Type.LOCAL
@@ -843,6 +844,10 @@ public class NewExprent extends Exprent {
     this.anonymous = anonymous;
   }
 
+  public boolean isEnumConst() {
+    return enumConst;
+  }
+
   public void setEnumConst(boolean enumConst) {
     this.enumConst = enumConst;
   }
@@ -856,6 +861,15 @@ public class NewExprent extends Exprent {
     if (node != null && constructor != null) {
       String descriptor = ((PrimitiveConstant)constructor.getBootstrapArguments().get(0)).getString();
       return InterpreterUtil.makeUniqueKey(node.lambdaInformation.method_name, descriptor);
+    }
+    return "";
+  }
+
+
+  public String getLambdaContentMethodKey() {
+    ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(newType.value);
+    if (node != null && constructor != null) {
+      return InterpreterUtil.makeUniqueKey(node.lambdaInformation.content_method_name, node.lambdaInformation.content_method_descriptor);
     }
     return "";
   }
