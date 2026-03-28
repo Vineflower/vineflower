@@ -29,6 +29,14 @@ public class KotlinTests extends SingleClassesTestBase {
       IFernflowerPreferences.REMOVE_SYNTHETIC, "0",
       IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1"
     );
+    registerSet("Multifile Facade", this::registerMultifileTests,
+      IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
+      IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
+      IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
+      IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
+      IFernflowerPreferences.REMOVE_SYNTHETIC, "0",
+      KotlinOptions.DECOMPILE_FACADES, "1"
+      );
   }
 
   private void registerKotlinTests() {
@@ -108,5 +116,11 @@ public class KotlinTests extends SingleClassesTestBase {
     register(KOTLIN, "TestCompanionObject");
     register(KOTLIN, "TestEnumClass");
     register(KOTLIN, "TestAnonymousEverything");
+  }
+
+  private void registerMultifileTests() {
+    register(KOTLIN, "TestMultifile");
+    register(KOTLIN, "TestMultifile__TestMultifileA");
+    register(KOTLIN, "TestMultifile__TestMultifileB");
   }
 }
