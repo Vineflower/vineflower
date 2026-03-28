@@ -831,6 +831,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_25, "TestAssertsEnabled");
     register(JAVA_8, "TestFloatPiAdd");
     register(JAVA_25, "TestAssertPatternMatching");
+    // TODO: incorrect var splitting!
+    register(JAVA_8, "TestFinallyVarDef");
   }
 
   private void registerEntireClassPath() {
