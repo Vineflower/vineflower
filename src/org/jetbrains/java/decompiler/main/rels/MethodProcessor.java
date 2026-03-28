@@ -121,10 +121,10 @@ public class MethodProcessor implements Runnable {
 
       RootStatement root = spec.graphParser.createStatement(graph, mt);
 
-      pctx = new PassContext(root, graph, mt, cl, varProc, decompileRecord);
+      pctx.setRoot(root);
       spec.pass.run(pctx);
 
-      return root;
+      return pctx.getRoot();
     }
 
     PassContext pctx = new PassContext(null, graph, mt, cl, varProc, decompileRecord);

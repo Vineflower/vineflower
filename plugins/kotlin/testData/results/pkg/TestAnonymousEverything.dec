@@ -4,6 +4,7 @@ import java.util.function.Consumer
 import kotlin.jvm.functions.Function0
 import kotlin.jvm.functions.Function1
 import kotlin.jvm.functions.Function2
+import kotlin.jvm.internal.Lambda
 import kotlin.jvm.internal.SourceDebugExtension
 import kotlin.jvm.internal.Ref.IntRef
 import kotlin.reflect.KFunction
@@ -17,9 +18,28 @@ public class TestAnonymousEverything {
    }// 9
 
    public fun testSerializableLambda() {
+      @Metadata(
+         mv = {2, 0, 0},
+         k = 3,
+         xi = 48,
+         d1 = "\u0000\n\n\u0000\n\u0002\u0010\b\n\u0002\b\u0004\u0010\u0000\u001a\u00020\u00012\u0006\u0010\u0002\u001a\u00020\u00012\u0006\u0010\u0003\u001a\u00020\u0001H\n¢\u0006\u0004\b\u0004\u0010\u0005",
+         d2 = {"<anonymous>", "", "x", "y", "invoke", "(II)Ljava/lang/Integer;"}
+      )
+      final class NamelessClass_2 extends Lambda implements Function2<Integer, Integer, Integer> {
+         public static final NamelessClass_2 INSTANCE = NamelessClass_2();
+
+         NamelessClass_2() {
+            super(2)
+         }
+
+         public final Integer invoke(int x, int y) {
+            x + y
+         }
+      }
+
       ({ x, y ->// 13
-         x + y// 12
-      } as Function2)(1, 2)
+         x + y
+      } as Function2)(1, 2)// 12
    }// 14
 
    public fun testAnonymousObject() {
@@ -61,14 +81,41 @@ public class TestAnonymousEverything {
    }// 54
 
    public fun testMultipleSubtypes() {
-      val obj: Any = object : Runnable, Consumer<Unit> {// 57
-         public open fun run() {
+      @Metadata(
+         mv = {2, 0, 0},
+         k = 1,
+         xi = 48,
+         d1 = "\u0000\u0015\n\u0000\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0002\u0010\u0002\n\u0002\b\u0005*\u0001\u0000\b\n\u0018\u00002\u00020\u00012\b\u0012\u0004\u0012\u00020\u00030\u0002J\b\u0010\u0004\u001a\u00020\u0003H\u0016J\u0015\u0010\u0005\u001a\u00020\u00032\u0006\u0010\u0006\u001a\u00020\u0003H\u0016¢\u0006\u0002\u0010\u0007¨\u0006\b",
+         d2 = {
+               "pkg/TestAnonymousEverything$testMultipleSubtypes$obj$1",
+               "Ljava/lang/Runnable;",
+               "Ljava/util/function/Consumer;",
+               "",
+               "run",
+               "accept",
+               "t",
+               "(Lkotlin/Unit;)V",
+               "vineflower-kotlin_testDataKotlin"
+         }
+      )
+      final class NamelessClass_1 implements Runnable, Consumer<Unit> {
+         public void run() {
             System.out.println("Runnable.run")
          }// 58
 
-         public open fun accept(t: Unit) {
+         public void accept(Unit t) {
             System.out.println("Consumer.accept")
          }// 59
+      }
+
+      val obj: NamelessClass_1 = object : Runnable, Consumer<Unit> {// 57
+         public open fun run() {
+            System.out.println("Runnable.run")
+         }
+
+         public open fun accept(t: Unit) {
+            System.out.println("Consumer.accept")
+         }
       }
       obj.run()// 62
       obj.accept(Unit.INSTANCE)// 63
@@ -128,392 +175,380 @@ public class TestAnonymousEverything {
 
 class 'pkg/TestAnonymousEverything' {
    method 'testPlainLambda$lambda$0 (II)I' {
-      0      14
-      1      14
-      2      14
+      0      15
+      1      15
+      2      15
    }
 
    method 'testPlainLambda ()V' {
-      7      15
-      8      15
-      9      15
-      a      15
-      b      15
-      c      15
-      d      15
-      e      15
-      f      15
-      10      15
-      11      15
-      12      15
-      13      15
-      15      16
+      7      16
+      8      16
+      9      16
+      a      16
+      b      16
+      c      16
+      d      16
+      e      16
+      f      16
+      10      16
+      11      16
+      12      16
+      13      16
+      15      17
    }
 
    method 'testSerializableLambda ()V' {
-      0      21
-      1      21
-      2      21
-      3      19
-      4      19
-      5      19
-      7      19
-      8      21
-      9      21
-      a      21
-      b      21
-      c      21
-      d      21
-      e      21
-      f      21
-      10      21
-      11      21
-      12      21
-      13      21
-      14      21
-      16      22
+      0      41
+      1      41
+      2      41
+      3      39
+      4      39
+      5      39
+      7      39
+      8      41
+      9      41
+      a      41
+      b      41
+      c      41
+      d      41
+      e      41
+      f      41
+      10      41
+      11      41
+      12      41
+      13      41
+      14      41
+      16      42
    }
 
    method 'testAnonymousObject ()V' {
-      0      25
-      1      25
-      2      25
-      8      25
-      9      29
-      a      29
-      b      29
-      c      29
-      d      29
-      f      30
+      0      45
+      1      45
+      2      45
+      8      45
+      9      49
+      a      49
+      b      49
+      c      49
+      d      49
+      f      50
    }
 
    method 'testFunctionAnonymousObject ()V' {
-      0      33
-      1      33
-      2      33
-      8      33
-      9      37
-      a      37
-      b      37
-      c      37
-      d      37
-      f      38
+      0      53
+      1      53
+      2      53
+      8      53
+      9      57
+      a      57
+      b      57
+      c      57
+      d      57
+      f      58
    }
 
    method 'testAnonymousFunction$lambda$1 (II)I' {
-      0      42
-      1      42
-      2      42
+      0      62
+      1      62
+      2      62
    }
 
    method 'testAnonymousFunction ()V' {
-      7      43
-      8      43
-      9      43
-      a      43
-      b      43
-      c      43
-      d      43
-      e      43
-      f      43
-      10      43
-      11      43
-      12      43
-      13      43
-      15      44
+      7      63
+      8      63
+      9      63
+      a      63
+      b      63
+      c      63
+      d      63
+      e      63
+      f      63
+      10      63
+      11      63
+      12      63
+      13      63
+      15      64
    }
 
    method 'add (II)I' {
-      0      47
-      1      47
-      2      47
-      3      47
+      0      67
+      1      67
+      2      67
+      3      67
    }
 
    method 'testFunctionReference ()V' {
-      0      51
-      1      51
-      2      51
-      4      51
-      8      51
-      9      51
-      a      51
-      c      51
-      d      51
-      e      51
-      f      51
-      10      51
-      11      51
-      12      51
-      13      51
-      14      51
-      15      51
-      16      51
-      17      51
-      18      51
-      19      51
-      1a      51
-      1b      51
-      1c      51
-      1e      52
+      0      71
+      1      71
+      2      71
+      4      71
+      8      71
+      9      71
+      a      71
+      c      71
+      d      71
+      e      71
+      f      71
+      10      71
+      11      71
+      12      71
+      13      71
+      14      71
+      15      71
+      16      71
+      17      71
+      18      71
+      19      71
+      1a      71
+      1b      71
+      1c      71
+      1e      72
    }
 
    method 'testConstructorReference ()V' {
-      0      55
-      1      55
-      2      55
-      3      55
-      4      55
-      5      55
-      7      55
-      8      55
-      9      55
-      a      55
-      b      55
-      c      55
-      d      55
-      e      55
-      f      55
-      11      56
+      0      75
+      1      75
+      2      75
+      3      75
+      4      75
+      5      75
+      7      75
+      8      75
+      9      75
+      a      75
+      b      75
+      c      75
+      d      75
+      e      75
+      f      75
+      11      76
    }
 
    method 'testNoTypeReference ()V' {
-      0      59
-      1      59
-      2      59
-      3      59
-      4      59
-      5      59
-      7      59
-      8      59
-      9      59
-      a      59
-      b      59
-      c      59
-      d      59
-      e      59
-      f      59
-      10      59
-      12      60
-   }
-
-   method 'testMultipleSubtypes ()V' {
-      0      63
-      1      63
-      2      63
-      7      63
-      8      72
-      9      72
-      a      72
-      b      72
-      c      73
-      d      73
-      e      73
-      f      73
-      10      73
-      11      73
-      12      73
-      13      74
-   }
-
-   method 'testNestedLambdas$lambda$3 (I)I' {
-      8      80
-      9      80
-      a      80
-      b      80
-      c      80
-      d      80
-      e      80
-      f      80
-      10      80
-      11      78
-      12      78
-      13      78
-      14      80
-      15      80
-      16      80
-   }
-
-   method 'testNestedLambdas$lambda$3$lambda$2 (II)I' {
       0      79
       1      79
       2      79
+      3      79
+      4      79
+      5      79
+      7      79
+      8      79
+      9      79
+      a      79
+      b      79
+      c      79
+      d      79
+      e      79
+      f      79
+      10      79
+      12      80
+   }
+
+   method 'testMultipleSubtypes ()V' {
+      0      110
+      1      110
+      2      110
+      7      110
+      8      119
+      9      119
+      a      119
+      b      119
+      c      120
+      d      120
+      e      120
+      f      120
+      10      120
+      11      120
+      12      120
+      13      121
+   }
+
+   method 'testNestedLambdas$lambda$3 (I)I' {
+      8      127
+      9      127
+      a      127
+      b      127
+      c      127
+      d      127
+      e      127
+      f      127
+      10      127
+      11      125
+      12      125
+      13      125
+      14      127
+      15      127
+      16      127
+   }
+
+   method 'testNestedLambdas$lambda$3$lambda$2 (II)I' {
+      0      126
+      1      126
+      2      126
    }
 
    method 'testNestedLambdas ()V' {
-      7      81
-      8      81
-      9      81
-      a      81
-      b      81
-      c      81
-      d      81
-      e      81
-      f      81
-      11      82
+      7      128
+      8      128
+      9      128
+      a      128
+      b      128
+      c      128
+      d      128
+      e      128
+      f      128
+      11      129
    }
 
    method 'testCapturedLocalVariables ()V' {
-      7      85
-      8      86
-      9      86
-      a      86
-      b      86
-      c      86
-      15      89
-      16      89
-      17      89
-      18      89
-      19      89
-      27      92
-      28      92
-      29      92
-      2a      92
-      2b      92
-      2d      93
+      7      132
+      8      133
+      9      133
+      a      133
+      b      133
+      c      133
+      15      136
+      16      136
+      17      136
+      18      136
+      19      136
+      27      139
+      28      139
+      29      139
+      2a      139
+      2b      139
+      2d      140
    }
 
    method 'testCapturedLocalVariables$lambda$4 (Lkotlin/jvm/internal/Ref$IntRef;)I' {
-      6      88
-      7      88
-      8      88
-      9      88
-      e      88
+      6      135
+      7      135
+      8      135
+      9      135
+      e      135
    }
 
    method 'testCapturedLocalVariables$lambda$5 (I)I' {
-      0      91
+      0      138
    }
 
    method 'testEarlyReturn ()V' {
-      5      96
-      6      105
-      7      105
-      8      105
-      9      105
-      a      105
-      b      105
-      c      105
-      d      105
-      e      105
-      f      105
-      11      106
-      12      106
-      13      106
-      14      106
-      15      106
-      16      106
-      17      106
-      18      106
-      19      106
-      1a      106
-      1c      107
+      5      143
+      6      152
+      7      152
+      8      152
+      9      152
+      a      152
+      b      152
+      c      152
+      d      152
+      e      152
+      f      152
+      11      153
+      12      153
+      13      153
+      14      153
+      15      153
+      16      153
+      17      153
+      18      153
+      19      153
+      1a      153
+      1c      154
    }
 
    method 'testEarlyReturn$lambda$6 (I)I' {
-      0      97
-      1      97
-      2      97
-      3      97
-      4      98
-      5      98
-      7      99
-      8      99
-      9      99
-      a      99
-      b      99
-      c      99
-      d      100
-      e      100
-      10      102
-      11      102
-      12      102
-      13      102
-      14      102
-      16      102
-      17      102
-      18      102
+      0      144
+      1      144
+      2      144
+      3      144
+      4      145
+      5      145
+      7      146
+      8      146
+      9      146
+      a      146
+      b      146
+      c      146
+      d      147
+      e      147
+      10      149
+      11      149
+      12      149
+      13      149
+      14      149
+      16      149
+      17      149
+      18      149
    }
 
    method 'testThrows ()V' {
-      5      110
-      6      119
+      5      157
+      6      166
    }
 
    method 'testThrows$lambda$8 (I)I' {
-      0      111
-      1      111
-      2      111
-      3      111
-      8      112
-      9      112
-      d      112
-      e      113
-      f      113
-      10      113
-      11      113
-      12      113
-      13      113
-      19      113
-      1a      113
-      1b      113
-      1e      114
-      1f      114
-      25      114
-      26      114
-      27      114
-      28      114
-      2c      114
-      2d      116
-      2e      116
-      2f      116
+      0      158
+      1      158
+      2      158
+      3      158
+      8      159
+      9      159
+      d      159
+      e      160
+      f      160
+      10      160
+      11      160
+      12      160
+      13      160
+      19      160
+      1a      160
+      1b      160
+      1e      161
+      1f      161
+      25      161
+      26      161
+      27      161
+      28      161
+      2c      161
+      2d      163
+      2e      163
+      2f      163
    }
 
    method 'testIgnoredParams$lambda$9 (ILjava/lang/Object;)Lkotlin/Unit;' {
-      6      123
-      7      123
-      8      123
+      6      170
+      7      170
+      8      170
    }
 
    method 'testIgnoredParams ()V' {
-      7      124
-      8      124
-      9      124
-      a      124
-      b      124
-      c      124
-      d      124
-      e      124
-      f      124
-      10      124
-      11      124
-      12      124
-      13      124
-      15      125
+      7      171
+      8      171
+      9      171
+      a      171
+      b      171
+      c      171
+      d      171
+      e      171
+      f      171
+      10      171
+      11      171
+      12      171
+      13      171
+      15      172
    }
 }
 
 class 'pkg/TestAnonymousEverything$testSerializableLambda$lambda$1' {
-   method 'invoke (II)Ljava/lang/Integer;' {
-      0      20
-      1      20
-      2      20
-      3      20
-      4      20
-      5      20
+   method '<init> ()V' {
+      1      31
+      2      31
+      3      31
+      4      31
+      5      32
    }
-}
 
-class 'pkg/TestAnonymousEverything$testAnonymousObject$obj$1' {
-   method 'foo (II)I' {
-      0      27
-      1      27
-      2      27
-      3      27
-   }
-}
-
-class 'pkg/TestAnonymousEverything$testFunctionAnonymousObject$obj$1' {
    method 'invoke (II)Ljava/lang/Integer;' {
       0      35
       1      35
@@ -521,100 +556,120 @@ class 'pkg/TestAnonymousEverything$testFunctionAnonymousObject$obj$1' {
       3      35
       4      35
       5      35
-      6      35
+   }
+}
+
+class 'pkg/TestAnonymousEverything$testAnonymousObject$obj$1' {
+   method 'foo (II)I' {
+      0      47
+      1      47
+      2      47
+      3      47
+   }
+}
+
+class 'pkg/TestAnonymousEverything$testFunctionAnonymousObject$obj$1' {
+   method 'invoke (II)Ljava/lang/Integer;' {
+      0      55
+      1      55
+      2      55
+      3      55
+      4      55
+      5      55
+      6      55
    }
 }
 
 class 'pkg/TestAnonymousEverything$testMultipleSubtypes$obj$1' {
    method 'run ()V' {
-      0      65
-      1      65
-      2      65
-      3      65
-      4      65
-      6      65
-      7      65
-      8      65
-      9      66
+      0      102
+      1      102
+      2      102
+      3      102
+      4      102
+      6      102
+      7      102
+      8      102
+      9      103
    }
 
    method 'accept (Lkotlin/Unit;)V' {
-      6      69
-      7      69
-      8      69
-      9      69
-      a      69
-      c      69
-      d      69
-      e      69
-      f      70
+      6      106
+      7      106
+      8      106
+      9      106
+      a      106
+      c      106
+      d      106
+      e      106
+      f      107
    }
 }
 
 Lines mapping:
-7 <-> 15
-8 <-> 16
-9 <-> 17
-12 <-> 21
-13 <-> 20
-14 <-> 23
-17 <-> 26
-19 <-> 28
-22 <-> 26
-23 <-> 31
-26 <-> 34
-28 <-> 36
-31 <-> 34
-32 <-> 39
-35 <-> 43
-36 <-> 44
-37 <-> 45
-39 <-> 48
-42 <-> 52
-43 <-> 52
-44 <-> 53
-47 <-> 56
-48 <-> 56
-49 <-> 57
-52 <-> 60
-53 <-> 60
-54 <-> 61
-57 <-> 64
-58 <-> 67
-59 <-> 71
-62 <-> 73
-63 <-> 74
-64 <-> 75
-68 <-> 80
-69 <-> 81
-71 <-> 82
-72 <-> 83
-75 <-> 86
-76 <-> 89
-77 <-> 90
-80 <-> 92
-81 <-> 93
-82 <-> 94
-85 <-> 97
-86 <-> 98
-87 <-> 99
-90 <-> 100
-91 <-> 101
-94 <-> 103
-95 <-> 103
-98 <-> 103
-100 <-> 106
-101 <-> 107
-102 <-> 108
-105 <-> 111
-106 <-> 112
-107 <-> 113
-110 <-> 115
-112 <-> 117
-114 <-> 120
-117 <-> 124
-118 <-> 125
-119 <-> 126
+7 <-> 16
+8 <-> 17
+9 <-> 18
+12 <-> 42
+13 <-> 40
+14 <-> 43
+17 <-> 46
+19 <-> 48
+22 <-> 46
+23 <-> 51
+26 <-> 54
+28 <-> 56
+31 <-> 54
+32 <-> 59
+35 <-> 63
+36 <-> 64
+37 <-> 65
+39 <-> 68
+42 <-> 72
+43 <-> 72
+44 <-> 73
+47 <-> 76
+48 <-> 76
+49 <-> 77
+52 <-> 80
+53 <-> 80
+54 <-> 81
+57 <-> 111
+58 <-> 104
+59 <-> 108
+62 <-> 120
+63 <-> 121
+64 <-> 122
+68 <-> 127
+69 <-> 128
+71 <-> 129
+72 <-> 130
+75 <-> 133
+76 <-> 136
+77 <-> 137
+80 <-> 139
+81 <-> 140
+82 <-> 141
+85 <-> 144
+86 <-> 145
+87 <-> 146
+90 <-> 147
+91 <-> 148
+94 <-> 150
+95 <-> 150
+98 <-> 150
+100 <-> 153
+101 <-> 154
+102 <-> 155
+105 <-> 158
+106 <-> 159
+107 <-> 160
+110 <-> 162
+112 <-> 164
+114 <-> 167
+117 <-> 171
+118 <-> 172
+119 <-> 173
 Not mapped:
 67
 79
