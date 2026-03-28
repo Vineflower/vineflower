@@ -3,6 +3,7 @@ package org.jetbrains.java.decompiler.modules.decompiler;
 
 import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.DoStatement;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.struct.StructClass;
 
@@ -204,10 +205,10 @@ public class EliminateLoopsHelper {
       StatEdge edge = loopcontent.getSuccessorEdges(StatEdge.TYPE_BREAK).get(0);
 
       // TODO: is this correct? This is required to make sure we don't remove an if->if break that causes a failure in && processing
-      if (edge.getDestination() instanceof BasicBlockStatement) {
-        loopcontent.removeSuccessor(edge);
-      } else {
+      if (edge.getDestination() instanceof IfStatement) {
         edge.changeClosure(parentloop);
+      } else {
+        loopcontent.removeSuccessor(edge);
       }
     }
 
