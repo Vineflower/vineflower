@@ -67,7 +67,7 @@ public class DecompilerContext {
     return currentContext.get();
   }
 
-  public static void setCurrentContext(DecompilerContext context) {
+  public static void setCurrentContext(@Nullable DecompilerContext context) {
     if (context == null) {
       currentContext.remove();
     } else {

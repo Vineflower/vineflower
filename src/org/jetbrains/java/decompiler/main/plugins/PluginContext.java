@@ -1,13 +1,16 @@
 package org.jetbrains.java.decompiler.main.plugins;
 
+import org.jetbrains.java.decompiler.api.java.ClassPassLocation;
 import org.jetbrains.java.decompiler.api.plugin.Plugin;
 import org.jetbrains.java.decompiler.api.java.JavaPassLocation;
 import org.jetbrains.java.decompiler.api.java.JavaPassRegistrar;
 import org.jetbrains.java.decompiler.api.plugin.LanguageSpec;
 import org.jetbrains.java.decompiler.api.plugin.PluginOptions;
 import org.jetbrains.java.decompiler.api.plugin.PluginSource;
+import org.jetbrains.java.decompiler.api.plugin.pass.ClassPass;
 import org.jetbrains.java.decompiler.api.plugin.pass.NamedPass;
 import org.jetbrains.java.decompiler.api.plugin.pass.PassContext;
+import org.jetbrains.java.decompiler.main.ClassesProcessor;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.decompiler.CancelationManager;
 import org.jetbrains.java.decompiler.main.extern.IVariableNameProvider;
@@ -15,6 +18,7 @@ import org.jetbrains.java.decompiler.main.extern.IVariableNamingFactory;
 import org.jetbrains.java.decompiler.struct.StructClass;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 public class PluginContext {
@@ -22,6 +26,7 @@ public class PluginContext {
   private final Map<Plugin, PluginSource> bySource = new HashMap<>();
   private boolean initialized = false;
   private Map<JavaPassLocation, List<NamedPass>> passes = new HashMap<>();
+  private Map<ClassPassLocation, List<ClassPass>> classPasses = new HashMap<>();
   private final Map<Plugin, LanguageSpec> languageSpecs = new HashMap<>();
   private final Set<String> ids = new HashSet<>();
 
@@ -60,6 +65,8 @@ public class PluginContext {
         throw new IllegalStateException("Duplicate plugin " + plugin.getClass().getName() + " with id " + id);
       }
 
+      plugin.initialize();
+
       plugin.registerJavaPasses(registrar);
       LanguageSpec spec = plugin.getLanguageSpec();
       if (spec != null) {
@@ -77,6 +84,13 @@ public class PluginContext {
     }
 
     passes = registrar.getPasses();
+    classPasses = registrar.getClassPasses();
+  }
+
+  public void close() {
+    for (Plugin plugin : plugins) {
+      plugin.close();
+    }
   }
 
   // Returns whether any passes were run
@@ -91,6 +105,12 @@ public class PluginContext {
     }
 
     return false;
+  }
+
+  public void runClassPasses(ClassPassLocation location, ClassesProcessor.ClassNode node) {
+    for (ClassPass pass : this.classPasses.getOrDefault(location, List.of())) {
+      pass.run(node);
+    }
   }
 
   public LanguageSpec getLanguageSpec(StructClass cl) {

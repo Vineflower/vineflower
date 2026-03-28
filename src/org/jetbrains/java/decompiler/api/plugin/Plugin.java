@@ -11,6 +11,8 @@ public interface Plugin {
 
   /**
    * Unique id of the current plugin. Must be unique across all loaded plugins, otherwise an error will be raised at runtime.
+   * By convention, this id is a PascalCase name.
+   *
    * @return id of the plugin
    */
   String id();
@@ -20,6 +22,20 @@ public interface Plugin {
    * @return a short description of the plugin
    */
   String description();
+
+  /**
+   * Called after plugins are constructed, which happens every time a new decompiler instance is created.
+   */
+  default void initialize() {
+
+  }
+
+  /**
+   * Called after decompilation is done and the context is cleared.
+   */
+  default void close() {
+
+  }
 
   /**
    * Allows addition to the list of passes that will be run during Java decompilation.

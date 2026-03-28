@@ -1,6 +1,7 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.struct;
 
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.main.ClassWriter;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.decompiler.CancelationManager;
@@ -8,6 +9,7 @@ import org.jetbrains.java.decompiler.main.extern.IContextSource;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.extern.IResultSaver;
+import org.jetbrains.java.decompiler.util.DataInputFullStream;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
 import java.io.IOException;
@@ -54,8 +56,8 @@ public class ContextUnit {
           // TODO: more proper handling of multirelease jars, rather than just stripping them
           this.classEntries = entries.classes().stream()
             .filter(ent -> ent.multirelease() == IContextSource.Entry.BASE_VERSION)
-            .map(entry -> entry.basePath())
-            .collect(Collectors.toUnmodifiableList());
+            .map(IContextSource.Entry::basePath)
+            .toList();
           this.dirEntries = entries.directories();
           boolean includeExtras = !DecompilerContext.getOption(IFernflowerPreferences.SKIP_EXTRA_FILES);
           this.otherEntries = new ArrayList<>();
@@ -87,8 +89,17 @@ public class ContextUnit {
     return this.source.hasClass(className);
   }
 
-  public byte/* @Nullable */[] getClassBytes(final String className) throws IOException {
+  public byte @Nullable [] getClassBytes(String className) throws IOException {
     return this.source.getClassBytes(className);
+  }
+
+  public @Nullable StructClass tryLoadClass(String className) throws IOException {
+    byte[] data = getClassBytes(className);
+    if (data == null) {
+      return null;
+    }
+
+    return StructClass.create(new DataInputFullStream(data), isOwn());
   }
 
   public List<String> getDirectoryNames() {
@@ -120,6 +131,10 @@ public class ContextUnit {
   }
 
   public void save(final Function<String, StructClass> loader) throws IOException {
+    if (!this.isOwn()) {
+      throw new IllegalStateException("Trying to save non-own unit?");
+    }
+
     this.initEntries();
     final IContextSource.IOutputSink sink = this.source.createOutputSink(this.resultSaver);
     if (sink == null) {

@@ -4,12 +4,6 @@ import java.io.FileInputStream
 import java.io.InputStream
 
 public class TestTrySynchronized {
-   private final val inputStream: InputStream?
-      private final get() {
-         return null// 41
-      }
-
-
    @Throws(java/lang/Exception::class)
    public fun case01() {
       synchronized (monitor) {// 10
@@ -43,111 +37,117 @@ public class TestTrySynchronized {
       }
    }// 38
 
+   private final val inputStream: InputStream?
+      private final get() {
+         return null// 41
+      }
+
+
    public companion object {
       private final val monitor: TestTrySynchronized
    }
 }
 
 class 'pkg/TestTrySynchronized' {
-   method 'getInputStream ()Ljava/io/InputStream;' {
+   method 'case01 ()V' {
       0      8
       1      8
-   }
-
-   method 'case01 ()V' {
-      0      14
-      1      14
-      2      14
-      4      14
-      5      14
-      9      15
-      a      15
-      b      15
-      c      15
-      d      15
-      f      15
-      10      15
-      11      15
-      18      16
-      21      18
-      22      18
-      28      21
-      29      21
-      2d      21
-      2e      21
-      2f      21
-      30      21
-      34      22
-      35      23
-      3a      23
-      3b      23
-      3c      23
-      3d      25
+      2      8
+      4      8
+      5      8
+      9      9
+      a      9
+      b      9
+      c      9
+      d      9
+      f      9
+      10      9
+      11      9
+      18      10
+      21      12
+      22      12
+      28      15
+      29      15
+      2d      15
+      2e      15
+      2f      15
+      30      15
+      34      16
+      35      17
+      3a      17
+      3b      17
+      3c      17
+      3d      19
    }
 
    method 'case02 ()V' {
-      0      29
-      1      29
-      2      29
-      4      29
-      5      29
-      9      30
-      a      30
-      b      30
-      c      30
-      d      30
-      f      30
-      10      30
-      11      30
-      18      31
-      21      33
-      22      33
-      24      36
-      25      36
-      26      36
-      27      36
-      28      36
-      29      37
-      2a      37
-      2b      37
-      2d      37
-      2e      37
-      33      38
-      34      38
-      35      38
-      36      38
-      37      38
-      39      38
-      3a      38
-      3b      38
-      43      39
-      4e      40
-      4f      41
-      54      41
-      55      41
-      56      41
-      57      43
+      0      23
+      1      23
+      2      23
+      4      23
+      5      23
+      9      24
+      a      24
+      b      24
+      c      24
+      d      24
+      f      24
+      10      24
+      11      24
+      18      25
+      21      27
+      22      27
+      24      30
+      25      30
+      26      30
+      27      30
+      28      30
+      29      31
+      2a      31
+      2b      31
+      2d      31
+      2e      31
+      33      32
+      34      32
+      35      32
+      36      32
+      37      32
+      39      32
+      3a      32
+      3b      32
+      43      33
+      4e      34
+      4f      35
+      54      35
+      55      35
+      56      35
+      57      37
+   }
+
+   method 'getInputStream ()Ljava/io/InputStream;' {
+      0      41
+      1      41
    }
 }
 
 Lines mapping:
-10 <-> 15
-11 <-> 16
-14 <-> 19
-16 <-> 22
-17 <-> 23
-18 <-> 24
-20 <-> 26
-24 <-> 30
-25 <-> 31
-28 <-> 34
-30 <-> 37
-32 <-> 38
-33 <-> 39
-35 <-> 41
-36 <-> 42
-38 <-> 44
-41 <-> 9
+10 <-> 9
+11 <-> 10
+14 <-> 13
+16 <-> 16
+17 <-> 17
+18 <-> 18
+20 <-> 20
+24 <-> 24
+25 <-> 25
+28 <-> 28
+30 <-> 31
+32 <-> 32
+33 <-> 33
+35 <-> 35
+36 <-> 36
+38 <-> 38
+41 <-> 42
 Not mapped:
 12
 15
