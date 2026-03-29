@@ -1,0 +1,97 @@
+package pkg
+
+public class TestTryLoopNoCatch {
+   public fun test(s: Array<String?>) {
+      var b: Boolean = false// 5
+      var i: Int = 0// 6
+
+      for (var4 in s.length..i) {
+         try {
+            val var10001: java.lang.String = s[i]
+            b = this.method(var10001)// 8
+            break;// 9
+         } catch (var6: Exception) {// 10
+         }
+      }
+
+      System.out.println(b)// 14
+   }// 15
+
+   @Throws(java/lang/Exception::class)
+   private fun method(s: String): Boolean {
+      if (s.length() > 20) {// 19
+         throw Exception()// 20
+      } else {
+         return s.length() > 10// 23
+      }
+   }
+}
+
+class 'pkg/TestTryLoopNoCatch' {
+   method 'test ([Ljava/lang/String;)V' {
+      6      4
+      7      4
+      8      5
+      9      5
+      a      7
+      b      7
+      c      7
+      d      7
+      e      7
+      15      10
+      16      9
+      17      9
+      18      9
+      1d      10
+      1e      10
+      1f      10
+      20      10
+      21      11
+      24      12
+      2c      16
+      2d      16
+      2e      16
+      2f      16
+      30      16
+      31      16
+      32      16
+      33      17
+   }
+
+   method 'method (Ljava/lang/String;)Z' {
+      0      21
+      1      21
+      2      21
+      3      21
+      4      21
+      5      21
+      6      21
+      7      21
+      8      21
+      10      22
+      11      24
+      12      24
+      13      24
+      14      24
+      15      24
+      16      24
+      17      24
+      18      24
+      19      24
+      1f      24
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 6
+8 <-> 11
+9 <-> 12
+10 <-> 13
+14 <-> 17
+15 <-> 18
+19 <-> 22
+20 <-> 23
+23 <-> 25
+Not mapped:
+7

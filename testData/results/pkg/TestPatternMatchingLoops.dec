@@ -3,13 +3,10 @@ package pkg;
 import java.util.List;
 
 public class TestPatternMatchingLoops {
-   // $VF: One or more variable merging failures!
-   // $VF: Could not properly define all variable types!
    public void test(TestPatternMatchingLoops.I i) {
       System.out.println(i);// 20
       if (i != null) {// 22
-         <unknown> var10000;
-         for (TestPatternMatchingLoops l : var10000) {// 28
+         for (TestPatternMatchingLoops l : i instanceof TestPatternMatchingLoops.Holder holder ? holder.list : i.get()) {// 26 28
             if (l != null) {// 29
                System.out.println(l);// 33
             }
@@ -33,65 +30,83 @@ public class TestPatternMatchingLoops {
 
 class 'pkg/TestPatternMatchingLoops' {
    method 'test (Lpkg/TestPatternMatchingLoops$I;)V' {
-      0      8
-      1      8
-      2      8
-      3      8
-      4      8
-      5      8
-      6      8
-      7      9
-      8      9
-      9      9
-      a      9
-      b      17
-      36      11
-      37      11
-      38      11
-      39      11
-      3a      11
-      3b      11
-      3c      11
-      3d      11
-      3e      11
-      3f      11
-      40      11
-      41      12
-      42      12
-      43      12
-      44      12
-      45      12
-      49      13
-      4a      13
-      4b      13
-      4c      13
-      4d      13
-      4e      13
-      4f      13
-      50      13
-      54      17
+      0      6
+      1      6
+      2      6
+      3      6
+      4      6
+      5      6
+      6      6
+      7      7
+      8      7
+      9      7
+      a      7
+      b      14
+      c      8
+      d      8
+      e      8
+      f      8
+      10      8
+      11      8
+      12      8
+      17      8
+      18      8
+      19      8
+      1a      8
+      1b      8
+      1f      8
+      20      8
+      21      8
+      22      8
+      23      8
+      24      8
+      36      8
+      37      8
+      38      8
+      39      8
+      3a      8
+      3b      8
+      3c      8
+      3d      8
+      3e      8
+      3f      8
+      40      8
+      41      9
+      42      9
+      43      9
+      44      9
+      45      9
+      49      10
+      4a      10
+      4b      10
+      4c      10
+      4d      10
+      4e      10
+      4f      10
+      50      10
+      54      14
    }
 }
 
 class 'pkg/TestPatternMatchingLoops$Holder' {
    method 'get ()Ljava/util/List;' {
-      0      24
-      1      24
-      2      24
-      3      24
+      0      21
+      1      21
+      2      21
+      3      21
    }
 }
 
 Lines mapping:
-15 <-> 25
-20 <-> 9
-22 <-> 10
-23 <-> 18
-28 <-> 12
-29 <-> 13
-33 <-> 14
-35 <-> 18
+15 <-> 22
+20 <-> 7
+22 <-> 8
+23 <-> 15
+26 <-> 9
+28 <-> 9
+29 <-> 10
+33 <-> 11
+35 <-> 15
 Not mapped:
-26
 30
 34

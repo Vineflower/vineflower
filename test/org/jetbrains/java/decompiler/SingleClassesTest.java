@@ -305,7 +305,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestNestedLambdas");
     register(JAVA_8, "TestSwitchAssign");
     register(JAVA_8, "TestSwitchReturn");
-    // TODO: Turned into for loops
     register(JAVA_8, "TestWhileCondition");
     register(JAVA_8, "TestLocalScopes");
     register(JAVA_8, "TestInterfaceSubclass");
@@ -320,7 +319,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestArrayCopy");
     register(JAVA_8, "TestArrayDoWhile");
     register(JAVA_8_NODEBUG, "TestArrayNull1");
-    // TODO: Object should be int[], cast where there shouldn't be
     register(JAVA_8_NODEBUG, "TestArrayNull2");
     register(JAVA_8, "TestArrayNullAccess");
     register(JAVA_8, "TestArrayTernary");
@@ -568,7 +566,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     registerRaw(CUSTOM, "TestHotjava");
     registerRaw(CUSTOM, "TestJava1Synchronized");
     register(JAVA_8, "TestLabeledBreaks");
-    // TODO: the super() call ends up inside the labeled block
     register(JAVA_8, "TestLabeledBlockInConstructor");
     // TODO: test9&10- for loop not created, loop extractor needs another pass
     register(JAVA_8, "TestSwitchLoop");
@@ -636,7 +633,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_17, "TestDefiniteAssignment");
 
     register(JAVA_8_NODEBUG, "TestNoUse");
-    // TODO: var5 is never defined!
     register(JAVA_8_NODEBUG, "TestTryReturnNoDebug");
     register(JAVA_8, "TestArrayAssign2");
     register(JAVA_8, "TestTryLoopNoCatch");
@@ -701,7 +697,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: foreach array index increment is added into default branch of switch statement
     // TODO: clashing names processor wrongly uses catch's vars in try block
     register(JAVA_8, "TestForeachMultiDimensionalArray");
-    // TODO: large amount of code is deleted
+    // TODO: incorrect placement of yield
     register(JAVA_17_PREVIEW, "TestUnknownCastJ17");
     // TODO: These variables shouldn't be merged, and should be split because each version is used once and has a different type use
     register(JAVA_8_NODEBUG, "TestVarIndex");
@@ -745,7 +741,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_21_PREVIEW, "TestCustomProcessor");
     register(JAVA_16, "TestMissingLambdaBody");
     register(JAVA_25, "TestUnnamedVar1");
-    // TODO: if (true) construction prevents record pattern matching
     register(JAVA_25, "TestRecordPatterns1J25");
     register(JAVA_25, "TestSwitchPatternMatchingJ25");
     register(JAVA_8, "TestNumberCasts");
@@ -766,10 +761,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_21, "TestCastIntersectionJ21");
     register(JAVA_16, "TestRecordLocal");
     register(JAVA_8, "TestAnonymousClassToLambda");
-    // TODO: broken stack processing, deleted ternary!
     register(JAVA_17, "TestPatternMatchingLoops");
     register(JAVA_8, "TestBoxingSuperclass");
-    // TODO: shouldBeOne is completely deleted
     register(JAVA_8, "TestLVTReassignment");
     register(JAVA_8, "TestCatchVariable");
     register(JAVA_8, "TestExtraneousImports");
@@ -781,7 +774,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
 
     registerRaw(CUSTOM, "TestCorruptedSignatures").setExpectedFileName("Signatures.java");
 
-    // TODO: for loop shouldn't be made here
     register(JAVA_8, "TestWhileLoopPromotion");
 
     register(JAVA_21, "TestTypeAnnotations");
@@ -831,6 +823,10 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_25, "TestAssertsEnabled");
     register(JAVA_8, "TestFloatPiAdd");
     register(JAVA_25, "TestAssertPatternMatching");
+    // TODO: incorrect var splitting!
+    register(JAVA_8, "TestFinallyVarDef");
+    // TODO: fails to decompile
+    register(JAVA_25, "TestPatternMatchSwitchString");
     register(JAVA_16, "TestPatternMatchingVariableScope");
   }
 

@@ -30,6 +30,7 @@ public class JavaFinallyPass implements Pass {
 
       root = DomHelper.parseGraph(graph, mt, ++iteration);
       root.addComments(oldRoot);
+      ctx.setRoot(root);
 
       res = true;
     }

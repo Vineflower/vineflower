@@ -5,14 +5,18 @@ import org.jetbrains.java.decompiler.api.ClassAttributeRegistry;
 import org.jetbrains.java.decompiler.api.plugin.Plugin;
 import org.jetbrains.java.decompiler.api.plugin.LanguageSpec;
 import org.jetbrains.java.decompiler.api.plugin.PluginOptions;
-import org.jetbrains.java.decompiler.api.plugin.pass.LoopingPassBuilder;
-import org.jetbrains.java.decompiler.api.plugin.pass.MainPassBuilder;
-import org.jetbrains.java.decompiler.api.plugin.pass.Pass;
-import org.jetbrains.java.decompiler.api.plugin.pass.WrappedPass;
+import org.jetbrains.java.decompiler.api.plugin.pass.*;
+import org.jetbrains.java.decompiler.main.ClassesProcessor;
+import org.jetbrains.java.decompiler.main.rels.NestedClassProcessor;
+import org.jetbrains.java.decompiler.main.rels.NestedMemberAccess;
+import org.jetbrains.java.decompiler.modules.code.DeadCodeHelper;
+import org.jetbrains.java.decompiler.modules.code.ExceptionDeobfuscator;
 import org.jetbrains.java.decompiler.modules.decompiler.*;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.DomHelper;
 import org.jetbrains.java.decompiler.util.Pair;
 import org.vineflower.kotlin.pass.*;
+
+import java.util.function.Consumer;
 
 public class KotlinPlugin implements Plugin {
   private static final StackVarsProcessor.StackSimplifyOptions INLINE_ALL_VARS = new StackVarsProcessor.StackSimplifyOptions()
@@ -38,7 +42,30 @@ public class KotlinPlugin implements Plugin {
 
   @Override
   public LanguageSpec getLanguageSpec() {
-    return new LanguageSpec("kotlin", new KotlinChooser(), new DomHelper(), new KotlinWriter(), makePass(), "kt");
+    return new LanguageSpec("kotlin", new KotlinChooser(), new DomHelper(), new KotlinWriter(), makePass(), makeCfgPass(), getRootProcessor(), "kt");
+  }
+
+  private static ClassPass getRootProcessor() {
+    return root -> {
+      new NestedClassProcessor().processClass(root, root);
+
+      new NestedMemberAccess().propagateMemberAccess(root);
+
+      return true;
+    };
+  }
+
+  private static Pass makeCfgPass() {
+    return new MainPassBuilder()
+      .addPass("RemoveCircular", WrappedPass.of(ctx -> ExceptionDeobfuscator.removeCircularRanges(ctx.getGraph())))
+      .addPass("RestorePop", WrappedPass.of(ctx -> ExceptionDeobfuscator.restorePopRanges(ctx.getGraph())))
+      .addPass("RemoveEmpty", WrappedPass.of(ctx -> ExceptionDeobfuscator.removeEmptyRanges(ctx.getGraph())))
+      .addPass("ExtendMonitors", WrappedPass.of(ctx -> DeadCodeHelper.extendSynchronizedRangeToMonitorexit(ctx.getGraph())))
+      .addPass("ValueReturns", WrappedPass.of(ctx -> DeadCodeHelper.incorporateValueReturns(ctx.getGraph())))
+      .addPass("InsertEmpty", WrappedPass.of(ctx -> ExceptionDeobfuscator.insertEmptyExceptionHandlerBlocks(ctx.getGraph())))
+      .addPass("MergeBlocks", WrappedPass.of(ctx -> DeadCodeHelper.mergeBasicBlocks(ctx.getGraph())))
+      .addPass("ObfExceptions", new ObfuscatedExceptionsPass())
+      .build();
   }
 
   private static Pass makePass() {

@@ -1,5 +1,7 @@
 package org.vineflower.kotlin.struct;
 
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.java.decompiler.util.Key;
 import org.vineflower.kt.metadata.ProtoBuf;
 import org.vineflower.kt.metadata.deserialization.Flags;
 import org.vineflower.kt.metadata.jvm.JvmProtoBuf;
@@ -38,15 +40,21 @@ public record KConstructor(
   StructClass classStruct,
   StructMethod methodStruct,
   int classFlags
-) implements Flags {
+) implements KElement, Flags {
+  public static final Key<KConstructor> PRIMARY_CONSTRUCTOR = Key.of("primary-constructor");
+
   private static final VarType DEFAULT_CONSTRUCTOR_MARKER = new VarType("kotlin/jvm/internal/DefaultConstructorMarker", true);
 
-  public static Data parse(StructClass classStruct, ProtoBuf.Class protoClass, @NotNull MetadataNameResolver resolver) {
+  public static void parse(StructClass classStruct, ProtoBuf.Class protoClass, @Nullable MetadataNameResolver resolver) {
+    if (resolver == null) {
+      return;
+    }
+
     int classFlags = protoClass.getFlags();
-    if (MODALITY.get(classFlags) == ProtoBuf.Modality.ABSTRACT) return null;
+    if (MODALITY.get(classFlags) == ProtoBuf.Modality.ABSTRACT) return;
 
     List<ProtoBuf.Constructor> protoConstructors = protoClass.getConstructorList();
-    if (protoConstructors.isEmpty()) return null;
+    if (protoConstructors.isEmpty()) return;
 
     Map<StructMethod, KConstructor> constructors = new HashMap<>();
     KConstructor primary = null;
@@ -72,8 +80,9 @@ public record KConstructor(
       if (method == null) {
         if (CLASS_KIND.get(classFlags) == ProtoBuf.Class.Kind.ANNOTATION_CLASS) {
           // Annotation classes are very odd and don't actually have a constructor under the hood
-          KConstructor kConstructor = new KConstructor(parameters, flags, null, false, null, classStruct, null, classFlags);
-          return new Data(null, kConstructor);
+          KConstructor kConstructor = new KConstructor(parameters, flags, null, true, ignored -> DefaultArgsMap.fromAnnotation(classStruct), classStruct, null, classFlags);
+          classStruct.getAttributes().put(PRIMARY_CONSTRUCTOR, kConstructor);
+          return;
         }
 
         DecompilerContext.getLogger().writeMessage("Method <init>" + desc + " not found in " + classStruct.qualifiedName, IFernflowerLogger.Severity.WARN);
@@ -95,17 +104,20 @@ public record KConstructor(
       defaultArgsDesc.append("I".repeat(parameters.length / 32 + 1));
       defaultArgsDesc.append("Lkotlin/jvm/internal/DefaultConstructorMarker;)V");
 
+      StructMethod defaultMethod = classStruct.getMethod("<init>", defaultArgsDesc.toString());
+      if (defaultMethod != null) {
+        defaultMethod.getAttributes().put(KElement.KEY, KHiddenElement.DEFAULT_IMPL);
+      }
+
       Function<ClassWrapper, DefaultArgsMap> defaultArgsSupplier = wrapper -> DefaultArgsMap.from(wrapper.getMethodWrapper("<init>", defaultArgsDesc.toString()), wrapper.getMethodWrapper(method.getName(), method.getDescriptor()), parameters);
 
       KConstructor kConstructor = new KConstructor(parameters, flags, wrapper -> wrapper.getMethodWrapper(method.getName(), method.getDescriptor()), isPrimary, defaultArgsSupplier, classStruct, method, classFlags);
-      constructors.put(method, kConstructor);
+      method.getAttributes().put(KElement.KEY, kConstructor);
 
       if (isPrimary) {
-        primary = kConstructor;
+        classStruct.getAttributes().put(PRIMARY_CONSTRUCTOR, kConstructor);
       }
     }
-
-    return new Data(constructors, primary);
   }
 
   private boolean shouldHideConstructor() {
@@ -305,8 +317,5 @@ public record KConstructor(
 
     buffer.append(buf, classStruct.qualifiedName, methodKey);
     return true;
-  }
-
-  public record Data(Map<StructMethod, KConstructor> allConstructors, KConstructor primary) {
   }
 }

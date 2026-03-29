@@ -946,7 +946,7 @@ public class FinallyProcessor {
   }
 
   private static boolean isOpcVar(int opc) {
-    return opc >= CodeConstants.opc_iload && opc <= CodeConstants.opc_sastore;
+    return (opc >= CodeConstants.opc_iload && opc <= CodeConstants.opc_sastore) || opc == CodeConstants.opc_iinc;
   }
 
   private static void deleteArea(ControlFlowGraph graph, Area area) {

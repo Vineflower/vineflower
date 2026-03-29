@@ -1,5 +1,9 @@
 package pkg;
 
+import java.io.File;
+import java.util.Random;
+import java.util.Scanner;
+
 public class TestLoopFinally {
   public void test() {
     for (int i = 0; i < 10; i++) {
@@ -247,6 +251,39 @@ public class TestLoopFinally {
 
           System.out.println("outer finally");
         }
+      }
+    }
+  }
+
+  public void testComplex(Object o) {
+    boolean b = true;
+    do {
+      try {
+        while (new Random().nextBoolean()) {
+
+        }
+      } finally {
+        synchronized (o) {
+          if (new Random().nextBoolean() && new Random().nextBoolean()) {
+            if (new Random().nextBoolean()) {
+              b = false;
+            } else {
+              System.out.println("a");
+            }
+          }
+        }
+      }
+
+    } while (b);
+  }
+
+  public void test10(File file, int i) {
+    try {
+      new Scanner(file);
+    } catch (Exception e) {
+    } finally {
+      for (int k = 0; k < i; k++) {
+        System.out.println(k);
       }
     }
   }

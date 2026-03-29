@@ -5,7 +5,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.fabricmc.fernflower.api.FabricJavadocStyle;
 import net.fabricmc.fernflower.api.IFabricJavadocProvider;
+import org.jetbrains.java.decompiler.api.java.JavaPassLocation;
 import org.jetbrains.java.decompiler.api.plugin.StatementWriter;
+import org.jetbrains.java.decompiler.api.plugin.pass.PassContext;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.ExceptionHandler;
 import org.jetbrains.java.decompiler.code.FullInstructionSequence;
@@ -102,6 +104,11 @@ public class ClassWriter implements StatementWriter {
               rec.add("FinalPrettifyIfs", method.root);
             }
           }
+
+          PassContext pctx = new PassContext(method.root, null, method.methodStruct, method.classStruct, method.varproc, rec);
+          DecompilerContext.getCurrentContext().structContext.getPluginContext()
+            .runPasses(JavaPassLocation.LATE_PROCESSING, pctx);
+
           if (!rec.getNames().isEmpty()) {
             DotExporter.toDotFile(rec, method.methodStruct, "lateDecompileRecord", false);
           }
