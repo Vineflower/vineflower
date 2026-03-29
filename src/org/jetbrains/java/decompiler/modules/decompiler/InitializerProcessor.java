@@ -99,7 +99,7 @@ public final class InitializerProcessor {
   private static void hideEmptySuper(ClassWrapper wrapper) {
     for (MethodWrapper method : wrapper.getMethods()) {
       if (CodeConstants.INIT_NAME.equals(method.methodStruct.getName()) && method.root != null) {
-        Statement firstData = Statements.findFirstData(method.root);
+        Statement firstData = method.root.getBasichead();
         if (firstData == null || firstData.getExprents().isEmpty()) {
           return;
         }

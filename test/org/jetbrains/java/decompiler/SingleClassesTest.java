@@ -305,7 +305,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestNestedLambdas");
     register(JAVA_8, "TestSwitchAssign");
     register(JAVA_8, "TestSwitchReturn");
-    // TODO: Turned into for loops
     register(JAVA_8, "TestWhileCondition");
     register(JAVA_8, "TestLocalScopes");
     register(JAVA_8, "TestInterfaceSubclass");
@@ -320,7 +319,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestArrayCopy");
     register(JAVA_8, "TestArrayDoWhile");
     register(JAVA_8_NODEBUG, "TestArrayNull1");
-    // TODO: Object should be int[], cast where there shouldn't be
     register(JAVA_8_NODEBUG, "TestArrayNull2");
     register(JAVA_8, "TestArrayNullAccess");
     register(JAVA_8, "TestArrayTernary");
@@ -568,7 +566,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     registerRaw(CUSTOM, "TestHotjava");
     registerRaw(CUSTOM, "TestJava1Synchronized");
     register(JAVA_8, "TestLabeledBreaks");
-    // TODO: the super() call ends up inside the labeled block
     register(JAVA_8, "TestLabeledBlockInConstructor");
     // TODO: test9&10- for loop not created, loop extractor needs another pass
     register(JAVA_8, "TestSwitchLoop");
