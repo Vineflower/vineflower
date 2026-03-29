@@ -48,7 +48,7 @@ public class KIfStatement extends IfStatement {
     buf.append(first.toJava(indent));
     
     if (isLabeled()) {
-      buf.appendIndent(indent).append("label").append(id).append("@ ").appendLineSeparator();
+      buf.appendIndent(indent).append("label").append(id).append("@").appendLineSeparator();
     }
 
     Exprent condition = getHeadexprent();

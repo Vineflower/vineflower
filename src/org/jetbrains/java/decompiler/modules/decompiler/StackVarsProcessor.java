@@ -949,6 +949,11 @@ public class StackVarsProcessor {
                                                VarVersionPair leftpaar) {
     VarVersionsGraph ssuversions = ssau.getSsuVersions();
 
+    // Does the target node have a phantom (i.e. it is part of a ppmm)? Don't replace it.
+    if (ssuversions.nodes.getWithKey(usedvar).phantomNode != null) {
+      return false;
+    }
+
     SFormsFastMapDirect mapLiveVars = ssau.getLiveVarVersionsMap(usedvar);
     if (mapLiveVars == null) {
       // dummy version, predecessor of a phi node

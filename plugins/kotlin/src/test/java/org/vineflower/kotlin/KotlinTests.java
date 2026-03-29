@@ -117,6 +117,7 @@ public class KotlinTests extends SingleClassesTestBase {
     register(KOTLIN, "TestEnumClass");
     register(KOTLIN, "TestAnonymousEverything");
     register(KOTLIN, "TestPropertyAccess", "ext/Person");
+    register(KOTLIN, "TestVarReplace");
   }
 
   private void registerMultifileTests() {

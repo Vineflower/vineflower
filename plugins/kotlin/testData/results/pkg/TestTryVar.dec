@@ -25,7 +25,7 @@ public class TestTryVar {
       repeat(9) { i ->// 20
          try {
             var12 = y + i// 22
-            y + i += (7 - i as java.lang.Number).intValue()
+            var12 += (7 - i as java.lang.Number).intValue()
             var12 = (5000 - i / var12) / y// 23
          } catch (var11: java.lang.Throwable) {// 24
          }
