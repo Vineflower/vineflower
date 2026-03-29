@@ -1227,7 +1227,7 @@ public class ClassWriter implements StatementWriter {
 
         ClassNode currentNode = node;
         loop: while (currentNode != null) {
-          if (currentNode.enclosingMethod != null) {
+          if (currentNode.enclosingMethod != null && currentNode.parent != null) {
             StructMethod enclosingMethod = currentNode.parent.classStruct.getMethod(currentNode.enclosingMethod);
             if (enclosingMethod != null) {
               if (enclosingMethod.getSignature() != null) {
