@@ -827,6 +827,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestFinallyVarDef");
     // TODO: fails to decompile
     register(JAVA_25, "TestPatternMatchSwitchString");
+    register(JAVA_16, "TestPatternMatchingVariableScope");
   }
 
   private void registerEntireClassPath() {

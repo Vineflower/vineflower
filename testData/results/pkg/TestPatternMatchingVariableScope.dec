@@ -1,0 +1,335 @@
+package pkg;
+
+public class TestPatternMatchingVariableScope {
+   public void test(Object o) {
+      int i = o instanceof Integer integer ? integer : 0;// 7
+      int integer = i;// 8
+      System.out.println(integer);// 9
+      if (o instanceof Integer ix) {// 12
+         integer = ix;// 13
+      }
+
+      while (o instanceof Integer ix) {// 17
+         integer = ix;// 18
+      }
+
+      do {
+         boolean var15 = false;// 23
+      } while (o instanceof Integer ix && ix > 0);// 24
+
+      while (o instanceof Integer ix) {
+         integer = ix;// 28
+         o = ix.hashCode();// 27
+      }
+
+      if (o instanceof Integer ix) {// 31
+         System.out.println(ix);// 32
+      }
+   }// 34
+
+   // $VF: Variable merging failed for merge VarExprent[14,0]: {var14}. Code has semantic differences!
+   public void testNegated(Object o) {
+      if (o instanceof Integer i) {// 38
+         System.out.println(i);// 41
+      } else {
+         System.out.println();// 39
+      }
+
+      if (!(o instanceof Integer i)) {// 45
+         throw new IllegalArgumentException();// 46
+      } else {
+         System.out.println(i);// 48
+
+         while (!(o instanceof Integer ix)) {// 52
+            System.out.println();// 53
+         }
+
+         Integer ixx;
+         System.out.println(ixx);// 55
+
+         Object var11;
+         do {
+            System.out.println();// 59
+            var11 = o;// 60
+         } while (!(var11 instanceof Integer));
+
+         ixx = (Integer)var11;
+         System.out.println(ixx);// 61
+
+         while (!(o instanceof Integer ixxx)) {
+            System.out.println();// 65
+            o = o.hashCode();// 64
+         }
+
+         System.out.println(ixx);// 67
+         if (o instanceof Integer ixxxx) {// 69
+            System.out.println(ixxxx);// 70
+         }
+      }
+   }// 72
+}
+
+class 'pkg/TestPatternMatchingVariableScope' {
+   method 'test (Ljava/lang/Object;)V' {
+      0      4
+      5      4
+      6      4
+      7      4
+      8      4
+      9      4
+      a      4
+      10      4
+      11      4
+      12      4
+      13      4
+      14      4
+      18      4
+      19      4
+      1a      5
+      1b      5
+      1c      6
+      1d      6
+      1e      6
+      1f      6
+      20      6
+      21      6
+      22      6
+      23      7
+      26      7
+      27      7
+      28      7
+      29      7
+      2a      7
+      2b      7
+      30      7
+      31      8
+      32      8
+      33      8
+      34      8
+      35      8
+      36      11
+      39      11
+      3a      11
+      3b      11
+      43      11
+      44      12
+      45      12
+      46      12
+      47      12
+      48      12
+      4c      16
+      4d      16
+      4e      17
+      51      17
+      52      17
+      53      17
+      5b      17
+      5c      17
+      5d      17
+      5e      17
+      5f      17
+      60      17
+      61      17
+      62      17
+      63      19
+      66      19
+      67      19
+      68      19
+      70      19
+      71      20
+      72      20
+      73      20
+      74      20
+      75      20
+      76      21
+      77      21
+      78      21
+      79      21
+      7a      21
+      7b      21
+      7c      21
+      7d      21
+      81      24
+      84      24
+      85      24
+      86      24
+      87      24
+      88      24
+      89      24
+      8e      24
+      8f      25
+      90      25
+      91      25
+      92      25
+      93      25
+      94      25
+      95      25
+      96      27
+   }
+
+   method 'testNegated (Ljava/lang/Object;)V' {
+      0      31
+      3      31
+      4      31
+      5      31
+      6      31
+      7      31
+      8      31
+      d      31
+      e      32
+      f      32
+      10      32
+      11      34
+      12      34
+      13      34
+      14      34
+      15      34
+      16      34
+      1a      32
+      1d      32
+      1e      32
+      1f      32
+      21      37
+      24      37
+      25      37
+      26      37
+      27      37
+      28      37
+      29      37
+      2e      37
+      2f      40
+      30      40
+      31      40
+      39      38
+      3a      40
+      3d      40
+      3e      40
+      3f      40
+      41      42
+      44      42
+      45      42
+      46      42
+      47      42
+      48      42
+      49      42
+      4e      42
+      4f      47
+      50      47
+      51      47
+      52      43
+      53      43
+      54      43
+      55      43
+      56      43
+      57      43
+      5b      47
+      5e      47
+      5f      47
+      60      47
+      62      51
+      63      51
+      64      51
+      65      51
+      66      51
+      67      51
+      68      52
+      69      52
+      6a      53
+      6b      53
+      6c      53
+      6d      53
+      6e      53
+      6f      53
+      70      53
+      71      55
+      72      55
+      73      55
+      74      55
+      75      55
+      76      56
+      77      56
+      78      56
+      79      56
+      7a      56
+      7b      56
+      7c      56
+      7d      58
+      80      58
+      81      58
+      82      58
+      83      58
+      84      58
+      85      58
+      8a      58
+      8b      63
+      8c      63
+      8d      63
+      8e      59
+      8f      59
+      90      59
+      91      59
+      92      59
+      93      59
+      94      60
+      95      60
+      96      60
+      97      60
+      98      60
+      99      60
+      9a      60
+      9b      60
+      9f      63
+      a2      63
+      a3      63
+      a4      63
+      a8      64
+      a9      64
+      aa      64
+      ab      64
+      b3      64
+      b4      65
+      b5      65
+      b6      65
+      b7      65
+      b8      65
+      b9      65
+      ba      65
+      bb      68
+   }
+}
+
+Lines mapping:
+7 <-> 5
+8 <-> 6
+9 <-> 7
+12 <-> 8
+13 <-> 9
+17 <-> 12
+18 <-> 13
+23 <-> 17
+24 <-> 18
+27 <-> 22
+28 <-> 21
+31 <-> 25
+32 <-> 26
+34 <-> 28
+38 <-> 32
+39 <-> 35
+41 <-> 33
+45 <-> 38
+46 <-> 39
+48 <-> 41
+52 <-> 43
+53 <-> 44
+55 <-> 48
+59 <-> 52
+60 <-> 53
+61 <-> 57
+64 <-> 61
+65 <-> 60
+67 <-> 64
+69 <-> 65
+70 <-> 66
+72 <-> 69
+Not mapped:
+19
