@@ -831,6 +831,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_25, "TestAssertsEnabled");
     register(JAVA_8, "TestFloatPiAdd");
     register(JAVA_25, "TestAssertPatternMatching");
+    register(JAVA_16, "TestPatternMatchingVariableScope");
   }
 
   private void registerEntireClassPath() {

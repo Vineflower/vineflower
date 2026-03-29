@@ -1981,44 +1981,44 @@ public class VarDefinitionHelper {
       iterate = false;
       // https://docs.oracle.com/javase/specs/jls/se25/html/jls-6.html#jls-6.3.1
       switch (function.getFuncType()) {
-      case BOOLEAN_AND -> {
-        for (Exprent exp : function.getLstOperands()) {
-          liveVarDefs.addAll(whenTrue);
-          iterateClashingExprent(stat, mt, varDefinitions, exp, liveVarDefs, curVarDefs, nameMap, seenMethods, whenTrue, new HashSet<>());
-        }
-        liveVarDefs.removeAll(whenTrue);
-      }
-      case BOOLEAN_OR -> {
-        for (Exprent exp : function.getLstOperands()) {
-          liveVarDefs.addAll(whenFalse);
-          iterateClashingExprent(stat, mt, varDefinitions, exp, liveVarDefs, curVarDefs, nameMap, seenMethods, new HashSet<>(), whenFalse);
-        }
-        liveVarDefs.removeAll(whenFalse);
-      }
-      case BOOL_NOT -> {
-        iterateClashingExprent(stat, mt, varDefinitions, function.getLstOperands().get(0), liveVarDefs, curVarDefs, nameMap, seenMethods, whenFalse, whenTrue);
-      }
-      case TERNARY -> {
-        Set<VarInMethod> subWhenTrue = new HashSet<>();
-        Set<VarInMethod> subWhenFalse = new HashSet<>();
-        iterateClashingExprent(stat, mt, varDefinitions, function.getLstOperands().get(0), liveVarDefs, curVarDefs, nameMap, seenMethods, subWhenTrue, subWhenFalse);
-        liveVarDefs.addAll(subWhenTrue);
-        iterateClashingExprent(stat, mt, varDefinitions, function.getLstOperands().get(1), liveVarDefs, curVarDefs, nameMap, seenMethods, new HashSet<>(), new HashSet<>());
-        liveVarDefs.removeAll(subWhenTrue);
-        liveVarDefs.addAll(subWhenFalse);
-        iterateClashingExprent(stat, mt, varDefinitions, function.getLstOperands().get(2), liveVarDefs, curVarDefs, nameMap, seenMethods, new HashSet<>(), new HashSet<>());
-        liveVarDefs.removeAll(subWhenFalse);
-      }
-      case INSTANCEOF -> {
-        if (function.getLstOperands().size() > 2) {
-          iterateClashingExprent(stat, mt, varDefinitions, function.getLstOperands().get(0), liveVarDefs, curVarDefs, nameMap, seenMethods, new HashSet<>(), new HashSet<>());
-          iterateClashingExprent(stat, mt, varDefinitions, function.getLstOperands().get(2), liveVarDefs, whenTrue, nameMap, seenMethods, new HashSet<>(), new HashSet<>());
+        case BOOLEAN_AND -> {
+          for (Exprent exp : function.getLstOperands()) {
+            liveVarDefs.addAll(whenTrue);
+            iterateClashingExprent(stat, mt, varDefinitions, exp, liveVarDefs, curVarDefs, nameMap, seenMethods, whenTrue, new HashSet<>());
+          }
           liveVarDefs.removeAll(whenTrue);
-        } else {
-          iterate = true;
         }
-      }
-      default -> iterate = true;
+        case BOOLEAN_OR -> {
+          for (Exprent exp : function.getLstOperands()) {
+            liveVarDefs.addAll(whenFalse);
+            iterateClashingExprent(stat, mt, varDefinitions, exp, liveVarDefs, curVarDefs, nameMap, seenMethods, new HashSet<>(), whenFalse);
+          }
+          liveVarDefs.removeAll(whenFalse);
+        }
+        case BOOL_NOT -> {
+          iterateClashingExprent(stat, mt, varDefinitions, function.getLstOperands().get(0), liveVarDefs, curVarDefs, nameMap, seenMethods, whenFalse, whenTrue);
+        }
+        case TERNARY -> {
+          Set<VarInMethod> subWhenTrue = new HashSet<>();
+          Set<VarInMethod> subWhenFalse = new HashSet<>();
+          iterateClashingExprent(stat, mt, varDefinitions, function.getLstOperands().get(0), liveVarDefs, curVarDefs, nameMap, seenMethods, subWhenTrue, subWhenFalse);
+          liveVarDefs.addAll(subWhenTrue);
+          iterateClashingExprent(stat, mt, varDefinitions, function.getLstOperands().get(1), liveVarDefs, curVarDefs, nameMap, seenMethods, new HashSet<>(), new HashSet<>());
+          liveVarDefs.removeAll(subWhenTrue);
+          liveVarDefs.addAll(subWhenFalse);
+          iterateClashingExprent(stat, mt, varDefinitions, function.getLstOperands().get(2), liveVarDefs, curVarDefs, nameMap, seenMethods, new HashSet<>(), new HashSet<>());
+          liveVarDefs.removeAll(subWhenFalse);
+        }
+        case INSTANCEOF -> {
+          if (function.getLstOperands().size() > 2) {
+            iterateClashingExprent(stat, mt, varDefinitions, function.getLstOperands().get(0), liveVarDefs, curVarDefs, nameMap, seenMethods, new HashSet<>(), new HashSet<>());
+            iterateClashingExprent(stat, mt, varDefinitions, function.getLstOperands().get(2), liveVarDefs, whenTrue, nameMap, seenMethods, new HashSet<>(), new HashSet<>());
+            liveVarDefs.removeAll(whenTrue);
+          } else {
+            iterate = true;
+          }
+        }
+        default -> iterate = true;
       }
     }
 
