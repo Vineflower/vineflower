@@ -52,22 +52,16 @@ public data class TestDataClass(dataClassVal: Regex, variableWithVeryLongName: I
       }
 
    public open operator fun equals(other: Any?): Boolean {
+      label40@
       if (this === other) {
          return true
-      } else if (other !is TestDataClass) {
-         return false
       } else {
-         val var2: TestDataClass = other as TestDataClass
-         if (!(this.dataClassVal == (other as TestDataClass).dataClassVal)) {
-            return false
-         } else if (this.variableWithVeryLongName != var2.variableWithVeryLongName) {
-            return false
-         } else if (!(this.requestLineWrapsIfTheParamListIsTooLong == var2.requestLineWrapsIfTheParamListIsTooLong)) {
-            return false
-         } else {
-            return this.nullability == var2.nullability
+         return other is TestDataClass
+            && this.dataClassVal == (other as TestDataClass).dataClassVal
+            && this.variableWithVeryLongName == (other as TestDataClass).variableWithVeryLongName
+            && this.requestLineWrapsIfTheParamListIsTooLong == (other as TestDataClass).requestLineWrapsIfTheParamListIsTooLong
+            && this.nullability == (other as TestDataClass).nullability
          }
-      }
    }
 }
 
@@ -233,74 +227,65 @@ class 'pkg/TestDataClass' {
    }
 
    method 'equals (Ljava/lang/Object;)Z' {
-      0      54
-      1      54
-      2      54
-      3      54
-      4      54
-      5      55
-      6      55
-      7      56
-      b      56
-      c      56
-      d      56
-      e      57
-      f      57
+      0      55
+      1      55
+      2      55
+      3      55
+      4      55
+      5      56
+      6      56
+      7      58
+      8      58
+      9      58
+      a      58
+      b      58
+      c      58
+      d      58
       10      59
       11      59
       12      59
       13      59
-      14      59
-      15      60
-      16      60
-      17      60
-      18      60
-      19      60
-      1a      60
-      1b      60
-      1c      60
-      20      60
-      21      60
-      22      60
-      23      61
-      24      61
-      25      62
-      26      62
-      27      62
-      28      62
-      29      62
-      2a      62
-      2b      62
-      2c      62
-      2d      62
-      2e      62
-      2f      62
-      30      63
-      31      63
-      32      64
-      33      64
-      34      64
-      35      64
-      36      64
-      37      64
-      38      64
-      39      64
-      3d      64
-      3e      64
-      3f      64
-      40      65
-      41      65
-      42      67
-      43      67
-      44      67
-      45      67
-      46      67
-      47      67
-      48      67
-      49      67
-      4d      67
-      4e      67
-      4f      67
+      15      59
+      16      59
+      17      59
+      18      59
+      19      59
+      1a      59
+      1b      59
+      1c      59
+      20      59
+      21      59
+      22      59
+      25      60
+      26      60
+      27      60
+      28      60
+      29      60
+      2a      60
+      2b      60
+      2c      60
+      2d      60
+      2e      60
+      2f      60
+      32      61
+      33      61
+      34      61
+      35      61
+      36      61
+      37      61
+      38      61
+      39      61
+      3d      61
+      3e      61
+      3f      61
+      42      62
+      43      62
+      44      62
+      45      62
+      46      62
+      47      62
+      48      62
+      49      62
    }
 }
 
