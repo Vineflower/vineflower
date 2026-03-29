@@ -833,6 +833,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_25, "TestAssertPatternMatching");
     // TODO: incorrect var splitting!
     register(JAVA_8, "TestFinallyVarDef");
+    // TODO: fails to decompile
+    register(JAVA_25, "TestPatternMatchSwitchString");
   }
 
   private void registerEntireClassPath() {

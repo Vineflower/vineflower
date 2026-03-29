@@ -1,0 +1,29 @@
+package pkg;
+
+public class TestPatternMatchSwitchString {
+   private String field;
+
+   public void test(String param1) {
+      // $VF: Couldn't be decompiled
+      // Bytecode:
+      // 00: aload 1
+      // 01: astore 2
+      // 02: bipush 0
+      // 03: istore 3
+      // 04: aload 2
+      // 05: iload 3
+      // 06: invokedynamic typeSwitch (Ljava/lang/String;I)I bsm=java/lang/runtime/SwitchBootstraps.typeSwitch (Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite; args=[ "a", "b", "c", "d" ]
+      // 0b: tableswitch 41 -1 3 41 33 33 33 33
+      // 2c: aload 0
+      // 2d: aload 1
+      // 2e: putfield pkg/TestPatternMatchSwitchString.field Ljava/lang/String;
+      // 31: goto 3e
+      // 34: new java/lang/RuntimeException
+      // 37: dup
+      // 38: ldc "illegal"
+      // 3a: invokespecial java/lang/RuntimeException.<init> (Ljava/lang/String;)V
+      // 3d: athrow
+      // 3e: return
+   }
+}
+

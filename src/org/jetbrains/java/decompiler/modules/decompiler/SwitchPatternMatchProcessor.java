@@ -255,8 +255,7 @@ public final class SwitchPatternMatchProcessor {
       // replace the constant with the value of i, which may not be at index i
       int replaceIndex = i;
       for (List<Exprent> caseValueSet : stat.getCaseValues()) {
-        if (caseValueSet.get(0) instanceof ConstExprent) {
-          ConstExprent constExpr = (ConstExprent) caseValueSet.get(0);
+        if (caseValueSet.get(0) instanceof ConstExprent constExpr) {
           if (constExpr.getValue() instanceof Integer && (Integer) constExpr.getValue() == i) {
             replaceIndex = stat.getCaseValues().indexOf(caseValueSet);
           }
@@ -291,6 +290,8 @@ public final class SwitchPatternMatchProcessor {
               newValue = new FunctionExprent(FunctionExprent.FunctionType.INSTANCEOF, operands, null);
             }
             break;
+          default:
+            ValidationHelper.assertTrue(false, "unexpected case");
         }
         if (newValue != null) {
           int ix = i;
