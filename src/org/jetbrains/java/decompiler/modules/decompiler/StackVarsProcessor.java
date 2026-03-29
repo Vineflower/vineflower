@@ -341,7 +341,20 @@ public class StackVarsProcessor {
       }
     }
 
-    // no var on the highest level, so no replacing
+    // Var can be found on high levels with the right hand side of foreach loops, try to replace those
+    if (exprent instanceof VarExprent) {
+      Exprent res = isReplaceableVar(exprent, mapVarValues);
+
+      if (res == null) {
+        setRet(ret, -1, 0);
+        return;
+      }
+
+      // Found something? Replace the current var.
+      lstExprents.set(index, res);
+      setRet(ret, index + 1, 1);
+      return;
+    }
 
     VarExprent left = null;
     Exprent right = null;

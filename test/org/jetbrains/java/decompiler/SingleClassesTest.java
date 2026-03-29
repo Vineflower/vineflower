@@ -633,7 +633,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_17, "TestDefiniteAssignment");
 
     register(JAVA_8_NODEBUG, "TestNoUse");
-    // TODO: var5 is never defined!
     register(JAVA_8_NODEBUG, "TestTryReturnNoDebug");
     register(JAVA_8, "TestArrayAssign2");
     register(JAVA_8, "TestTryLoopNoCatch");
@@ -742,7 +741,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_21_PREVIEW, "TestCustomProcessor");
     register(JAVA_16, "TestMissingLambdaBody");
     register(JAVA_25, "TestUnnamedVar1");
-    // TODO: if (true) construction prevents record pattern matching
     register(JAVA_25, "TestRecordPatterns1J25");
     register(JAVA_25, "TestSwitchPatternMatchingJ25");
     register(JAVA_8, "TestNumberCasts");
@@ -763,7 +761,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_21, "TestCastIntersectionJ21");
     register(JAVA_16, "TestRecordLocal");
     register(JAVA_8, "TestAnonymousClassToLambda");
-    // TODO: broken stack processing, deleted ternary!
     register(JAVA_17, "TestPatternMatchingLoops");
     register(JAVA_8, "TestBoxingSuperclass");
     register(JAVA_8, "TestLVTReassignment");
