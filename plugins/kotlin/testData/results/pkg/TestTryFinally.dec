@@ -5,7 +5,7 @@ public class TestTryFinally {
       try {
          System.out.println("Hello")// 6
       } finally {
-         ;
+         val var2: Long = 5L// 8
       }
    }// 9
 
@@ -45,6 +45,10 @@ class 'pkg/TestTryFinally' {
       8      5
       9      5
       e      9
+      12      7
+      13      7
+      14      7
+      15      7
    }
 
    method 'test1 ()V' {
@@ -117,6 +121,7 @@ class 'pkg/TestTryFinally' {
 
 Lines mapping:
 6 <-> 6
+8 <-> 8
 9 <-> 10
 14 <-> 14
 16 <-> 16
@@ -131,7 +136,6 @@ Lines mapping:
 35 <-> 34
 Not mapped:
 5
-8
 10
 13
 20

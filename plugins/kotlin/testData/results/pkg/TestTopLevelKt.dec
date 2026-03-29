@@ -7,6 +7,7 @@ public final val topLevelVal: Regex = Regex("")// 9
 public const val topLevelConstVal: Int = 926
 
 public fun topLevelFun() {
+   val x: Int = 1// 4
 }// 5
 
 public fun interpolateTopLevel() {
@@ -23,42 +24,43 @@ class 'pkg/TestTopLevelKt' {
    }
 
    method 'topLevelFun ()V' {
-      2      9
+      0      9
+      1      9
+      2      10
    }
 
    method 'interpolateTopLevel ()V' {
-      0      12
-      1      12
-      2      12
-      3      12
-      4      12
-      5      12
-      6      12
-      7      12
-      8      12
-      9      12
-      a      12
-      c      12
-      d      12
-      e      12
-      f      13
-      10      13
-      11      13
-      12      13
-      13      13
-      15      13
-      16      13
-      17      13
-      18      14
+      0      13
+      1      13
+      2      13
+      3      13
+      4      13
+      5      13
+      6      13
+      7      13
+      8      13
+      9      13
+      a      13
+      c      13
+      d      13
+      e      13
+      f      14
+      10      14
+      11      14
+      12      14
+      13      14
+      15      14
+      16      14
+      17      14
+      18      15
    }
 }
 
 Lines mapping:
-5 <-> 10
+4 <-> 10
+5 <-> 11
 7 <-> 3
 9 <-> 6
-14 <-> 13
-15 <-> 14
-16 <-> 15
-Not mapped:
-4
+14 <-> 14
+15 <-> 15
+16 <-> 16

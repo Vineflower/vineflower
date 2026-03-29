@@ -13,6 +13,8 @@ import java.util.regex.Pattern;
 public final class KTypes {
   private static final int MAX_KOTLIN_FUNCTION_ARITY = 22;
 
+  public static final String UNIT = "kotlin/Unit";
+
   private static final Pattern GENERICS_PATTERN = Pattern.compile("(.+)<(.+)>");
   private static final Map<String, String> JAVA_CLASS_TRANSLATIONS = Map.of(
     "java/lang/Integer", "Int",
