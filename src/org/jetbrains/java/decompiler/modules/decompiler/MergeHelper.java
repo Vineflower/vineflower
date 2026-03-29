@@ -450,6 +450,13 @@ public class MergeHelper {
         }
       }
 
+      // Check if the init var is contained in the cond var or the inc var, otherwise don't make the loop
+      if (hasinit && preData.getExprents().get(preData.getExprents().size() - 1) instanceof AssignmentExprent assign) {
+        if (assign.getLeft() instanceof VarExprent var && !stat.getConditionExprent().containsVar(var.getVarVersionPair()) && !lastExp.containsVar(var.getVarVersionPair())) {
+          return;
+        }
+      }
+
       stat.setLooptype(DoStatement.Type.FOR);
       if (hasinit) {
         Exprent exp = preData.getExprents().remove(preData.getExprents().size() - 1);

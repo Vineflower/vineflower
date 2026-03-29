@@ -701,7 +701,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: foreach array index increment is added into default branch of switch statement
     // TODO: clashing names processor wrongly uses catch's vars in try block
     register(JAVA_8, "TestForeachMultiDimensionalArray");
-    // TODO: large amount of code is deleted
+    // TODO: incorrect placement of yield
     register(JAVA_17_PREVIEW, "TestUnknownCastJ17");
     // TODO: These variables shouldn't be merged, and should be split because each version is used once and has a different type use
     register(JAVA_8_NODEBUG, "TestVarIndex");
@@ -769,7 +769,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: broken stack processing, deleted ternary!
     register(JAVA_17, "TestPatternMatchingLoops");
     register(JAVA_8, "TestBoxingSuperclass");
-    // TODO: shouldBeOne is completely deleted
     register(JAVA_8, "TestLVTReassignment");
     register(JAVA_8, "TestCatchVariable");
     register(JAVA_8, "TestExtraneousImports");
@@ -781,7 +780,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
 
     registerRaw(CUSTOM, "TestCorruptedSignatures").setExpectedFileName("Signatures.java");
 
-    // TODO: for loop shouldn't be made here
     register(JAVA_8, "TestWhileLoopPromotion");
 
     register(JAVA_21, "TestTypeAnnotations");
