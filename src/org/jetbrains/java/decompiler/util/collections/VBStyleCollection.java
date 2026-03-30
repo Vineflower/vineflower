@@ -29,8 +29,13 @@ public class VBStyleCollection<E, K> extends ArrayList<E> {
   }
 
   @Override
-  public boolean remove(Object element) {   // TODO: error on void remove(E element)
-    throw new RuntimeException("not implemented!");
+  public boolean remove(Object element) {
+    final var index = this.indexOf(element);
+    if (index == -1) {
+      return false;
+    }
+
+    return this.remove(index) != null;
   }
 
   @Override
