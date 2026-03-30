@@ -470,7 +470,7 @@ public final class SwitchHelper {
   }
 
   /**
-   * Removes all instances of the synthetic stack variable.
+   * Removes all instances of the synthetic stack variable that is commonly found in string-switches.
    * @param switchInfo the switch info to use
    */
   private static void removeSyntheticDupVar(StringSwitch switchInfo) {
@@ -484,27 +484,6 @@ public final class SwitchHelper {
     result.switchHead().replaceExprent(result.switchHead().getValue(), result.realVar());
     if (!(switchInfo instanceof NullableSplit)) {
       result.headExprs().remove(result.headExprs().size() - result.dupVarIdx());
-    }
-
-    // Replace synthetic var in if statements if merged
-    // TODO(aoqia): Is this even needed considering we remove the if statements completely?
-    if (false && switchInfo instanceof Merged) {
-      for (Statement stat : switchInfo.first().getCaseStatements()) {
-        if (!(stat instanceof IfStatement ifStat)) {
-          continue;
-        }
-
-        Exprent ifCond = ifStat.getHeadexprent().getCondition();
-        if (ifCond instanceof FunctionExprent condFunc && condFunc.getFuncType() == FunctionType.NE) {
-          ifCond = condFunc.getLstOperands().get(0);
-        }
-
-        if (!(ifCond instanceof InvocationExprent condInvoc) || !result.tmpVar().equalsVersions(condInvoc.getInstance())) {
-          continue;
-        }
-
-        condInvoc.setInstance(result.realVar());
-      }
     }
   }
 
