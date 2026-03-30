@@ -430,19 +430,18 @@ public final class SwitchHelper {
     }
 
     if (!(headExprs.get(headExprs.size() - dupVarIdx) instanceof AssignmentExprent assignment)
-      || !(assignment.getLeft() instanceof VarExprent tmpVar)
-      || !(assignment.getRight() instanceof VarExprent realVar)) {
+      || !(assignment.getLeft() instanceof VarExprent tmpVar)) {
       return Optional.empty();
     }
+    Exprent realExpr = assignment.getRight();
 
     VarExprent headVar = (VarExprent) (switchHead.getValue() instanceof InvocationExprent val
       ? val.getInstance() : switchHead.getValue());
 
     // If the dup var is not in the switch head,
-    //   or the dup var is referenced somewhere else other than the switch head
-    if (!tmpVar.equalsVersions(headVar) || tmpVar.isVarReferenced(switchInfo.first().getParent(), headVar)) {
-      // Check all case statements that are ifs that are equals and see if they all use the dup var
-      //   this will sometimes happen (i don't know why)
+    //   and the dup var is referenced somewhere else other than the switch head...
+    //   then check all case statements that are ifs that are equals and see if they all use the dup var
+    if (!tmpVar.equalsVersions(headVar) && tmpVar.isVarReferenced(switchInfo.first().getParent(), headVar)) {
       boolean isDupVarUsedInAllCaseIfs = true;
       for (Statement stat : switchInfo.first().getCaseStatements()) {
         if (!(stat instanceof IfStatement ifStat)) {
@@ -461,13 +460,13 @@ public final class SwitchHelper {
         isDupVarUsedInAllCaseIfs = isDupVarUsedInAllCaseIfs && tmpVar.equalsVersions(condInvoc.getInstance());
       }
 
-      // If the real var is not in the switch head or the dup var is not used in the all the if conditions
-      if (!realVar.equalsVersions(headVar) || !isDupVarUsedInAllCaseIfs) {
+      // If the temp var is not in the switch head or the dup var is not used in the all the if conditions
+      if (!tmpVar.equalsVersions(headVar) || !isDupVarUsedInAllCaseIfs) {
         return Optional.empty();
       }
     }
 
-    return Optional.of(new SyntheticDupVarResult(switchHead, headExprs, dupVarIdx, tmpVar, realVar));
+    return Optional.of(new SyntheticDupVarResult(switchHead, headExprs, dupVarIdx, tmpVar, realExpr));
   }
 
   /**
