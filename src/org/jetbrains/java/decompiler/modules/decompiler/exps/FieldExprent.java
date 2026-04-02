@@ -158,18 +158,18 @@ public class FieldExprent extends Exprent {
     TextBuffer buf = new TextBuffer();
 
     if (wasCondy) {
-      buf.append("/* $VF: constant dynamic */ ");
+      buf.appendComment("/* $VF: constant dynamic */ ");
     }
 
     if (isStatic) {
       if (name.equals("TYPE") && ExprUtil.PRIMITIVE_TYPES.containsKey(classname)) {
-        buf.append(ExprUtil.PRIMITIVE_TYPES.get(classname));
-        buf.append(".class");
+        buf.appendCastTypeName(new VarType(ExprUtil.PRIMITIVE_TYPES.get(classname), true));
+        buf.appendPunctuation('.').appendKeyword("class");
         return buf;
       }
       if (useQualifiedStatic()) {
         buf.appendAllClasses(DecompilerContext.getImportCollector().getShortNameInClassContext(ExprProcessor.buildJavaClassName(classname)), classname);
-        buf.append(".");
+        buf.appendPunctuation(".");
       }
     }
     else {
@@ -223,7 +223,7 @@ public class FieldExprent extends Exprent {
         buf.setLength(0);
       }
       else {
-        buf.append(".");
+        buf.appendPunctuation(".");
       }
     }
 

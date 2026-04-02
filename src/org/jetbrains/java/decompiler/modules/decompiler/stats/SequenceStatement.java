@@ -95,7 +95,9 @@ public class SequenceStatement extends Statement {
     buf.append(ExprProcessor.listToJava(varDefinitions, indent));
 
     if (islabeled) {
-      buf.appendIndent(indent++).append("label").append(this.id).append(": {").appendLineSeparator();
+      buf.appendIndent(indent++);
+      appendLabel(buf, -1);
+      buf.appendPunctuation(":").appendWhitespace(" ").appendPunctuation("{").appendLineSeparator();
     }
 
     boolean notempty = false;
@@ -116,7 +118,7 @@ public class SequenceStatement extends Statement {
     }
 
     if (islabeled) {
-      buf.appendIndent(indent-1).append("}").appendLineSeparator();
+      buf.appendIndent(indent-1).appendPunctuation("}").appendLineSeparator();
     }
 
     return buf;

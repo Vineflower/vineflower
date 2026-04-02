@@ -93,6 +93,27 @@ public abstract class TextTokenVisitor {
   }
 
   @MustBeInvokedByOverriders
+  public void visitLabel(TextRange range, boolean declaration, String className, String methodName, MethodDescriptor methodDescriptor, int id) {
+    if (next != null) {
+      next.visitLabel(range, declaration, className, methodName, methodDescriptor, id);
+    }
+  }
+
+  @MustBeInvokedByOverriders
+  public void visitModule(TextRange range, boolean declaration, String moduleName) {
+    if (next != null) {
+      next.visitModule(range, declaration, moduleName);
+    }
+  }
+
+  @MustBeInvokedByOverriders
+  public void visitGeneric(TextRange range, boolean declaration, String className, String methodName, MethodDescriptor methodDescriptor, String genericType) {
+    if (next != null) {
+      next.visitGeneric(range, declaration, className, methodName, methodDescriptor, genericType);
+    }
+  }
+
+  @MustBeInvokedByOverriders
   public void end() {
     if (next != null) {
       next.end();

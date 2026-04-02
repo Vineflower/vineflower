@@ -144,7 +144,7 @@ public class AssignmentExprent extends Exprent {
     this.optimizeCastForAssign();
 
     if (condType == null) {
-      buffer.append(" = ");
+      buffer.appendWhitespace(" ").appendOperator("=").appendWhitespace(" ");
 
       // We must lock the collector: this prevents the retrieval of the cast type name to impact the import list.
       // This is fine as we're only using the cast type name to ensure that it's not the unrepresentable type.
@@ -161,7 +161,7 @@ public class AssignmentExprent extends Exprent {
         ExprProcessor.getCastedExprent(right, leftType, buffer, indent, ExprProcessor.NullCastType.DONT_CAST_AT_ALL, false, false, false);
       }
     } else {
-      buffer.append(" ").append(condType.operator).append("= ");
+      buffer.appendWhitespace(" ").appendOperator(condType.operator).appendOperator("=").appendWhitespace(" ");
       buffer.append(right.toJava(indent));
     }
 
@@ -171,7 +171,7 @@ public class AssignmentExprent extends Exprent {
 
       if (varLeft.isDefinition() && varLeft.getProcessor() != null) {
         if (varLeft.getProcessor().getSyntheticSemaphores().contains(varLeft.getIndex())) {
-          buffer.append(" /* VF: Semaphore variable */");
+          buffer.appendWhitespace(" ").appendComment("/* VF: Semaphore variable */");
         }
       }
     }

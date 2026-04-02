@@ -6,7 +6,7 @@ public class ClassTextToken extends TextToken {
   public final String qualifiedName;
 
   public ClassTextToken(int start, int length, boolean declaration, String qualifiedName) {
-    super(start, length, declaration);
+    super(start, length, declaration, TokenType.CLASS);
     this.qualifiedName = qualifiedName;
   }
 

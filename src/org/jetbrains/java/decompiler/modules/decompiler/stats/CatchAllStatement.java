@@ -1,7 +1,6 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.stats;
 
-import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.modules.decompiler.DecHelper;
@@ -108,7 +107,7 @@ public class CatchAllStatement extends Statement {
 
     boolean labeled = isLabeled();
     if (labeled) {
-      buf.appendIndent(indent).append("label").append(this.id).append(":").appendLineSeparator();
+      appendLabel(buf, indent);
     }
 
     List<StatEdge> lstSuccs = first.getSuccessorEdges(STATEDGE_DIRECT_ALL);
@@ -119,29 +118,29 @@ public class CatchAllStatement extends Statement {
       buf.append(content);
     }
     else {
-      buf.appendIndent(indent).append("try {").appendLineSeparator();
+      buf.appendIndent(indent).appendKeyword("try").appendWhitespace(" ").appendPunctuation("{").appendLineSeparator();
       buf.append(ExprProcessor.jmpWrapper(first, indent + 1, true));
-      buf.appendIndent(indent).append("}");
+      buf.appendIndent(indent).appendPunctuation("}");
     }
 
     if (isFinally) {
-      buf.append(" finally");
+      buf.appendWhitespace(" ").appendKeyword("finally");
     } else {
-      buf.append(" catch (").append(vars.get(0).toJava(indent)).append(")");
+      buf.appendWhitespace(" ").appendKeyword("catch").appendWhitespace(" ").appendPunctuation("(").append(vars.get(0).toJava(indent)).appendPunctuation(")");
     }
-    buf.append(" {").appendLineSeparator();
+    buf.appendWhitespace(" ").appendPunctuation("{").appendLineSeparator();
 
     if (monitor != null) {
-      buf.appendIndent(indent+1).append("if (").append(monitor.toJava(indent)).append(") {").appendLineSeparator();
+      buf.appendIndent(indent+1).appendKeyword("if").appendWhitespace(" ").appendPunctuation("(").append(monitor.toJava(indent)).appendPunctuation(")").appendWhitespace(" ").appendPunctuation("{").appendLineSeparator();
     }
 
     buf.append(ExprProcessor.jmpWrapper(handler, indent + 1 + (monitor != null ? 1 : 0), true));
 
     if (monitor != null) {
-      buf.appendIndent(indent + 1).append("}").appendLineSeparator();
+      buf.appendIndent(indent + 1).appendPunctuation("}").appendLineSeparator();
     }
 
-    buf.appendIndent(indent).append("}").appendLineSeparator();
+    buf.appendIndent(indent).appendPunctuation("}").appendLineSeparator();
 
     return buf;
   }

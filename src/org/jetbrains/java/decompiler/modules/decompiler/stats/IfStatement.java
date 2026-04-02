@@ -1,6 +1,8 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.stats;
 
+import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.DecHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
@@ -200,7 +202,7 @@ public class IfStatement extends Statement {
     buf.append(first.toJava(indent));
 
     if (isLabeled()) {
-      buf.appendIndent(indent).append("label").append(this.id).append(":").appendLineSeparator();
+      appendLabel(buf, indent);
     }
 
     Exprent condition = headexprent.get(0);
@@ -209,9 +211,9 @@ public class IfStatement extends Statement {
     if (condition != null) {
       buf.append(condition.toJava(indent));
     } else {
-      buf.append("if <null condition>");
+      buf.appendKeyword("if").appendWhitespace(" ").appendComment("<null condition>");
     }
-    buf.append(" {").appendLineSeparator();
+    buf.appendWhitespace(" ").appendPunctuation("{").appendLineSeparator();
 
     if (ifstat == null) {
       boolean semicolon = false;
@@ -219,19 +221,20 @@ public class IfStatement extends Statement {
         semicolon = true;
         if (ifedge.getType() == StatEdge.TYPE_BREAK) {
           // break
-          buf.appendIndent(indent + 1).append("break");
+          buf.appendIndent(indent + 1).appendKeyword("break");
         }
         else {
           // continue
-          buf.appendIndent(indent + 1).append("continue");
+          buf.appendIndent(indent + 1).appendKeyword("continue");
         }
 
         if (ifedge.labeled) {
-          buf.append(" label").append(ifedge.closure == null ? "<unknownclosure>" : Integer.toString(ifedge.closure.id));
+          MethodWrapper method = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
+          buf.appendWhitespace(" ").appendLabel("label" + (ifedge.closure == null ? "<unknownclosure>" : Integer.toString(ifedge.closure.id)), false, method.classStruct.qualifiedName, method.methodStruct.getName(), method.desc(), ifedge.closure == null ? -1 : ifedge.closure.id);
         }
       }
       if(semicolon) {
-        buf.append(";").appendLineSeparator();
+        buf.appendPunctuation(";").appendLineSeparator();
       }
     }
     else {
@@ -246,7 +249,7 @@ public class IfStatement extends Statement {
           !elsestat.isLabeled() &&
           (elsestat.getSuccessorEdges(STATEDGE_DIRECT_ALL).isEmpty()
            || !elsestat.getSuccessorEdges(STATEDGE_DIRECT_ALL).get(0).explicit)) { // else if
-        buf.appendIndent(indent).append("} else ");
+        buf.appendIndent(indent).appendPunctuation("}").appendWhitespace(" ").appendKeyword("else").appendWhitespace(" ");
 
         TextBuffer content = ExprProcessor.jmpWrapper(elsestat, indent, false);
         content.setStart(TextUtil.getIndentString(indent).length());
@@ -258,14 +261,14 @@ public class IfStatement extends Statement {
         TextBuffer content = ExprProcessor.jmpWrapper(elsestat, indent + 1, false);
 
         if (content.length() > 0) {
-          buf.appendIndent(indent).append("} else {").appendLineSeparator();
+          buf.appendIndent(indent).appendPunctuation("}").appendWhitespace(" ").appendKeyword("else").appendWhitespace(" ").appendPunctuation("{").appendLineSeparator();
           buf.append(content);
         }
       }
     }
 
     if (!elseif) {
-      buf.appendIndent(indent).append("}").appendLineSeparator();
+      buf.appendIndent(indent).appendPunctuation("}").appendLineSeparator();
     }
 
     return buf;

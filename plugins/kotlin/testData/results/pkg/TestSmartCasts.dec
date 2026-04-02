@@ -98,7 +98,7 @@ public class TestSmartCasts {
       internal class DefaultImpls {
          @JvmStatic
          fun woo(`$this`: TestSmartCasts.X, `$receiver`: MutableIterable<*>): java.lang.String {
-            "A"// 5
+            return "A"// 5
          }
       }
    }
@@ -520,6 +520,7 @@ class 'pkg/TestSmartCasts$X$DefaultImpls' {
    method 'woo (Lpkg/TestSmartCasts$X;Ljava/lang/Iterable;)Ljava/lang/String;' {
       6      100
       7      100
+      8      100
    }
 }
 

@@ -3,7 +3,7 @@
  */
 package org.jetbrains.java.decompiler.util;
 
-import org.jetbrains.java.decompiler.code.CodeConstants;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
@@ -18,11 +18,7 @@ import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericMain;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
-import org.jetbrains.java.decompiler.util.token.ClassTextToken;
-import org.jetbrains.java.decompiler.util.token.FieldTextToken;
-import org.jetbrains.java.decompiler.util.token.MethodTextToken;
-import org.jetbrains.java.decompiler.util.token.TextToken;
-import org.jetbrains.java.decompiler.util.token.VariableTextToken;
+import org.jetbrains.java.decompiler.util.token.*;
 
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
@@ -62,23 +58,75 @@ public class TextBuffer {
     myStringBuilder = new StringBuilder(text);
   }
 
+  public TextBuffer appendKeyword(String keyword) {
+    return append(keyword, TokenType.KEYWORD);
+  }
+
+  public TextBuffer appendPunctuation(String punctuation) {
+    return append(punctuation, TokenType.PUNCTUATION);
+  }
+
+  public TextBuffer appendPunctuation(char punctuation) {
+    return append(String.valueOf(punctuation), TokenType.PUNCTUATION);
+  }
+
+  public TextBuffer appendOperator(String operator) {
+    return append(operator, TokenType.OPERATOR);
+  }
+
+  public TextBuffer appendOperator(char operator) {
+    return append(String.valueOf(operator), TokenType.OPERATOR);
+  }
+
+  public TextBuffer appendComment(String comment) {
+    return append(comment, TokenType.COMMENT);
+  }
+
+  public TextBuffer appendText(String text) {
+    return append(text, TokenType.TEXT);
+  }
+
+  public TextBuffer appendAnnotation(TextBuffer buffer) {
+    addToken(new SyntaxTextToken(length(), buffer.length(), TokenType.ANNOTATION));
+    return append(buffer);
+  }
+
+  public TextBuffer appendNumber(String number) {
+    return append(number, TokenType.NUMBER);
+  }
+
+  public TextBuffer appendNumber(int number) {
+    return append(String.valueOf(number), TokenType.NUMBER);
+  }
+
+  public TextBuffer prependOperator(String operator) {
+    return prepend(operator, TokenType.OPERATOR);
+  }
+
+  public TextBuffer prepend(String value, TokenType type) {
+    shiftMapping(value.length());
+    myRootGroup.myTokens.add(0, new SyntaxTextToken(0, value.length(), type));
+    myStringBuilder.insert(0, value);
+    if (myDebugTrace != null) {
+      myDebugTrace.updateTrace();
+    }
+    return this;
+  }
+
+  @ApiStatus.Internal
   public TextBuffer append(String str) {
     myStringBuilder.append(str);
-    return this;
-  }
-
-  public TextBuffer append(char ch) {
-    myStringBuilder.append(ch);
-    return this;
-  }
-
-  public TextBuffer append(int i) {
-    myStringBuilder.append(i);
+    if (myDebugTrace != null) {
+      myDebugTrace.updateTrace();
+    }
     return this;
   }
 
   public TextBuffer appendLineSeparator() {
     myStringBuilder.append(myLineSeparator);
+    if (myDebugTrace != null) {
+      myDebugTrace.updateTrace();
+    }
     return this;
   }
 
@@ -253,6 +301,31 @@ public class TextBuffer {
     return append(value);
   }
 
+  public TextBuffer append(String value, TokenType type) {
+    addToken(new SyntaxTextToken(length(), value.length(), type));
+    return append(value);
+  }
+  
+  public TextBuffer appendWhitespace(String value) {
+    assert value.isBlank();
+    return append(value);
+  }
+
+  public TextBuffer appendLabel(String text, boolean declaration, String className, String methodName, MethodDescriptor methodDescriptor, int id) {
+    addToken(new LabelTextToken(length(), text.length(), declaration, className, methodName, methodDescriptor, id));
+    return append(text);
+  }
+
+  public TextBuffer appendGeneric(String text, boolean declaration, String className, String methodName, String methodDescriptor) {
+    addToken(new GenericTextToken(length(), text.length(), declaration, className, methodName, methodDescriptor != null ? MethodDescriptor.parseDescriptor(methodDescriptor) : null, text));
+    return append(text);
+  }
+
+  public TextBuffer appendModule(String moduleName, boolean declaration) {
+    addToken(new ModuleTextToken(length(), moduleName.length(), declaration, moduleName));
+    return append(moduleName);
+  }
+
   private void addToken(TextToken token) {
     myCurrentGroup.myTokens.add(token);
   }
@@ -323,8 +396,16 @@ public class TextBuffer {
     return this;
   }
 
+  public TextBuffer enclose(TextBuffer left, TextBuffer right) {
+    prepend(left);
+    append(right);
+    return this;
+  }
+
   public TextBuffer encloseWithParens() {
-    return enclose("(", ")");
+    prepend("(", TokenType.PUNCTUATION);
+    append(")", TokenType.PUNCTUATION);
+    return this;
   }
 
   public boolean containsOnlyWhitespaces() {
@@ -338,14 +419,14 @@ public class TextBuffer {
 
   public void addBytecodeMapping(int bytecodeOffset) {
     if (myDebugTrace != null) {
-      myDebugTrace.myPreventDeletion = true;
+      myDebugTrace.preventDeletion();
     }
     myBytecodeOffsetMapping.putIfAbsent(new BytecodeMappingKey(bytecodeOffset, null, null), myStringBuilder.length());
   }
 
   public void addStartBytecodeMapping(int bytecodeOffset) {
     if (myDebugTrace != null) {
-      myDebugTrace.myPreventDeletion = true;
+      myDebugTrace.preventDeletion();
     }
     myBytecodeOffsetMapping.putIfAbsent(new BytecodeMappingKey(bytecodeOffset, null, null), 0);
   }
@@ -528,7 +609,7 @@ public class TextBuffer {
 
   public String convertToStringAndAllowDataDiscard() {
     if (myDebugTrace != null) {
-      myDebugTrace.myPreventDeletion = false;
+      myDebugTrace.allowDeletion();
     }
     String original = myStringBuilder.toString();
     if (myLineToOffsetMapping == null || myLineToOffsetMapping.isEmpty()) {
@@ -594,7 +675,7 @@ public class TextBuffer {
       if (integers != null) {
         sb.append("//");
         for (Integer integer : integers) {
-          sb.append(' ').append(integer);
+          sb.append(" ").append(integer);
         }
       }
       sb.append(myLineSeparator);
@@ -666,7 +747,7 @@ public class TextBuffer {
       throw new IllegalArgumentException("Can't append buffer with non-root group");
     }
     if (buffer.myDebugTrace != null) {
-      buffer.myDebugTrace.myPreventDeletion = false;
+      buffer.myDebugTrace.allowDeletion();
     }
     if (buffer.myLineToOffsetMapping != null && !buffer.myLineToOffsetMapping.isEmpty()) {
       checkMapCreated();
@@ -686,6 +767,30 @@ public class TextBuffer {
     myCurrentGroup.myTokens.addAll(otherRoot.myTokens);
     myCurrentGroup.myChildren.addAll(otherRoot.myChildren);
     myStringBuilder.append(buffer.myStringBuilder);
+    return this;
+  }
+
+  public TextBuffer prepend(TextBuffer buffer) {
+    //TODO: necessary?
+    if (myCurrentGroup != myRootGroup || buffer.myCurrentGroup != buffer.myRootGroup) {
+      throw new IllegalArgumentException("Can't prepend buffer with either in non-root group");
+    }
+    if (buffer.myDebugTrace != null) {
+      buffer.myDebugTrace.allowDeletion();
+    }
+    shiftMapping(buffer.length());
+
+    if (buffer.myLineToOffsetMapping != null && !buffer.myLineToOffsetMapping.isEmpty()) {
+      checkMapCreated();
+      for (Map.Entry<Integer, Integer> entry : buffer.myLineToOffsetMapping.entrySet()) {
+        myLineToOffsetMapping.put(entry.getKey(), entry.getValue() + myStringBuilder.length());
+      }
+    }
+
+    myRootGroup.myReplacements.addAll(buffer.myRootGroup.myReplacements);
+    myRootGroup.myTokens.addAll(buffer.myRootGroup.myTokens);
+    myRootGroup.myChildren.addAll(buffer.myRootGroup.myChildren);
+    myStringBuilder.insert(0, buffer.myStringBuilder);
     return this;
   }
 
@@ -976,23 +1081,48 @@ public class TextBuffer {
       ALL_REMAINING_TRACES.add(this);
     }
 
-    final Throwable myCreationTrace = new Throwable();
-    boolean myPreventDeletion = false;
+    final Throwable myCreationTrace = new Throwable("Creation trace");
+    private Throwable myEditTrace = null;
+
+    void preventDeletion() {
+      myEditTrace = new Throwable("Most recent edit", myCreationTrace);
+    }
+    
+    void allowDeletion() {
+      myEditTrace = null;
+    }
+    
+    void updateTrace() {
+      if (myEditTrace != null) {
+        myEditTrace = new Throwable("Most recent edit", myCreationTrace);
+      }
+    }
 
     private void onDeletion() {
-      if (myPreventDeletion && (!DotExporter.DUMP_DOTS && !DotExporter.DUMP_ERROR_DOTS)) {
+      if (myEditTrace != null && (!DotExporter.DUMP_DOTS && !DotExporter.DUMP_ERROR_DOTS)) {
         throw new AssertionError(
-          "TextBuffer was garbage collected without being added to another TextBuffer, data loss occurred. See cause for the creation trace",
-          myCreationTrace
+          "TextBuffer was garbage collected without being added to another TextBuffer, data loss occurred. See causes for relevant traces",
+          myEditTrace
         );
       }
     }
 
     static void checkLeaks() {
+      AssertionError accumulator = null;
       for (DebugTrace trace : ALL_REMAINING_TRACES) {
-        trace.onDeletion();
+        try {
+          trace.onDeletion();
+        } catch (AssertionError error) {
+          if (accumulator == null) {
+             accumulator = new AssertionError("Debug traces still exist");
+          }
+          accumulator.addSuppressed(error);
+        }
       }
       ALL_REMAINING_TRACES.clear();
+      if (accumulator != null) {
+        throw accumulator;
+      }
     }
   }
 }

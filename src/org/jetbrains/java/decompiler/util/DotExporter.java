@@ -607,7 +607,7 @@ public class DotExporter {
         }
       }
 
-      builder.append("label=\"").append(node.var).append("_").append(node.version).append("\"];\r\n");
+      builder.append("label=\"").append(node.var).append(".").append(node.version).append("\"];\r\n");
 
       for (VarVersionNode dest : node.successors) {
         appendNode(builder, node);
@@ -646,9 +646,9 @@ public class DotExporter {
 
   private static void appendNode(StringBuilder builder, VarVersionPair pair) {
     if (pair.var >= 0) {
-      builder.append("var").append(pair.var).append("_").append(pair.version);
+      builder.append("var").append(pair.var).append(".").append(pair.version);
     } else {
-      builder.append("varM").append(-pair.var).append("_").append(pair.version);
+      builder.append("varM").append(-pair.var).append(".").append(pair.version);
     }
   }
 
@@ -699,7 +699,7 @@ public class DotExporter {
           for (Entry<Integer, FastSparseSet<Integer>> entry : lst) {
             label.append("\\n").append(entry.getKey());
             Set<Integer> set = entry.getValue().toPlainSet();
-            label.append("=").append(set);
+            label.append(".").append(set);
           }
         }
       }

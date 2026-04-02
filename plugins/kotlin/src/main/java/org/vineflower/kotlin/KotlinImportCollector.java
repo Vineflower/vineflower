@@ -1,16 +1,12 @@
 package org.vineflower.kotlin;
 
-import org.jetbrains.java.decompiler.main.ClassesProcessor;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.ImportCollector;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
-import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
-import org.jetbrains.java.decompiler.struct.StructContext;
 import org.jetbrains.java.decompiler.util.TextBuffer;
+import org.jetbrains.java.decompiler.util.token.TokenType;
 import org.vineflower.kotlin.util.KTypes;
 
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -65,7 +61,7 @@ public class KotlinImportCollector extends ImportCollector {
 
     List<String> imports = packImports();
     for (String imp : imports) {
-      buffer.append("import ").append(imp).appendLineSeparator();
+      buffer.appendKeyword("import").appendWhitespace(" ").append(imp, TokenType.CLASS).appendLineSeparator();
     }
     if (addSeparator && !imports.isEmpty()) {
       buffer.appendLineSeparator();

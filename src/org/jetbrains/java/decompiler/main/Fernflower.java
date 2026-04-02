@@ -1,35 +1,25 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.main;
 
-import java.io.IOException;
-
 import org.jetbrains.java.decompiler.api.plugin.LanguageSpec;
-import org.jetbrains.java.decompiler.api.plugin.Plugin;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.decompiler.OptionParser;
 import org.jetbrains.java.decompiler.main.extern.*;
-import org.jetbrains.java.decompiler.main.plugins.JarPluginLoader;
-import org.jetbrains.java.decompiler.api.plugin.PluginSource;
-import org.jetbrains.java.decompiler.main.plugins.PluginSources;
+import org.jetbrains.java.decompiler.main.plugins.PluginContext;
 import org.jetbrains.java.decompiler.modules.renamer.ConverterHelper;
 import org.jetbrains.java.decompiler.modules.renamer.IdentifierConverter;
 import org.jetbrains.java.decompiler.modules.renamer.PoolInterceptor;
 import org.jetbrains.java.decompiler.struct.IDecompiledData;
-import org.jetbrains.java.decompiler.main.plugins.PluginContext;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructContext;
-import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
 import org.jetbrains.java.decompiler.util.ClasspathScanner;
 import org.jetbrains.java.decompiler.util.JrtFinder;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.token.TextTokenDumpVisitor;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.io.IOException;
+import java.util.*;
 
 public class Fernflower implements IDecompiledData {
   private final StructContext structContext;
@@ -192,7 +182,7 @@ public class Fernflower implements IDecompiledData {
   public String getClassContent(StructClass cl) {
     TextBuffer buffer = new TextBuffer(ClassesProcessor.AVERAGE_CLASS_SIZE);
     try {
-      buffer.append(DecompilerContext.getProperty(IFernflowerPreferences.BANNER).toString());
+      buffer.appendComment(DecompilerContext.getProperty(IFernflowerPreferences.BANNER).toString());
       classProcessor.writeClass(cl, buffer);
 
       if (DecompilerContext.getOption(IFernflowerPreferences.DUMP_TEXT_TOKENS)) {

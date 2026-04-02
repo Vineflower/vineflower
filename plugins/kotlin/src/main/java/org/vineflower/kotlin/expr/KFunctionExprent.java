@@ -76,13 +76,13 @@ public class KFunctionExprent extends FunctionExprent implements KExprent {
         switch (kType) {
           case EQUALS3 -> {
             buf.append(wrapOperandString(lstOperands.get(0), true, indent))
-              .append(" === ")
+              .appendWhitespace(" ").appendPunctuation("===").appendWhitespace(" ")
               .append(wrapOperandString(lstOperands.get(1), true, indent));
             return buf;
           }
           case IF_NULL -> {
             buf.append(wrapOperandString(lstOperands.get(0), true, indent))
-              .append(" ?: ")
+              .appendWhitespace(" ").appendPunctuation("?:").appendWhitespace(" ")
               .append(wrapOperandString(lstOperands.get(1), true, indent));
             return buf;
           }
@@ -92,23 +92,23 @@ public class KFunctionExprent extends FunctionExprent implements KExprent {
               if (!varExprent.getVarType().equals(VarType.VARTYPE_CLASS)) {
                 throw new IllegalArgumentException("Variable accessing KClass is not a Class");
               }
-              return buf.append(varExprent.toJava()).append(".kotlin");
+              return buf.append(varExprent.toJava()).appendPunctuation('.').appendMethod("kotlin", false, "kotlin/jvm/JvmClassMappingKt", "getKotlin", "(Ljava/lang/Class;)Lkotlin/reflect/KClass;");
             } else if (operand instanceof ConstExprent constExprent) {
               String value = constExprent.getValue().toString();
               VarType type = new VarType(value, !value.startsWith("["));
-              buf.append(KTypes.getKotlinType(type));
+              buf.appendClass(KTypes.getKotlinType(type), false, type.value);
             } else if (operand instanceof FieldExprent fieldExprent) {
               String primitiveType = fieldExprent.getClassname();
               VarType type = new VarType(primitiveType, true);
-              buf.append(KTypes.getKotlinType(type));
+              buf.appendClass(KTypes.getKotlinType(type), false, primitiveType);
             } else {
               // TODO: can end up being 'this.getClass()::class'!
               buf.append(operand.toJava());
             }
-            return buf.append("::class");
+            return buf.appendPunctuation("::").appendKeyword("class");
           }
           case STR_TEMPLATE -> {
-            buf.append('"');
+            buf.appendText("\"");
             for (Exprent expr : lstOperands) {
               if (expr instanceof ConstExprent constExpr) {
                 // Strings can be directly placed into the resulting string, but other constants are a little more touchy.
@@ -117,24 +117,24 @@ public class KFunctionExprent extends FunctionExprent implements KExprent {
                 if (VarType.VARTYPE_STRING.equals(constExpr.getConstType())) {
                   boolean ascii = DecompilerContext.getOption(IFernflowerPreferences.ASCII_STRING_CHARACTERS);
                   String value = ConstExprent.convertStringToJava((String) constExpr.getValue(), ascii);
-                  buf.append(value.replace("$", "\\$"));
+                  buf.appendText(value.replace("$", "\\$"));
                 } else if (VarType.VARTYPE_CHAR.equals(constExpr.getConstType())) {
                   // The compiler uses `StringBuilder.append(char)` on single characters when using StringBuilder
                   // instead of makeConcatWithConstants. Inline the character directly - intentional behavior.
-                  buf.append((char) (int) constExpr.getValue());
+                  buf.appendText(Character.toString((char) constExpr.getIntValue()));
                 } else {
                   if (VarType.isPrimitive(constExpr.getConstType())) {
                     DecompilerContext.getLogger().writeMessage("Primitive constant type in string concatenation: " + constExpr.getConstType(), IFernflowerLogger.Severity.WARN);
                   }
-                  buf.append("${").append(constExpr.toJava(indent)).append("}");
+                  buf.appendPunctuation("${").append(constExpr.toJava(indent)).appendPunctuation("}");
                 }
               } else if (expr instanceof VarExprent var) {
-                buf.append("$").append(var.toJava(indent));
+                buf.appendPunctuation("$").append(var.toJava(indent));
               } else {
-                buf.append("${").append(expr.toJava(indent)).append("}");
+                buf.appendPunctuation("${").append(expr.toJava(indent)).appendPunctuation("}");
               }
             }
-            buf.append('"');
+            buf.appendText("\"");
             return buf;
           }
         }
@@ -153,19 +153,19 @@ public class KFunctionExprent extends FunctionExprent implements KExprent {
         ) {
           // Safe cast
           buf.append(cast.getLstOperands().get(0).toJava(indent));
-          buf.append(" as? ");
+          buf.appendWhitespace(" ").appendKeyword("as?").appendWhitespace(" ");
           buf.append(cast.getLstOperands().get(1).toJava(indent));
           return buf;
         }
 
         buf.pushNewlineGroup(indent, 1);
-        buf.append("if (");
+        buf.appendKeyword("if").appendWhitespace(" ").appendPunctuation("(");
         buf.append(wrapOperandString(condition, true, indent))
-          .append(")")
+          .appendPunctuation(")")
           .appendPossibleNewline(" ")
           .append(wrapOperandString(ifTrue, true, indent))
           .appendPossibleNewline(" ")
-          .append("else")
+          .appendKeyword("else")
           .appendPossibleNewline(" ")
           .append(wrapOperandString(ifFalse, true, indent));
         buf.popNewlineGroup();
@@ -174,7 +174,7 @@ public class KFunctionExprent extends FunctionExprent implements KExprent {
       }
       case INSTANCEOF -> {
         buf.append(wrapOperandString(lstOperands.get(0), true, indent))
-          .append(" is ")
+          .appendWhitespace(" ").appendKeyword("is").appendWhitespace(" ")
           .append(wrapOperandString(lstOperands.get(1), true, indent));
 
         return buf;
@@ -185,7 +185,7 @@ public class KFunctionExprent extends FunctionExprent implements KExprent {
         if (lstOperands.get(0) instanceof KFunctionExprent func) {
           if (func.getFuncType() == FunctionType.INSTANCEOF) {
             buf.append(wrapOperandString(func.getLstOperands().get(0), true, indent))
-              .append(" !is ")
+              .appendWhitespace(" ").appendKeyword("!is").appendWhitespace(" ")
               .append(wrapOperandString(func.getLstOperands().get(1), true, indent));
             return buf;
           }
@@ -195,40 +195,38 @@ public class KFunctionExprent extends FunctionExprent implements KExprent {
         if (!doesCast()) {
           return buf.append(lstOperands.get(0).toJava(indent));
         }
-        buf.append(wrapOperandString(lstOperands.get(0), true, indent)).append(" as ").append(lstOperands.get(1).toJava(indent));
+        buf.append(wrapOperandString(lstOperands.get(0), true, indent))
+          .appendWhitespace(" ").appendKeyword("as").appendWhitespace(" ")
+          .append(lstOperands.get(1).toJava(indent));
         return buf;
       }
       case BIT_NOT -> {
+        boolean isInt = lstOperands.get(0).getExprType().equals(VarType.VARTYPE_INT);
         buf.append(wrapOperandString(lstOperands.get(0), true, indent));
-        return buf.append(".inv()");
+        return buf
+          .appendPunctuation('.')
+          .appendMethod("inv", false, isInt ? "kotlin/Int" : "kotlin/Long", "inv", isInt ? "()I" : "()J");
       }
-      case AND -> {
-        buf.append(wrapOperandString(lstOperands.get(0), true, indent)).append(" and ")
-          .append(wrapOperandString(lstOperands.get(1), true, indent));
-        return buf; // Bitwise AND
-      }
-      case OR -> {
-        buf.append(wrapOperandString(lstOperands.get(0), true, indent)).append(" or ")
-          .append(wrapOperandString(lstOperands.get(1), true, indent));
-        return buf;
-      }
-      case XOR -> {
-        buf.append(wrapOperandString(lstOperands.get(0), true, indent)).append(" xor ")
-          .append(wrapOperandString(lstOperands.get(1), true, indent));
-        return buf;
-      }
-      case SHL -> {
-        buf.append(wrapOperandString(lstOperands.get(0), true, indent)).append(" shl ")
-          .append(wrapOperandString(lstOperands.get(1), true, indent));
-        return buf;
-      }
-      case SHR -> {
-        buf.append(wrapOperandString(lstOperands.get(0), true, indent)).append(" shr ")
-          .append(wrapOperandString(lstOperands.get(1), true, indent));
-        return buf;
-      }
-      case USHR -> {
-        buf.append(wrapOperandString(lstOperands.get(0), true, indent)).append(" ushr ")
+      case AND, OR, XOR, SHL, SHR, USHR -> {
+        String type;
+        String desc;
+        if (getExprType().equals(VarType.VARTYPE_BOOLEAN)) {
+          type = "kotlin/Boolean";
+          desc = "(Z)Z";
+        } else if (getExprType().equals(VarType.VARTYPE_INT)) {
+          type = "kotlin/Int";
+          desc = "(I)I";
+        } else if (getExprType().equals(VarType.VARTYPE_LONG)) {
+          type = "kotlin/Long";
+          desc = "(J)J";
+        } else {
+          throw new IllegalStateException("Unsupported type for bitwise operation: " + getExprType());
+        }
+        String name = getFuncType().name().toLowerCase();
+        buf.append(wrapOperandString(lstOperands.get(0), true, indent))
+          .appendWhitespace(" ")
+          .appendMethod(name, false, type, name, desc)
+          .appendWhitespace(" ")
           .append(wrapOperandString(lstOperands.get(1), true, indent));
         return buf;
       }

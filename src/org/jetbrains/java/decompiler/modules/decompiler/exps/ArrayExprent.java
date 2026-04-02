@@ -82,13 +82,13 @@ public class ArrayExprent extends Exprent {
     VarType arrType = array.getExprType();
     if (arrType.arrayDim == 0) {
       VarType objArr = VarType.VARTYPE_OBJECT.resizeArrayDim(1); // type family does not change
-      res.enclose("((" + ExprProcessor.getCastTypeName(objArr) + ")", ")");
+      res.enclose(new TextBuffer().appendPunctuation("((").appendCastTypeName(objArr).appendPunctuation(")"), new TextBuffer().appendPunctuation(")"));
       res.addTypeNameToken(objArr, 2);
     }
 
     res.addBytecodeMapping(bytecode);
 
-    return res.append('[').append(index.toJava(indent)).append(']');
+    return res.appendPunctuation('[').append(index.toJava(indent)).appendPunctuation(']');
   }
 
   private boolean canSkipParenEnclose(Exprent instance) {

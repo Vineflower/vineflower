@@ -41,14 +41,14 @@ public final class GeneralStatement extends Statement {
     TextBuffer buf = new TextBuffer();
 
     if (isLabeled()) {
-      buf.appendIndent(indent).append("label").append(this.id).append(":").appendLineSeparator();
+      appendLabel(buf, indent);
     }
 
-    buf.appendIndent(indent).append("abstract statement {").appendLineSeparator();
+    buf.appendIndent(indent).appendComment("abstract statement {").appendLineSeparator();
     for (Statement stat : stats) {
       buf.append(stat.toJava(indent + 1));
     }
-    buf.appendIndent(indent).append("}");
+    buf.appendIndent(indent).appendPunctuation("}");
     buf.appendLineSeparator();
 
     return buf;

@@ -1,5 +1,7 @@
 package org.vineflower.kotlin.stat;
 
+import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.SequenceStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
@@ -35,10 +37,12 @@ public class KSequenceStatement extends SequenceStatement {
     buf.append(ExprProcessor.listToJava(varDefinitions, indent));
 
     if (labeled) {
+      MethodWrapper method = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
       buf.appendIndent(indent++)
-        .append("run label")
-        .append(id)
-        .append("@{")
+        .appendMethod("run", false, "kotlin/StandardKt", "run", "(Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;")
+        .appendWhitespace(" ")
+        .appendLabel("label" + id, true, method.classStruct.qualifiedName, method.methodStruct.getName(), method.desc(), id)
+        .appendPunctuation("@{")
         .appendLineSeparator();
     }
 
@@ -58,7 +62,7 @@ public class KSequenceStatement extends SequenceStatement {
 
     if (labeled) {
       buf.appendIndent(--indent)
-        .append("}")
+        .appendPunctuation("}")
         .appendLineSeparator();
     }
 

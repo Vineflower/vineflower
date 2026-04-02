@@ -5,14 +5,12 @@ package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.plugins.PluginImplementationException;
-import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.SFormsConstructor;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.VarMapHolder;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.gen.CodeType;
-import org.jetbrains.java.decompiler.struct.gen.TypeFamily;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.struct.match.MatchEngine;
@@ -23,6 +21,7 @@ import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.Typed;
 import org.jetbrains.java.decompiler.util.collections.ListStack;
 import org.jetbrains.java.decompiler.util.collections.SFormsFastMapDirect;
+import org.jetbrains.java.decompiler.util.token.TokenType;
 
 import java.util.*;
 
@@ -541,14 +540,14 @@ public class FunctionExprent extends Exprent {
         if (right instanceof ConstExprent && right.getExprType() == VarType.VARTYPE_INT) {
           Integer value = (Integer) ((ConstExprent)right).getValue();
           rightOperand.setLength(0);
-          rightOperand.append(IntHelper.adjustedIntRepresentation(value));
+          rightOperand.appendNumber(IntHelper.adjustedIntRepresentation(value));
         }
 
         // Check if the left is an int constant and adjust accordingly
         if (left instanceof ConstExprent && left.getExprType() == VarType.VARTYPE_INT) {
           Integer value = (Integer) ((ConstExprent)left).getValue();
           leftOperand.setLength(0);
-          leftOperand.append(IntHelper.adjustedIntRepresentation(value));
+          leftOperand.appendNumber(IntHelper.adjustedIntRepresentation(value));
         }
       }
 
@@ -557,7 +556,7 @@ public class FunctionExprent extends Exprent {
         buf.pushNewlineGroup(indent, 1);
       }
       buf.append(leftOperand)
-        .appendPossibleNewline(" ").append(funcType.operator).append(" ")
+        .appendPossibleNewline(" ").appendOperator(funcType.operator).appendWhitespace(" ")
         .append(rightOperand);
       if (!disableNewlineGroupCreation) {
         buf.popNewlineGroup();
@@ -590,7 +589,7 @@ public class FunctionExprent extends Exprent {
         buf.pushNewlineGroup(indent, 1);
       }
       buf.append(wrapOperandString(left, false, indent, true))
-        .appendPossibleNewline(" ").append(funcType.operator).append(" ")
+        .appendPossibleNewline(" ").appendOperator(funcType.operator).appendWhitespace(" ")
         .append(wrapOperandString(right, true, indent, true));
       if (!disableNewlineGroupCreation) {
         buf.popNewlineGroup();
@@ -604,17 +603,17 @@ public class FunctionExprent extends Exprent {
       case NEG:
       case MMI:
       case PPI:
-        return buf.append(wrapOperandString(lstOperands.get(0), true, indent).prepend(funcType.operator));
+        return buf.append(wrapOperandString(lstOperands.get(0), true, indent).prependOperator(funcType.operator));
       case IPP:
       case IMM:
-        return buf.append(wrapOperandString(lstOperands.get(0), true, indent).append(funcType.operator));
+        return buf.append(wrapOperandString(lstOperands.get(0), true, indent).appendOperator(funcType.operator));
       case CAST:
         if (!needsCast) {
           return buf.append(lstOperands.get(0).toJava(indent));
         }
         for (int i = 1; i < lstOperands.size(); i++) {
           if (i > 1) {
-            buf.append(" & ");
+            buf.appendWhitespace(" ").appendOperator("&").appendWhitespace(" ");
           }
           buf.append(lstOperands.get(i).toJava(indent));
         }
@@ -625,21 +624,21 @@ public class FunctionExprent extends Exprent {
         buf.append(wrapOperandString(arr, false, indent));
         if (arr.getExprType().arrayDim == 0) {
           VarType objArr = VarType.VARTYPE_OBJECT.resizeArrayDim(1); // type family does not change
-          buf.enclose("((" + ExprProcessor.getCastTypeName(objArr) + ")", ")");
+          buf.enclose(new TextBuffer().appendPunctuation("((").appendCastTypeName(objArr).appendPunctuation(")"), new TextBuffer().appendPunctuation(")"));
           buf.addTypeNameToken(objArr, 2);
         }
-        return buf.append(".length");
+        return buf.appendPunctuation(".").append("length", TokenType.FIELD);
       case TERNARY:
         buf.pushNewlineGroup(indent, 1);
         buf.append(wrapOperandString(lstOperands.get(0), true, indent))
-          .appendPossibleNewline(" ").append("? ")
+          .appendPossibleNewline(" ").appendOperator("?").appendWhitespace(" ")
           .append(wrapOperandString(lstOperands.get(1), true, indent))
-          .appendPossibleNewline(" ").append(": ")
+          .appendPossibleNewline(" ").appendOperator(":").appendWhitespace(" ")
           .append(wrapOperandString(lstOperands.get(2), true, indent));
         buf.popNewlineGroup();
         return buf;
       case INSTANCEOF:
-        buf.append(wrapOperandString(lstOperands.get(0), true, indent)).append(" instanceof ");
+        buf.append(wrapOperandString(lstOperands.get(0), true, indent)).appendWhitespace(" ").appendKeyword("instanceof").appendWhitespace(" ");
 
         if (this.lstOperands.size() > 2) {
           // Pattern instanceof creation- only happens when we have more than 2 exprents
@@ -663,9 +662,9 @@ public class FunctionExprent extends Exprent {
       case DCMPG:
         // shouldn't appear in the final code
         return buf.append(wrapOperandString(lstOperands.get(0), true, indent).prepend(funcType.operator + "("))
-                 .append(", ")
+                 .appendPunctuation(",").appendWhitespace(" ")
                  .append(wrapOperandString(lstOperands.get(1), true, indent))
-                 .append(")");
+                 .appendPunctuation(")");
     }
 
     if (funcType.castType != null) {
@@ -687,7 +686,7 @@ public class FunctionExprent extends Exprent {
         return buf.append(lstOperands.get(0).toJava(indent));
       }
 
-      return buf.append(ExprProcessor.getTypeName(funcType.castType)).encloseWithParens().append(wrapOperandString(lstOperands.get(0), true, indent));
+      return buf.appendCastTypeName(funcType.castType).encloseWithParens().append(wrapOperandString(lstOperands.get(0), true, indent));
     }
 
     //        return "<unknown function>";
@@ -771,13 +770,13 @@ public class FunctionExprent extends Exprent {
 
     if (parentheses) {
       TextBuffer oldRes = res;
-      res = new TextBuffer().append("(");
+      res = new TextBuffer().appendPunctuation("(");
       res.pushNewlineGroup(indent, 1);
       res.appendPossibleNewline();
       res.append(oldRes);
       res.appendPossibleNewline("", true);
       res.popNewlineGroup();
-      res.append(")");
+      res.appendPunctuation(")");
     }
 
     return res;

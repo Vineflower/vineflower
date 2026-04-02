@@ -1,5 +1,7 @@
 package org.vineflower.kotlin.stat;
 
+import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.DoStatement;
@@ -47,6 +49,7 @@ public class KDoStatement extends DoStatement {
   public TextBuffer toJava(int indent) {
     TextBuffer buf = new TextBuffer();
     boolean labeled = isLabeled();
+    MethodWrapper method = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
 
     if (getLooptype() != Type.FOR) {
       buf.append(ExprProcessor.listToJava(varDefinitions, indent));
@@ -54,17 +57,16 @@ public class KDoStatement extends DoStatement {
       buf.appendIndent(indent);
 
       if (labeled) {
-        buf.append("label")
-          .append(this.id)
-          .append("@ ");
+        appendLabel(buf, -1);
+        buf.appendPunctuation("@").appendWhitespace(" ");
       }
     }
 
     switch (getLooptype()) {
       case INFINITE -> {
-        buf.append("while (true) {").appendLineSeparator();
+        buf.appendKeyword("while").appendWhitespace(" ").appendPunctuation("(").appendKeyword("true").appendPunctuation(")").appendWhitespace(" ").appendPunctuation("{").appendLineSeparator();
         buf.append(KExprProcessor.jmpWrapper(first, indent + 1, false));
-        buf.appendIndent(indent).append("}").appendLineSeparator();
+        buf.appendIndent(indent).appendPunctuation("}").appendLineSeparator();
       }
       case DO_WHILE -> {
         Exprent expr = KUtils.replaceExprent(getConditionExprent());
@@ -72,15 +74,15 @@ public class KDoStatement extends DoStatement {
           expr = getConditionExprent();
         }
 
-        buf.append("do {").appendLineSeparator();
+        buf.appendKeyword("do").appendWhitespace(" ").appendPunctuation("{").appendLineSeparator();
         buf.append(KExprProcessor.jmpWrapper(first, indent + 1, false));
-        buf.appendIndent(indent).append("} while (");
+        buf.appendIndent(indent).appendPunctuation("}").appendWhitespace(" ").appendKeyword("while").appendWhitespace(" ").appendPunctuation("(");
         buf.pushNewlineGroup(indent, 1);
         buf.appendPossibleNewline();
         buf.append(expr.toJava(indent));
         buf.appendPossibleNewline("", true);
         buf.popNewlineGroup();
-        buf.append(")").appendLineSeparator();
+        buf.appendPunctuation(")").appendLineSeparator();
       }
       case WHILE -> {
         Exprent expr = KUtils.replaceExprent(getConditionExprent());
@@ -88,15 +90,15 @@ public class KDoStatement extends DoStatement {
           expr = getConditionExprent();
         }
 
-        buf.append("while (");
+        buf.appendKeyword("while").appendWhitespace(" ").appendPunctuation("(");
         buf.pushNewlineGroup(indent, 1);
         buf.appendPossibleNewline();
         buf.append(expr.toJava(indent));
         buf.appendPossibleNewline("", true);
         buf.popNewlineGroup();
-        buf.append(") {").appendLineSeparator();
+        buf.appendPunctuation(")").appendWhitespace(" ").appendPunctuation("{").appendLineSeparator();
         buf.append(KExprProcessor.jmpWrapper(first, indent + 1, false));
-        buf.appendIndent(indent).append("}").appendLineSeparator();
+        buf.appendIndent(indent).appendPunctuation("}").appendLineSeparator();
       }
       case FOR_EACH -> {
         KVarExprent init = new KVarExprent((VarExprent) getInitExprent());
@@ -107,11 +109,13 @@ public class KDoStatement extends DoStatement {
           inc = getIncExprent();
         }
 
-        buf.append("for (").append(init.toJava(indent));
+        buf.appendKeyword("for").appendWhitespace(" ").appendPunctuation("(")
+          .append(init.toJava(indent));
         inc.getInferredExprType(null); //TODO: see DoStatement
-        buf.append(" in ").append(inc.toJava(indent)).append(") {").appendLineSeparator();
+        buf.appendWhitespace(" ").appendKeyword("in").appendWhitespace(" ")
+          .append(inc.toJava(indent)).appendPunctuation(")").appendWhitespace(" ").appendPunctuation("{").appendLineSeparator();
         buf.append(KExprProcessor.jmpWrapper(first, indent + 1, false));
-        buf.appendIndent(indent).append("}").appendLineSeparator();
+        buf.appendIndent(indent).appendPunctuation("}").appendLineSeparator();
       }
       case FOR -> {
         buf.appendIndent(indent);
@@ -169,43 +173,41 @@ public class KDoStatement extends DoStatement {
             constExpr.getValue() instanceof Integer i
             && i == 0
           ) {
-            buf.append("repeat(")
-              .append(conditionExpr.toJava())
-              .append(") ");
+            buf.appendMethod("repeat", false, "kotlin/StandardKt", "repeat", "(ILkotlin/jvm/functions/Function1;)V")
+              .appendPunctuation("(").append(conditionExpr.toJava()).appendPunctuation(")").appendWhitespace(" ");
 
             if (labeled) {
-              buf.append("label")
-                .append(id)
-                .append("@");
+              appendLabel(buf, -1);
+              buf.appendPunctuation("@");
             }
 
-            buf.append("{");
+            buf.appendPunctuation("{");
 
             if (!"it".equals(varExpr.getName())) {
-              buf.append(" ")
+              buf.appendWhitespace(" ")
                 .append(varExpr.toJava(indent))
-                .append(" ->");
+                .appendWhitespace(" ").appendOperator("->");
             }
             buf.appendLineSeparator();
           } else {
             if (labeled) {
-              buf.append("label")
-                .append(id)
-                .append("@ ");
+              appendLabel(buf, -1);
+              buf.appendPunctuation("@").appendWhitespace(" ");
             }
 
-            buf.append("for (")
+            buf.appendKeyword("for").appendWhitespace(" ").appendPunctuation("(")
               .append(varExpr.toJava(indent))
-              .append(" in ")
+              .appendWhitespace(" ").appendKeyword("in").appendWhitespace(" ")
               .append(init.getRight().toJava())
-              .append(inc.getFuncType().isPP() ? ".." : " downTo ")
+              .appendWhitespace(" ").appendOperator(inc.getFuncType().isPP() ? ".." : "downTo").appendWhitespace(" ")
               .append(conditionExpr.toJava())
-              .append(") {")
+              .appendPunctuation(")")
+              .appendWhitespace(" ").appendPunctuation("{")
               .appendLineSeparator();
           }
 
           buf.append(KExprProcessor.jmpWrapper(first, indent + 1, false));
-          buf.appendIndent(indent).append("}").appendLineSeparator();
+          buf.appendIndent(indent).appendPunctuation("}").appendLineSeparator();
         } else {
           //TODO other cases
           Exprent init = KUtils.replaceExprent(getInitExprent());
@@ -228,14 +230,14 @@ public class KDoStatement extends DoStatement {
             buf.appendIndent(indent);
           }
 
-          buf.append("// $VF: Unable to resugar Kotlin loop from Java for loop")
+          buf.appendComment("// $VF: Unable to resugar Kotlin loop from Java for loop")
             .appendLineSeparator()
             .appendIndent(indent);
 
           if (labeled) {
-            buf.append("run label")
-              .append(this.id)
-              .append("@{")
+            buf.appendMethod("run", false, "kotlin/StandardKt", "run", "(Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;").appendWhitespace(" ");
+            appendLabel(buf, -1);
+            buf.appendPunctuation("@").appendPunctuation("{")
               .appendLineSeparator()
               .appendIndent(++indent);
           }
@@ -244,19 +246,19 @@ public class KDoStatement extends DoStatement {
             buf.append(init.toJava(indent)).appendLineSeparator().appendIndent(indent);
           }
 
-          buf.append("while (true) {").appendLineSeparator();
+          buf.appendKeyword("while").appendWhitespace(" ").appendPunctuation("(").appendKeyword("true").appendPunctuation(")").appendWhitespace(" ").appendPunctuation("{").appendLineSeparator();
           buf.appendIndent(indent + 1);
-          buf.append("if (");
+          buf.appendKeyword("if").appendWhitespace(" ").appendPunctuation("(");
           buf.append(condition.toJava(indent + 1));
-          buf.append(") break").appendLineSeparator();
+          buf.appendPunctuation(")").appendWhitespace(" ").appendKeyword("break").appendLineSeparator();
           buf.append(KExprProcessor.jmpWrapper(first, indent + 1, false));
           buf.appendLineSeparator();
           buf.appendIndent(indent + 1).append(inc.toJava(indent + 1)).appendLineSeparator();
-          buf.appendIndent(indent).append("}").appendLineSeparator();
+          buf.appendIndent(indent).appendPunctuation("}").appendLineSeparator();
 
           if (labeled) {
             buf.appendIndent(--indent)
-              .append("}")
+              .appendPunctuation("}")
               .appendLineSeparator();
           }
         }

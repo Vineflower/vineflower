@@ -262,15 +262,15 @@ public abstract class Exprent implements IMatchable {
     if (genericArgs.isEmpty()) {
       return;
     }
-    buf.append("<");
+    buf.appendPunctuation('<');
     //TODO: Check target output level and use <> operator?
     for (int i = 0; i < genericArgs.size(); i++) {
       buf.appendCastTypeName(genericArgs.get(i));
       if(i + 1 < genericArgs.size()) {
-        buf.append(", ");
+        buf.appendPunctuation(',').appendWhitespace(" ");
       }
     }
-    buf.append(">");
+    buf.appendPunctuation('>');
   }
 
   public Map<VarType, List<VarType>> getNamedGenerics() {

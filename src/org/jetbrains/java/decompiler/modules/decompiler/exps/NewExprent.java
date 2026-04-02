@@ -338,14 +338,14 @@ public class NewExprent extends Exprent {
         if (!lambda && constructor != null) {
           enclosing = getQualifiedNewInstance(child.anonymousClassType.value, constructor.getLstParameters(), indent);
           if (enclosing != null) {
-            buf.append(enclosing).append('.');
+            buf.append(enclosing).appendPunctuation('.');
           }
         }
 
-        buf.append("new ");
+        buf.appendKeyword("new").appendWhitespace(" ");
 
         if (selfReference) {
-          buf.append("<anonymous constructor>");
+          buf.appendComment("<anonymous constructor>");
         } else {
           String typename = ExprProcessor.getCastTypeName(child.anonymousClassType);
           if (enclosing != null) {
@@ -383,14 +383,14 @@ public class NewExprent extends Exprent {
 
       if (!lambda && constructor != null) {
         appendParameters(buf, constructor.getGenericArgs());
-        buf.append('(').append(constructor.appendParamList(indent));
+        buf.appendPunctuation('(').append(constructor.appendParamList(indent));
       }
       else {
         appendParameters(buf, genericArgs);
-        buf.append('(');
+        buf.appendPunctuation('(');
       }
 
-      buf.append(')');
+      buf.appendPunctuation(')');
 
       if (enumConst && buf.length() == 2) {
         buf.setLength(0);
@@ -410,7 +410,7 @@ public class NewExprent extends Exprent {
     }
     else if (directArrayInit) {
       VarType leftType = newType.decreaseArrayDim();
-      buf.append('{');
+      buf.appendPunctuation('{');
       if (!lstArrayElements.isEmpty()) {
         buf.pushNewlineGroup(indent, 2);
         buf.appendPossibleNewline();
@@ -418,7 +418,7 @@ public class NewExprent extends Exprent {
       }
       for (int i = 0; i < lstArrayElements.size(); i++) {
         if (i > 0) {
-          buf.append(",").appendPossibleNewline(" ");
+          buf.appendPunctuation(",").appendPossibleNewline(" ");
         }
         ExprProcessor.getCastedExprent(lstArrayElements.get(i), leftType, buf, indent, false);
       }
@@ -427,7 +427,7 @@ public class NewExprent extends Exprent {
         buf.appendPossibleNewline("", true);
         buf.popNewlineGroup();
       }
-      buf.append('}');
+      buf.appendPunctuation('}');
     }
     else if (newType.arrayDim == 0) {
       if (!enumConst) {
@@ -436,11 +436,11 @@ public class NewExprent extends Exprent {
         if (constructor != null) {
           enclosing = getQualifiedNewInstance(newType.value, constructor.getLstParameters(), indent);
           if (enclosing != null) {
-            buf.append(enclosing).append('.');
+            buf.append(enclosing).appendPunctuation('.');
           }
         }
 
-        buf.append("new ");
+        buf.appendKeyword("new").appendWhitespace(" ");
 
         String typename = ExprProcessor.getTypeName(newType);
         if (enclosing != null) {
@@ -459,7 +459,7 @@ public class NewExprent extends Exprent {
         int start = enumConst ? 2 : 0;
         if (!enumConst || start < constructor.getLstParameters().size()) {
           appendParameters(buf, constructor.getGenericArgs());
-          buf.append('(').append(constructor.appendParamList(indent)).append(')');
+          buf.appendPunctuation('(').append(constructor.appendParamList(indent)).appendPunctuation(')');
         }
       }
     }
@@ -468,7 +468,7 @@ public class NewExprent extends Exprent {
       VarType leftType = newType.decreaseArrayDim();
       for (int i = 0; i < lstArrayElements.size(); i++) {
         if (i > 0) {
-          buf.append(",").appendPossibleNewline(" ");
+          buf.appendPunctuation(",").appendPossibleNewline(" ");
         }
 
         // new String[][]{{"abc"}, {"DEF"}} => new String[]{"abc"}, new String[]{"DEF"}
@@ -483,45 +483,44 @@ public class NewExprent extends Exprent {
       if (lstArrayElements.size() == 1) {
         VarType elementType = lstArrayElements.get(0).getExprType();
         if (elementType.type == CodeType.OBJECT && elementType.value.equals("java/lang/Object") && elementType.arrayDim >= 1) {
-          buf.prepend("(Object)");
-          buf.addClassToken(1, 6, "java/lang/Object");
+          buf.prepend(new TextBuffer().appendPunctuation("(").appendTypeName(VarType.VARTYPE_OBJECT).appendPunctuation(")"));
         }
       }
     }
     else {
-      buf.append("new ").appendTypeName(newType);
+      buf.appendKeyword("new").appendWhitespace(" ").appendTypeName(newType);
 
       if (lstArrayElements.isEmpty()) {
         for (int i = 0; i < newType.arrayDim; i++) {
-          buf.append('[');
+          buf.appendPunctuation('[');
           if (i < lstDims.size()) {
             if (lstDims.get(i).type == Type.CONST) {
               ((ConstExprent)lstDims.get(i)).adjustConstType(VarType.VARTYPE_INT);
             }
             buf.append(lstDims.get(i).toJava(indent));
           }
-          buf.append(']');
+          buf.appendPunctuation(']');
         }
       }
       else {
         for (int i = 0; i < newType.arrayDim; i++) {
-          buf.append("[]");
+          buf.appendPunctuation("[]");
         }
 
         VarType leftType = newType.decreaseArrayDim();
-        buf.append('{');
+        buf.appendPunctuation('{');
         buf.pushNewlineGroup(indent, 1);
         buf.appendPossibleNewline();
         buf.pushNewlineGroup(indent, 0);
         for (int i = 0; i < lstArrayElements.size(); i++) {
           if (i > 0) {
-            buf.append(",").appendPossibleNewline(" ");
+            buf.appendPunctuation(",").appendPossibleNewline(" ");
           }
           ExprProcessor.getCastedExprent(lstArrayElements.get(i), leftType, buf, indent, false);
         }
         buf.popNewlineGroup();
         buf.appendPossibleNewline("", true);
-        buf.append('}');
+        buf.appendPunctuation('}');
         buf.popNewlineGroup();
       }
     }

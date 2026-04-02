@@ -6,10 +6,12 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.ExitExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
+import org.jetbrains.java.decompiler.util.token.TokenType;
 import org.vineflower.kotlin.struct.KType;
 
 public class KExitExprent extends ExitExprent implements KExprent {
   private String lambdaName;
+  private boolean isLambda = false;
 
   public KExitExprent(ExitExprent expr) {
     super(expr.getExitType(), expr.getValue(), expr.getRetType(), expr.bytecode, expr.getMethodDescriptor());
@@ -17,6 +19,7 @@ public class KExitExprent extends ExitExprent implements KExprent {
   
   public void setLambdaName(String name) {
     lambdaName = name;
+    isLambda = true;
   }
 
   @Override
@@ -28,13 +31,19 @@ public class KExitExprent extends ExitExprent implements KExprent {
     MethodWrapper outerMethod = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
     if (outerMethod != null) {
       TextBuffer buf = new TextBuffer();
+      buf.addBytecodeMapping(bytecode);
 
-      if (lambdaName != null) {
-        buf.append("return@").append(lambdaName);
+      if (!isLambda || lambdaName != null) {
+        buf.appendKeyword("return");
+        if (lambdaName != null) {
+          buf.appendPunctuation("@").append(lambdaName, TokenType.LABEL);
+        }
+
         if (VarType.VARTYPE_VOID.equals(getRetType()) || KType.UNIT.equals(getRetType())) {
           return buf;
         }
-        buf.append(" ");
+
+        buf.appendWhitespace(" ");
       }
 
       //TODO check if not casting ever breaks something

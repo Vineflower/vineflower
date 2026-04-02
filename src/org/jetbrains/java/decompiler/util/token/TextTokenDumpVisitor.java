@@ -37,7 +37,7 @@ public class TextTokenDumpVisitor extends TextTokenVisitor {
   public void visitClass(TextRange range, boolean declaration, String name) {
     super.visitClass(range, declaration, name);
     range(range).append(" class ");
-    declaration(declaration).append(" ");
+    declaration(declaration).appendWhitespace(" ");
     text.append(name);
     text.appendLineSeparator();
   }
@@ -46,7 +46,7 @@ public class TextTokenDumpVisitor extends TextTokenVisitor {
   public void visitField(TextRange range, boolean declaration, String className, String name, FieldDescriptor descriptor) {
     super.visitField(range, declaration, className, name, descriptor);
     range(range).append(" field ");
-    declaration(declaration).append(" ");
+    declaration(declaration).appendWhitespace(" ");
     text.append(className);
     text.append("#").append(name);
     text.append(":").append(descriptor.descriptorString);
@@ -57,7 +57,7 @@ public class TextTokenDumpVisitor extends TextTokenVisitor {
   public void visitMethod(TextRange range, boolean declaration, String className, String name, MethodDescriptor descriptor) {
     super.visitMethod(range, declaration, className, name, descriptor);
     range(range).append(" method ");
-    declaration(declaration).append(" ");
+    declaration(declaration).appendWhitespace(" ");
     text.append(className);
     text.append("#").append(name);
     text.append(descriptor.toString());
@@ -65,11 +65,11 @@ public class TextTokenDumpVisitor extends TextTokenVisitor {
   }
 
   private void visitVariable(boolean declaration, String className, String methodName, MethodDescriptor methodDescriptor, int index, String name) {
-    declaration(declaration).append(" ");
+    declaration(declaration).appendWhitespace(" ");
     text.append(className);
     text.append("#").append(methodName);
     text.append(methodDescriptor.toString());
-    text.append("(").append(index);
+    text.append("(").append(Integer.toString(index));
     text.append(":").append(name).append(")");
     text.appendLineSeparator();
   }

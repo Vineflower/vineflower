@@ -34,6 +34,7 @@ import org.jetbrains.java.decompiler.struct.match.MatchNode.RuleValue;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.Pair;
 import org.jetbrains.java.decompiler.util.TextBuffer;
+import org.jetbrains.java.decompiler.util.token.TokenType;
 
 import java.util.Arrays;
 import java.util.BitSet;
@@ -132,17 +133,17 @@ public class VarExprent extends Exprent implements Pattern {
 
       if (definition) {
         if (!writingPattern && processor != null && processor.getVarFinal(varVersion) == FinalType.EXPLICIT_FINAL) {
-          buffer.append("final ");
+          buffer.appendKeyword("final").appendWhitespace(" ");
         }
         VarType definitionType = getDefinitionVarType();
         String name = ExprProcessor.getCastTypeName(definitionType);
         if (name.equals(ExprProcessor.UNREPRESENTABLE_TYPE_STRING) || isIntersectionType) {
-          buffer.append("var");
+          buffer.appendKeyword("var");
         } else {
           buffer.appendCastTypeName(definitionType);
         }
 
-        buffer.append(" ");
+        buffer.appendWhitespace(" ");
       }
 
       String name = getName();
@@ -181,12 +182,12 @@ public class VarExprent extends Exprent implements Pattern {
 
           buffer.appendVariable(writeName, definition, param, method.classStruct.qualifiedName, method.methodStruct.getName(), descriptor, varIndex, name);
           if (!writeName.equals(name)) {
-            buffer.append("/* $VF was: ").append(name).append(" */");
+            buffer.appendComment("/* $VF was: " + name + " */");
           }
         } else {
           int i = name.indexOf(".this");
           buffer.appendClass(name.substring(0, i), false, thisVar);
-          buffer.append(".");
+          buffer.appendPunctuation(".");
           writeName(buffer, name.substring(i + 1));
         }
       } else {
@@ -198,7 +199,7 @@ public class VarExprent extends Exprent implements Pattern {
         if (thisVar != null && name.contains(".this")) {
           int i = name.indexOf(".this");
           buffer.appendClass(name.substring(0, i), false, thisVar);
-          buffer.append(".");
+          buffer.appendPunctuation(".");
           writeName(buffer, name.substring(i + 1));
         } else {
           writeName(buffer, name);
@@ -215,9 +216,13 @@ public class VarExprent extends Exprent implements Pattern {
       writeName = getVarVerName(getVarVersionPair());
     }
 
-    buffer.append(writeName);
+    if ("this".equals(writeName)) {
+      buffer.appendKeyword("this");
+    } else {
+      buffer.append(writeName, TokenType.LOCAL_VARIABLE);
+    }
     if (!writeName.equals(name)) {
-      buffer.append("/* $VF was: ").append(name).append(" */");
+      buffer.appendComment("/* $VF was: " + name + " */");
     }
   }
 

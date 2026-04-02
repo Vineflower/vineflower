@@ -37,19 +37,19 @@ public class AssertExprent extends Exprent {
   public TextBuffer toJava(int indent) {
     TextBuffer buffer = new TextBuffer();
 
-    buffer.append("assert ");
+    buffer.appendKeyword("assert").appendWhitespace(" ");
 
     buffer.addBytecodeMapping(bytecode);
 
     if (parameters.get(0) == null) {
-      buffer.append("false");
+      buffer.appendKeyword("false");
     }
     else {
       buffer.append(parameters.get(0).toJava(indent));
     }
 
     if (parameters.size() > 1) {
-      buffer.append(" : ");
+      buffer.appendWhitespace(" ").appendPunctuation(":").appendWhitespace(" ");
       buffer.append(parameters.get(1).toJava(indent));
     }
 

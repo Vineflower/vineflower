@@ -6,7 +6,6 @@ import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.vineflower.kotlin.struct.KType;
 import org.vineflower.kotlin.util.KTypes;
-import org.vineflower.kotlin.util.KUtils;
 
 public class KConstExprent extends ConstExprent implements KExprent {
   public KConstExprent(ConstExprent exprent) {
@@ -20,9 +19,10 @@ public class KConstExprent extends ConstExprent implements KExprent {
         return super.toJava(indent);
       }
 
+      //TODO: what happened?
       TextBuffer buf = new TextBuffer();
       buf.addBytecodeMapping(bytecode);
-      buf.append(KTypes.getKotlinType(getConstType()));
+      buf.appendTypeName(KTypes.getKotlinType(getConstType()), getConstType());
       return buf;
     }
 
@@ -32,22 +32,27 @@ public class KConstExprent extends ConstExprent implements KExprent {
 
       String value = getValue().toString();
       VarType type = new VarType(value, !value.startsWith("["));
-      buf.appendCastTypeName(type).append("::class.java");
+      buf.appendCastTypeName(type)
+        .appendOperator("::")
+        .appendKeyword("class")
+        .appendPunctuation(".");
       if (ExprUtil.PRIMITIVE_TYPES.containsKey(value)) {
-        buf.append("ObjectType"); // Primitive boxes require javaObjectType
+        buf.appendMethod("javaObjectType", false, "kotlin/reflect/KClass", "javaObjectType", "()Ljava/lang/Class;");
+      } else {
+        buf.appendMethod("java", false, "kotlin/reflect/KClass", "java", "()Ljava/lang/Class;");
       }
       return buf;
     } else if (getConstType() instanceof KType ktype && ktype.isUnsignedType) {
       TextBuffer buf = new TextBuffer();
       buf.addBytecodeMapping(bytecode);
       if (ktype.equals(KType.ULONG)) {
-        buf.append(Long.toUnsignedString(((Long) getValue()))).append("uL");
+        buf.appendNumber(Long.toUnsignedString(((Long) getValue()))).appendNumber("uL");
       } else if (ktype.equals(KType.UBYTE)) {
-        buf.append(getIntValue() & 0xff).append("u");
+        buf.appendNumber(getIntValue() & 0xff).appendNumber("u");
       } else if (ktype.equals(KType.USHORT)) {
-        buf.append(getIntValue() & 0xffff).append("u");
+        buf.appendNumber(getIntValue() & 0xffff).appendNumber("u");
       } else if (ktype.equals(KType.UINT)) {
-        buf.append(Integer.toUnsignedString(getIntValue())).append("u");
+        buf.appendNumber(Integer.toUnsignedString(getIntValue())).appendNumber("u");
       } else {
         throw new IllegalStateException("Unknown unsigned type: " + ktype);
       }

@@ -50,10 +50,10 @@ public class MonitorExprent extends Exprent {
       if (this.value instanceof ConstExprent && this.value.getExprType() == VarType.VARTYPE_NULL) {
         DecompilerContext.getLogger().writeMessage("Created invalid synchronize on null!" , IFernflowerLogger.Severity.WARN);
       }
-      return buf.append(value.toJava(indent)).enclose("synchronized (", ")");
+      return buf.appendKeyword("synchronized").appendWhitespace(" ").appendPunctuation("(").append(value.toJava(indent)).appendPunctuation(")");
     }
     else {
-      return buf.append("// $VF: monitorexit");
+      return buf.appendComment("// $VF: monitorexit");
     }
   }
 

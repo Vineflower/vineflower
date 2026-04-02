@@ -22,6 +22,7 @@ import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
+import org.jetbrains.java.decompiler.util.token.TokenType;
 import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
 import org.vineflower.kotlin.KotlinWriter;
 import org.vineflower.kotlin.metadata.MetadataNameResolver;
@@ -62,7 +63,7 @@ public record KProperty(
         }
       } else {
         buf.appendIndent(indent)
-          .append("// $VF: failed to identify property annotations")
+          .appendComment("//").appendWhitespace(" ").appendComment("$VF: failed to identify property annotations")
           .appendLineSeparator();
       }
     }
@@ -73,27 +74,27 @@ public record KProperty(
     KUtils.appendVisibility(buf, VISIBILITY.get(flags));
 
     if (IS_EXPECT_PROPERTY.get(flags)) {
-      buf.append("expect ");
+      buf.appendKeyword("expect").appendWhitespace(" ");
     }
 
     if (MODALITY.get(flags) == ProtoBuf.Modality.FINAL) {
-      buf.append(IS_CONST.get(flags) ? "const " : "final ");
+      buf.appendKeyword(IS_CONST.get(flags) ? "const" : "final").appendWhitespace(" ");
     } else if (!classStruct.hasModifier(CodeConstants.ACC_INTERFACE) || MODALITY.get(flags) != ProtoBuf.Modality.ABSTRACT) {
-      buf.append(MODALITY.get(flags).name().toLowerCase())
-        .append(' ');
+      buf.appendKeyword(MODALITY.get(flags).name().toLowerCase())
+        .appendWhitespace(" ");
     }
 
     if (IS_EXTERNAL_PROPERTY.get(flags)) {
-      buf.append("external ");
+      buf.appendKeyword("external").appendWhitespace(" ");
     }
 
     if (IS_LATEINIT.get(flags)) {
-      buf.append("lateinit ");
+      buf.appendKeyword("lateinit").appendWhitespace(" ");
     }
 
-    buf.append(IS_VAR.get(flags) ? "var " : "val ")
-      .append(KotlinWriter.toValidKotlinIdentifier(name))
-      .append(": ")
+    buf.appendKeyword(IS_VAR.get(flags) ? "var" : "val").appendWhitespace(" ")
+      .appendField(KotlinWriter.toValidKotlinIdentifier(name), true, classStruct.qualifiedName, name, type.kotlinType)
+      .appendPunctuation(":").appendWhitespace(" ")
       .append(type.stringify(indent)); 
 
     if (initializer != null) {
@@ -101,10 +102,10 @@ public record KProperty(
       if (expr != null) {
         TextBuffer initializerBuf = expr.toJava(indent);
         if (IS_DELEGATED.get(flags)) {
-          buf.append(" by ")
+          buf.appendWhitespace(" ").appendKeyword("by").appendWhitespace(" ")
             .append(initializerBuf);
         } else {
-          buf.append(" =")
+          buf.appendWhitespace(" ").appendOperator("=")
             .pushNewlineGroup(indent, 1)
             .appendPossibleNewline(" ")
             .append(initializerBuf)
@@ -121,18 +122,18 @@ public record KProperty(
 
       KUtils.appendVisibility(buf, VISIBILITY.get(getter.flags()));
 
-      buf.append(MODALITY.get(getter.flags()).name().toLowerCase())
-        .append(' ');
+      buf.appendKeyword(MODALITY.get(getter.flags()).name().toLowerCase())
+        .appendWhitespace(" ");
 
       if (IS_EXTERNAL_ACCESSOR.get(getter.flags())) {
-        buf.append("external ");
+        buf.appendKeyword("external").appendWhitespace(" ");
       }
 
       if (IS_INLINE_ACCESSOR.get(getter.flags())) {
-        buf.append("inline ");
+        buf.appendKeyword("inline").appendWhitespace(" ");
       }
 
-      buf.append("get() ");
+      buf.appendKeyword("get").appendPunctuation("()").appendWhitespace(" ");
 
       KotlinWriter.writeMethodBody(classStruct, getter.methodSupplier().apply(classWrapper), buf, indent + 1, false);
 
@@ -140,7 +141,7 @@ public record KProperty(
     } else if (getter != null && IS_EXTERNAL_ACCESSOR.get(getter.flags())) {
       buf.appendLineSeparator()
         .appendIndent(indent + 1)
-        .append("external get");
+        .appendKeyword("external").appendWhitespace(" ").appendKeyword("get");
     }
 
     if (setter != null && IS_NOT_DEFAULT.get(setter.flags())) {
@@ -150,20 +151,20 @@ public record KProperty(
 
       KUtils.appendVisibility(buf, VISIBILITY.get(setter.flags()));
 
-      buf.append(MODALITY.get(setter.flags()).name().toLowerCase())
-        .append(' ');
+      buf.appendKeyword(MODALITY.get(setter.flags()).name().toLowerCase())
+        .appendWhitespace(" ");
 
       if (IS_EXTERNAL_ACCESSOR.get(setter.flags())) {
-        buf.append("external ");
+        buf.appendKeyword("external").appendWhitespace(" ");
       }
 
       if (IS_INLINE_ACCESSOR.get(setter.flags())) {
-        buf.append("inline ");
+        buf.appendKeyword("inline").appendWhitespace(" ");
       }
 
-      buf.append("set(")
-        .append(setterParamName)
-        .append(") ");
+      buf.appendKeyword("set").appendPunctuation("(")
+        .append(setterParamName, TokenType.PARAMETER)
+        .appendPunctuation(")").appendWhitespace(" ");
 
       KotlinWriter.writeMethodBody(classStruct, setter.methodSupplier().apply(classWrapper), buf, indent + 1, false);
 
@@ -176,19 +177,19 @@ public record KProperty(
       }
 
       if (MODALITY.get(setter.flags()) != MODALITY.get(flags)) {
-        buf.append(MODALITY.get(setter.flags()).name().toLowerCase())
-          .append(' ');
+        buf.appendKeyword(MODALITY.get(setter.flags()).name().toLowerCase())
+          .appendWhitespace(" ");
       }
 
       if (IS_EXTERNAL_ACCESSOR.get(setter.flags())) {
-        buf.append("external ");
+        buf.appendKeyword("external").appendWhitespace(" ");
       }
 
-      buf.append("set");
+      buf.appendKeyword("set");
     } else if (setter == null && IS_VAR.get(flags) && VISIBILITY.get(flags) != ProtoBuf.Visibility.PRIVATE) { // Special case: no setter is generated if it's a var with a private setter
       buf.appendLineSeparator()
         .appendIndent(indent + 1)
-        .append("private set");
+        .appendKeyword("private").appendWhitespace(" ").appendKeyword("set");
     }
 
     return buf;
@@ -260,7 +261,7 @@ public record KProperty(
         getterMethod = classStruct.getMethod(methodName, desc);
         if (getterMethod != null) {
           Function<ClassWrapper, MethodWrapper> supplier = wrapper -> wrapper.getMethodWrapper(methodName, desc);
-          getter = new KPropertyAccessor(property.getGetterFlags(), supplier);
+          getter = new KPropertyAccessor(property.getGetterFlags(), supplier, getterMethod);
 
           if (propDesc == null) {
             propDesc = getterMethod.getDescriptor().substring(getterMethod.getDescriptor().indexOf(')') + 1);
@@ -284,7 +285,7 @@ public record KProperty(
         setterMethod = classStruct.getMethod(methodName, desc);
         if (setterMethod != null) {
           Function<ClassWrapper, MethodWrapper> supplier = wrapper -> wrapper.getMethodWrapper(methodName, desc);
-          setter = new KPropertyAccessor(property.getSetterFlags(), supplier);
+          setter = new KPropertyAccessor(property.getSetterFlags(), supplier, setterMethod);
           setterParamName = nameResolver.resolve(property.getSetterValueParameter().getName());
         }
 

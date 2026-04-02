@@ -2,7 +2,6 @@ package org.jetbrains.java.decompiler.util.token;
 
 import org.jetbrains.java.decompiler.main.extern.TextTokenVisitor;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
-import org.jetbrains.java.decompiler.struct.gen.VarType;
 
 public class VariableTextToken extends TextToken {
   public final boolean parameter;
@@ -13,7 +12,7 @@ public class VariableTextToken extends TextToken {
   public final String name;
 
   public VariableTextToken(int start, int length, boolean declaration, boolean parameter, String className, String methodName, MethodDescriptor methodDescriptor, int index, String name) {
-    super(start, length, declaration);
+    super(start, length, declaration, parameter ? TokenType.PARAMETER : TokenType.LOCAL_VARIABLE);
     this.parameter = parameter;
     this.className = className;
     this.methodName = methodName;

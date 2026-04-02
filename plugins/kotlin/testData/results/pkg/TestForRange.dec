@@ -4,13 +4,13 @@ import kotlin.internal.ProgressionUtilKt
 
 public class TestForRange {
    public fun testInt() {
-      for (i in 1..10) {// 5
+      for (i in 1 .. 10) {// 5
          System.out.println(i)// 6
       }
    }// 8
 
    public fun testChar() {
-      for (c in 'a'..'z') {// 11
+      for (c in 'a' .. 'z') {// 11
          System.out.println(c)// 12
       }
    }// 14
@@ -91,7 +91,7 @@ public class TestForRange {
    }// 44
 
    public fun testUntil() {
-      for (i in 1..9) {// 47
+      for (i in 1 .. 9) {// 47
          System.out.println(i)// 48
       }
    }// 50

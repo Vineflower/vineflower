@@ -41,7 +41,7 @@ public class SwitchExprent extends Exprent {
     VarType switchType = this.backing.getHeadexprent().getExprType();
     boolean isExhaustive = isExhaustive();
 
-    buf.append(this.backing.getHeadexprent().toJava(indent)).append(" {").appendLineSeparator();
+    buf.append(this.backing.getHeadexprent().toJava(indent)).appendWhitespace(" ").appendPunctuation("{").appendLineSeparator();
     for (int i = 0; i < this.backing.getCaseStatements().size(); i++) {
       Statement stat = this.backing.getCaseStatements().get(i);
       List<StatEdge> edges = this.backing.getCaseEdges().get(i);
@@ -79,9 +79,9 @@ public class SwitchExprent extends Exprent {
         }
 
         if (!hasEdge) {
-          buf.appendIndent(indent + 1).append("case ");
+          buf.appendIndent(indent + 1).appendKeyword("case").appendWhitespace(" ");
         } else {
-          buf.append(", ");
+          buf.appendPunctuation(",").appendWhitespace(" ");
         }
 
         if (value instanceof ConstExprent && !standalone && !Objects.equals(value.getExprType(), VarType.VARTYPE_NULL)) {
@@ -109,7 +109,7 @@ public class SwitchExprent extends Exprent {
       }
 
       if (guard != null) {
-        buf.append(" when ").append(guard.toJava());
+        buf.appendWhitespace(" ").appendKeyword("when").appendWhitespace(" ").append(guard.toJava());
       }
 
       if (hasDefault) {
@@ -119,9 +119,9 @@ public class SwitchExprent extends Exprent {
             continue;
           }
 
-          buf.appendIndent(indent + 1).append("default");
+          buf.appendIndent(indent + 1).appendKeyword("default");
         } else {
-          buf.append(", default");
+          buf.appendPunctuation(",").appendWhitespace(" ").appendKeyword("default");
         }
         hasEdge = true;
       }
@@ -130,7 +130,7 @@ public class SwitchExprent extends Exprent {
         continue;
       }
 
-      buf.append(" -> ");
+      buf.appendWhitespace(" ").appendOperator("->").appendWhitespace(" ");
 
       boolean simple = stat instanceof BasicBlockStatement;
 
@@ -149,30 +149,30 @@ public class SwitchExprent extends Exprent {
             ((ConstExprent)content).setConstType(this.type);
           }
 
-          buf.append(content.toJava(indent + 1).append(";"));
+          buf.append(content.toJava(indent + 1).appendPunctuation(";"));
         } else if (exprent instanceof ExitExprent) {
           ExitExprent exit = (ExitExprent) exprent;
 
           if (exit.getExitType() == ExitExprent.Type.THROW) {
-            buf.append(exit.toJava(indent + 1).append(";"));
+            buf.append(exit.toJava(indent + 1).appendPunctuation(";"));
           } else {
             throw new IllegalStateException("Can't have return in switch expression");
           }
         } else { // Catchall
-          buf.append(exprent.toJava(indent + 1).append(";"));
+          buf.append(exprent.toJava(indent + 1).appendPunctuation(";"));
         }
       } else {
-        buf.append("{");
+        buf.appendPunctuation("{");
         buf.appendLineSeparator();
         TextBuffer statBuf = stat.toJava(indent + 2);
         buf.append(statBuf);
-        buf.appendIndent(indent + 1).append("}");
+        buf.appendIndent(indent + 1).appendPunctuation("}");
       }
 
       buf.appendLineSeparator();
     }
 
-    buf.appendIndent(indent).append("}");
+    buf.appendIndent(indent).appendPunctuation("}");
 
     return buf;
   }

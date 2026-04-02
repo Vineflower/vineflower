@@ -32,11 +32,11 @@ import org.jetbrains.java.decompiler.struct.match.MatchNode;
 import org.jetbrains.java.decompiler.util.*;
 import org.jetbrains.java.decompiler.util.collections.ListStack;
 import org.jetbrains.java.decompiler.util.collections.NullableConcurrentHashMap;
+import org.jetbrains.java.decompiler.util.token.TokenType;
 
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.BiFunction;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class InvocationExprent extends Exprent {
@@ -690,7 +690,7 @@ public class InvocationExprent extends Exprent {
     TextBuffer buf = new TextBuffer();
 
     if (wasLazyCondy) {
-      buf.append("/* $VF: constant dynamic replaced with non-lazy method call */ ");
+      buf.appendComment("/* $VF: constant dynamic replaced with non-lazy method call */ ");
     }
 
     String super_qualifier = null;
@@ -712,7 +712,7 @@ public class InvocationExprent extends Exprent {
       }
 
       if (invocationType == InvocationType.CONSTANT_DYNAMIC) {
-        buf.append('(').appendCastTypeName(descriptor.ret).append(')');
+        buf.appendPunctuation('(').appendCastTypeName(descriptor.ret).appendPunctuation(')');
       }
 
       ClassNode node = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
@@ -754,7 +754,7 @@ public class InvocationExprent extends Exprent {
 
       // Signature polymorphic methods returning Object require a cast to the return type in the descriptor
       if (CodeConstants.isReturnPolymorphic(classname, name) && !descriptor.ret.equals(VarType.VARTYPE_VOID)) {
-        buf.append('(').appendCastTypeName(descriptor.ret).append(')');
+        buf.appendPunctuation('(').appendCastTypeName(descriptor.ret).appendPunctuation(')');
       }
 
       if (functype == Type.GENERAL) {
@@ -821,13 +821,13 @@ public class InvocationExprent extends Exprent {
             // If we have a remap inst type, do a cast
             appendInstCast(buf, remappedInstType, res);
           } else if (instance.getPrecedence() > getPrecedence() && !canSkipParenEnclose(instance)) {
-            buf.append("(").append(res).append(")");
+            buf.appendPunctuation("(").append(res).appendPunctuation(")");
           }
           //Java 9+ adds some overrides to java/nio/Buffer's subclasses that alter the return types.
           //This isn't properly handled by the compiler. So explicit casts are needed to retain J8 compatibility.
           else if (JAVA_NIO_BUFFER.equals(descriptor.ret) && !JAVA_NIO_BUFFER.equals(rightType)
               && DecompilerContext.getStructContext().instanceOf(rightType.value, JAVA_NIO_BUFFER.value)) {
-              buf.append("((").appendCastTypeName(JAVA_NIO_BUFFER).append(")").append(res).append(")");
+              buf.appendPunctuation("((").appendCastTypeName(JAVA_NIO_BUFFER).appendPunctuation(")").append(res).appendPunctuation(")");
           }
           else {
             buf.append(res);
@@ -846,7 +846,7 @@ public class InvocationExprent extends Exprent {
         }
 
         if (buf.length() > 0) {
-          buf.append(".");
+          buf.appendPunctuation(".");
           // Adds generic arguments to the invocation, so .m() becomes .<T>m()
           this.appendParameters(buf, genericArgs);
         }
@@ -857,40 +857,40 @@ public class InvocationExprent extends Exprent {
 
         if (invocationType == InvocationType.DYNAMIC || invocationType == InvocationType.CONSTANT_DYNAMIC) {
           if (bootstrapMethod == null) {
-            buf.append("<").appendMethod(validName, false, classname, name, descriptor);
+            buf.appendPunctuation("<").appendMethod(validName, false, classname, name, descriptor);
             if (!validName.equals(name)) {
-              buf.append("/* $VF was: ").append(name).append(" */");
+              buf.appendComment("/* $VF was: " + name + " */");
             }
 
             if (invocationType == InvocationType.DYNAMIC) {
-              buf.append(">invokedynamic");
+              buf.appendPunctuation(">").append("invokedynamic", TokenType.GENERIC);
             } else {
-              buf.append(">ldc");
+              buf.appendPunctuation(">").append("ldc", TokenType.GENERIC);
             }
           } else {
-            buf.append(bootstrapMethod.elementname);
-            buf.append("<\"");
+            buf.append(bootstrapMethod.elementname, TokenType.METHOD);
+            buf.appendPunctuation("<").appendPunctuation("\"");
             buf.appendMethod(validName, false, classname, name, descriptor);
 
             if (!validName.equals(name)) {
-              buf.append("/* $VF was: ").append(name).append(" */");
+              buf.appendComment("/* $VF was: " + name + " */");
             }
 
-            buf.append('"');
+            buf.appendPunctuation("\"");
             for (PooledConstant arg : bootstrapArguments) {
-              buf.append(',');
+              buf.appendPunctuation(",");
               appendBootstrapArgument(buf, arg);
             }
-            buf.append('>');
+            buf.appendPunctuation(">");
           }
         } else {
           buf.appendMethod(validName, false, classname, name, descriptor);
           if (!validName.equals(name)) {
-            buf.append("/* $VF was: ").append(name).append(" */");
+            buf.appendComment("/* $VF was: " + name + " */");
           }
         }
 
-        buf.append("(");
+        buf.appendPunctuation("(");
         break;
 
       case CLINIT:
@@ -899,26 +899,25 @@ public class InvocationExprent extends Exprent {
       case INIT:
         buf.addBytecodeMapping(bytecode);
         if (super_qualifier != null) {
-          buf.append("super(");
+          buf.appendKeyword("super").appendPunctuation("(");
         }
         else if (isInstanceThis) {
-          buf.append("this(");
+          buf.appendKeyword("this").appendPunctuation("(");
         }
         else if (instance != null) {
-          String s = ".";
+          buf.append(instance.toJava(indent)).appendPunctuation(".");
           if (DecompilerContext.getOption(IFernflowerPreferences.DECOMPILER_COMMENTS)) {
-            s += "/* $VF: Unable to resugar constructor */";
+            buf.appendComment("/* $VF: Unable to resugar constructor */");
           }
-          s += "<init>(";
-
-          buf.append(instance.toJava(indent)).append(s);
+          buf.appendMethod("<init>", false, classname, name, descriptor);
+          buf.appendPunctuation("(");
         }
         else {
           throw new RuntimeException("Unrecognized invocation of " + CodeConstants.INIT_NAME);
         }
     }
 
-    buf.append(appendParamList(indent)).append(')');
+    buf.append(appendParamList(indent)).appendPunctuation(')');
     if (pushedCallChainGroup) {
       buf.popNewlineGroup();
     }
@@ -926,12 +925,12 @@ public class InvocationExprent extends Exprent {
   }
 
   private void appendInstCast(TextBuffer buf, VarType leftType, TextBuffer res) {
-    buf.append("((").appendCastTypeName(leftType).append(")");
+    buf.appendPunctuation("((").appendCastTypeName(leftType).appendPunctuation(")");
 
     if (instance.getPrecedence() >= FunctionType.CAST.precedence) {
       res.encloseWithParens();
     }
-    buf.append(res).append(")");
+    buf.append(res).appendPunctuation(")");
   }
 
   private boolean canSkipParenEnclose(Exprent instance) {
@@ -956,19 +955,19 @@ public class InvocationExprent extends Exprent {
       if (prim.type == CodeConstants.CONSTANT_Class) {
         buf.appendCastTypeName(new VarType(stringValue));
       } else if (prim.type == CodeConstants.CONSTANT_String) {
-        buf.append('"').append(ConstExprent.convertStringToJava(stringValue, false)).append('"');
+        buf.appendText('"' + ConstExprent.convertStringToJava(stringValue, false) + '"');
       } else {
-        buf.append(stringValue);
+        buf.appendNumber(stringValue);
       }
     } else if (arg instanceof LinkConstant link) {
       if (link.classname != null) {
         buf.appendCastTypeName(new VarType(link.classname))
-          .append("::")
-          .append(link.elementname);
+          .appendOperator("::")
+          .append(link.elementname, TokenType.METHOD);
       } else if (link.descriptor != null) {
-        buf.append("/* VF: Constant Dynamic */ (").appendCastTypeName(new VarType(link.descriptor))
-          .append(") ")
-          .append(link.elementname);
+        buf.appendComment("/* VF: Constant Dynamic */ ").appendPunctuation('(').appendCastTypeName(new VarType(link.descriptor))
+          .appendPunctuation(") ")
+          .append(link.elementname, TokenType.METHOD);
       }
     }
   }
@@ -1153,7 +1152,7 @@ public class InvocationExprent extends Exprent {
         // the last "new Object[0]" in the vararg call is not printed
         if (buff.length() > 0) {
           if (!firstParameter) {
-            buf.append(",").appendPossibleNewline(" ");
+            buf.appendPunctuation(',').appendPossibleNewline(" ");
           }
           buf.append(buff);
         }

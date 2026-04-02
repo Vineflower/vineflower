@@ -83,6 +83,7 @@ Lines mapping:
 
 /*
 Tokens:
+(1:9, 1:12) class [reference] pkg/package-info
 (3:14, 3:29) class [declaration] pkg/TestTextTokens3
 (4:18, 4:24) class [reference] java/lang/String
 (4:25, 4:28) method [declaration] pkg/TestTextTokens3#get(Lpkg/TestTextTokens3$Entry;)Ljava/lang/String;

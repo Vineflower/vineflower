@@ -118,9 +118,9 @@ public class TypeAnnotation {
         stepwiseWriteAnnotations(appendBuffer, true, typeAnnotations, filter, v -> v.kind() == TypeAnnotation.PathKind.DEEPER_ARRAY);
 
         if (i == type.arrayDim - 1 && vararg && flush) { // flush == top level, only check for varargs there
-          appendBuffer.append("...");
+          appendBuffer.appendPunctuation("...");
         } else {
-          appendBuffer.append("[]");
+          appendBuffer.appendPunctuation("[]");
         }
       }
     }
@@ -174,7 +174,7 @@ public class TypeAnnotation {
         }
 
         if (i > 0) {
-          buffer.append(".");
+          buffer.appendPunctuation(".");
         }
 
         // If we're past the point of being allowed to place annotations, start unwinding the queue
@@ -189,10 +189,10 @@ public class TypeAnnotation {
 
       // Write generic parameters if the type is generic. Go through the arguments and recurse on the types there.
       if (type instanceof GenericType gt && !gt.getArguments().isEmpty()) {
-        buffer.append("<");
+        buffer.appendPunctuation("<");
         for (int j = 0; j < gt.getArguments().size(); j++) {
           if (j > 0) {
-            buffer.append(", ");
+            buffer.appendPunctuation(",").appendWhitespace(" ");
           }
           VarType arg = gt.getArguments().get(j);
 
@@ -208,19 +208,19 @@ public class TypeAnnotation {
           // Actually write the wildcard
           if (arg instanceof GenericType genArg) {
             if (genArg.getWildcard() == GenericType.WILDCARD_EXTENDS) {
-              buffer.append("? extends ");
+              buffer.appendOperator("?").appendWhitespace(" ").appendKeyword("extends").appendWhitespace(" ");
             } else if (genArg.getWildcard() == GenericType.WILDCARD_SUPER) {
-              buffer.append("? super ");
+              buffer.appendOperator("?").appendWhitespace(" ").appendKeyword("super").appendWhitespace(" ");
             }
           } else if (arg == null) {
-            buffer.append("?");
+            buffer.appendPunctuation("?");
             continue;
           }
 
           // Recurse on the arg
           appendCastTypeName(buffer, arg, typeAnnotations, filter, vararg, false);
         }
-        buffer.append(">");
+        buffer.appendPunctuation(">");
       }
 
       // Append the array data
@@ -266,11 +266,11 @@ public class TypeAnnotation {
           }
 
           if (extraSpace) {
-            buffer.append(" ");
+            buffer.appendWhitespace(" ");
           }
 
           buffer.append(annoJava);
-          buffer.append(" ");
+          buffer.appendWhitespace(" ");
         }
       } else {
         if (canProceed.test(anno.a.peek())) {
@@ -285,9 +285,9 @@ public class TypeAnnotation {
     for (Pair<Queue<TypeAnnotation.PathValue>, AnnotationExprent> anno : typeAnnotations) {
       if (!anno.b.didWriteAlready()) {
         if (any) {
-          buffer.append(" ");
+          buffer.appendWhitespace(" ");
         } else {
-          buffer.append("/* ");
+          buffer.appendComment("/* ");
           any = true;
         }
 
@@ -297,7 +297,7 @@ public class TypeAnnotation {
     }
 
     if (any) {
-      buffer.append(" */");
+      buffer.appendComment(" */");
     }
   }
 }

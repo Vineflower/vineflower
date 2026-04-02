@@ -190,6 +190,7 @@ Not mapped:
 
 /*
 Tokens:
+(1:9, 1:12) class [reference] pkg/package-info
 (7:2, 7:18) class [reference] pkg/MoreAnnotations$NestedAnnotation
 (8:14, 8:28) class [declaration] pkg/TestTextTokens
 (9:12, 9:26) class [reference] pkg/TestTextTokens

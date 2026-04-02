@@ -55,17 +55,17 @@ public class PatternExprent extends Exprent implements Pattern {
   public TextBuffer toJava(int indent) {
     TextBuffer buf = new TextBuffer();
     buf.appendCastTypeName(varType);
-    buf.append("(");
+    buf.appendPunctuation("(");
 
     for (int i = 0; i < exprents.size(); i++) {
       buf.append(exprents.get(i).toJava());
 
       if (i < exprents.size() - 1) {
-        buf.append(", ");
+        buf.appendPunctuation(",").appendWhitespace(" ");
       }
     }
 
-    buf.append(")");
+    buf.appendPunctuation(")");
 
     return buf;
   }

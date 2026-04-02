@@ -1,13 +1,15 @@
 package org.vineflower.kotlin.stat;
 
+import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.TextUtil;
+import org.jetbrains.java.decompiler.util.token.TokenType;
 import org.vineflower.kotlin.util.KExprProcessor;
-import org.vineflower.kotlin.util.KUtils;
 
 public class KIfStatement extends IfStatement {
   public KIfStatement(IfStatement statement) {
@@ -47,30 +49,34 @@ public class KIfStatement extends IfStatement {
     
     buf.append(first.toJava(indent));
     
+    MethodWrapper method = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
+    
     if (isLabeled()) {
-      buf.appendIndent(indent).append("label").append(id).append("@").appendLineSeparator();
+      buf.appendIndent(indent);
+      appendLabel(buf, -1);
+      buf.appendPunctuation("@").appendLineSeparator();
     }
 
     Exprent condition = getHeadexprent();
-    buf.appendIndent(indent).append(condition.toJava(indent)).append(" {").appendLineSeparator();
+    buf.appendIndent(indent).append(condition.toJava(indent)).appendWhitespace(" ").appendPunctuation("{").appendLineSeparator();
 
     if (getIfstat() == null) {
       if (getIfEdge().explicit) {
         buf.appendIndent(indent + 1);
         if (getIfEdge().getType() == StatEdge.TYPE_BREAK) {
           if (getIfEdge().closure instanceof KSequenceStatement) {
-            buf.append("return");
+            buf.appendKeyword("return");
           } else {
-            buf.append("break");
+            buf.appendKeyword("break");
           }
         } else {
-          buf.append("continue");
+          buf.appendKeyword("continue");
         }
 
         if (getIfEdge().labeled) {
-          buf.append("@label").append(getIfEdge().closure.id);
+          buf.appendPunctuation("@").appendLabel("label" + getIfEdge().closure.id, false, method.classStruct.qualifiedName, method.methodStruct.getName(), method.desc(), getIfEdge().closure.id);
         } else if (getIfEdge().closure instanceof KSequenceStatement) {
-          buf.append("@run");
+          buf.appendPunctuation("@").append("run", TokenType.METHOD);
         }
 
         buf.appendLineSeparator();
@@ -91,7 +97,7 @@ public class KIfStatement extends IfStatement {
               || !getElsestat().getSuccessorEdges(STATEDGE_DIRECT_ALL).get(0).explicit)
       ) {
         elseIf = true;
-        buf.appendIndent(indent).append("} else ");
+        buf.appendIndent(indent).appendPunctuation("}").appendWhitespace(" ").appendKeyword("else").appendWhitespace(" ");
 
         TextBuffer content = KExprProcessor.jmpWrapper(getElsestat(), indent, false);
         content.setStart(TextUtil.getIndentString(indent).length());
@@ -100,14 +106,14 @@ public class KIfStatement extends IfStatement {
         TextBuffer content = KExprProcessor.jmpWrapper(getElsestat(), indent + 1, false);
 
         if (content.length() > 0) {
-          buf.appendIndent(indent).append("} else {").appendLineSeparator();
+          buf.appendIndent(indent).appendPunctuation("}").appendWhitespace(" ").appendKeyword("else").appendWhitespace(" ").appendPunctuation("{").appendLineSeparator();
           buf.append(content);
         }
       }
     }
 
     if (!elseIf) {
-      buf.appendIndent(indent).append("}").appendLineSeparator();
+      buf.appendIndent(indent).appendPunctuation("}").appendLineSeparator();
     }
 
     return buf;

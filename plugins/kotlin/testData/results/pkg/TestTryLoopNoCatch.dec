@@ -5,7 +5,7 @@ public class TestTryLoopNoCatch {
       var b: Boolean = false// 5
       var i: Int = 0// 6
 
-      for (var4 in s.length..i) {
+      for (var4 in s.length .. i) {
          try {
             val var10001: java.lang.String = s[i]
             b = this.method(var10001)// 8

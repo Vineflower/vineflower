@@ -6,6 +6,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarTypeProcessor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
+import org.jetbrains.java.decompiler.util.token.TokenType;
 import org.vineflower.kotlin.KotlinWriter;
 import org.vineflower.kotlin.util.KTypes;
 
@@ -64,14 +65,16 @@ public class KVarExprent extends VarExprent implements KExprent {
       boolean isFinal = isEffectivelyFinal() ||
         (processor != null && processor.getVarFinal(getVarVersionPair()) != VarTypeProcessor.FinalType.NON_FINAL);
 
-      buffer.append(isFinal ? "val " : "var ");
+      buffer.appendKeyword(isFinal ? "val" : "var").appendWhitespace(" ");
     }
 
-    buffer.append(getName());
+    //TODO: variable tokenization
+    buffer.append(getName(), TokenType.LOCAL_VARIABLE);
 
     if (declarationType == DeclarationType.DEFINITION || declarationType == DeclarationType.EXCEPTION_TYPE) {
-      buffer.append(": ");
-      buffer.append(KTypes.getKotlinType(getDefinitionVarType()));
+      buffer.appendPunctuation(":")
+        .appendWhitespace(" ")
+        .appendClass(KTypes.getKotlinType(getDefinitionVarType()), false, getDefinitionVarType().value);
     }
 
     return buffer;

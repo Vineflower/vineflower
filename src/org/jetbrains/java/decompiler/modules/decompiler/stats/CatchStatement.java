@@ -5,7 +5,6 @@ import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
-import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.DecHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
@@ -144,14 +143,14 @@ public class CatchStatement extends Statement {
     buf.append(ExprProcessor.listToJava(varDefinitions, indent));
 
     if (isLabeled()) {
-      buf.appendIndent(indent).append("label").append(this.id).append(":").appendLineSeparator();
+      appendLabel(buf, indent);
     }
 
     if (resources.isEmpty()) {
-      buf.appendIndent(indent).append("try {").appendLineSeparator();
+      buf.appendIndent(indent).appendKeyword("try").appendWhitespace(" ").appendPunctuation("{").appendLineSeparator();
     }
     else {
-      buf.appendIndent(indent).append("try (");
+      buf.appendIndent(indent).appendKeyword("try").appendWhitespace(" ").appendPunctuation("(");
 
       if (resources.size() > 1) {
         buf.appendLineSeparator();
@@ -161,11 +160,11 @@ public class CatchStatement extends Statement {
       else {
         buf.append(resources.get(0).toJava(indent + 1));
       }
-      buf.append(") {").appendLineSeparator();
+      buf.appendPunctuation(")").appendWhitespace(" ").appendPunctuation("{").appendLineSeparator();
     }
 
     buf.append(ExprProcessor.jmpWrapper(first, indent + 1, true));
-    buf.appendIndent(indent).append("}");
+    buf.appendIndent(indent).appendPunctuation("}");
 
     for (int i = 1; i < stats.size(); i++) {
       Statement stat = stats.get(i);
@@ -176,18 +175,18 @@ public class CatchStatement extends Statement {
         if (offset > -1) buf.addBytecodeMapping(offset);
       }
 
-      buf.append(" catch (");
+      buf.appendWhitespace(" ").appendKeyword("catch").appendWhitespace(" ").appendPunctuation("(");
 
       List<String> exception_types = exctstrings.get(i - 1);
       for (int exc_index = 0; exc_index < exception_types.size(); ++exc_index) {
         String name = ExprProcessor.getCastTypeName(new VarType(CodeType.OBJECT, 0, exception_types.get(exc_index)));
         if (exception_types.size() > 1 && exc_index > 0) { // multi-catch, Java 7 style
-          buf.append(" | ");
+          buf.appendWhitespace(" ").appendOperator("|").appendWhitespace(" ");
         }
-        buf.append(name);
+        buf.appendClass(name, false, exception_types.get(exc_index));
       }
 
-      buf.append(" ");
+      buf.appendWhitespace(" ");
 
       VarExprent var = vars.get(i - 1);
 
@@ -198,9 +197,9 @@ public class CatchStatement extends Statement {
         buf.append(var.toJava(indent));
       }
 
-      buf.append(") {").appendLineSeparator();
+      buf.appendPunctuation(")").appendWhitespace(" ").appendPunctuation("{").appendLineSeparator();
       buf.append(ExprProcessor.jmpWrapper(stat, indent + 1, false)).appendIndent(indent)
-        .append("}");
+        .appendPunctuation("}");
     }
     buf.appendLineSeparator();
 

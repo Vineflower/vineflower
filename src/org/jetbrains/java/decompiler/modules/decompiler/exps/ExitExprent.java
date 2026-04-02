@@ -73,14 +73,14 @@ public class ExitExprent extends Exprent {
     buf.addBytecodeMapping(bytecode);
 
     if (exitType == Type.RETURN) {
-      buf.append("return");
+      buf.appendKeyword("return");
 
       if (retType.type != CodeType.VOID) {
         VarType ret = retType;
         if (methodDescriptor != null && methodDescriptor.genericInfo != null && methodDescriptor.genericInfo.returnType != null) {
           ret = methodDescriptor.genericInfo.returnType;
         }
-        buf.append(' ');
+        buf.appendWhitespace(" ");
 
         ExprProcessor.getCastedExprent(value, ret, buf, indent, ExprProcessor.NullCastType.DONT_CAST_AT_ALL, false, false, false);
       }
@@ -110,7 +110,7 @@ public class ExitExprent extends Exprent {
 
           if (classname != null) {
             VarType exType = new VarType(classname, true);
-            buf.append("throw ");
+            buf.appendKeyword("throw").appendWhitespace(" ");
             ExprProcessor.getCastedExprent(value, exType, buf, indent, false);
             return buf;
           }

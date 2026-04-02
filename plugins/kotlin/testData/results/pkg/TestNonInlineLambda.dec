@@ -207,6 +207,7 @@ class 'pkg/TestNonInlineLambda' {
       7      18
       8      18
       9      18
+      a      18
    }
 
    method 'testCaptureObject (Ljava/lang/String;)V' {
@@ -228,6 +229,7 @@ class 'pkg/TestNonInlineLambda' {
       e      25
       f      25
       10      25
+      11      25
    }
 
    method 'testCaptureIntIterationValue (Ljava/lang/Iterable;)V' {
@@ -262,6 +264,7 @@ class 'pkg/TestNonInlineLambda' {
       7      35
       8      35
       9      35
+      a      35
    }
 
    method 'testCaptureObjectIterationValue (Ljava/lang/Iterable;)V' {
@@ -300,6 +303,7 @@ class 'pkg/TestNonInlineLambda' {
       e      44
       f      44
       10      44
+      11      44
    }
 
    method 'testCaptureMutableInt (I)V' {
@@ -371,6 +375,7 @@ class 'pkg/TestNonInlineLambda' {
       13      54
       14      54
       15      54
+      16      54
    }
 
    method 'testCaptureMutableInt$lambda$5 (Lkotlin/jvm/internal/Ref$IntRef;)Lkotlin/Unit;' {
@@ -388,6 +393,7 @@ class 'pkg/TestNonInlineLambda' {
       13      59
       14      59
       15      59
+      16      59
    }
 
    method 'testCaptureMutableInt$lambda$6 (Lkotlin/jvm/internal/Ref$IntRef;)Lkotlin/Unit;' {
@@ -405,6 +411,7 @@ class 'pkg/TestNonInlineLambda' {
       13      64
       14      64
       15      64
+      16      64
    }
 
    method 'testCaptureMutableInt$lambda$7 (Lkotlin/jvm/internal/Ref$IntRef;)Lkotlin/Unit;' {
@@ -422,6 +429,7 @@ class 'pkg/TestNonInlineLambda' {
       13      69
       14      69
       15      69
+      16      69
    }
 
    method 'testCaptureMutableInt$lambda$8 (Lkotlin/jvm/internal/Ref$IntRef;)Lkotlin/Unit;' {
@@ -439,6 +447,7 @@ class 'pkg/TestNonInlineLambda' {
       13      74
       14      74
       15      74
+      16      74
    }
 
    method 'testCaptureMutableObject (Ljava/lang/String;)V' {
@@ -539,6 +548,7 @@ class 'pkg/TestNonInlineLambda' {
       12      83
       13      83
       14      83
+      15      83
    }
 
    method 'testCaptureMutableObject$lambda$10 (Lkotlin/jvm/internal/Ref$ObjectRef;)Lkotlin/Unit;' {
@@ -555,6 +565,7 @@ class 'pkg/TestNonInlineLambda' {
       12      88
       13      88
       14      88
+      15      88
    }
 
    method 'testCaptureMutableObject$lambda$11 (Lkotlin/jvm/internal/Ref$ObjectRef;)Lkotlin/Unit;' {
@@ -571,6 +582,7 @@ class 'pkg/TestNonInlineLambda' {
       12      93
       13      93
       14      93
+      15      93
    }
 
    method 'testCaptureMutableObject$lambda$12 (Lkotlin/jvm/internal/Ref$ObjectRef;)Lkotlin/Unit;' {
@@ -587,6 +599,7 @@ class 'pkg/TestNonInlineLambda' {
       12      98
       13      98
       14      98
+      15      98
    }
 
    method 'testCaptureMutableObject$lambda$13 (Lkotlin/jvm/internal/Ref$ObjectRef;)Lkotlin/Unit;' {
@@ -603,6 +616,7 @@ class 'pkg/TestNonInlineLambda' {
       12      103
       13      103
       14      103
+      15      103
    }
 
    method 'testCaptureAndMutateInt (I)V' {
@@ -651,6 +665,7 @@ class 'pkg/TestNonInlineLambda' {
       28      114
       29      114
       2a      114
+      2b      114
    }
 
    method 'testCaptureAndMutateInt$lambda$15 (Lkotlin/jvm/internal/Ref$IntRef;)Lkotlin/Unit;' {
@@ -682,6 +697,7 @@ class 'pkg/TestNonInlineLambda' {
       26      124
       27      124
       28      124
+      29      124
    }
 
    method 'testCaptureAndMutateString (Ljava/lang/String;)V' {
@@ -755,6 +771,7 @@ class 'pkg/TestNonInlineLambda' {
       31      137
       32      137
       33      137
+      34      137
    }
 
    method 'testCaptureAndMutateString$lambda$17 (Lkotlin/jvm/internal/Ref$ObjectRef;)Lkotlin/Unit;' {
@@ -795,6 +812,7 @@ class 'pkg/TestNonInlineLambda' {
       34      146
       35      146
       36      146
+      37      146
    }
 
    method 'testCapturePublicMutableIntField ()V' {
@@ -815,6 +833,7 @@ class 'pkg/TestNonInlineLambda' {
       13      153
       14      153
       15      153
+      16      153
    }
 
    method 'testCapturePublicMutableStringField ()V' {
@@ -842,6 +861,7 @@ class 'pkg/TestNonInlineLambda' {
       14      160
       15      160
       16      160
+      17      160
    }
 
    method 'testCapturePrivateMutableIntField ()V' {
@@ -862,6 +882,7 @@ class 'pkg/TestNonInlineLambda' {
       13      167
       14      167
       15      167
+      16      167
    }
 
    method 'testCapturePrivateMutableStringField ()V' {
@@ -889,6 +910,7 @@ class 'pkg/TestNonInlineLambda' {
       14      174
       15      174
       16      174
+      17      174
    }
 
    method 'execute (Lkotlin/jvm/functions/Function0;)V' {

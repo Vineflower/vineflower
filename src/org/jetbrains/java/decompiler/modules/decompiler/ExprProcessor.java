@@ -1,9 +1,7 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler;
 
-import org.jetbrains.java.decompiler.api.Decompiler;
 import org.jetbrains.java.decompiler.api.plugin.LanguageSpec;
-import org.jetbrains.java.decompiler.api.plugin.StatementWriter;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.Instruction;
 import org.jetbrains.java.decompiler.code.InstructionSequence;
@@ -12,6 +10,7 @@ import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.plugins.PluginContext;
 import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
+import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectEdgeType;
 import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.util.collections.ListStack;
@@ -868,22 +867,24 @@ public class ExprProcessor implements CodeConstants {
         switch (edge.getType()) {
           case StatEdge.TYPE_BREAK:
             addDeletedGotoInstructionMapping(stat, buf);
-            buf.append("break");
+            buf.appendKeyword("break");
             break;
           case StatEdge.TYPE_CONTINUE:
             addDeletedGotoInstructionMapping(stat, buf);
-            buf.append("continue");
+            buf.appendKeyword("continue");
         }
 
         if (edge.labeled) {
-          buf.append(" label").append(edge.closure.id);
+          MethodWrapper wrapper = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
+          buf.appendWhitespace(" ")
+            .appendLabel("label" + edge.closure.id, false, wrapper.classStruct.qualifiedName, wrapper.methodStruct.getName(), wrapper.desc(), edge.closure.id);
         }
-        buf.append(";").appendLineSeparator();
+        buf.appendPunctuation(";").appendLineSeparator();
       }
     }
 
     if (buf.length() == 0 && semicolon) {
-      buf.appendIndent(indent).append(";").appendLineSeparator();
+      buf.appendIndent(indent).appendPunctuation(";").appendLineSeparator();
     }
 
     return buf;
@@ -930,15 +931,15 @@ public class ExprProcessor implements CodeConstants {
         }
         buf.append(content);
         if (expr instanceof MonitorExprent && ((MonitorExprent)expr).getMonType() == MonitorExprent.Type.ENTER) {
-          buf.append("{} // $VF: monitorenter "); // empty synchronized block
+          buf.appendPunctuation("{}").appendWhitespace(" ").appendComment("// $VF: monitorenter "); // empty synchronized block
         }
         if (spec != null) {
           if (spec.writer.endsWithSemicolon(expr)) {
-            buf.append(';');
+            buf.appendPunctuation(';');
           }
         } else {
           if (endsWithSemicolon(expr)) {
-            buf.append(';');
+            buf.appendPunctuation(';');
           }
         }
         buf.appendLineSeparator();
@@ -1029,15 +1030,15 @@ public class ExprProcessor implements CodeConstants {
     }
 
     if (cast) {
-      buffer.append('(').appendCastTypeName(leftType).append(')');
+      buffer.appendPunctuation('(').appendCastTypeName(leftType).appendPunctuation(')');
     }
 
     if (castLambda) {
-      buffer.append('(').appendCastTypeName(rightType).append(')');
+      buffer.appendPunctuation('(').appendCastTypeName(rightType).appendPunctuation(')');
     }
 
     if (quote) {
-      buffer.append('(');
+      buffer.appendPunctuation('(');
     }
 
     if (exprent instanceof ConstExprent) {
@@ -1054,7 +1055,7 @@ public class ExprProcessor implements CodeConstants {
     buffer.append(exprent.toJava(indent));
 
     if (quote) {
-      buffer.append(')');
+      buffer.appendPunctuation(')');
     }
 
     return cast;

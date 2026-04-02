@@ -11,6 +11,7 @@ import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructInnerClassesAttribute;
 import org.jetbrains.java.decompiler.util.TextBuffer;
+import org.jetbrains.java.decompiler.util.token.TokenType;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -193,7 +194,7 @@ public class ImportCollector {
 
     List<String> imports = packImports();
     for (String line : imports) {
-      buffer.append("import ").append(line).append(';').appendLineSeparator();
+      buffer.appendKeyword("import").appendWhitespace(" ").append(line, TokenType.CLASS).appendPunctuation(';').appendLineSeparator();
     }
     if (addSeparator && !imports.isEmpty()) {
       buffer.appendLineSeparator();

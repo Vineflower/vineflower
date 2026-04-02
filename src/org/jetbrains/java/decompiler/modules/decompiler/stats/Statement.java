@@ -9,22 +9,20 @@ import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.InstructionSequence;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
-import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
+import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
-import org.jetbrains.java.decompiler.modules.decompiler.decompose.StrongConnectivityHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
+import org.jetbrains.java.decompiler.modules.decompiler.decompose.StrongConnectivityHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.struct.match.IMatchable;
 import org.jetbrains.java.decompiler.struct.match.MatchEngine;
 import org.jetbrains.java.decompiler.struct.match.MatchNode;
-import org.jetbrains.java.decompiler.struct.match.MatchNode.RuleValue;
 import org.jetbrains.java.decompiler.util.StartEndPair;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
 
 import java.util.*;
-import java.util.Map.Entry;
 
 public abstract class Statement implements IMatchable {
   public enum StatementType {
@@ -595,6 +593,18 @@ public abstract class Statement implements IMatchable {
    */
   public List<VarExprent> getImplicitlyDefinedVars() {
     return null;
+  }
+
+  protected void appendLabel(TextBuffer buf, int indent) {
+    MethodWrapper method = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
+
+    if (indent >= 0) {
+      buf.appendIndent(indent);
+    }
+    buf.appendLabel("label" + id, true, method.classStruct.qualifiedName, method.methodStruct.getName(), method.desc(), id);
+    if (indent >= 0) {
+      buf.appendPunctuation(":").appendLineSeparator();
+    }
   }
 
 

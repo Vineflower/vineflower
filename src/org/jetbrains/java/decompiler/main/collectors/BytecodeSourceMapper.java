@@ -75,14 +75,14 @@ public class BytecodeSourceMapper {
     buffer.append("Lines mapping:").appendLineSeparator();
     Map<Integer, Integer> sorted = new TreeMap<>(linesMapping);
     for (Entry<Integer, Integer> entry : sorted.entrySet()) {
-      buffer.append(entry.getKey()).append(" <-> ").append(entry.getValue() + offset_total + 1).appendLineSeparator();
+      buffer.append(Integer.toString(entry.getKey())).append(" <-> ").append(Integer.toString(entry.getValue() + offset_total + 1)).appendLineSeparator();
     }
 
     if (!unmappedLines.isEmpty()) {
       buffer.append("Not mapped:").appendLineSeparator();
       for (int line : unmappedLines) {
         if (!linesMapping.containsKey(line)) {
-          buffer.append(line).appendLineSeparator();
+          buffer.append(Integer.toString(line)).appendLineSeparator();
         }
       }
     }

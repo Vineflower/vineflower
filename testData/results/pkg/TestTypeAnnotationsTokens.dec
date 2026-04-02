@@ -32,6 +32,7 @@ public class TestTypeAnnotationsTokens {
 
 /*
 Tokens:
+(1:9, 1:12) class [reference] pkg/package-info
 (6:14, 6:39) class [declaration] pkg/TestTypeAnnotationsTokens
 (7:12, 7:37) class [reference] pkg/TestTypeAnnotationsTokens
 (7:38, 7:42) class [reference] pkg/TestTypeAnnotationsTokens$Anno

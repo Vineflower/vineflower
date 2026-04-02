@@ -27,8 +27,11 @@ public class KFieldExprent extends FieldExprent implements KExprent {
     if (getName().equals("TYPE") && ExprUtil.PRIMITIVE_TYPES.containsKey(getClassname())) {
       buf.addBytecodeMapping(bytecode);
       VarType type = new VarType(getClassname(), true);
-      buf.append(KTypes.getKotlinType(type));
-      buf.append("::class.javaPrimitiveType");
+      buf.appendClass(KTypes.getKotlinType(type), false, type.value)
+        .appendPunctuation("::")
+        .appendKeyword("class")
+        .appendPunctuation(".")
+        .appendMethod("javaPrimitiveType", false, "kotlin/reflect/KClass", "javaPrimitiveType", "()Ljava/lang/Class;");
       return buf;
     }
     if (getName().equals("INSTANCE")) {
@@ -55,21 +58,21 @@ public class KFieldExprent extends FieldExprent implements KExprent {
         ClassWrapper wrapper = DecompilerContext.getClassProcessor().getMapRootClasses().get(getClassname()).getWrapper();
         MethodWrapper method = function.methodSupplier().apply(wrapper);
 
-        buf.append("{");
+        buf.appendPunctuation("{");
 
         int index = 0;
         for (KParameter param : function.parameters()) {
           if (index > 0) {
-            buf.append(", ");
+            buf.appendPunctuation(",").appendWhitespace(" ");
           } else {
-            buf.append(" ");
+            buf.appendWhitespace(" ");
           }
           buf.appendVariable(param.name(), true, true, function.classStruct().qualifiedName, function.methodStruct().getName(), function.methodStruct().getDescriptor(), index, param.name());
           index += param.type().stackSize;
         }
 
         if (function.parameters().length > 0) {
-          buf.append(" ->");
+          buf.appendWhitespace(" ").appendOperator("->");
         }
 
         buf.appendLineSeparator();
@@ -93,7 +96,7 @@ public class KFieldExprent extends FieldExprent implements KExprent {
           KotlinWriter.dumpError(buf, method, indent + 1);
         }
 
-        buf.appendIndent(indent).append("}");
+        buf.appendIndent(indent).appendPunctuation("}");
         buf.addBytecodeMapping(bytecode);
         return buf;
       } else if (ktData instanceof KFunctionReference) {

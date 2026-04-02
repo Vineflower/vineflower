@@ -1,7 +1,6 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
-import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
@@ -54,15 +53,15 @@ public class ConstExprent extends Exprent {
     // Positive and negative pi divisors
     for (int i = 2; i <= 20; i++) {
       int finalI = i;
-      UNINLINED_DOUBLES.put(Math.PI / i, bytecode -> getPiDouble(bytecode).append(" / "+ finalI));
-      UNINLINED_DOUBLES.put(-Math.PI / i, bytecode -> getPiDouble(bytecode).append(" / "+ finalI).prepend("-"));
+      UNINLINED_DOUBLES.put(Math.PI / i, bytecode -> getPiDouble(bytecode).appendWhitespace(" ").appendOperator("/").appendWhitespace(" ").appendNumber(Integer.toString(finalI)));
+      UNINLINED_DOUBLES.put(-Math.PI / i, bytecode -> getPiDouble(bytecode).appendWhitespace(" ").appendOperator("/").appendWhitespace(" ").appendNumber(Integer.toString(finalI)).prepend("-"));
     }
 
     // Positive and negative pi multipliers
     for (int i = 2; i <= 20; i++) {
       int finalI = i;
-      UNINLINED_DOUBLES.put(Math.PI * i, bytecode -> getPiDouble(bytecode).append(" * "+ finalI));
-      UNINLINED_DOUBLES.put(-Math.PI * i, bytecode -> getPiDouble(bytecode).append(" * "+ finalI).prepend("-"));
+      UNINLINED_DOUBLES.put(Math.PI * i, bytecode -> getPiDouble(bytecode).appendWhitespace(" ").appendOperator("*").appendWhitespace(" ").appendNumber(Integer.toString(finalI)));
+      UNINLINED_DOUBLES.put(-Math.PI * i, bytecode -> getPiDouble(bytecode).appendWhitespace(" ").appendOperator("*").appendWhitespace(" ").appendNumber(Integer.toString(finalI)).prepend("-"));
     }
 
     // Extra pi values on the unit circle
@@ -72,12 +71,12 @@ public class ConstExprent extends Exprent {
         if (gcd == 1) {
           double finalNumerator = numerator;
           double finalDenominator = denominator;
-          UNINLINED_DOUBLES.put(Math.PI * (numerator / denominator), bytecode -> getPiDouble(bytecode).append(" * " + finalNumerator + " / " + finalDenominator));
-          UNINLINED_DOUBLES.put(-Math.PI * (numerator / denominator), bytecode -> getPiDouble(bytecode).append(" * " + finalNumerator + " / " + finalDenominator).prepend("-"));
+          UNINLINED_DOUBLES.put(Math.PI * (numerator / denominator), bytecode -> getPiDouble(bytecode).appendWhitespace(" ").appendOperator("*").appendWhitespace(" ").appendNumber(Double.toString(finalNumerator)).appendWhitespace(" ").appendOperator("/").appendWhitespace(" ").appendNumber(Double.toString(finalDenominator)));
+          UNINLINED_DOUBLES.put(-Math.PI * (numerator / denominator), bytecode -> getPiDouble(bytecode).appendWhitespace(" ").appendOperator("*").appendWhitespace(" ").appendNumber(Double.toString(finalNumerator)).appendWhitespace(" ").appendOperator("/").appendWhitespace(" ").appendNumber(Double.toString(finalDenominator)).prepend("-"));
 
           if ((float) Math.PI * (float) numerator / (float) denominator != (float) (Math.PI * numerator / denominator)) {
-            UNINLINED_FLOATS.put((float) Math.PI * ((float) numerator / (float) denominator), bytecode -> getPiDouble(bytecode).append(" * " + finalNumerator + "F / " + finalDenominator + "F").prepend("(float) "));
-            UNINLINED_FLOATS.put((float) -Math.PI * ((float) numerator / (float) denominator), bytecode -> getPiDouble(bytecode).append(" * " + finalNumerator + "F / " + finalDenominator + "F").prepend("(float) -"));
+            UNINLINED_FLOATS.put((float) Math.PI * ((float) numerator / (float) denominator), bytecode -> getPiDouble(bytecode).appendWhitespace(" ").appendOperator("*").appendWhitespace(" ").appendNumber(finalNumerator + "F").appendWhitespace(" ").appendOperator("/").appendWhitespace(" ").appendNumber(finalDenominator + "F").prepend("(float) "));
+            UNINLINED_FLOATS.put((float) -Math.PI * ((float) numerator / (float) denominator), bytecode -> getPiDouble(bytecode).appendWhitespace(" ").appendOperator("*").appendWhitespace(" ").appendNumber(finalNumerator + "F").appendWhitespace(" ").appendOperator("/").appendWhitespace(" ").appendNumber(finalDenominator + "F").prepend("(float) -"));
           }
         }
       }
@@ -94,11 +93,11 @@ public class ConstExprent extends Exprent {
     UNINLINED_FLOATS.put((float)(-180.0F / (float)Math.PI), bytecode -> getPiDouble(bytecode).prepend("-180.0F / (float)"));
 
     // Positive and negative pi / 180
-    UNINLINED_DOUBLES.put(Math.PI / 180.0, bytecode -> getPiDouble(bytecode).append(" / 180.0"));
-    UNINLINED_DOUBLES.put(-Math.PI / 180.0, bytecode -> getPiDouble(bytecode).append(" / 180.0").prepend("-"));
+    UNINLINED_DOUBLES.put(Math.PI / 180.0, bytecode -> getPiDouble(bytecode).appendWhitespace(" ").appendOperator("/").appendWhitespace(" ").appendNumber("180.0"));
+    UNINLINED_DOUBLES.put(-Math.PI / 180.0, bytecode -> getPiDouble(bytecode).appendWhitespace(" ").appendOperator("/").appendWhitespace(" ").appendNumber("180.0").prepend("-"));
 
-    UNINLINED_FLOATS.put((float)(Math.PI / 180.0), bytecode -> getPiDouble(bytecode).append(" / 180.0").prepend("(float) "));
-    UNINLINED_FLOATS.put((float)(-Math.PI / 180.0), bytecode -> getPiDouble(bytecode).append(" / 180.0").prepend("-").prepend("(float) "));
+    UNINLINED_FLOATS.put((float)(Math.PI / 180.0), bytecode -> getPiDouble(bytecode).appendWhitespace(" ").appendOperator("/").appendWhitespace(" ").appendNumber("180.0").prepend("(float) "));
+    UNINLINED_FLOATS.put((float)(-Math.PI / 180.0), bytecode -> getPiDouble(bytecode).appendWhitespace(" ").appendOperator("/").appendWhitespace(" ").appendNumber("180.0").prepend("-").prepend("(float) "));
 
     UNINLINED_DOUBLES.forEach((key, valueFunction) -> {
       UNINLINED_FLOATS.put(key.floatValue(), bytecode -> {
@@ -220,7 +219,7 @@ public class ConstExprent extends Exprent {
     buf.addBytecodeMapping(bytecode);
 
     if (wasCondy) {
-      buf.append("/* $VF: constant dynamic */ ");
+      buf.appendComment("/* $VF: constant dynamic */ ");
     }
 
     if (constType.type != CodeType.NULL && value == null) {
@@ -231,7 +230,7 @@ public class ConstExprent extends Exprent {
 
     switch (unboxed.type) {
       case BOOLEAN:
-        return buf.append(Boolean.toString((Integer)value != 0));
+        return buf.appendKeyword(Boolean.toString((Integer)value != 0));
 
       case CHAR:
         Integer val = (Integer)value;
@@ -245,7 +244,7 @@ public class ConstExprent extends Exprent {
             ret = TextUtil.charToUnicodeLiteral(c);
           }
         }
-        return buf.append(ret).enclose("'", "'");
+        return buf.appendText("'" + ret + "'");
 
       case BYTECHAR:
       case SHORTCHAR:
@@ -262,7 +261,7 @@ public class ConstExprent extends Exprent {
             return buf.append(new FieldExprent("MIN_VALUE", "java/lang/Integer", true, null, FieldDescriptor.INTEGER_DESCRIPTOR, bytecode).toJava(0));
           }
         }
-        return buf.append(value.toString());
+        return buf.appendNumber(value.toString());
 
       case LONG:
 
@@ -276,7 +275,7 @@ public class ConstExprent extends Exprent {
             return buf.append(new FieldExprent("MIN_VALUE", "java/lang/Long", true, null, FieldDescriptor.LONG_DESCRIPTOR, bytecode).toJava(0));
           }
         }
-        return buf.append(value.toString()).append('L');
+        return buf.appendNumber(value.toString()).appendNumber("L");
 
       case FLOAT:
         float floatVal = (Float)value;
@@ -292,16 +291,16 @@ public class ConstExprent extends Exprent {
           // Check for special values that can't be used directly in code
           // (and we can't replace with the constant due to the user requesting not to)
           if (Float.isNaN(floatVal)) {
-            return buf.append("0.0F / 0.0F");
+            return buf.appendNumber("0.0F").appendWhitespace(" ").appendOperator("/").appendWhitespace(" ").appendNumber("0.0F");
           }
           else if (floatVal == Float.POSITIVE_INFINITY) {
-            return buf.append("1.0F / 0.0F");
+            return buf.appendNumber("1.0F").appendWhitespace(" ").appendOperator("/").appendWhitespace(" ").appendNumber("0.0F");
           }
           else if (floatVal == Float.NEGATIVE_INFINITY) {
-            return buf.append("-1.0F / 0.0F");
+            return buf.appendOperator("-").appendNumber("1.0F").appendWhitespace(" ").appendOperator("/").appendWhitespace(" ").appendNumber("0.0F");
           }
         }
-        return buf.append(trimFloat(Float.toString(floatVal), floatVal)).append('F');
+        return buf.appendNumber(trimFloat(Float.toString(floatVal), floatVal)).appendNumber("F");
 
       case DOUBLE:
         double doubleVal = (Double)value;
@@ -323,38 +322,46 @@ public class ConstExprent extends Exprent {
                 return buf.append(UNINLINED_FLOATS.get(floatRepresentation).apply(bytecode));
               } else {
                 // Return the standard representation if the value is not able to be uninlined
-                return buf.append(trimFloat(Float.toString(floatRepresentation), floatRepresentation)).append("F");
+                return buf.appendNumber(trimFloat(Float.toString(floatRepresentation), floatRepresentation)).appendNumber("F");
               }
             }
           }
         }
         else if (Double.isNaN(doubleVal)) {
-          return buf.append("0.0 / 0.0");
+          return buf.appendNumber("0.0").appendWhitespace(" ").appendOperator("/").appendWhitespace(" ").appendNumber("0.0");
         }
         else if (doubleVal == Double.POSITIVE_INFINITY) {
-          return buf.append("1.0 / 0.0");
+          return buf.appendNumber("1.0").appendWhitespace(" ").appendOperator("/").appendWhitespace(" ").appendNumber("0.0");
         }
         else if (doubleVal == Double.NEGATIVE_INFINITY) {
-          return buf.append("-1.0 / 0.0");
+          return buf.appendOperator("-").appendNumber("1.0").appendWhitespace(" ").appendOperator("/").appendWhitespace(" ").appendNumber("0.0");
         }
-        return buf.append(trimDouble(Double.toString(doubleVal), doubleVal));
+        return buf.appendNumber(trimDouble(Double.toString(doubleVal), doubleVal));
 
       case NULL:
-        return buf.append("null");
+        return buf.appendKeyword("null");
 
       case OBJECT:
         if (constType.equals(VarType.VARTYPE_STRING)) {
-          return buf.append(convertStringToJava(value.toString(), ascii)).enclose("\"", "\"");
+//          return buf.append(convertStringToJava(value.toString(), ascii)).enclose("\"", "\"");
+          return buf.appendText("\"" + convertStringToJava(value.toString(), ascii) + "\"");
         } else if (constType.equals(VarType.VARTYPE_CLASS)) {
           String stringVal = value.toString();
           VarType type = new VarType(stringVal, !stringVal.startsWith("["));
-          return buf.appendCastTypeName(type).append(".class");
+          return buf.appendCastTypeName(type).appendPunctuation('.').appendKeyword("class");
         } else if (constType.equals(VarType.VARTYPE_METHODTYPE)) {
           if (DecompilerContext.getOption(IFernflowerPreferences.DECOMPILER_COMMENTS)) {
-            buf.append("/* $VF: MethodType constant */ ");
+            buf.appendComment("/* $VF: MethodType constant */ ");
           }
           DecompilerContext.getImportCollector().getShortName(constType.value.replaceAll("/", "."));
-          buf.append("MethodType.fromMethodDescriptorString(\"" + value + "\", null)");
+          buf.appendClass("MethodType", false, "java/lang/invoke/MethodType")
+            .appendPunctuation('.')
+            .appendMethod("fromMethodDescriptorString", false, "java/lang/invoke/MethodType", "fromMethodDescriptorString", "(Ljava/lang/String;Ljava/lang/ClassLoader;)Ljava/lang/invoke/MethodType;")
+            .appendPunctuation('(')
+            .appendText("\"" + value + "\"")
+            .appendPunctuation(',').appendWhitespace(" ")
+            .appendKeyword("null")
+            .appendPunctuation(')');
           return buf;
         }
     }
@@ -526,7 +533,7 @@ public class ConstExprent extends Exprent {
           buffer.append("\\\"");
           break;
         //case 0x27: //"\\\\'");  // u0027: single quote '
-        //  buffer.append("\\\'");
+        //  buffer.appendText("\\\'");
         //  break;
         default:
           if (isPrintableAscii(c) || !ascii && TextUtil.isPrintableUnicode(c)) {

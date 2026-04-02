@@ -5,7 +5,6 @@ import org.jetbrains.java.decompiler.util.Key;
 import org.vineflower.kt.metadata.ProtoBuf;
 import org.vineflower.kt.metadata.deserialization.Flags;
 import org.vineflower.kt.metadata.jvm.JvmProtoBuf;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.ImportCollector;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
@@ -155,14 +154,14 @@ public record KConstructor(
         KUtils.appendVisibility(buf, VISIBILITY.get(flags));
       }
 
-      buf.append("constructor");
+      buf.appendKeyword("constructor");
 
-      buf.append("(").pushNewlineGroup(indent, 1);
+      buf.appendPunctuation("(").pushNewlineGroup(indent, 1);
 
       boolean first = true;
       for (KParameter parameter : parameters) {
         if (!first) {
-          buf.append(",").appendPossibleNewline(" ");
+          buf.appendPunctuation(",").appendPossibleNewline(" ");
         }
 
         first = false;
@@ -185,14 +184,14 @@ public record KConstructor(
         return true;
       }
 
-      buf.append(") ");
+      buf.appendPunctuation(")").appendWhitespace(" ");
 
       Exprent firstExpr = exprents.get(0);
       if (!(firstExpr instanceof InvocationExprent)) {
         // no detected super / this constructor call (something isn't right)
         DecompilerContext.getLogger().writeMessage("Unexpected missing super/this constructor call in " + containingClass + " " + methodDescriptor, IFernflowerLogger.Severity.WARN);
       } else {
-        buf.append(": ");
+        buf.appendPunctuation(":").appendWhitespace(" ");
 
         buf.append(firstExpr.toJava(indent + 1), classStruct.qualifiedName, methodKey);
 
@@ -209,17 +208,17 @@ public record KConstructor(
     }
 
     if (isPrimary) {
-      buf.appendIndent(indent).append("init");
+      buf.appendIndent(indent).appendKeyword("init");
     }
 
-    buf.append(" {").appendLineSeparator();
+    buf.appendWhitespace(" ").appendPunctuation("{").appendLineSeparator();
 
     TextBuffer body = root.toJava(indent + 1);
     body.addBytecodeMapping(root.getDummyExit().bytecode);
 
     buf.append(body, classStruct.qualifiedName, methodKey);
 
-    buf.appendIndent(indent).append("}").appendLineSeparator();
+    buf.appendIndent(indent).appendPunctuation("}").appendLineSeparator();
 
     buffer.append(buf);
     return true;
@@ -235,7 +234,7 @@ public record KConstructor(
 
     if (CLASS_KIND.get(classFlags) != ProtoBuf.Class.Kind.OBJECT && CLASS_KIND.get(classFlags) != ProtoBuf.Class.Kind.COMPANION_OBJECT) {
       if (HAS_ANNOTATIONS.get(flags)) {
-        buf.append(" ");
+        buf.appendWhitespace(" ");
         // -1 for indent indicates inline
         KotlinWriter.appendAnnotations(buf, -1, methodStruct, TypeAnnotation.METHOD_RETURN_TYPE);
         KotlinWriter.appendJvmAnnotations(buf, -1, methodStruct, false, false, classStruct.getPool(), TypeAnnotation.METHOD_RETURN_TYPE);
@@ -246,22 +245,22 @@ public record KConstructor(
       if ((VISIBILITY.get(flags) != ProtoBuf.Visibility.PUBLIC || (appended && DecompilerContext.getOption(KotlinOptions.SHOW_PUBLIC_VISIBILITY))) &&
         CLASS_KIND.get(classFlags) != ProtoBuf.Class.Kind.ENUM_CLASS // Enum allConstructors are always private implicitly
       ) {
-        buf.append(" ");
+        buf.appendWhitespace(" ");
         KUtils.appendVisibility(buf, VISIBILITY.get(flags));
         appended = true;
       }
 
       if (appended) {
-        buf.append("constructor");
+        buf.appendKeyword("constructor");
       }
 
       if (parameters.length > 0 || appended) {
-        buf.append("(").pushNewlineGroup(indent, 1);
+        buf.appendPunctuation("(").pushNewlineGroup(indent, 1);
 
         boolean first = true;
         for (KParameter parameter : parameters) {
           if (!first) {
-            buf.append(",").appendPossibleNewline(" ");
+            buf.appendPunctuation(",").appendPossibleNewline(" ");
           }
 
           first = false;
@@ -273,7 +272,7 @@ public record KConstructor(
           }
         }
 
-        buf.appendPossibleNewline("", true).popNewlineGroup().append(")");
+        buf.appendPossibleNewline("", true).popNewlineGroup().appendPunctuation(")");
       }
     }
 
@@ -301,15 +300,15 @@ public record KConstructor(
 
     ImportCollector imports = DecompilerContext.getImportCollector();
     String superClass = imports.getShortName(invocation.getClassname().replace('/', '.'));
-    buf.append(" : ");
+    buf.appendWhitespace(" ").appendPunctuation(":").appendWhitespace(" ");
 
     // replace "super" with the actual class name
-    buf.append(superClass).append('(');
+    buf.appendTypeName(superClass, new VarType(invocation.getClassname(), true)).appendPunctuation('(');
 
     KUtils.removeArguments(invocation, DEFAULT_CONSTRUCTOR_MARKER);
 
     buf.append(invocation.appendParamList(indent + 1));
-    buf.append(")");
+    buf.appendPunctuation(")");
 
     buf.addBytecodeMapping(invocation.bytecode);
 

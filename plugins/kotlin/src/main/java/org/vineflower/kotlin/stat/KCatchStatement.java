@@ -3,16 +3,10 @@ package org.vineflower.kotlin.stat;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
-import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.CatchStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
-import org.jetbrains.java.decompiler.struct.gen.CodeType;
-import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
-
-import java.util.List;
 
 public class KCatchStatement extends CatchStatement {
   public KCatchStatement(CatchStatement statement) {
@@ -44,21 +38,31 @@ public class KCatchStatement extends CatchStatement {
     buf.append(ExprProcessor.listToJava(varDefinitions, indent));
 
     if (isLabeled()) {
-      buf.appendIndent(indent).append("label").append(id).append("@ ");
+      buf.appendIndent(indent);
+      appendLabel(buf, -1);
+      buf.appendPunctuation("@").appendWhitespace(" ");
     }
 
-    buf.appendIndent(indent++).append("try {").appendLineSeparator();
+    buf.appendIndent(indent++).appendKeyword("try").appendWhitespace(" ").appendPunctuation("{").appendLineSeparator();
 
     for (Exprent resource : getResources()) {
-      buf.append(indent++).append(resource.toJava(indent)).append(".use {").appendLineSeparator();
+      buf.appendIndent(indent)
+        .append(resource.toJava(indent))
+        .appendPunctuation(".")
+        .appendMethod("use", false, "kotlin/jdk7/AutoCloseableKt", "use", "(Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;")
+        .appendWhitespace(" ")
+        .appendPunctuation("{")
+        .appendLineSeparator();
+
+      indent++;
     }
 
     buf.append(ExprProcessor.jmpWrapper(first, indent, false));
 
-    buf.appendIndent(--indent).append("}");
+    buf.appendIndent(--indent).appendPunctuation("}");
     for (Exprent ignored : getResources()) {
       buf.appendLineSeparator();
-      buf.appendIndent(--indent).append("}");
+      buf.appendIndent(--indent).appendPunctuation("}");
     }
 
     for (int i = 1; i < stats.size(); i++) {
@@ -70,11 +74,11 @@ public class KCatchStatement extends CatchStatement {
         if (offset > -1) buf.addBytecodeMapping(offset);
       }
 
-      buf.append(" catch (");
+      buf.appendWhitespace(" ").appendKeyword("catch").appendWhitespace(" ").appendPunctuation("(");
       buf.append(getVars().get(i - 1).toJava(indent));
-      buf.append(") {").appendLineSeparator();
+      buf.appendPunctuation(")").appendWhitespace(" ").appendPunctuation("{").appendLineSeparator();
       buf.append(stat.toJava(indent + 1));
-      buf.appendIndent(indent).append("}");
+      buf.appendIndent(indent).appendPunctuation("}");
     }
 
     buf.appendLineSeparator();

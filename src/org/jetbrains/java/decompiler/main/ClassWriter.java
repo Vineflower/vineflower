@@ -1,8 +1,6 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.main;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import net.fabricmc.fernflower.api.FabricJavadocStyle;
 import net.fabricmc.fernflower.api.IFabricJavadocProvider;
 import org.jetbrains.java.decompiler.api.java.JavaPassLocation;
@@ -44,9 +42,11 @@ import org.jetbrains.java.decompiler.struct.gen.generics.GenericMethodDescriptor
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericsChecker;
 import org.jetbrains.java.decompiler.util.*;
 import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
+import org.jetbrains.java.decompiler.util.token.TokenType;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 public class ClassWriter implements StatementWriter {
@@ -75,12 +75,12 @@ public class ClassWriter implements StatementWriter {
   private static boolean invokeProcessors(TextBuffer buffer, ClassNode node) {
     ClassWrapper wrapper = node.getWrapper();
     if (wrapper == null) {
-      buffer.append("/* $VF: Couldn't be decompiled. Class " + node.classStruct.qualifiedName + " wasn't processed yet! */");
+      buffer.appendComment("/* $VF: Couldn't be decompiled. Class " + node.classStruct.qualifiedName + " wasn't processed yet! */");
       List<String> lines = new ArrayList<>();
       lines.addAll(ClassWriter.getErrorComment());
       for (String line : lines) {
-        buffer.append("//");
-        if (!line.isEmpty()) buffer.append(' ').append(line);
+        buffer.appendComment("//");
+        if (!line.isEmpty()) buffer.appendWhitespace(" ").appendComment(line);
         buffer.appendLineSeparator();
       }
       return false; // Doesn't make sense! how is this null? referencing an anonymous class in another object?
@@ -160,15 +160,15 @@ public class ClassWriter implements StatementWriter {
   }
 
   public static void writeException(TextBuffer buffer, Throwable t) {
-    buffer.append("// $VF: Couldn't be decompiled");
+    buffer.appendComment("// $VF: Couldn't be decompiled");
     buffer.appendLineSeparator();
     if (DecompilerContext.getOption(IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR)) {
       List<String> lines = new ArrayList<>();
       lines.addAll(ClassWriter.getErrorComment());
       collectErrorLines(t, lines);
       for (String line : lines) {
-        buffer.append("//");
-        if (!line.isEmpty()) buffer.append(' ').append(line);
+        buffer.appendComment("//");
+        if (!line.isEmpty()) buffer.appendWhitespace(" ").appendComment(line);
         buffer.appendLineSeparator();
       }
     }
@@ -197,7 +197,7 @@ public class ClassWriter implements StatementWriter {
           TextBuffer instance = method_object.toJava(indent);
           // If the instance is casted, then we need to wrap it
           if (method_object instanceof FunctionExprent && ((FunctionExprent)method_object).getFuncType() == FunctionType.CAST && ((FunctionExprent)method_object).doesCast()) {
-            buffer.append('(').append(instance).append(')');
+            buffer.appendPunctuation('(').append(instance).appendPunctuation(')');
           }
           else {
             buffer.append(instance);
@@ -208,7 +208,7 @@ public class ClassWriter implements StatementWriter {
           buffer.appendCastTypeName(new VarType(node.lambdaInformation.content_class_name, true));
         }
 
-        buffer.append("::")
+        buffer.appendOperator("::")
           .appendMethod(CodeConstants.INIT_NAME.equals(node.lambdaInformation.content_method_name) ? "new" : node.lambdaInformation.content_method_name,
             false, node.lambdaInformation.content_class_name, node.lambdaInformation.content_method_name, node.lambdaInformation.content_method_descriptor);
       }
@@ -225,10 +225,10 @@ public class ClassWriter implements StatementWriter {
         if (!lambdaToAnonymous) {
           RootStatement root = wrapper.getMethodWrapper(mt.getName(), mt.getDescriptor()).root;
           if (DecompilerContext.getOption(IFernflowerPreferences.MARK_CORRESPONDING_SYNTHETICS)) {
-            buffer.append("/* ")
+            buffer.appendComment("/* ")
               .appendMethod(node.lambdaInformation.content_method_name,
                 true, node.lambdaInformation.content_class_name, node.lambdaInformation.content_method_name, node.lambdaInformation.content_method_descriptor)
-              .append(" */ ");
+              .appendComment(" */ ");
           }
           // Array constructor lambda
           if (md_lambda.params.length == 1 && md_lambda.params[0].equals(VarType.VARTYPE_INT) && md_lambda.ret.arrayDim > 0) {
@@ -246,7 +246,7 @@ public class ClassWriter implements StatementWriter {
                       if (sizeVar.getIndex() == (node.lambdaInformation.is_content_method_static ? 0 : 1)) {
                         VarType returnType = md_lambda.ret;
                         buffer.appendCastTypeName(returnType);
-                        buffer.append("::new");
+                        buffer.appendOperator("::new");
                         written = true;
                       }
                     }
@@ -257,22 +257,22 @@ public class ClassWriter implements StatementWriter {
           }
           if (!written) {
             boolean lambdaParametersNeedParentheses = md_lambda.params.length != 1;
-  
+
             if (lambdaParametersNeedParentheses) {
-              buffer.append('(');
+              buffer.appendPunctuation('(');
             }
-  
+
             boolean firstParameter = true;
             int index = node.lambdaInformation.is_content_method_static ? 0 : 1;
             int start_index = md_content.params.length - md_lambda.params.length;
-  
+
             for (int i = 0; i < md_content.params.length; i++) {
               if (i >= start_index) {
                 if (!firstParameter) {
-                  buffer.append(", ");
+                  buffer.appendPunctuation(',').appendWhitespace(" ");
                 }
                 VarType type = md_content.params[i];
-  
+
                 String clashingName = methodWrapper.varproc.getClashingName(new VarVersionPair(index, 0));
                 String parameterName = methodWrapper.varproc.getVarName(new VarVersionPair(index, 0));
                 if (parameterName == null) {
@@ -284,17 +284,17 @@ public class ClassWriter implements StatementWriter {
                 }
                 parameterName = methodWrapper.methodStruct.getVariableNamer().renameParameter(mt.getAccessFlags(), type, parameterName, index);
                 buffer.appendVariable(parameterName, true, true, node.lambdaInformation.content_class_name, node.lambdaInformation.content_method_name, md_content, index, parameterName);
-  
+
                 firstParameter = false;
               }
-  
+
               index += md_content.params[i].stackSize;
             }
-  
+
             if (lambdaParametersNeedParentheses) {
-              buffer.append(")");
+              buffer.appendPunctuation(')');
             }
-            buffer.append(" ->");
+            buffer.appendWhitespace(" ").appendOperator("->");
   
             if (DecompilerContext.getOption(IFernflowerPreferences.INLINE_SIMPLE_LAMBDAS) && methodWrapper.decompileError == null && root != null) {
               Statement firstStat = root.getFirst();
@@ -330,14 +330,14 @@ public class ClassWriter implements StatementWriter {
                       IFernflowerLogger.Severity.WARN,
                       ex);
                     methodWrapper.decompileError = ex;
-                    buffer.append(" // $VF: Couldn't be decompiled");
+                    buffer.appendComment(" // $VF: Couldn't be decompiled");
                   }
                   finally {
                     DecompilerContext.setProperty(DecompilerContext.CURRENT_METHOD_WRAPPER, outerWrapper);
                   }
                 }
               } else if (firstStat instanceof BasicBlockStatement && firstStat.getExprents() != null && firstStat.getExprents().isEmpty()) {
-                buffer.append(" {}");
+                buffer.appendWhitespace(" ").appendPunctuation('{').appendPunctuation('}');
                 simpleLambda = true;
               }
             }
@@ -345,11 +345,11 @@ public class ClassWriter implements StatementWriter {
         }
 
         if ((!simpleLambda && !written) || lambdaToAnonymous) {
-          buffer.append(" {").appendLineSeparator();
+          buffer.appendWhitespace(" ").appendPunctuation('{').appendLineSeparator();
 
           methodLambdaToJava(node, wrapper, mt, buffer, indent + 1, !lambdaToAnonymous);
 
-          buffer.appendIndent(indent).append("}");
+          buffer.appendIndent(indent).appendPunctuation('}');
         }
       }
     }
@@ -363,8 +363,8 @@ public class ClassWriter implements StatementWriter {
   public void writeClassHeader(StructClass cl, TextBuffer buffer, ImportCollector importCollector) {
     int index = cl.qualifiedName.lastIndexOf('/');
     if (index >= 0) {
-      String packageName = cl.qualifiedName.substring(0, index).replace('/', '.');
-      buffer.append("package ").append(packageName).append(';').appendLineSeparator().appendLineSeparator();
+      String pkg = cl.qualifiedName.substring(0, index);
+      buffer.appendKeyword("package").appendWhitespace(" ").appendClass(pkg.replace('/', '.'), false, pkg + "/package-info").appendPunctuation(';').appendLineSeparator().appendLineSeparator();
     }
 
     importCollector.writeImports(buffer, true);
@@ -397,7 +397,7 @@ public class ClassWriter implements StatementWriter {
 
           buffer
             .appendIndent(indent)
-            .append("// $VF: Compiled from " + sourceFile)
+            .appendComment("// $VF: Compiled from " + sourceFile)
             .appendLineSeparator();
         }
       }
@@ -439,7 +439,7 @@ public class ClassWriter implements StatementWriter {
         boolean enums = false;
         for (StructField fd : enumFields) {
           if (enums) {
-            buffer.append(',').appendLineSeparator();
+            buffer.appendPunctuation(',').appendLineSeparator();
           }
           enums = true;
 
@@ -448,7 +448,7 @@ public class ClassWriter implements StatementWriter {
         }
 
         if (enums) {
-          buffer.append(';').appendLineSeparator();
+          buffer.appendPunctuation(';').appendLineSeparator();
         }
 
         for (StructField fd : nonEnumFields) {
@@ -527,7 +527,7 @@ public class ClassWriter implements StatementWriter {
         // Skip indent for anonymous classes with no content, since we also skipped the newline in the cls definition
         buffer.appendIndent(indent);
       }
-      buffer.append('}');
+      buffer.appendPunctuation('}');
 
       if (node.type != ClassNode.Type.ANONYMOUS) {
         buffer.appendLineSeparator();
@@ -543,9 +543,10 @@ public class ClassWriter implements StatementWriter {
   public static void packageInfoToJava(StructClass cl, TextBuffer buffer) {
     appendAnnotations(buffer, 0, cl, -1);
 
-    int index = cl.qualifiedName.lastIndexOf('/');
-    String packageName = cl.qualifiedName.substring(0, index).replace('/', '.');
-    buffer.append("package ").append(packageName).append(';').appendLineSeparator().appendLineSeparator();
+    String fullName = cl.qualifiedName;
+    int index = fullName.lastIndexOf('/');
+    String packageName = fullName.substring(0, index).replace('/', '.');
+    buffer.appendKeyword("package").appendWhitespace(" ").appendClass(packageName, true, fullName).appendPunctuation(';').appendLineSeparator().appendLineSeparator();
   }
 
   public static void moduleInfoToJava(StructClass cl, TextBuffer buffer) {
@@ -554,14 +555,14 @@ public class ClassWriter implements StatementWriter {
     StructModuleAttribute moduleAttribute = cl.getAttribute(StructGeneralAttribute.ATTRIBUTE_MODULE);
 
     if ((moduleAttribute.moduleFlags & CodeConstants.ACC_OPEN) != 0) {
-      buffer.append("open ");
+      buffer.appendKeyword("open").appendWhitespace(" ");
     }
 
-    buffer.append("module ").append(moduleAttribute.moduleName).append(" {").appendLineSeparator();
+    buffer.appendKeyword("module").appendWhitespace(" ").append(moduleAttribute.moduleName, TokenType.CLASS).appendWhitespace(" ").appendPunctuation('{').appendLineSeparator();
 
     writeModuleInfoBody(buffer, moduleAttribute);
 
-    buffer.append('}').appendLineSeparator();
+    buffer.appendPunctuation('}').appendLineSeparator();
   }
 
   private static void writeModuleInfoBody(TextBuffer buffer, StructModuleAttribute moduleAttribute) {
@@ -571,14 +572,14 @@ public class ClassWriter implements StatementWriter {
     if (!requiresEntries.isEmpty()) {
       for (StructModuleAttribute.RequiresEntry requires : requiresEntries) {
         if (!isGenerated(requires.flags)) {
-          buffer.appendIndent(1).append("requires ");
+          buffer.appendIndent(1).appendKeyword("requires").appendWhitespace(" ");
           if ((requires.flags & CodeConstants.ACC_TRANSITIVE) != 0) {
-            buffer.append("transitive ");
+            buffer.appendKeyword("transitive").appendWhitespace(" ");
           }
           if ((requires.flags & CodeConstants.ACC_STATIC_PHASE) != 0) {
-            buffer.append("static ");
+            buffer.appendKeyword("static").appendWhitespace(" ");
           }
-          buffer.append(requires.moduleName.replace('/', '.')).append(';').appendLineSeparator();
+          buffer.append(requires.moduleName.replace('/', '.'), TokenType.CLASS).appendPunctuation(';').appendLineSeparator();
           newLineNeeded = true;
         }
       }
@@ -589,13 +590,13 @@ public class ClassWriter implements StatementWriter {
       if (newLineNeeded) buffer.appendLineSeparator();
       for (StructModuleAttribute.ExportsEntry exports : exportsEntries) {
         if (!isGenerated(exports.flags)) {
-          buffer.appendIndent(1).append("exports ").append(exports.packageName.replace('/', '.'));
+          buffer.appendIndent(1).appendKeyword("exports").appendWhitespace(" ").appendClass(exports.packageName.replace('/', '.'), false, exports.packageName + "/package-info");
           List<String> exportToModules = exports.exportToModules;
           if (exportToModules.size() > 0) {
-            buffer.append(" to").appendLineSeparator();
-            appendFQClassNames(buffer, exportToModules);
+            buffer.appendWhitespace(" ").appendKeyword("to").appendLineSeparator();
+            appendModules(buffer, exportToModules);
           }
-          buffer.append(';').appendLineSeparator();
+          buffer.appendPunctuation(';').appendLineSeparator();
           newLineNeeded = true;
         }
       }
@@ -606,13 +607,13 @@ public class ClassWriter implements StatementWriter {
       if (newLineNeeded) buffer.appendLineSeparator();
       for (StructModuleAttribute.OpensEntry opens : opensEntries) {
         if (!isGenerated(opens.flags)) {
-          buffer.appendIndent(1).append("opens ").append(opens.packageName.replace('/', '.'));
+          buffer.appendIndent(1).appendKeyword("opens").appendWhitespace(" ").appendClass(opens.packageName.replace('/', '.'), false, opens.packageName + "/package-info");
           List<String> opensToModules = opens.opensToModules;
           if (opensToModules.size() > 0) {
-            buffer.append(" to").appendLineSeparator();
-            appendFQClassNames(buffer, opensToModules);
+            buffer.appendWhitespace(" ").appendKeyword("to").appendLineSeparator();
+            appendModules(buffer, opensToModules);
           }
-          buffer.append(';').appendLineSeparator();
+          buffer.appendPunctuation(';').appendLineSeparator();
           newLineNeeded = true;
         }
       }
@@ -622,7 +623,7 @@ public class ClassWriter implements StatementWriter {
     if (!usesEntries.isEmpty()) {
       if (newLineNeeded) buffer.appendLineSeparator();
       for (String uses : usesEntries) {
-        buffer.appendIndent(1).append("uses ").append(ExprProcessor.buildJavaClassName(uses)).append(';').appendLineSeparator();
+        buffer.appendIndent(1).appendKeyword("uses").appendWhitespace(" ").appendClass(ExprProcessor.buildJavaClassName(uses), false, uses).appendPunctuation(';').appendLineSeparator();
       }
       newLineNeeded = true;
     }
@@ -631,9 +632,16 @@ public class ClassWriter implements StatementWriter {
     if (!providesEntries.isEmpty()) {
       if (newLineNeeded) buffer.appendLineSeparator();
       for (StructModuleAttribute.ProvidesEntry provides : providesEntries) {
-        buffer.appendIndent(1).append("provides ").append(ExprProcessor.buildJavaClassName(provides.interfaceName)).append(" with").appendLineSeparator();
-        appendFQClassNames(buffer, provides.implementationNames.stream().map(ExprProcessor::buildJavaClassName).collect(Collectors.toList()));
-        buffer.append(';').appendLineSeparator();
+        buffer.appendIndent(1).appendKeyword("provides").appendWhitespace(" ").appendClass(ExprProcessor.buildJavaClassName(provides.interfaceName), false, provides.interfaceName).appendWhitespace(" ").appendKeyword("with").appendLineSeparator();
+        List<String> implementationNames = provides.implementationNames;
+        for (int i = 0; i < implementationNames.size(); i++) {
+          String implementationName = implementationNames.get(i);
+          buffer.appendIndent(2).appendClass(ExprProcessor.buildJavaClassName(implementationName), false, implementationName);
+          if (i < implementationNames.size() - 1) {
+            buffer.appendPunctuation(',').appendLineSeparator();
+          }
+        }
+        buffer.appendPunctuation(';').appendLineSeparator();
       }
     }
   }
@@ -651,7 +659,7 @@ public class ClassWriter implements StatementWriter {
       if (markSynthetics) {
         appendSyntheticClassComment(cl, buffer);
       }
-      buffer.append(" {");
+      buffer.appendWhitespace(" ").appendPunctuation('{');
       // Omit trailing newline, will be added by the caller if there is any content in the class
       return;
     }
@@ -723,34 +731,31 @@ public class ClassWriter implements StatementWriter {
     appendModifiers(buffer, flags, CLASS_ALLOWED, isInterface, CLASS_EXCLUDED);
 
     if (!isEnum && isSealed) {
-      buffer.append("sealed ");
+      buffer.appendKeyword("sealed").appendWhitespace(" ");
     } else if (isNonSealed) {
-      buffer.append("non-sealed ");
+      buffer.appendKeyword("non-sealed").appendWhitespace(" ");
     }
     if (isEnum) {
-      buffer.append("enum ");
+      buffer.appendKeyword("enum").appendWhitespace(" ");
     }
     else if (isInterface) {
-      if (isAnnotation) {
-        buffer.append('@');
-      }
-      buffer.append("interface ");
+      buffer.appendKeyword(isAnnotation ? "@interface" : "interface").appendWhitespace(" ");
     }
     else if (isModuleInfo) {
       StructModuleAttribute moduleAttribute = cl.getAttribute(StructGeneralAttribute.ATTRIBUTE_MODULE);
 
       if ((moduleAttribute.moduleFlags & CodeConstants.ACC_OPEN) != 0) {
-        buffer.append("open ");
+        buffer.appendKeyword("open").appendWhitespace(" ");
       }
 
-      buffer.append("module ");
-      buffer.append(moduleAttribute.moduleName);
+      buffer.appendKeyword("module").appendWhitespace(" ");
+      buffer.appendModule(moduleAttribute.moduleName, true);
     }
     else if (components != null) {
-      buffer.append("record ");
+      buffer.appendKeyword("record").appendWhitespace(" ");
     }
     else {
-      buffer.append("class ");
+      buffer.appendKeyword("class").appendWhitespace(" ");
     }
     buffer.appendClass(node.simpleName, true, cl.qualifiedName);
 
@@ -765,13 +770,13 @@ public class ClassWriter implements StatementWriter {
     }
 
     if (descriptor != null && !descriptor.fparameters.isEmpty()) {
-      appendTypeParameters(buffer, descriptor.fparameters, descriptor.fbounds);
+      appendTypeParameters(buffer, cl.qualifiedName, null, null, descriptor.fparameters, descriptor.fbounds);
     }
 
     if (components != null) {
-      buffer.append('(');
+      buffer.appendPunctuation('(');
       RecordHelper.appendRecordComponents(buffer, cl, components, indent);
-      buffer.append(')');
+      buffer.appendPunctuation(')');
     }
 
     buffer.pushNewlineGroup(indent, 1);
@@ -780,7 +785,7 @@ public class ClassWriter implements StatementWriter {
       VarType supertype = new VarType(cl.superClass.getString(), true);
       if (!VarType.VARTYPE_OBJECT.equals(supertype)) {
         buffer.appendPossibleNewline(" ");
-        buffer.append("extends ");
+        buffer.appendKeyword("extends").appendWhitespace(" ");
         buffer.appendCastTypeName(descriptor == null ? supertype : descriptor.superclass);
       }
     }
@@ -789,10 +794,10 @@ public class ClassWriter implements StatementWriter {
       int[] interfaces = cl.getInterfaces();
       if (interfaces.length > 0) {
         buffer.appendPossibleNewline(" ");
-        buffer.append(isInterface ? "extends " : "implements ");
+        buffer.appendKeyword(isInterface ? "extends" : "implements").appendWhitespace(" ");
         for (int i = 0; i < interfaces.length; i++) {
           if (i > 0) {
-            buffer.append(",");
+            buffer.appendPunctuation(",");
             buffer.appendPossibleNewline(" ");
           }
 
@@ -805,10 +810,10 @@ public class ClassWriter implements StatementWriter {
 
     if (!isEnum && isSealed) {
       buffer.appendPossibleNewline(" ");
-      buffer.append("permits ");
+      buffer.appendKeyword("permits").appendWhitespace(" ");
       for (int i = 0; i < permittedSubClasses.size(); i++) {
         if (i > 0) {
-          buffer.append(",");
+          buffer.appendPunctuation(",");
           buffer.appendPossibleNewline(" ");
         }
         buffer.appendCastTypeName(new VarType(permittedSubClasses.get(i), true));
@@ -821,7 +826,7 @@ public class ClassWriter implements StatementWriter {
       appendSyntheticClassComment(cl, buffer);
     }
 
-    buffer.append(" {").appendLineSeparator();
+    buffer.appendWhitespace(" ").appendPunctuation('{').appendLineSeparator();
   }
 
   private static boolean isSuperClassSealed(StructClass cl) {
@@ -906,7 +911,7 @@ public class ClassWriter implements StatementWriter {
         buffer.appendCastTypeName(descriptor == null ? fieldType : descriptor.type);
       }
 
-      buffer.append(' ');
+      buffer.appendWhitespace(" ");
     }
 
     buffer.appendField(name, true, cl.qualifiedName, name, fd.getDescriptor());
@@ -926,7 +931,7 @@ public class ClassWriter implements StatementWriter {
         buffer.append(expr.toJava(indent));
       }
       else {
-        buffer.append(" = ");
+        buffer.appendWhitespace(" ").appendOperator("=").appendWhitespace(" ");
 
         if (initializer instanceof ConstExprent) {
           ((ConstExprent) initializer).adjustConstType(fieldType);
@@ -940,13 +945,13 @@ public class ClassWriter implements StatementWriter {
       StructConstantValueAttribute attr = fd.getAttribute(StructGeneralAttribute.ATTRIBUTE_CONSTANT_VALUE);
       if (attr != null) {
         PrimitiveConstant constant = cl.getPool().getPrimitiveConstant(attr.getIndex());
-        buffer.append(" = ");
+        buffer.appendWhitespace(" ").appendOperator("=").appendWhitespace(" ");
         buffer.append(new ConstExprent(fieldType, constant.value, null).toJava(indent));
       }
     }
 
     if (!isEnum) {
-      buffer.append(";").appendLineSeparator();
+      buffer.appendPunctuation(";").appendLineSeparator();
     }
   }
 
@@ -968,9 +973,9 @@ public class ClassWriter implements StatementWriter {
 
       if (!codeOnly) {
         buffer.appendIndent(indent);
-        buffer.append("public ");
-        buffer.append(method_name);
-        buffer.append("(");
+        buffer.appendKeyword("public").appendWhitespace(" ");
+        buffer.appendMethod(method_name, true, classWrapper.getClassStruct().qualifiedName, method_name, md_content.toString());
+        buffer.appendPunctuation("(");
 
         boolean firstParameter = true;
         int index = lambdaNode.lambdaInformation.is_content_method_static ? 0 : 1;
@@ -979,7 +984,7 @@ public class ClassWriter implements StatementWriter {
         for (int i = 0; i < md_content.params.length; i++) {
           if (i >= start_index) {
             if (!firstParameter) {
-              buffer.append(", ");
+              buffer.appendPunctuation(',').appendWhitespace(" ");
             }
 
             VarType type = md_content.params[i];
@@ -990,7 +995,7 @@ public class ClassWriter implements StatementWriter {
             }
 
             buffer.appendCastTypeName(typeName, type);
-            buffer.append(" ");
+            buffer.appendWhitespace(" ");
 
             String parameterName = methodWrapper.varproc.getVarName(new VarVersionPair(index, 0));
             if (parameterName == null) {
@@ -1005,7 +1010,7 @@ public class ClassWriter implements StatementWriter {
           index += md_content.params[i].stackSize;
         }
 
-        buffer.append(") {").appendLineSeparator();
+        buffer.appendPunctuation(')').appendWhitespace(" ").appendPunctuation('{').appendLineSeparator();
 
         indent += 1;
       }
@@ -1035,7 +1040,7 @@ public class ClassWriter implements StatementWriter {
 
       if (!codeOnly) {
         indent -= 1;
-        buffer.appendIndent(indent).append('}').appendLineSeparator();
+        buffer.appendIndent(indent).appendPunctuation('}').appendLineSeparator();
       }
     }
     finally {
@@ -1053,7 +1058,7 @@ public class ClassWriter implements StatementWriter {
       if ((i == 0 && !Character.isJavaIdentifierStart(c))
           || (i > 0 && !Character.isJavaIdentifierPart(c))) {
         changed = true;
-        res.append("_");
+        res.append('_');
       }
       else {
         res.append(c);
@@ -1130,7 +1135,7 @@ public class ClassWriter implements StatementWriter {
         }
 
         for (String s : methodWrapper.commentLines) {
-          buffer.appendIndent(indent).append("// " + s).appendLineSeparator();
+          buffer.appendIndent(indent).appendComment("// " + s).appendLineSeparator();
         }
       }
 
@@ -1159,7 +1164,7 @@ public class ClassWriter implements StatementWriter {
 
         if (isOverride && !alreadyHasOverride) {
           buffer.appendIndent(indent);
-          buffer.append("@Override");
+          buffer.appendAnnotation(new TextBuffer().appendPunctuation("@").appendClass("Override", false, "java/lang/Override"));
           buffer.appendLineSeparator();
         }
       }
@@ -1190,7 +1195,7 @@ public class ClassWriter implements StatementWriter {
 
       if (isInterface && !mt.hasModifier(CodeConstants.ACC_STATIC) && mt.containsCode() && (flags & CodeConstants.ACC_PRIVATE) == 0) {
         // 'default' modifier (Java 8)
-        buffer.append("default ");
+        buffer.appendKeyword("default").appendWhitespace(" ");
       }
 
       GenericMethodDescriptor descriptor = md.genericInfo;
@@ -1280,8 +1285,8 @@ public class ClassWriter implements StatementWriter {
         boolean thisVar = !mt.hasModifier(CodeConstants.ACC_STATIC);
 
         if (descriptor != null && !descriptor.typeParameters.isEmpty()) {
-          appendTypeParameters(buffer, descriptor.typeParameters, descriptor.typeParameterBounds);
-          buffer.append(' ');
+          appendTypeParameters(buffer, cl.qualifiedName, name, mt.getDescriptor(), descriptor.typeParameters, descriptor.typeParameterBounds);
+          buffer.appendWhitespace(" ");
         }
 
         if (!init) {
@@ -1291,13 +1296,13 @@ public class ClassWriter implements StatementWriter {
           } else {
             buffer.appendCastTypeName(descriptor == null ? md.ret : descriptor.returnType);
           }
-          buffer.append(' ');
+          buffer.appendWhitespace(" ");
         }
 
         String validName = toValidJavaIdentifier(name);
         buffer.appendMethod(validName, true, cl.qualifiedName, mt.getName(), md);
         if (!validName.equals(name)) {
-          buffer.append("/* $VF was: ").append(name).append(" */");
+          buffer.appendComment("/* $VF was: " + name + " */");
         }
 
         if (!methodWrapper.isCompactRecordConstructor) {
@@ -1307,12 +1312,12 @@ public class ClassWriter implements StatementWriter {
         StructExceptionsAttribute attr = mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_EXCEPTIONS);
         if ((descriptor != null && !descriptor.exceptionTypes.isEmpty()) || attr != null) {
           throwsExceptions = true;
-          buffer.append(" throws ");
+          buffer.appendWhitespace(" ").appendKeyword("throws").appendWhitespace(" ");
 
           boolean useDescriptor = descriptor != null && !descriptor.exceptionTypes.isEmpty();
           for (int i = 0; i < (attr == null ? descriptor.exceptionTypes.size() : attr.getThrowsExceptions().size()); i++) {
             if (i > 0) {
-              buffer.append(", ");
+              buffer.appendPunctuation(',').appendWhitespace(" ");
             }
             VarType type = useDescriptor ? descriptor.exceptionTypes.get(i) : new VarType(attr.getExcClassname(i, cl.getPool()), true);
             buffer.appendCastTypeName(type);
@@ -1324,21 +1329,21 @@ public class ClassWriter implements StatementWriter {
         if (isAnnotation) {
           StructAnnDefaultAttribute attr = mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_ANNOTATION_DEFAULT);
           if (attr != null) {
-            buffer.append(" default ");
+            buffer.appendWhitespace(" ").appendKeyword("default").appendWhitespace(" ");
             buffer.append(attr.getDefaultValue().toJava(0));
           }
         }
 
-        buffer.append(';');
+        buffer.appendPunctuation(';');
         buffer.appendLineSeparator();
       }
       else {
         if (!clInit && !dInit) {
-          buffer.append(' ');
+          buffer.appendWhitespace(" ");
         }
 
         // We do not have line information for method start, lets have it here for now
-        buffer.append('{').appendLineSeparator();
+        buffer.appendPunctuation('{').appendLineSeparator();
 
         RootStatement root = methodWrapper.root;
 
@@ -1367,7 +1372,7 @@ public class ClassWriter implements StatementWriter {
         if (methodWrapper.decompileError != null) {
           dumpError(buffer, methodWrapper, indent + 1);
         }
-        buffer.appendIndent(indent).append('}').appendLineSeparator();
+        buffer.appendIndent(indent).appendPunctuation('}').appendLineSeparator();
       }
     }
     finally {
@@ -1382,7 +1387,7 @@ public class ClassWriter implements StatementWriter {
   }
 
   private static int writeMethodParameterHeader(StructMethod mt, TextBuffer buffer, int indent, MethodWrapper methodWrapper, MethodDescriptor md, boolean isEnum, boolean init, boolean thisVar, GenericMethodDescriptor descriptor, int paramCount, boolean isInterface, int flags, StructClass cl) {
-    buffer.append('(');
+    buffer.appendPunctuation('(');
 
     List<VarVersionPair> mask = methodWrapper.synthParameters;
 
@@ -1418,7 +1423,7 @@ public class ClassWriter implements StatementWriter {
       VarType parameterType = real && hasDescriptor && paramCount < descriptor.parameterTypes.size() ? descriptor.parameterTypes.get(paramCount) : md.params[i];
       if (real) {
         if (paramCount > 0) {
-          buffer.append(",");
+          buffer.appendPunctuation(",");
           buffer.appendPossibleNewline(" ");
         }
 
@@ -1428,7 +1433,7 @@ public class ClassWriter implements StatementWriter {
           appendModifiers(buffer, methodParameters.get(i).myAccessFlags, CodeConstants.ACC_FINAL, isInterface, 0);
         }
         else if (methodWrapper.varproc.getVarFinal(new VarVersionPair(index, 0)) == VarTypeProcessor.FinalType.EXPLICIT_FINAL) {
-          buffer.append("final ");
+          buffer.appendKeyword("final").appendWhitespace(" ");
         }
 
         String typeName;
@@ -1457,10 +1462,10 @@ public class ClassWriter implements StatementWriter {
         }
 
         if (isVarArg) {
-          buffer.append("...");
+          buffer.appendPunctuation("...");
         }
 
-        buffer.append(' ');
+        buffer.appendWhitespace(" ");
 
         String parameterName;
         String clashingName = methodWrapper.varproc.getClashingName(new VarVersionPair(index, 0));
@@ -1492,7 +1497,7 @@ public class ClassWriter implements StatementWriter {
       buffer.appendPossibleNewline("", true);
       buffer.popNewlineGroup();
     }
-    buffer.append(')');
+    buffer.appendPunctuation(')');
     return paramCount;
   }
 
@@ -1521,8 +1526,8 @@ public class ClassWriter implements StatementWriter {
     }
     for (String line : lines) {
       buffer.appendIndent(indent);
-      buffer.append("//");
-      if (!line.isEmpty()) buffer.append(' ').append(line);
+      buffer.appendComment("//");
+      if (!line.isEmpty()) buffer.appendWhitespace(" ").appendComment(line);
       buffer.appendLineSeparator();
     }
   }
@@ -1587,24 +1592,24 @@ public class ClassWriter implements StatementWriter {
       sb.append(TextUtil.getInstructionName(instr.opcode));
       switch (instr.group) {
         case CodeConstants.GROUP_INVOCATION: {
-          sb.append(' ');
+          sb.append(" ");
           if (instr.opcode == CodeConstants.opc_invokedynamic && bootstrap != null) {
             appendBootstrapCall(sb, pool.getLinkConstant(instr.operand(0)), bootstrap);
           } else {
             appendConstant(sb, pool.getConstant(instr.operand(0)));
           }
           for (int i = 1; i < instr.operandsCount(); i++) {
-            sb.append(' ').append(instr.operand(i));
+            sb.append(" ").append(instr.operand(i));
           }
           break;
         }
         case CodeConstants.GROUP_FIELDACCESS: {
-          sb.append(' ');
+          sb.append(" ");
           appendConstant(sb, pool.getConstant(instr.operand(0)));
           break;
         }
         case CodeConstants.GROUP_JUMP: {
-          sb.append(' ');
+          sb.append(" ");
           int dest = instr.startOffset + instr.operand(0);
           String destHex = Integer.toHexString(dest);
           for (int i = destHex.length(); i < digits; i++) sb.append('0');
@@ -1619,7 +1624,7 @@ public class ClassWriter implements StatementWriter {
             case CodeConstants.opc_ldc:
             case CodeConstants.opc_ldc_w:
             case CodeConstants.opc_ldc2_w: {
-              sb.append(' ');
+              sb.append(" ");
               PooledConstant constant = pool.getConstant(instr.operand(0));
               if (constant.type == CodeConstants.CONSTANT_Dynamic && bootstrap != null) {
                 appendBootstrapCall(sb, (LinkConstant) constant, bootstrap);
@@ -1630,7 +1635,7 @@ public class ClassWriter implements StatementWriter {
             }
             default: {
               for (int i = 0; i < instr.operandsCount(); i++) {
-                sb.append(' ').append(instr.operand(i));
+                sb.append(" ").append(instr.operand(i));
               }
             }
           }
@@ -1645,7 +1650,7 @@ public class ClassWriter implements StatementWriter {
   }
 
   private static void appendBootstrapCall(StringBuilder sb, LinkConstant target, StructBootstrapMethodsAttribute bootstrap) {
-    sb.append(target.elementname).append(' ').append(target.descriptor);
+    sb.append(target.elementname).append(" ").append(target.descriptor);
 
     LinkConstant bsm = bootstrap.getMethodReference(target.index1);
     List<PooledConstant> bsmArgs = bootstrap.getMethodArguments(target.index1);
@@ -1680,7 +1685,7 @@ public class ClassWriter implements StatementWriter {
       }
     } else if (constant instanceof LinkConstant) {
       LinkConstant linkConstant = (LinkConstant) constant;
-      sb.append(linkConstant.classname).append('.').append(linkConstant.elementname).append(' ').append(linkConstant.descriptor);
+      sb.append(linkConstant.classname).append('.').append(linkConstant.elementname).append(" ").append(linkConstant.descriptor);
     }
   }
 
@@ -1745,7 +1750,7 @@ public class ClassWriter implements StatementWriter {
   }
 
   private static void appendDeprecation(TextBuffer buffer, int indent) {
-    buffer.appendIndent(indent).append("/** @deprecated */").appendLineSeparator();
+    buffer.appendIndent(indent).appendComment("/** @deprecated */").appendLineSeparator();
   }
 
   private enum MType {CLASS, FIELD, METHOD}
@@ -1754,36 +1759,36 @@ public class ClassWriter implements StatementWriter {
     if (oldName == null) return;
 
     buffer.appendIndent(indent);
-    buffer.append("// $VF: renamed from: ");
+    buffer.appendComment("// $VF: renamed from: ");
 
     switch (type) {
       case CLASS:
-        buffer.append(ExprProcessor.buildJavaClassName(oldName));
+        buffer.appendComment(ExprProcessor.buildJavaClassName(oldName));
         break;
 
       case FIELD:
         String[] fParts = oldName.split(" ");
         FieldDescriptor fd = FieldDescriptor.parseDescriptor(fParts[2]);
-        buffer.append(fParts[1]);
-        buffer.append(' ');
-        buffer.append(getTypePrintOut(fd.type));
+        buffer.appendComment(fParts[1]);
+        buffer.appendWhitespace(" ");
+        buffer.appendComment(getTypePrintOut(fd.type));
         break;
 
       default:
         String[] mParts = oldName.split(" ");
         MethodDescriptor md = MethodDescriptor.parseDescriptor(mParts[2]);
-        buffer.append(mParts[1]);
-        buffer.append(" (");
+        buffer.appendComment(mParts[1]);
+        buffer.appendComment(" (");
         boolean first = true;
         for (VarType paramType : md.params) {
           if (!first) {
-            buffer.append(", ");
+            buffer.appendComment(", ");
           }
           first = false;
-          buffer.append(getTypePrintOut(paramType));
+          buffer.appendComment(getTypePrintOut(paramType));
         }
-        buffer.append(") ");
-        buffer.append(getTypePrintOut(md.ret));
+        buffer.appendComment(") ");
+        buffer.appendComment(getTypePrintOut(md.ret));
     }
 
     buffer.appendLineSeparator();
@@ -1803,22 +1808,22 @@ public class ClassWriter implements StatementWriter {
   }
 
   private static void appendComment(TextBuffer buffer, String comment, int indent) {
-    buffer.appendIndent(indent).append("// $VF: ").append(comment).appendLineSeparator();
+    buffer.appendIndent(indent).appendComment("// $VF: " + comment).appendLineSeparator();
   }
 
   private static void appendJavadoc(TextBuffer buffer, FabricJavadocStyle javadocStyle, String javaDoc, int indent) {
     if (javaDoc == null) return;
     switch (javadocStyle) {
       case HTML -> {
-        buffer.appendIndent(indent).append("/**").appendLineSeparator();
+        buffer.appendIndent(indent).appendComment("/**").appendLineSeparator();
         for (String s : javaDoc.split("\n")) {
-          buffer.appendIndent(indent).append(" * ").append(s).appendLineSeparator();
+          buffer.appendIndent(indent).appendComment(" * " + s).appendLineSeparator();
         }
-        buffer.appendIndent(indent).append(" */").appendLineSeparator();
+        buffer.appendIndent(indent).appendComment(" */").appendLineSeparator();
       }
       case MARKDOWN -> {
         for (String s : javaDoc.split("\n")) {
-          buffer.appendIndent(indent).append("/// ").append(s).appendLineSeparator();
+          buffer.appendIndent(indent).appendComment("/// " + s).appendLineSeparator();
         }
       }
     }
@@ -1826,7 +1831,7 @@ public class ClassWriter implements StatementWriter {
 
   public static void appendSyntheticClassComment(StructClass cl, TextBuffer buffer) {
     String className = cl.qualifiedName.substring(cl.qualifiedName.lastIndexOf("/") + 1);
-    buffer.append(" /* ").appendClass(className, true, cl.qualifiedName).append(" */");
+    buffer.appendWhitespace(" ").appendComment("/* ").appendClass(className, true, cl.qualifiedName).appendComment(" */");
   }
 
   public static final Key<?>[] ANNOTATION_ATTRIBUTES = {
@@ -1848,7 +1853,7 @@ public class ClassWriter implements StatementWriter {
           filter.add(annotation.toJava(-1).convertToStringAndAllowDataDiscard());
           buffer.append(annotation.toJava(indent));
           if (indent < 0) {
-            buffer.append(' ');
+            buffer.appendWhitespace(" ");
           }
           else {
             buffer.appendLineSeparator();
@@ -1923,7 +1928,7 @@ public class ClassWriter implements StatementWriter {
         if (param < annotations.size()) {
           for (AnnotationExprent annotation : annotations.get(param)) {
             filter.add(annotation.toJava(-1).convertToStringAndAllowDataDiscard());
-            buffer.append(annotation.toJava(-1)).append(' ');
+            buffer.append(annotation.toJava(-1)).appendWhitespace(" ");
           }
         }
       }
@@ -1942,7 +1947,7 @@ public class ClassWriter implements StatementWriter {
               buffer.appendIndent(indent);
               buffer.append(annotation.getAnnotation().toJava(indent));
               if (indent < 0) {
-                buffer.append(' ');
+                buffer.appendWhitespace(" ");
               }
               else {
                 buffer.appendLineSeparator();
@@ -2009,7 +2014,7 @@ public class ClassWriter implements StatementWriter {
     if (!isInterface) excluded = 0;
     for (int modifier : MODIFIERS.keySet()) {
       if ((flags & modifier) == modifier && (modifier & excluded) == 0) {
-        buffer.append(MODIFIERS.get(modifier)).append(' ');
+        buffer.appendKeyword(MODIFIERS.get(modifier)).appendWhitespace(" ");
       }
     }
   }
@@ -2018,36 +2023,36 @@ public class ClassWriter implements StatementWriter {
     return MODIFIERS.entrySet().stream().filter(e -> (e.getKey() & flags) != 0).map(Map.Entry::getValue).collect(Collectors.joining(" "));
   }
 
-  public static void appendTypeParameters(TextBuffer buffer, List<String> parameters, List<List<VarType>> bounds) {
-    buffer.append('<');
+  public static void appendTypeParameters(TextBuffer buffer, String className, String methodName, String methodDescriptor, List<String> parameters, List<List<VarType>> bounds) {
+    buffer.appendPunctuation('<');
 
     for (int i = 0; i < parameters.size(); i++) {
       if (i > 0) {
-        buffer.append(", ");
+        buffer.appendPunctuation(',').appendWhitespace(" ");
       }
 
-      buffer.append(parameters.get(i));
+      buffer.appendGeneric(parameters.get(i), true, className, methodName, methodDescriptor);
 
       List<VarType> parameterBounds = bounds.get(i);
       if (parameterBounds.size() > 1 || !"java/lang/Object".equals(parameterBounds.get(0).value)) {
-        buffer.append(" extends ");
+        buffer.appendWhitespace(" ").appendKeyword("extends").appendWhitespace(" ");
         buffer.appendCastTypeName(parameterBounds.get(0));
         for (int j = 1; j < parameterBounds.size(); j++) {
-          buffer.append(" & ");
+          buffer.appendWhitespace(" ").appendOperator("&").appendWhitespace(" ");
           buffer.appendCastTypeName(parameterBounds.get(j));
         }
       }
     }
 
-    buffer.append('>');
+    buffer.appendPunctuation('>');
   }
 
-  private static void appendFQClassNames(TextBuffer buffer, List<String> names) {
-    for (int i = 0; i < names.size(); i++) {
-      String name = names.get(i);
-      buffer.appendIndent(2).append(name);
-      if (i < names.size() - 1) {
-        buffer.append(',').appendLineSeparator();
+  private static void appendModules(TextBuffer buffer, List<String> modules) {
+    for (int i = 0; i < modules.size(); i++) {
+      String name = modules.get(i);
+      buffer.appendIndent(2).appendModule(name, false);
+      if (i < modules.size() - 1) {
+        buffer.appendPunctuation(',').appendLineSeparator();
       }
     }
   }

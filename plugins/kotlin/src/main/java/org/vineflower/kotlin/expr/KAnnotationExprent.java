@@ -4,6 +4,7 @@ import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
+import org.jetbrains.java.decompiler.util.token.TokenType;
 import org.vineflower.kotlin.util.KTypes;
 import org.vineflower.kotlin.util.KUtils;
 
@@ -37,40 +38,45 @@ public class KAnnotationExprent extends AnnotationExprent implements KExprent {
     TextBuffer buffer = new TextBuffer();
     buffer.addBytecodeMapping(bytecode);
 
-    buffer.appendIndent(indent).append('@');
+    TextBuffer inner = new TextBuffer();
+    inner.appendPunctuation("@");
 
     if (useSiteTarget != null) {
-      buffer.append(useSiteTarget.name().toLowerCase()).append(':');
+      inner.appendKeyword(useSiteTarget.name().toLowerCase()).appendPunctuation(':');
     }
 
     VarType type = new VarType(getClassName(), true);
-    buffer.append(KTypes.getKotlinType(type));
+    inner.appendClass(KTypes.getKotlinType(type), false, type.value);
 
     switch (getAnnotationType()) {
       case SINGLE_ELEMENT -> {
-        buffer.append('(').appendPossibleNewline();
-        writeAnnotationValue(getParValues().get(0), buffer);
-        buffer.append(')');
+        inner.appendPunctuation('(');
+        inner.pushNewlineGroup(indent, 1).appendPossibleNewline();
+        writeAnnotationValue(getParValues().get(0), inner);
+        inner.appendPossibleNewline("", true).popNewlineGroup();
+        inner.appendPunctuation(')');
       }
       case NORMAL -> {
-        buffer.append('(').appendPossibleNewline();
+        inner.appendPunctuation('(');
+        inner.pushNewlineGroup(indent, 1).appendPossibleNewline();
         boolean first = true;
         for (int i = 0; i < getParValues().size(); i++) {
           if (first) {
             first = false;
           } else {
-            buffer.append(",").appendPossibleNewline(" ");
+            inner.appendPunctuation(",").appendPossibleNewline(" ");
           }
-          buffer
-            .append(getParNames().get(i))
-            .append(" = ");
-          writeAnnotationValue(getParValues().get(i), buffer);
+          inner
+            .append(getParNames().get(i), TokenType.PARAMETER)
+            .appendWhitespace(" ").appendPunctuation('=').appendWhitespace(" ");
+          writeAnnotationValue(getParValues().get(i), inner);
         }
-        buffer.append(')');
+        inner.appendPossibleNewline("", true).popNewlineGroup();
+        inner.appendPunctuation(')');
       }
     }
 
-    return buffer;
+    return buffer.appendIndent(indent).appendAnnotation(inner);
   }
 
   public static void writeAnnotationValue(Exprent expr, TextBuffer buffer) {
@@ -80,56 +86,59 @@ public class KAnnotationExprent extends AnnotationExprent implements KExprent {
       DecompilerContext.getImportCollector().getShortName(fieldExprent.getClassname(), true);
 
       buffer
-        .append(KTypes.getKotlinType(type))
-        .append(".")
-        .append(fieldExprent.getName());
+        .appendClass(KTypes.getKotlinType(type), false, type.value)
+        .appendPunctuation(".")
+        .appendField(fieldExprent.getName(), false, fieldExprent.getClassname(), fieldExprent.getName(), fieldExprent.getDescriptor());
     } else if (expr instanceof NewExprent newExprent) {
       // Array value
-      buffer.append('[');
+      buffer.appendPunctuation('[');
       boolean first = true;
       for (Exprent exprent : newExprent.getLstArrayElements()) {
         if (first) {
           first = false;
         } else {
-          buffer.append(", ");
+          buffer.appendPunctuation(",").appendWhitespace(" ");
         }
         writeAnnotationValue(exprent, buffer);
       }
-      buffer.append(']');
+      buffer.appendPunctuation(']');
     } else if (expr instanceof AnnotationExprent annotationExprent) {
-      buffer.append('@');
+      TextBuffer inner = new TextBuffer();
+      inner.appendPunctuation('@');
       VarType type = new VarType(annotationExprent.getClassName(), true);
-      buffer.append(KTypes.getKotlinType(type));
+      inner.appendClass(KTypes.getKotlinType(type), false, type.value);
 
       switch (annotationExprent.getAnnotationType()) {
         case SINGLE_ELEMENT -> {
-          buffer.append('(');
-          writeAnnotationValue(annotationExprent.getParValues().get(0), buffer);
-          buffer.append(')');
+          inner.appendPunctuation('(');
+          writeAnnotationValue(annotationExprent.getParValues().get(0), inner);
+          inner.appendPunctuation(')');
         }
         case NORMAL -> {
-          buffer.append('(');
+          inner.appendPunctuation('(');
           boolean first = true;
           for (int i = 0; i < annotationExprent.getParValues().size(); i++) {
             if (first) {
               first = false;
             } else {
-              buffer.append(", ");
+              inner.appendPunctuation(",").appendWhitespace(" ");
             }
-            buffer
-              .append(annotationExprent.getParNames().get(i))
-              .append(" = ");
-            writeAnnotationValue(annotationExprent.getParValues().get(i), buffer);
+            inner
+              .append(annotationExprent.getParNames().get(i), TokenType.PARAMETER)
+              .appendWhitespace(" ").appendPunctuation('=').appendWhitespace(" ");
+            writeAnnotationValue(annotationExprent.getParValues().get(i), inner);
           }
-          buffer.append(')');
+          inner.appendPunctuation(')');
         }
       }
+      buffer.appendAnnotation(inner);
     } else if (expr instanceof ConstExprent constExprent) {
       if (constExprent.getConstType().equals(VarType.VARTYPE_CLASS)) {
         VarType type = new VarType((String) constExprent.getValue(), true);
         DecompilerContext.getImportCollector().getShortName((String) constExprent.getValue(), true);
-        buffer.append(KTypes.getKotlinType(type))
-          .append("::class");
+        buffer.appendClass(KTypes.getKotlinType(type), false, type.value)
+          .appendPunctuation("::")
+          .appendKeyword("class");
       } else {
         buffer.append(constExprent.toJava(0));
       }

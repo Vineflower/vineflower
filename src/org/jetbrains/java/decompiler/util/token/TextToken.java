@@ -6,11 +6,13 @@ public abstract class TextToken {
   protected int start;
   protected int length;
   protected boolean declaration;
+  protected TokenType type;
 
-  public TextToken(int start, int length, boolean declaration) {
+  public TextToken(int start, int length, boolean declaration, TokenType type) {
     this.start = start;
     this.length = length;
     this.declaration = declaration;
+    this.type = type;
   }
 
   public void shift(int amount) {
@@ -31,5 +33,9 @@ public abstract class TextToken {
 
   public boolean isDeclaration() {
     return declaration;
+  }
+
+  public TokenType getType() {
+    return type;
   }
 }

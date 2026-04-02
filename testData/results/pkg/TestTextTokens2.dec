@@ -108,6 +108,7 @@ Lines mapping:
 
 /*
 Tokens:
+(1:9, 1:12) class [reference] pkg/package-info
 (9:15, 9:30) class [declaration] pkg/TestTextTokens2
 (9:34, 9:40) class [reference] java/lang/String
 (9:41, 9:45) field [declaration] pkg/TestTextTokens2#name:Ljava/lang/String;

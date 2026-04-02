@@ -1,10 +1,5 @@
 package org.vineflower.kotlin.struct;
 
-import org.jetbrains.java.decompiler.struct.StructClass;
-import org.jetbrains.java.decompiler.struct.attr.StructAnnDefaultAttribute;
-import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
-import org.vineflower.kotlin.expr.KNewExprent;
-import org.vineflower.kt.metadata.deserialization.Flags;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
@@ -13,12 +8,17 @@ import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNode;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
+import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructMethod;
+import org.jetbrains.java.decompiler.struct.attr.StructAnnDefaultAttribute;
+import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.vineflower.kotlin.KotlinOptions;
+import org.vineflower.kotlin.expr.KNewExprent;
 import org.vineflower.kotlin.util.KUtils;
+import org.vineflower.kt.metadata.deserialization.Flags;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -170,13 +170,13 @@ public class DefaultArgsMap {
     Exprent expr = map.get(parameter);
     if (expr == null) {
       if (!argString.isEmpty()) {
-        buffer.append(" = ").append(argString);
+        buffer.appendWhitespace(" ").appendOperator("=").appendWhitespace(" ").appendComment(argString);
       }
 
       return buffer;
     }
 
-    buffer.append(" = ").append(expr.toJava(indent));
+    buffer.appendWhitespace(" ").appendOperator("=").appendWhitespace(" ").append(expr.toJava(indent));
 
     return buffer;
   }

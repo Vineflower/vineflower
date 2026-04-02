@@ -51,7 +51,7 @@ public final class RecordHelper {
     for (int i = 0; i < components.size(); i++) {
       StructRecordComponent cd = components.get(i);
       if (i > 0) {
-        buffer.append(",").appendPossibleNewline(" ");
+        buffer.appendPunctuation(",").appendPossibleNewline(" ");
       }
       boolean varArgComponent = i == components.size() - 1 && isVarArgRecord(cl);
       recordComponentToJava(buffer, cl, cd, i, varArgComponent);
@@ -182,7 +182,7 @@ public final class RecordHelper {
     Set<String> writtenAnnotations = new HashSet<>();
     for (TextBuffer annotation : annotations) {
       writtenAnnotations.add(annotation.convertToStringAndAllowDataDiscard());
-      buffer.append(annotation).append(' ');
+      buffer.append(annotation).appendWhitespace(" ");
     }
 
     VarType fieldType = new VarType(cd.getDescriptor(), false);
@@ -201,9 +201,9 @@ public final class RecordHelper {
       buffer.appendCastTypeName(varArgComponent ? fieldType.decreaseArrayDim() : fieldType);
     }
     if (varArgComponent) {
-      buffer.append("...");
+      buffer.appendPunctuation("...");
     }
-    buffer.append(' ');
+    buffer.appendWhitespace(" ");
 
     buffer.appendField(cd.getName(), true, cl.qualifiedName, cd.getName(), cd.getDescriptor());
   }

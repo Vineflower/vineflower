@@ -1,8 +1,5 @@
 package org.vineflower.kotlin.struct;
 
-import org.vineflower.kt.metadata.ProtoBuf;
-import org.vineflower.kt.metadata.deserialization.Flags;
-import org.vineflower.kt.metadata.jvm.JvmProtoBuf;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.code.CodeConstants;
@@ -21,9 +18,11 @@ import org.vineflower.kotlin.KotlinOptions;
 import org.vineflower.kotlin.KotlinWriter;
 import org.vineflower.kotlin.metadata.MetadataNameResolver;
 import org.vineflower.kotlin.util.KUtils;
+import org.vineflower.kt.metadata.ProtoBuf;
+import org.vineflower.kt.metadata.deserialization.Flags;
+import org.vineflower.kt.metadata.jvm.JvmProtoBuf;
 
 import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -222,17 +221,17 @@ public record KFunction(
     buf.appendIndent(indent);
 
     if (!contextReceiverTypes.isEmpty()) {
-      buf.append("context(");
+      buf.appendKeyword("context").appendPunctuation("(");
       boolean first = true;
       for (KType contextReceiverType : contextReceiverTypes) {
         if (!first) {
-          buf.append(", ");
+          buf.appendPunctuation(",").appendWhitespace(" ");
         }
 
         buf.append(contextReceiverType.stringify(indent + 1));
         first = false;
       }
-      buf.append(")").appendLineSeparator().appendIndent(indent);
+      buf.appendPunctuation(")").appendLineSeparator().appendIndent(indent);
     }
 
     if (VISIBILITY.get(flags) != ProtoBuf.Visibility.PUBLIC || DecompilerContext.getOption(KotlinOptions.SHOW_PUBLIC_VISIBILITY)) {
@@ -240,97 +239,97 @@ public record KFunction(
     }
 
     if (IS_EXPECT_FUNCTION.get(flags)) {
-      buf.append("expect ");
+      buf.appendKeyword("expect").appendWhitespace(" ");
     }
 
     if (MODALITY.get(flags) != ProtoBuf.Modality.FINAL) {
       if (!knownOverride || MODALITY.get(flags) != ProtoBuf.Modality.OPEN) {
-        buf.append(MODALITY.get(flags).name().toLowerCase())
-          .append(' ');
+        buf.appendKeyword(MODALITY.get(flags).name().toLowerCase())
+          .appendWhitespace(" ");
       }
     }
 
     if (IS_EXTERNAL_FUNCTION.get(flags)) {
-      buf.append("external ");
+      buf.appendKeyword("external").appendWhitespace(" ");
     }
 
     if (knownOverride) {
-      buf.append("override ");
+      buf.appendKeyword("override").appendWhitespace(" ");
     }
 
     if (IS_TAILREC.get(flags)) {
-      buf.append("tailrec ");
+      buf.appendKeyword("tailrec").appendWhitespace(" ");
     }
 
     if (IS_SUSPEND.get(flags)) {
-      buf.append("suspend ");
+      buf.appendKeyword("suspend").appendWhitespace(" ");
     }
 
     if (IS_INLINE.get(flags)) {
-      buf.append("inline ");
+      buf.appendKeyword("inline").appendWhitespace(" ");
     }
 
     if (IS_INFIX.get(flags)) {
-      buf.append("infix ");
+      buf.appendKeyword("infix").appendWhitespace(" ");
     }
 
     if (IS_OPERATOR.get(flags)) {
-      buf.append("operator ");
+      buf.appendKeyword("operator").appendWhitespace(" ");
     }
 
-    buf.append("fun ");
+    buf.appendKeyword("fun").appendWhitespace(" ");
 
     List<KTypeParameter> complexTypeParams = typeParameters.stream()
       .filter(typeParameter -> typeParameter.upperBounds().size() > 1)
       .toList();
 
     if (!typeParameters.isEmpty()) {
-      buf.append('<');
+      buf.appendPunctuation('<');
 
       for (int i = 0; i < typeParameters.size(); i++) {
         KTypeParameter typeParameter = typeParameters.get(i);
 
         if (typeParameter.reified()) {
-          buf.append("reified ");
+          buf.appendKeyword("reified").appendWhitespace(" ");
         }
 
-        buf.append(KotlinWriter.toValidKotlinIdentifier(typeParameter.name()));
+        buf.appendGeneric(KotlinWriter.toValidKotlinIdentifier(typeParameter.name()), false, classStruct.qualifiedName, name, methodStruct.getDescriptor());
 
         if (typeParameter.upperBounds().size() == 1) {
-          buf.append(" : ").append(typeParameter.upperBounds().get(0).stringify(indent + 1));
+          buf.appendWhitespace(" ").appendPunctuation(":").appendWhitespace(" ").append(typeParameter.upperBounds().get(0).stringify(indent + 1));
         }
 
         if (i < typeParameters.size() - 1) {
-          buf.append(", ");
+          buf.appendPunctuation(",").appendWhitespace(" ");
         }
       }
 
-      buf.append("> ");
+      buf.appendPunctuation(">").appendWhitespace(" ");
     }
 
     if (receiverType != null) {
       // Function types need parentheses around the receiver type, but that happens in KType.stringify only if it's nullable
       // so we need to wrap in the case of non-nullable function types
       if (!receiverType.isNullable && receiverType.kotlinType.startsWith("kotlin/Function")) {
-        buf.append("(");
+        buf.appendPunctuation("(");
       }
       buf.append(receiverType.stringify(indent + 1));
       if (!receiverType.isNullable && receiverType.kotlinType.startsWith("kotlin/Function")) {
-        buf.append(")");
+        buf.appendPunctuation(")");
       }
 
-      buf.append(".");
+      buf.appendPunctuation(".");
     }
 
-    buf.append(KotlinWriter.toValidKotlinIdentifier(name))
-      .append('(')
+    buf.appendMethod(KotlinWriter.toValidKotlinIdentifier(name), true, classStruct.qualifiedName, methodStruct.getName(), methodStruct.getDescriptor())
+      .appendPunctuation('(')
       .pushNewlineGroup(indent, 1)
       .appendPossibleNewline("");
 
     boolean first = true;
     for (KParameter parameter : parameters) {
       if (!first) {
-        buf.append(",").appendPossibleNewline(" ");
+        buf.appendPunctuation(",").appendPossibleNewline(" ");
       }
 
       first = false;
@@ -343,19 +342,19 @@ public record KFunction(
 
     buf.appendPossibleNewline("", true)
       .popNewlineGroup()
-      .append(')');
+      .appendPunctuation(')');
 
     if (returnType != null && returnType.type != VarType.VARTYPE_VOID.type) {
-      buf.append(": ")
+      buf.appendPunctuation(":").appendWhitespace(" ")
         .append(returnType.stringify(indent + 1));
     }
 
     if (complexTypeParams.isEmpty()) {
-      buf.append(' ');
+      buf.appendWhitespace(" ");
     } else {
       buf.pushNewlineGroup(indent, 1)
         .appendPossibleNewline(" ")
-        .append("where ");
+        .appendKeyword("where").appendWhitespace(" ");
 
       first = true;
       for (KTypeParameter typeParameter : complexTypeParams) {
@@ -364,8 +363,8 @@ public record KFunction(
             buf.appendPossibleNewline(",").appendPossibleNewline(" ");
           }
 
-          buf.append(KotlinWriter.toValidKotlinIdentifier(typeParameter.name()))
-            .append(" : ")
+          buf.appendGeneric(KotlinWriter.toValidKotlinIdentifier(typeParameter.name()), false, classStruct.qualifiedName, name, methodStruct().getDescriptor())
+            .appendWhitespace(" ").appendPunctuation(":").appendWhitespace(" ")
             .append(upperBound.stringify(indent + 1));
 
           first = false;
@@ -376,35 +375,41 @@ public record KFunction(
         .popNewlineGroup();
     }
 
-    buf.append('{').appendLineSeparator();
-
-    if (contract != null) {
-      buf.append(contract.stringify(indent + 1));
-    }
+    buf.appendPunctuation('{').appendLineSeparator();
 
     MethodWrapper methodWrapper = methodSupplier.apply(wrapper);
-    RootStatement root = methodWrapper.root;
-    if (root != null && methodWrapper.decompileError == null) {
-      try {
-        TextBuffer body = root.toJava(indent + 1);
-        body.addBytecodeMapping(root.getDummyExit().bytecode);
-        if (body.length() != 0 && contract != null) {
-          buf.appendLineSeparator();
-        }
-
-        buf.append(body, classStruct.qualifiedName, methodKey);
-      } catch (Throwable t) {
-        String message = "Method " + methodStruct.getName() + " " + methodWrapper.desc() + " in class " + classStruct.qualifiedName + " couldn't be written.";
-        DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.WARN, t);
-        methodWrapper.decompileError = t;
+    MethodWrapper parent = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
+    try {
+      DecompilerContext.setProperty(DecompilerContext.CURRENT_METHOD_WRAPPER, methodWrapper);
+      if (contract != null) {
+        buf.append(contract.stringify(indent + 1));
       }
-    }
 
-    if (methodWrapper.decompileError != null) {
-      KotlinWriter.dumpError(buf, methodWrapper, indent + 1);
-    }
+      RootStatement root = methodWrapper.root;
+      if (root != null && methodWrapper.decompileError == null) {
+        try {
+          TextBuffer body = root.toJava(indent + 1);
+          body.addBytecodeMapping(root.getDummyExit().bytecode);
+          if (body.length() != 0 && contract != null) {
+            buf.appendLineSeparator();
+          }
 
-    buf.appendIndent(indent).append('}').appendLineSeparator();
+          buf.append(body, classStruct.qualifiedName, methodKey);
+        } catch (Throwable t) {
+          String message = "Method " + methodStruct.getName() + " " + methodWrapper.desc() + " in class " + classStruct.qualifiedName + " couldn't be written.";
+          DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.WARN, t);
+          methodWrapper.decompileError = t;
+        }
+      }
+
+      if (methodWrapper.decompileError != null) {
+        KotlinWriter.dumpError(buf, methodWrapper, indent + 1);
+      }
+
+      buf.appendIndent(indent).appendPunctuation('}').appendLineSeparator();
+    } finally {
+      DecompilerContext.setProperty(DecompilerContext.CURRENT_METHOD_WRAPPER, parent);
+    }
 
     return buf;
   }

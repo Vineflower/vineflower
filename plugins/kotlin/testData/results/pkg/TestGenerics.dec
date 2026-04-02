@@ -2,7 +2,7 @@ package pkg
 
 public class TestGenerics<T> {
    public fun <T> genericFun(v: T): T {
-      return (T)v// 5
+      return v// 5
    }
 
    public fun <T> nullableGeneric(v: T): T? {

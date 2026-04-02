@@ -3,6 +3,7 @@ package org.vineflower.kotlin.stat;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.ImportCollector;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
+import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.ConstExprent;
@@ -55,10 +56,12 @@ public class KSwitchStatement extends SwitchStatement {
     buf.append(ExprProcessor.listToJava(varDefinitions, indent));
 
     if (isLabeled()) {
+      MethodWrapper method = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
       buf.appendIndent(indent++)
-        .append("run label")
-        .append(id)
-        .append("@{")
+        .appendMethod("run", false, "kotlin/StandardKt", "run", "(Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;")
+        .appendWhitespace(" ")
+        .appendLabel("label" + id, true, method.classStruct.qualifiedName, method.methodStruct.getName(), method.desc(), id)
+        .appendPunctuation("@{")
         .appendLineSeparator();
     }
 
@@ -72,7 +75,7 @@ public class KSwitchStatement extends SwitchStatement {
         return buf;
       } else {
         buf.appendIndent(indent)
-          .append("/*")
+          .appendComment("/*")
           .appendLineSeparator();
       }
     }
@@ -82,7 +85,7 @@ public class KSwitchStatement extends SwitchStatement {
     }
 
     buf.append(getHeadexprent().toJava(indent))
-      .append(" {")
+      .appendWhitespace(" ").appendPunctuation("{")
       .appendLineSeparator();
 
     VarType switchType = getHeadexprent().getExprType();
@@ -106,7 +109,7 @@ public class KSwitchStatement extends SwitchStatement {
         if (j == 0) {
           buf.appendIndent(indent + 1);
         } else {
-          buf.append(", ");
+          buf.appendPunctuation(",").appendWhitespace(" ");
         }
 
         if (value instanceof ConstExprent && !VarType.VARTYPE_NULL.equals(value.getExprType())) {
@@ -117,7 +120,7 @@ public class KSwitchStatement extends SwitchStatement {
         if (value instanceof FieldExprent field && field.isStatic()) { // enum
           ImportCollector importCollector = DecompilerContext.getImportCollector();
           buf.appendClass(importCollector.getShortName(field.getClassname()), false, field.getClassname())
-            .append('.')
+            .appendPunctuation('.')
             .appendField(field.getName(), false, field.getClassname(), field.getName(), field.getDescriptor());
         } else {
           buf.append(value.toJava(indent));
@@ -125,31 +128,31 @@ public class KSwitchStatement extends SwitchStatement {
       }
 
       if (anyNonDefault) {
-        buf.append(" -> ");
+        buf.appendWhitespace(" ").appendOperator("->").appendWhitespace(" ");
         writeCase(indent + 1, buf, stat);
       }
     }
 
     if (getDefaultEdge() != null) {
       buf.appendIndent(indent + 1)
-        .append("else -> ");
+        .appendKeyword("else").appendWhitespace(" ").appendOperator("->").appendWhitespace(" ");
 
       writeCase(indent + 1, buf, getDefaultEdge().getDestination());
     }
 
     buf.appendIndent(indent)
-      .append("}")
+      .appendPunctuation("}")
       .appendLineSeparator();
 
     if (isLabeled()) {
       buf.appendIndent(--indent)
-        .append("}")
+        .appendPunctuation("}")
         .appendLineSeparator();
     }
 
     if (isPhantom()) {
       buf.appendIndent(indent)
-        .append("*/")
+        .appendComment("*/")
         .appendLineSeparator();
     }
 
@@ -159,18 +162,18 @@ public class KSwitchStatement extends SwitchStatement {
   private void writeCase(int indent, TextBuffer buf, Statement stat) {
     TextBuffer body = KExprProcessor.jmpWrapper(stat, indent + 1, true);
     if (body.countLines() > 1) {
-      buf.append("{")
+      buf.appendPunctuation("{")
         .appendLineSeparator()
         .append(body)
         .appendIndent(indent)
-        .append("}")
+        .appendPunctuation("}")
         .appendLineSeparator();
     } else if (!body.containsOnlyWhitespaces()) {
       int indentSize = ((String) DecompilerContext.getProperty(IFernflowerPreferences.INDENT_STRING)).length();
       body.setStart(indentSize * (indent + 1));
       buf.append(body);
     } else {
-      buf.append("{}").appendLineSeparator();
+      buf.appendPunctuation("{}").appendLineSeparator();
     }
   }
 }

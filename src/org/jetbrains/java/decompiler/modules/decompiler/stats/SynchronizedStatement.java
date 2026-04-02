@@ -62,7 +62,7 @@ public class SynchronizedStatement extends Statement {
     buf.append(first.toJava(indent));
 
     if (isLabeled()) {
-      buf.appendIndent(indent).append("label").append(this.id).append(":").appendLineSeparator();
+      appendLabel(buf, indent);
     }
 
     Exprent headExpr = headexprent.get(0);
@@ -71,13 +71,13 @@ public class SynchronizedStatement extends Statement {
     if (headExpr != null) {
       buf.append(headExpr.toJava(indent));
     } else {
-      buf.append("synchronized <null condition> ");
+      buf.appendKeyword("synchronized").appendWhitespace(" ").appendComment("<null condition>").appendWhitespace(" ");
     }
-    buf.append(" {").appendLineSeparator();
+    buf.appendWhitespace(" ").appendPunctuation("{").appendLineSeparator();
 
     buf.append(ExprProcessor.jmpWrapper(body, indent + 1, true));
 
-    buf.appendIndent(indent).append("}");
+    buf.appendIndent(indent).appendPunctuation("}");
     mapMonitorExitInstr(buf);
     buf.appendLineSeparator();
 

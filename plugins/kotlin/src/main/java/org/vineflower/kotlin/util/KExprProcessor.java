@@ -1,10 +1,13 @@
 package org.vineflower.kotlin.util;
 
+import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.DummyExitStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.util.TextBuffer;
+import org.jetbrains.java.decompiler.util.token.TokenType;
 import org.vineflower.kotlin.stat.KSequenceStatement;
 
 import java.util.List;
@@ -25,22 +28,23 @@ public class KExprProcessor {
             ExprProcessor.addDeletedGotoInstructionMapping(stat, buf);
             if (!isSwitch || edge.labeled) {
               if (edge.closure instanceof KSequenceStatement) {
-                innerBuf.append("return");
+                innerBuf.appendKeyword("return");
               } else {
-                innerBuf.append("break");
+                innerBuf.appendKeyword("break");
               }
             }
           }
           case StatEdge.TYPE_CONTINUE -> {
             ExprProcessor.addDeletedGotoInstructionMapping(stat, buf);
-            innerBuf.append("continue");
+            innerBuf.appendKeyword("continue");
           }
         }
 
         if (edge.labeled) {
-          innerBuf.append("@label").append(edge.closure.id);
+          MethodWrapper wrapper = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
+          innerBuf.appendPunctuation('@').appendLabel("label" + edge.closure.id, false, wrapper.classStruct.qualifiedName, wrapper.methodStruct.getName(), wrapper.desc(), edge.closure.id);
         } else if (edge.closure instanceof KSequenceStatement) {
-          innerBuf.append("@run");
+          innerBuf.appendPunctuation('@').append("run", TokenType.METHOD);
         }
 
         if (!innerBuf.containsOnlyWhitespaces()) {

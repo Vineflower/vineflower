@@ -101,9 +101,9 @@ public class KType extends VarType {
     TextBuffer buf = new TextBuffer();
 
     if (typeParameterName != null) {
-      buf.append(typeParameterName);
+      buf.appendGeneric(typeParameterName, false, null, null, (String) null);
       if (isNullable) {
-        buf.append("?");
+        buf.appendPunctuation('?');
       }
 
       return buf;
@@ -111,46 +111,46 @@ public class KType extends VarType {
 
     if (!kotlinType.startsWith("kotlin/Function")) { // Non-functions are essentially equivalent to Java generic types
       String type = kotlinType.replace('/', '.');
-      buf.append(DecompilerContext.getImportCollector().getShortName(type));
+      buf.appendTypeName(DecompilerContext.getImportCollector().getShortName(type), this);
 
       if (typeArguments != null) {
-        buf.append("<");
+        buf.appendPunctuation('<');
         buf.pushNewlineGroup(indent, 1);
         buf.appendPossibleNewline();
         boolean first = true;
         for (TypeArgument typeArgument : typeArguments) {
           if (!first) {
-            buf.append(",")
+            buf.appendPunctuation(",")
               .appendPossibleNewline(" ");
           }
           buf.append(typeArgument.stringify(indent + 1));
           first = false;
         }
         buf.appendPossibleNewline("", true);
-        buf.append(">");
         buf.popNewlineGroup();
+        buf.appendPunctuation('>');
 
       }
 
       if (isNullable) {
-        buf.append("?");
+        buf.appendPunctuation('?');
       }
     } else { // Metadata-defined function types always have all param types listed instead of defaulting to `FunctionN`
-      buf.append(isNullable ? "((" : "(");
+      buf.appendPunctuation(isNullable ? "((" : "(");
       buf.pushNewlineGroup(indent, 1);
       buf.appendPossibleNewline();
       for (int i = 0; i < typeArguments.length - 1; i++) {
         if (i != 0) {
-          buf.append(",").appendPossibleNewline(" ");
+          buf.appendPunctuation(",").appendPossibleNewline(" ");
         }
         buf.append(typeArguments[i].stringify(indent + 1));
       }
       buf.appendPossibleNewline("", true);
       buf.popNewlineGroup();
-      buf.append(") -> ");
+      buf.appendPunctuation(")").appendWhitespace(" ").appendOperator("->").appendWhitespace(" ");
       buf.append(typeArguments[typeArguments.length - 1].stringify(indent + 1));
       if (isNullable) {
-        buf.append(")?");
+        buf.appendPunctuation(")").appendPunctuation("?");
       }
     }
 
@@ -161,10 +161,10 @@ public class KType extends VarType {
     public TextBuffer stringify(int indent) {
       TextBuffer buf = new TextBuffer();
       switch (typeProjection) {
-        case IN -> buf.append("in ");
-        case OUT -> buf.append("out ");
+        case IN -> buf.appendKeyword("in").appendWhitespace(" ");
+        case OUT -> buf.appendKeyword("out").appendWhitespace(" ");
         case STAR -> {
-          buf.append("*");
+          buf.appendPunctuation('*');
           return buf;
         }
         case INV -> {

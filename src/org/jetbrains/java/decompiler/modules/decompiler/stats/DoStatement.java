@@ -95,59 +95,59 @@ public class DoStatement extends Statement {
     buf.append(ExprProcessor.listToJava(varDefinitions, indent));
 
     if (isLabeled()) {
-      buf.appendIndent(indent).append("label").append(this.id).append(":").appendLineSeparator();
+      appendLabel(buf, indent);
     }
 
     switch (looptype) {
       case INFINITE:
-        buf.appendIndent(indent).append("while (true) {").appendLineSeparator();
+        buf.appendIndent(indent).appendKeyword("while").appendWhitespace(" ").appendPunctuation("(").appendKeyword("true").appendPunctuation(")").appendWhitespace(" ").appendPunctuation("{").appendLineSeparator();
         buf.append(ExprProcessor.jmpWrapper(first, indent + 1, false));
-        buf.appendIndent(indent).append("}").appendLineSeparator();
+        buf.appendIndent(indent).appendPunctuation("}").appendLineSeparator();
         break;
       case DO_WHILE:
-        buf.appendIndent(indent).append("do {").appendLineSeparator();
+        buf.appendIndent(indent).appendKeyword("do").appendWhitespace(" ").appendPunctuation("{").appendLineSeparator();
         buf.append(ExprProcessor.jmpWrapper(first, indent + 1, false));
-        buf.appendIndent(indent).append("} while (");
+        buf.appendIndent(indent).appendPunctuation("}").appendWhitespace(" ").appendKeyword("while").appendWhitespace(" ").appendPunctuation("(");
         buf.pushNewlineGroup(indent, 1);
         buf.appendPossibleNewline();
         buf.append(conditionExprent.get(0).toJava(indent));
         buf.appendPossibleNewline("", true);
         buf.popNewlineGroup();
-        buf.append(");").appendLineSeparator();
+        buf.appendPunctuation(");").appendLineSeparator();
         break;
       case WHILE:
-        buf.appendIndent(indent).append("while (");
+        buf.appendIndent(indent).appendKeyword("while").appendWhitespace(" ").appendPunctuation("(");
         buf.pushNewlineGroup(indent, 1);
         buf.appendPossibleNewline();
         buf.append(conditionExprent.get(0).toJava(indent));
         buf.appendPossibleNewline("", true);
         buf.popNewlineGroup();
-        buf.append(") {").appendLineSeparator();
+        buf.appendPunctuation(")").appendWhitespace(" ").appendPunctuation("{").appendLineSeparator();
         buf.append(ExprProcessor.jmpWrapper(first, indent + 1, false));
-        buf.appendIndent(indent).append("}").appendLineSeparator();
+        buf.appendIndent(indent).appendPunctuation("}").appendLineSeparator();
         break;
       case FOR:
         buf.appendIndent(indent);
         buf.pushNewlineGroup(indent, 1);
-        buf.append("for (");
+        buf.appendKeyword("for").appendWhitespace(" ").appendPunctuation("(");
         if (initExprent.get(0) != null) {
           buf.append(initExprent.get(0).toJava(indent));
         }
-        buf.append(";").appendPossibleNewline(" ")
-          .append(conditionExprent.get(0).toJava(indent)).append(";").appendPossibleNewline(" ")
+        buf.appendPunctuation(";").appendPossibleNewline(" ")
+          .append(conditionExprent.get(0).toJava(indent)).appendPunctuation(";").appendPossibleNewline(" ")
           .append(incExprent.get(0).toJava(indent))
           .appendPossibleNewline("", true);
         buf.popNewlineGroup();
-        buf.append(") {").appendLineSeparator();
+        buf.appendPunctuation(")").appendWhitespace(" ").appendPunctuation("{").appendLineSeparator();
         buf.append(ExprProcessor.jmpWrapper(first, indent + 1, false));
-        buf.appendIndent(indent).append("}").appendLineSeparator();
+        buf.appendIndent(indent).appendPunctuation("}").appendLineSeparator();
         break;
       case FOR_EACH:
-        buf.appendIndent(indent).append("for (").append(initExprent.get(0).toJava(indent));
+        buf.appendIndent(indent).appendKeyword("for").appendWhitespace(" ").appendPunctuation("(").append(initExprent.get(0).toJava(indent));
         incExprent.get(0).getInferredExprType(null); //TODO: Find a better then null? For now just calls it to clear casts if needed
-        buf.append(" : ").append(incExprent.get(0).toJava(indent)).append(") {").appendLineSeparator();
+        buf.appendWhitespace(" ").appendPunctuation(":").appendWhitespace(" ").append(incExprent.get(0).toJava(indent)).appendPunctuation(")").appendWhitespace(" ").appendPunctuation("{").appendLineSeparator();
         buf.append(ExprProcessor.jmpWrapper(first, indent + 1, true));
-        buf.appendIndent(indent).append("}").appendLineSeparator();
+        buf.appendIndent(indent).appendPunctuation("}").appendLineSeparator();
     }
 
     return buf;

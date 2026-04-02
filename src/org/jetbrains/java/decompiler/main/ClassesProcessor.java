@@ -3,8 +3,8 @@ package org.jetbrains.java.decompiler.main;
 
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.api.java.ClassPassLocation;
-import org.jetbrains.java.decompiler.api.plugin.StatementWriter;
 import org.jetbrains.java.decompiler.api.plugin.LanguageSpec;
+import org.jetbrains.java.decompiler.api.plugin.StatementWriter;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.FullInstructionSequence;
 import org.jetbrains.java.decompiler.main.collectors.BytecodeSourceMapper;
@@ -23,7 +23,6 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.InvocationExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructContext;
-import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.attr.StructEnclosingMethodAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;

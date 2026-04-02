@@ -45,7 +45,7 @@ public class YieldExprent extends Exprent {
   @Override
   public TextBuffer toJava(int indent) {
     TextBuffer buf = new TextBuffer();
-    buf.append("yield ");
+    buf.appendKeyword("yield").appendWhitespace(" ");
     ExprProcessor.getCastedExprent(this.content, this.retType, buf, indent, ExprProcessor.NullCastType.DONT_CAST_AT_ALL, false, false, false);
 
     return buf;

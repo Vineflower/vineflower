@@ -9,7 +9,7 @@ public class FieldTextToken extends TextToken {
   public final FieldDescriptor descriptor;
 
   public FieldTextToken(int start, int length, boolean declaration, String className, String name, FieldDescriptor descriptor) {
-    super(start, length, declaration);
+    super(start, length, declaration, TokenType.FIELD);
     this.className = className;
     this.name = name;
     this.descriptor = descriptor;

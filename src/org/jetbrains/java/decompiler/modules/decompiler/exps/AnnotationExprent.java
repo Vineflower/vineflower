@@ -53,13 +53,13 @@ public class AnnotationExprent extends Exprent {
   public TextBuffer toJava(int indent) {
     TextBuffer buffer = new TextBuffer();
 
-    buffer.append('@');
+    buffer.appendPunctuation('@');
     buffer.appendAllClasses(DecompilerContext.getImportCollector().getShortName(ExprProcessor.buildJavaClassName(className)), className);
 
     Type type = getAnnotationType();
 
     if (type != Type.MARKER) {
-      buffer.append('(');
+      buffer.appendPunctuation('(');
       buffer.pushNewlineGroup(indent, 1);
       buffer.appendPossibleNewline();
       for (int i = 0; i < parNames.size(); i++) {
@@ -79,7 +79,7 @@ public class AnnotationExprent extends Exprent {
             buffer.appendMethod(name, false, className, name, "()" + parValues.get(i).getExprType());
           }
 
-          buffer.append(" = ");
+          buffer.appendWhitespace(" ").appendOperator("=").appendWhitespace(" ");
         }
 
         Exprent parValue = parValues.get(i);
@@ -91,13 +91,13 @@ public class AnnotationExprent extends Exprent {
         }
 
         if (i < parNames.size() - 1) {
-          buffer.append(",");
+          buffer.appendPunctuation(",");
           buffer.appendPossibleNewline(" ");
         } else {
           buffer.appendPossibleNewline("", true);
         }
       }
-      buffer.append(')');
+      buffer.appendPunctuation(')');
       buffer.popNewlineGroup();
     }
 

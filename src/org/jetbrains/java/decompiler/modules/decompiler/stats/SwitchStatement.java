@@ -1,12 +1,9 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.stats;
 
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.code.SwitchInstruction;
-import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.DecHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
@@ -119,15 +116,15 @@ public class SwitchStatement extends Statement {
     }
 
     if (isLabeled()) {
-      buf.appendIndent(indent).append("label").append(this.id).append(":").appendLineSeparator();
+      appendLabel(buf, indent);
     }
 
     buf.appendIndent(indent);
     if (this.isPhantom()) {
-      buf.append("/*");
+      buf.appendComment("/*");
     }
 
-    buf.append(headexprent.get(0).toJava(indent)).append(" {").appendLineSeparator();
+    buf.append(headexprent.get(0).toJava(indent)).appendWhitespace(" ").appendPunctuation("{").appendLineSeparator();
 
     VarType switch_type = headexprent.get(0).getExprType();
 
@@ -140,16 +137,16 @@ public class SwitchStatement extends Statement {
 
       for (int j = 0; j < edges.size(); j++) {
         if (edges.get(j) == defaultEdge) {
-          buf.appendIndent(indent + 1).append("default:");
+          buf.appendIndent(indent + 1).appendKeyword("default").appendPunctuation(":");
           if (this.scopedCaseStatements.contains(stat) && j == edges.size() - 1) {
-            buf.append(" {");
+            buf.appendWhitespace(" ").appendPunctuation("{");
           }
 
           buf.appendLineSeparator();
         } else {
           Exprent value = values.get(j);
 
-          buf.appendIndent(indent + 1).append("case ");
+          buf.appendIndent(indent + 1).appendKeyword("case").appendWhitespace(" ");
 
           if (value instanceof ConstExprent && !value.getExprType().equals(VarType.VARTYPE_NULL)) {
             value = value.copy();
@@ -170,12 +167,12 @@ public class SwitchStatement extends Statement {
           }
 
           if (guard != null) {
-            buf.append(" when ").append(guard.toJava());
+            buf.appendWhitespace(" ").appendKeyword("when").appendWhitespace(" ").append(guard.toJava());
           }
 
-          buf.append(":");
+          buf.appendPunctuation(":");
           if (this.scopedCaseStatements.contains(stat) && j == edges.size() - 1) {
-            buf.append(" {");
+            buf.appendWhitespace(" ").appendPunctuation("{");
           }
           buf.appendLineSeparator();
         }
@@ -185,15 +182,15 @@ public class SwitchStatement extends Statement {
 
       if (this.scopedCaseStatements.contains(stat)) {
         buf.appendIndent(indent + 1);
-        buf.append("}");
+        buf.appendPunctuation("}");
         buf.appendLineSeparator();
       }
     }
 
-    buf.appendIndent(indent).append("}").appendLineSeparator();
+    buf.appendIndent(indent).appendPunctuation("}").appendLineSeparator();
 
     if (this.isPhantom()) {
-      buf.append("*/");
+      buf.appendComment("*/");
     }
 
     return buf;

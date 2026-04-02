@@ -60,19 +60,23 @@ public class KInvocationExprent extends InvocationExprent implements KExprent {
       if (getInstance() != null) {
         TextBuffer instanceBuf = getInstance().toJava(indent);
         if (getInstance().getPrecedence() > getPrecedence()) {
-          instanceBuf.enclose("(", ")");
+          instanceBuf.encloseWithParens();
         }
-        buf.append(instanceBuf).append('.');
+        buf.append(instanceBuf).appendPunctuation('.');
       }
-      buf.append(property.name());
-      if (propertyMethod == KProperty.PropertyMethod.SETTER) {
-        buf.append(" = ");
+      if (propertyMethod == KProperty.PropertyMethod.GETTER) {
+        StructMethod getter = property.getter().methodStruct();
+        buf.appendMethod(property.name(), false, property.classStruct().qualifiedName, getter.getName(), getter.getDescriptor());
+      } else {
+        StructMethod setter = property.setter().methodStruct();
+        buf.appendMethod(property.name(), false, property.classStruct().qualifiedName, setter.getName(), setter.getDescriptor());
+        buf.appendWhitespace(" ").appendOperator("=").appendWhitespace(" ");
         Exprent newValue = getLstParameters().get(0);
         buf.append(newValue.toJava(indent));
       }
       return buf;
     }
-    
+
     if (callingData instanceof KFunction function) {
       if (Flags.IS_INFIX.get(function.flags())) {
         TextBuffer buf = new TextBuffer();
@@ -82,12 +86,12 @@ public class KInvocationExprent extends InvocationExprent implements KExprent {
         Exprent arg = isExtensionFunction ? getLstParameters().get(1) : getLstParameters().get(0);
         TextBuffer instanceBuf = instance.toJava(indent);
         if (instance.getPrecedence() > getPrecedence()) {
-          instanceBuf.enclose("(", ")");
+          instanceBuf.encloseWithParens();
         }
         buf.append(instanceBuf)
-          .append(" ")
-          .append(function.name())
-          .append(" ")
+          .appendWhitespace(" ")
+          .appendMethod(function.name(), false, getClassname(), getName(), getDescriptor())
+          .appendWhitespace(" ")
           .append(arg.toJava(indent));
         return buf;
       }
@@ -97,7 +101,7 @@ public class KInvocationExprent extends InvocationExprent implements KExprent {
       TextBuffer buf = new TextBuffer();
       TextBuffer instanceBuf = getInstance().toJava(indent);
       if (getInstance().getPrecedence() > getPrecedence()) {
-        instanceBuf.enclose("(", ")");
+        instanceBuf.encloseWithParens();
       }
       buf.append(instanceBuf);
       if (getLstParameters().isEmpty()) {

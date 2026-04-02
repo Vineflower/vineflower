@@ -9,7 +9,7 @@ public class MethodTextToken extends TextToken {
   public final MethodDescriptor descriptor;
 
   public MethodTextToken(int start, int length, boolean declaration, String className, String name, MethodDescriptor descriptor) {
-    super(start, length, declaration);
+    super(start, length, declaration, TokenType.METHOD);
     this.className = className;
     this.name = name;
     this.descriptor = descriptor;

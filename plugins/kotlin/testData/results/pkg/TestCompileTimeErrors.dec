@@ -12,7 +12,7 @@ public class TestCompileTimeErrors {
          {
             this.testValue = `$i`// 16
          }// 14
-      }
+      } as TestCompileTimeErrors.Test
    }
 
    public interface Test {
