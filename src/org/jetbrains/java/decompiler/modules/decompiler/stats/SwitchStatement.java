@@ -553,7 +553,7 @@ public class SwitchStatement extends Statement {
       return;
     }
 
-    this.addCaseInternal(0, null, stat);
+    this.addCaseInternal(0, Collections.singletonList(null), stat);
   }
 
   /**
@@ -576,15 +576,18 @@ public class SwitchStatement extends Statement {
     this.addCaseInternal(index, values, stat);
   }
 
-  private void addCaseInternal(int index, @Nullable List<Exprent> values, Statement stat) {
-    boolean isAddDefault = values == null;
-
+  private void addCaseInternal(int index, List<@Nullable Exprent> values, Statement stat) {
     // Basichead is always the first stat
     this.getStats().add(1 + index, stat);
     this.getCaseStatements().add(index, stat);
-    this.getCaseValues().add(index, !isAddDefault ? values : Collections.singletonList(null));
+    this.getCaseValues().add(index, values);
 
-    if (!isAddDefault) {
+    // If it's a default case, or a regular case
+    if (values.size() == 1 && values.get(0) == null) {
+      StatEdge edge = new StatEdge(StatEdge.TYPE_REGULAR, this.getBasichead(), stat);
+      this.getCaseEdges().add(index, List.of(edge));
+      this.setDefaultEdge(edge);
+    } else {
       ArrayList<StatEdge> newCaseEdgeLst = new ArrayList<>();
       for (int i = 0; i < values.size(); i++) {
         StatEdge edge = new StatEdge(StatEdge.TYPE_REGULAR, this.getBasichead(), stat);
@@ -594,10 +597,6 @@ public class SwitchStatement extends Statement {
       }
 
       this.getCaseEdges().add(index, newCaseEdgeLst);
-    } else {
-      // Just add the default and move on!
-      StatEdge edge = new StatEdge(StatEdge.TYPE_REGULAR, this.getBasichead(), stat);
-      this.setDefaultEdge(edge);
     }
 
     stat.setParent(this);
