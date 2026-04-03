@@ -622,10 +622,11 @@ public class SwitchStatement extends Statement {
    * @param index the index of the case to remove
    */
   public void removeCase(int index) {
-    this.getCaseStatements().get(index).getAllPredecessorEdges().forEach(StatEdge::remove);
-    this.getCaseStatements().get(index).getAllSuccessorEdges().forEach(StatEdge::remove);
+    Statement stat = this.getCaseStatements().get(index);
+    stat.getAllPredecessorEdges().forEach(StatEdge::remove);
+    stat.getAllSuccessorEdges().forEach(StatEdge::remove);
 
-    this.getStats().remove(this.getCaseStatements().get(index));
+    this.getStats().removeWithKey(stat.id);
     this.getCaseStatements().remove(index);
     this.getCaseValues().remove(index);
     this.getCaseEdges().get(index).forEach(StatEdge::remove);
