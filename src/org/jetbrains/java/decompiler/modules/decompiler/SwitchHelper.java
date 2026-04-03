@@ -301,8 +301,7 @@ public final class SwitchHelper {
     int processedCasesIdx = 0;
 
     List<Statement> caseStats = switchInfo.first().getCaseStatements();
-    int origCaseCount = caseStats.size();
-    for (int i = 0; i < origCaseCount; i++) {
+    for (int i = 0; i < caseStats.size(); i++) {
       Statement stat = caseStats.get(i);
       if (!(stat instanceof IfStatement rootIfStat)) {
         continue;
@@ -321,12 +320,7 @@ public final class SwitchHelper {
       IfStatement currIf = rootIfStat;
 
       // Remove all case data for this case as we create new values/edges/stats later.
-      switchInfo.first().getCaseEdges().get(processedCasesIdx).forEach(StatEdge::remove);
-      switchInfo.first().getCaseEdges().remove(processedCasesIdx);
-      switchInfo.first().getCaseValues().remove(processedCasesIdx);
-      switchInfo.first().getCaseStatements().remove(processedCasesIdx);
-      // First stat is always basichead
-      switchInfo.first().getStats().remove(currIf);
+      switchInfo.first().removeCase(processedCasesIdx);
 
       // Remove normal edge between case and default block if it exists
       if (currIf.hasSuccessor(StatEdge.TYPE_REGULAR)) {
