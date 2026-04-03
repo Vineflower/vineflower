@@ -538,7 +538,7 @@ public final class SwitchHelper {
 
           // Split switches are guaranteed to have a unique intermediary even with hashcode collision.
           // Merged switches, however, may contain multiple case labels/strings sharing 1 intermediary.
-          //   This is commonly found where switches have explicit return values.
+          // This is commonly found where switches have explicit return values.
           if (ifEqFirstExpr instanceof AssignmentExprent assignExpr) {
             int intermediate = ((ConstExprent) assignExpr.getRight()).getIntValue();
             caseMap.computeIfAbsent(intermediate, ArrayList::new).add(realVal);
