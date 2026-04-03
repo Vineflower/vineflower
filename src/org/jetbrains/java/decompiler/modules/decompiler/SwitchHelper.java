@@ -302,7 +302,6 @@ public final class SwitchHelper {
 
     List<Statement> caseStats = switchInfo.first().getCaseStatements();
     int origCaseCount = caseStats.size();
-    // noinspection ForLoopReplaceableByForEach
     for (int i = 0; i < origCaseCount; i++) {
       Statement stat = caseStats.get(i);
       if (!(stat instanceof IfStatement rootIfStat)) {
