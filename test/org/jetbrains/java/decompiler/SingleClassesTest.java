@@ -714,7 +714,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestVarMergeSupertype");
     register(JAVA_8, "TestAmbiguousArraylen");
     register(JAVA_17, "TestSwitchDefaultCaseReturn");
-    // TODO: switch (s) decompiled as switch (s.hashCode())
     register(JAVA_17, "TestSingleCaseStrSwitch");
     register(JAVA_16, "TestIfPatternMatchMethod");
     register(JAVA_16, "TestPatternMatchingInvoke");
@@ -828,6 +827,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: fails to decompile
     register(JAVA_25, "TestPatternMatchSwitchString");
     register(JAVA_16, "TestPatternMatchingVariableScope");
+
+    register(JAVA_17, "TestStringSwitchTypes");
   }
 
   private void registerEntireClassPath() {
