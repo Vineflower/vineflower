@@ -1,6 +1,7 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler;
 
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassesProcessor;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
@@ -217,11 +218,10 @@ public final class SwitchHelper {
    */
   private static boolean trySimplifyStringSwitch(SwitchStatement switchStat, Exprent switchHeadValue) {
     // Get the type of switch by matching against each type
-    Optional<StringSwitch> result = StringSwitch.match(switchStat);
-    if (result.isEmpty()) {
+    StringSwitch switchInfo = StringSwitch.match(switchStat);
+    if (switchInfo == null) {
       return false;
     }
-    StringSwitch switchInfo = result.get();
 
     // Replace the target switch condition to the first.
     Exprent targetVal = ((SwitchHeadExprent) switchInfo.target().getHeadexprent()).getValue();
@@ -406,11 +406,11 @@ public final class SwitchHelper {
   /**
    * Attempts to find the synthetic stack variable that can exist to be used by string switches.
    * @param switchInfo the switch info to use
-   * @return a populated optional if found, otherwise an empty optional.
+   * @return the result record if found, otherwise null.
    */
-  private static Optional<SyntheticDupVarResult> findSyntheticDupVar(StringSwitch switchInfo) {
+  private static @Nullable SyntheticDupVarResult findSyntheticDupVar(StringSwitch switchInfo) {
     if (!(switchInfo.target().getHeadexprent() instanceof SwitchHeadExprent switchHead)) {
-      return Optional.empty();
+      return null;
     }
 
     BasicBlockStatement head;
@@ -423,12 +423,12 @@ public final class SwitchHelper {
     List<Exprent> headExprs = head.getExprents();
     int dupVarIdx = switchInfo instanceof NullableSplit ? 2 : 1;
     if (headExprs == null || headExprs.size() < dupVarIdx) {
-      return Optional.empty();
+      return null;
     }
 
     if (!(headExprs.get(headExprs.size() - dupVarIdx) instanceof AssignmentExprent assignment)
       || !(assignment.getLeft() instanceof VarExprent tmpVar)) {
-      return Optional.empty();
+      return null;
     }
     Exprent realExpr = assignment.getRight();
 
@@ -459,11 +459,11 @@ public final class SwitchHelper {
 
       // If the temp var is not in the switch head or the dup var is not used in the all the if conditions
       if (!tmpVar.equalsVersions(headVar) || !isDupVarUsedInAllCaseIfs) {
-        return Optional.empty();
+        return null;
       }
     }
 
-    return Optional.of(new SyntheticDupVarResult(switchHead, headExprs, dupVarIdx, tmpVar, realExpr));
+    return new SyntheticDupVarResult(switchHead, headExprs, dupVarIdx, tmpVar, realExpr);
   }
 
   /**
@@ -471,11 +471,10 @@ public final class SwitchHelper {
    * @param switchInfo the switch info to use
    */
   private static void removeSyntheticDupVar(StringSwitch switchInfo) {
-    Optional<SyntheticDupVarResult> _result = findSyntheticDupVar(switchInfo);
-    if (_result.isEmpty()) {
+    SyntheticDupVarResult result = findSyntheticDupVar(switchInfo);
+    if (result == null) {
       return;
     }
-    SyntheticDupVarResult result = _result.get();
 
     // Replace synthetic var in switch head
     result.switchHead().replaceExprent(result.switchHead().getValue(), result.realVar());
@@ -533,6 +532,13 @@ public final class SwitchHelper {
 
         if (condition instanceof InvocationExprent condInvoc && condInvoc.getLstParameters().size() == 1) {
           List<Exprent> ifExprs = ifStat.getIfstat().getExprents();
+
+          // An if stat with a null exprents list is found, so we should probably skip this chain safely.
+          if (ifExprs == null) {
+            currStat = null;
+            continue;
+          }
+
           Exprent ifEqFirstExpr = ifExprs.get(0);
           Exprent realVal = condInvoc.getLstParameters().get(0);
 
@@ -566,7 +572,7 @@ public final class SwitchHelper {
   }
 
   private static List<List<Exprent>> getStringSwitchRealCaseValues(StringSwitch switchInfo,
-                                                                   HashMap<Integer, List<Exprent>> caseMap) {
+    HashMap<Integer, List<Exprent>> caseMap) {
     List<List<Exprent>> realCaseValues = new ArrayList<>();
 
     for (int i = 0; i < switchInfo.target().getCaseValues().size(); i++) {
@@ -880,11 +886,25 @@ public final class SwitchHelper {
     SwitchStatement first();
     SwitchStatement target();
 
-    static Optional<StringSwitch> match(SwitchStatement stat) {
-      return Split.match(stat)
-        .or(() -> InlineSplit.match(stat))
-        .or(() -> NullableSplit.match(stat))
-        .or(() -> Merged.match(stat));
+    static @Nullable StringSwitch match(SwitchStatement stat) {
+      StringSwitch result;
+
+      result = Split.match(stat);
+      if (result != null) {
+        return result;
+      }
+
+      result = InlineSplit.match(stat);
+      if (result != null) {
+        return result;
+      }
+
+      result = NullableSplit.match(stat);
+      if (result != null) {
+        return result;
+      }
+
+      return Merged.match(stat);
     }
 
     static boolean isValid(StringSwitch sw) {
@@ -912,7 +932,7 @@ public final class SwitchHelper {
       }
 
       // Get the synthetic duplicate variable sometimes used in the switch head exprent or the case if statements
-      Optional<SyntheticDupVarResult> possibleDupVar = findSyntheticDupVar(sw);
+      SyntheticDupVarResult possibleDupVar = findSyntheticDupVar(sw);
 
       // Validate all the case statements in the switch to make sure it matches the type.
       for (int i = 0; i < sw.first().getCaseStatements().size(); i++) {
@@ -943,14 +963,14 @@ public final class SwitchHelper {
               if (!(oper instanceof InvocationExprent condInvoc)
                 || !condInvoc.getName().equals("equals")
                 || !condInvoc.getInstance().equals(firstHeadValInvoc.getInstance())
-                && (possibleDupVar.isPresent() && !condInvoc.getInstance().equals(possibleDupVar.get().tmpVar()))) {
+                && (possibleDupVar != null && !condInvoc.getInstance().equals(possibleDupVar.tmpVar()))) {
                 return false;
               }
             }
           } else if (!(ifCond instanceof InvocationExprent condInvoc)
             || !condInvoc.getName().equals("equals")
             || !condInvoc.getInstance().equals(firstHeadValInvoc.getInstance())
-            && (possibleDupVar.isPresent() && !condInvoc.getInstance().equals(possibleDupVar.get().tmpVar()))) {
+            && (possibleDupVar != null && !condInvoc.getInstance().equals(possibleDupVar.tmpVar()))) {
             // The if statement not containing an equals on the switch head exprent/duplicate stack var
             // with the case string means that this is not a string-switch.
             return false;
@@ -1006,14 +1026,14 @@ public final class SwitchHelper {
    *   switch yields an intermediate case variable that is used by the second switch.
    */
   record Split(SwitchStatement first, SwitchStatement target) implements StringSwitch {
-    private static Optional<StringSwitch> match(SwitchStatement stat) {
+    private static @Nullable StringSwitch match(SwitchStatement stat) {
       List<StatEdge> edges = stat.getSuccessorEdges(StatEdge.TYPE_REGULAR);
       if (edges.size() != 1 || !(edges.get(0).getDestination() instanceof SwitchStatement found)) {
-        return Optional.empty();
+        return null;
       }
 
       Split matched = new Split(stat, found);
-      return StringSwitch.isValid(matched) ? Optional.of(matched) : Optional.empty();
+      return StringSwitch.isValid(matched) ? matched : null;
     }
   }
 
@@ -1021,9 +1041,9 @@ public final class SwitchHelper {
    * The same as {@link Split} except the second switch is inlined into the first switch's default case block.
    */
   record InlineSplit(SwitchStatement first, SwitchStatement target) implements StringSwitch {
-    private static Optional<StringSwitch> match(SwitchStatement stat) {
+    private static @Nullable StringSwitch match(SwitchStatement stat) {
       if (stat.getDefaultEdge() == null) {
-        return Optional.empty();
+        return null;
       }
 
       SwitchStatement target;
@@ -1033,11 +1053,11 @@ public final class SwitchHelper {
       } else if (defaultDest instanceof SequenceStatement && defaultDest.getFirst() instanceof SwitchStatement found) {
         target = found;
       } else {
-        return Optional.empty();
+        return null;
       }
 
       InlineSplit matched = new InlineSplit(stat, target);
-      return StringSwitch.isValid(matched) ? Optional.of(matched) : Optional.empty();
+      return StringSwitch.isValid(matched) ? matched : null;
     }
   }
 
@@ -1046,10 +1066,10 @@ public final class SwitchHelper {
    */
   record NullableSplit(SwitchStatement first, SwitchStatement target, AssignmentExprent expr, IfStatement nullCheck)
     implements StringSwitch {
-    private static Optional<StringSwitch> match(SwitchStatement stat) {
+    private static @Nullable StringSwitch match(SwitchStatement stat) {
       // if we're the only thing in an if statement,
       if (!(stat.getParent() instanceof IfStatement parent) || stat.hasSuccessor(StatEdge.TYPE_REGULAR)) {
-        return Optional.empty();
+        return null;
       }
 
       // and it's a null check with `else` branch,
@@ -1058,12 +1078,12 @@ public final class SwitchHelper {
         || !(ifCond instanceof FunctionExprent funcExpr)
         || funcExpr.getFuncType() != FunctionType.NE
         || funcExpr.getLstOperands().size() != 2) {
-        return Optional.empty();
+        return null;
       }
 
       Exprent right = funcExpr.getLstOperands().get(1);
       if (!(right instanceof ConstExprent) || right.getExprType() != VarType.VARTYPE_NULL) {
-        return Optional.empty();
+        return null;
       }
 
       // and the `else` only assigns a variable,
@@ -1073,17 +1093,17 @@ public final class SwitchHelper {
         || elseStat.getExprents() == null
         || elseStat.getExprents().size() != 1
         || !(elseStat.getExprents().get(0) instanceof AssignmentExprent nullAssignExpr)) {
-        return Optional.empty();
+        return null;
       }
 
       List<StatEdge> edges = parent.getSuccessorEdges(StatEdge.TYPE_REGULAR);
       if (edges.size() != 1 || !(edges.get(0).getDestination() instanceof SwitchStatement found)) {
-        return Optional.empty();
+        return null;
       }
 
       // then we're probably a nullable string-switch
       NullableSplit matched = new NullableSplit(stat, found, nullAssignExpr, parent);
-      return StringSwitch.isValid(matched) ? Optional.of(matched) : Optional.empty();
+      return StringSwitch.isValid(matched) ? matched : null;
     }
   }
 
@@ -1092,9 +1112,9 @@ public final class SwitchHelper {
    * This is usually the last-resort matched type, so checking for it is recommended.
    */
   record Merged(SwitchStatement first, SwitchStatement target) implements StringSwitch {
-    private static Optional<StringSwitch> match(SwitchStatement stat) {
+    private static @Nullable StringSwitch match(SwitchStatement stat) {
       Merged matched = new Merged(stat, stat);
-      return StringSwitch.isValid(matched) ? Optional.of(matched) : Optional.empty();
+      return StringSwitch.isValid(matched) ? matched : null;
     }
   }
 }
