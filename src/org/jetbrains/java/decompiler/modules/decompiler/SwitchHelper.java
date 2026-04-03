@@ -484,7 +484,6 @@ public final class SwitchHelper {
     }
   }
 
-  // A temporary structure to store result from getSyntheticDupVar, but it's too annoying to figure out a better way.
   private record SyntheticDupVarResult(SwitchHeadExprent switchHead, List<Exprent> headExprs, int dupVarIdx,
                                        VarExprent tmpVar, Exprent realVar) {}
 
