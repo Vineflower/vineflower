@@ -589,15 +589,15 @@ public final class SwitchHelper {
 
         // If the real return val exists (in the case of merged switches usually) then create new cases for them.
         List<Exprent> realVal = caseMap.get(intermediate);
-        // If the real case value is null, it means this case wasn't linked between
-        //   both first and second switches and is thus an invalid case (can be safely removed).
-        // As noted from Jasmine (adf75bb):
-        //   If the second switch is a tableswitch, it can have a synthetic value that jumps to the default label
+        // If the second switch is a tableswitch, it can have a synthetic value that jumps to the default label
         //   to fill out the table, even if this value is unreachable from the preceding switch.
         //   See TestSwitchDefaultBefore for an example.
+        // If the real case value is null, it means this case wasn't linked between
+        //   both first and second switches and is thus an invalid case (can be safely removed).
         if (realVal == null) {
           // Synthetic values jump to the same place always (default label).
-          if (targetEdge != switchInfo.target().getDefaultEdge()
+          if (switchInfo.target().getDefaultEdge() != null
+            && targetEdge != switchInfo.target().getDefaultEdge()
             && targetEdge.getDestination() == switchInfo.target().getDefaultEdge().getDestination()) {
             targetCaseEdges.remove(j);
             targetCaseVal.remove(j);
