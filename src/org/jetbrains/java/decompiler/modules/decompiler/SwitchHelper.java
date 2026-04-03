@@ -485,7 +485,7 @@ public final class SwitchHelper {
   }
 
   private record SyntheticDupVarResult(SwitchHeadExprent switchHead, List<Exprent> headExprs, int dupVarIdx,
-                                       VarExprent tmpVar, Exprent realVar) {}
+    VarExprent tmpVar, Exprent realVar) {}
 
   /**
    * Checks that the given exprent is a return with a constant value.
