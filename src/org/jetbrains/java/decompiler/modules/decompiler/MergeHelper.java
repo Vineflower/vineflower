@@ -17,9 +17,16 @@ import org.jetbrains.java.decompiler.struct.gen.VarType;
 import java.util.*;
 
 public class MergeHelper {
-  public static void enhanceLoops(Statement root) {
-    while (enhanceLoopsRec(root)) /**/;
-    SequenceHelper.condenseSequences(root);
+  public static boolean enhanceLoops(Statement root) {
+    boolean res = false;
+    while (enhanceLoopsRec(root)) {
+      res = true;
+    }
+
+    if (res) {
+      SequenceHelper.condenseSequences(root);
+    }
+    return res;
   }
 
   private static boolean enhanceLoopsRec(Statement stat) {

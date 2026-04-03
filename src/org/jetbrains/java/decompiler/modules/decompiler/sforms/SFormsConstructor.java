@@ -76,8 +76,7 @@ public abstract class SFormsConstructor {
     ValidationHelper.validateDGraph(dgraph, root);
     ValidationHelper.validateVars(dgraph, root, var -> var.getVersion() == 0, "Var version is not zero");
 
-    // FIXME: this overrides the previous iteration
-    DotExporter.toDotFile(dgraph, mt, "ssaSplitVariables");
+    // DotExporter.toDotFile(dgraph, mt, "ssaSplitVariables");
 
     List<Integer> setInit = new ArrayList<>();
     for (int i = 0; i < 64; i++) {
@@ -101,7 +100,7 @@ public abstract class SFormsConstructor {
 
   void ssaStatements(DirectGraph dgraph, Set<String> updated, boolean calcLiveVars, StructMethod mt, int iteration) {
 
-    DotExporter.toDotFile(dgraph, mt, "ssaStatements_" + iteration, this.outVarVersions);
+    // DotExporter.toDotFile(dgraph, mt, "ssaStatements_" + iteration, this.outVarVersions);
 
     for (DirectNode node : dgraph.nodes) {
 

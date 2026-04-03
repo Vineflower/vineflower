@@ -284,8 +284,9 @@ public class MethodProcessor implements Runnable {
             continue;
           }
 
-          MergeHelper.enhanceLoops(root);
-          decompileRecord.add("EnhanceLoops", root);
+          if (MergeHelper.enhanceLoops(root)) {
+            decompileRecord.add("EnhanceLoops", root);
+          }
 
           if (LoopExtractHelper.extractLoops(root)) {
             decompileRecord.add("ExtractLoops", root);
