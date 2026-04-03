@@ -329,10 +329,8 @@ public final class SwitchHelper {
       switchInfo.first().getStats().remove(currIf);
 
       // Remove normal edge between case and default block if it exists
-      {
-        if (currIf.hasSuccessor(StatEdge.TYPE_REGULAR)) {
-          currIf.getSuccessorEdges(StatEdge.TYPE_REGULAR).get(0).remove();
-        }
+      if (currIf.hasSuccessor(StatEdge.TYPE_REGULAR)) {
+        currIf.getSuccessorEdges(StatEdge.TYPE_REGULAR).get(0).remove();
       }
 
       // Process the if and optionally the if-else/else chain if it exists too
