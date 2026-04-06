@@ -2,14 +2,14 @@ package pkg;
 
 public class TestFinallyVarDef {
    public void test1() {
+      int i;
       try {
          System.out.println("a");// 7
       } finally {
-         int i = 5;// 9
+         i = 5;// 9
       }
 
-      byte var5;
-      System.out.println(var5);// 10 12
+      System.out.println(i);// 10 12
    }
 
    public void test2() {
@@ -18,28 +18,45 @@ public class TestFinallyVarDef {
       try {
          System.out.println("a");// 18
       } finally {
-         int var5 = 5;// 20
+         var5 = 5;// 20
       }
 
-      System.out.println(i);// 21 23
+      System.out.println(var5);// 21 23
    }
+
+   public void test3InCatch() {
+      try {
+         System.out.println("try");// 28
+      } catch (Exception var6) {// 29
+         Exception ex = var6;
+         System.out.println(var6);// 30
+
+         try {
+            System.out.println(ex);// 32
+         } finally {
+            System.out.println(var6);// 34
+         }
+
+         System.out.println(var6);// 35 36
+      }
+   }// 38
 }
 
 class 'pkg/TestFinallyVarDef' {
    method 'test1 ()V' {
-      0      5
-      1      5
-      2      5
-      3      5
-      4      5
-      5      5
-      6      5
-      7      5
+      0      6
+      1      6
+      2      6
+      3      6
+      4      6
+      5      6
+      6      6
+      7      6
       a      11
       b      11
       c      11
-      e      7
-      f      7
+      e      8
+      f      8
       12      11
       15      11
       16      11
@@ -67,11 +84,52 @@ class 'pkg/TestFinallyVarDef' {
       18      23
       19      23
    }
+
+   method 'test3InCatch ()V' {
+      0      28
+      1      28
+      2      28
+      3      28
+      4      28
+      5      28
+      6      28
+      7      28
+      b      29
+      c      31
+      d      31
+      e      31
+      f      31
+      10      31
+      11      31
+      12      31
+      13      34
+      14      34
+      15      34
+      16      34
+      17      34
+      18      34
+      19      34
+      21      39
+      22      39
+      23      39
+      25      36
+      26      36
+      27      36
+      28      36
+      29      36
+      2a      36
+      2b      36
+      2e      39
+      31      39
+      32      39
+      33      39
+      35      41
+   }
 }
 
 Lines mapping:
-7 <-> 6
-9 <-> 8
+7 <-> 7
+9 <-> 9
 10 <-> 12
 12 <-> 12
 16 <-> 16
@@ -79,6 +137,15 @@ Lines mapping:
 20 <-> 21
 21 <-> 24
 23 <-> 24
+28 <-> 29
+29 <-> 30
+30 <-> 32
+32 <-> 35
+34 <-> 37
+35 <-> 40
+36 <-> 40
+38 <-> 42
 Not mapped:
 13
 24
+37

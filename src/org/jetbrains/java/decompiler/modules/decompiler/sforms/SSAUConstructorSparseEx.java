@@ -105,6 +105,7 @@ public class SSAUConstructorSparseEx extends SFormsConstructor {
 
       // set version
       varExprent.setVersion(useNode.version);
+      this.updateCatchableVar(varExprent);
     }
 
     this.updateLiveMap(new VarVersionPair(varIndex, currentVersion), varMap, calcLiveVars);
@@ -127,6 +128,7 @@ public class SSAUConstructorSparseEx extends SFormsConstructor {
 
       // set version
       varExprent.setVersion(currentVersion);
+      this.updateCatchableVar(varExprent);
     }
     this.updateLiveMap(new VarVersionPair(varIndex, currentVersion), varMap, calcLiveVars);
 

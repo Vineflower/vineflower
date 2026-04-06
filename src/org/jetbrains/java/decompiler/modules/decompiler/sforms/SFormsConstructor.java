@@ -91,6 +91,9 @@ public abstract class SFormsConstructor {
     int iteration = 1;
     Set<String> updated = new HashSet<>();
     do {
+      if (iteration >= 10_000){
+        throw new IllegalStateException("SForms did not converge in time");
+      }
       // System.out.println("~~~~~~~~~~~~~ \r\n"+root.toJava());
       this.ssaStatements(dgraph, updated, false, mt, iteration++);
       // System.out.println("~~~~~~~~~~~~~ \r\n"+root.toJava());
@@ -218,6 +221,11 @@ public abstract class SFormsConstructor {
 
     this.setCurrentVar(varmap, varIndex, varassign.getVersion());
 
+    this.updateCatchableVar(varassign);
+  }
+
+  protected void updateCatchableVar(VarExprent varassign) {
+    int varIndex = varassign.getIndex();
     // update catchables map for normal vars only
     if (this.currentCatchableMap != null && varIndex < VarExprent.STACK_BASE && varIndex >= 0) {
 
@@ -226,7 +234,7 @@ public abstract class SFormsConstructor {
       } else {
         FastSparseSet<Integer> set = this.factory.createEmptySet();
         set.add(varassign.getVersion());
-        varmap.put(varIndex, set);
+        this.currentCatchableMap.put(varIndex, set);
       }
     }
   }
@@ -291,6 +299,8 @@ public abstract class SFormsConstructor {
         node.tryFinally.type == DirectNodeType.FINALLY &&
         node.tryFinally.tryFinally == pred.tryFinally) {
         // we are entering a try, nothing to do here
+      } else if(pred.tryFinally == node) {
+        // edge between combined catch and finally.
       } else if (pred.type == DirectNodeType.FINALLY) {
         // we are entering the finally block
       } else {
@@ -299,8 +309,13 @@ public abstract class SFormsConstructor {
           ValidationHelper.notNull(finallyNode);
           if (finallyNode.type == DirectNodeType.FINALLY) {
 
-            getAndApplyDiff(this.inVarVersions.get(finallyNode.statement.id + "_FINALLY"), this.outVarVersions.get(finallyNode.id), mapNew);
-
+            getAndApplyDiff(
+              this.outVarVersions.get(finallyNode.id),
+              this.inVarVersions.get(DirectNodeType.FINALLY_END.makeId(finallyNode.statement.id)),
+              mapNew
+            );
+            // trying to track fields accesses across finally boundaries
+            mapNew.removeAllFields();
           }
           finallyNode = finallyNode.tryFinally;
         }
@@ -326,21 +341,31 @@ public abstract class SFormsConstructor {
         continue;
       }
 
-      Integer first = entry.getValue().iterator().next();
       if (output.containsKey(key)) {
-        if (output.get(key).contains(first)) {
+        FastSparseSet<Integer> outputValues = output.get(key);
+        boolean containsAll = true;
+        for (int i : entry.getValue()) {
+          if (!outputValues.contains(i)){
+            containsAll = false;
+            break;
+          }
+        }
+        if (containsAll) {
           // the input is still readable
-          FastSparseSet<Integer> check = output.get(key).getCopy();
+          FastSparseSet<Integer> check = outputValues.getCopy();
           check.complement(entry.getValue());
           if (check.isEmpty()) {
             // no writes happened, do nothing
-          } else {
+          } else if (target.containsKey(key)) {
             // some writes happened, append the additional writes
             target.get(key).union(check);
+          } else {
+            // some writes happened, no data existed yet, set the writes
+            target.put(key, check);
           }
         } else {
           // the input is not readable anymore, only set the writes
-          target.put(key, entry.getValue().getCopy());
+          target.put(key, outputValues.getCopy());
         }
       }
     }

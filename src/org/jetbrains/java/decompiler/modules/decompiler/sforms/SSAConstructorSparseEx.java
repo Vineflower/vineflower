@@ -70,6 +70,8 @@ public class SSAConstructorSparseEx extends SFormsConstructor {
 
       // create new phi node
       this.phi.put(varExprent.getVarVersionPair(), versions);
+
+      this.updateCatchableVar(varExprent);
     }
 
     varMap.setCurrentVar(varExprent); // update varMap to the phi version

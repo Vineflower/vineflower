@@ -22,4 +22,18 @@ public class TestFinallyVarDef {
 
     System.out.println(i);
   }
+
+  public void test3InCatch() {
+    try {
+      System.out.println("try");
+    } catch (Exception ex) {
+      System.out.println(ex);
+      try {
+        System.out.println(ex);
+      } finally {
+        System.out.println(ex);
+      }
+      System.out.println(ex);
+    }
+  }
 }

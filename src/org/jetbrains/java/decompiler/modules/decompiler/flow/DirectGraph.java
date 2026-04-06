@@ -66,8 +66,11 @@ public class DirectGraph {
 
       setVisited.add(node);
 
-      for (; index < node.getSuccessors(DirectEdgeType.REGULAR).size(); index++) {
-        DirectNode succ = node.getSuccessors(DirectEdgeType.REGULAR).get(index).getDestination();
+      var regNodes = node.getSuccessors(DirectEdgeType.REGULAR);
+      var excNodes = node.getSuccessors(DirectEdgeType.EXCEPTION);
+
+      for (; index < regNodes.size(); index++) {
+        DirectNode succ = regNodes.get(index).getDestination();
 
         if (!setVisited.contains(succ)) {
           stackIndex.add(index + 1);
@@ -79,7 +82,22 @@ public class DirectGraph {
         }
       }
 
-      if (index == node.getSuccessors(DirectEdgeType.REGULAR).size()) {
+      if (index >= regNodes.size()) {
+        for (; index < regNodes.size() + excNodes.size(); index++) {
+          DirectNode succ = excNodes.get(index - regNodes.size()).getDestination();
+
+          if (!setVisited.contains(succ)) {
+            stackIndex.add(index + 1);
+
+            stackNode.add(succ);
+            stackIndex.add(0);
+
+            break;
+          }
+        }
+      }
+
+      if (index == regNodes.size() + excNodes.size()) {
         lst.addFirst(node);
 
         stackNode.removeLast();

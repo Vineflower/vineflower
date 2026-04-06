@@ -254,6 +254,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestAnonymousParamNames");
     register(JAVA_8, "TestAccessReplace");
     register(JAVA_8, "TestStringLiterals");
+    register(JAVA_8, "TestStriped64");
 
     register(JAVA_8, "TestClashName", "SharedName1",
       "SharedName2", "SharedName3", "SharedName4", "NonSharedName",

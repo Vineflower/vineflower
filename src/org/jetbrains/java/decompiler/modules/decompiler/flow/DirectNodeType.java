@@ -5,7 +5,7 @@ import java.util.Locale;
 public enum DirectNodeType {
   DIRECT() {
     @Override
-    protected String makeId(int statId) {
+    public String makeId(int statId) {
       return "" + statId;
     }
   },
@@ -26,7 +26,7 @@ public enum DirectNodeType {
     }
   }
 
-  protected String makeId(int statId) {
+  public String makeId(int statId) {
     return statId + "_" + this.name;
   }
 }

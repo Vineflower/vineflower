@@ -1,0 +1,748 @@
+package pkg;
+
+import java.util.Random;
+
+public abstract class TestStriped64 {
+   static final ThreadLocal<int[]> threadHashCode = new ThreadLocal();
+   static final Random rng = new Random();
+   static final int NCPU = Runtime.getRuntime().availableProcessors();// 28
+   transient volatile TestStriped64.Cell[] cells;
+   transient volatile long base;
+   transient volatile int busy;
+
+   final void retryUpdate(long x, int[] hc, boolean wasUncontended) {
+      int h;
+      if (hc == null) {// 36
+         threadHashCode.set(hc = new int[1]);// 37
+         int r = rng.nextInt();// 38
+         h = hc[0] = r == 0 ? 1 : r;// 39
+      } else {
+         h = hc[0];// 40
+      }
+
+      boolean collide = false;// 41
+
+      while (true) {
+         TestStriped64.Cell[] as = this.cells;// 47
+         int n;
+         if (this.cells != null && (n = as.length) > 0) {
+            TestStriped64.Cell a;
+            if ((a = as[n - 1 & h]) == null) {// 48
+               if (this.busy == 0) {// 49
+                  TestStriped64.Cell r = new TestStriped64.Cell(x);// 50
+                  if (this.busy == 0 && this.casBusy()) {// 51
+                     boolean created = false;// 52
+
+                     try {
+                        TestStriped64.Cell[] rs = this.cells;// 56
+                        int m;
+                        int j;
+                        if (this.cells != null && (m = rs.length) > 0 && rs[j = m - 1 & h] == null) {
+                           rs[j] = r;// 57
+                           created = true;// 58
+                        }
+                     } finally {
+                        this.busy = 0;// 61
+                     }
+
+                     if (created) {// 62 63
+                        break;
+                     }
+                     continue;
+                  }
+               }
+
+               collide = false;// 67
+            } else if (!wasUncontended) {// 68
+               wasUncontended = true;// 69
+            } else {
+               long v;
+               if (a.cas(v = a.value, this.fn(v, x))) {// 70
+                  break;
+               }
+
+               if (n >= NCPU || this.cells != as) {// 71
+                  collide = false;
+               } else if (!collide) {// 72
+                  collide = true;
+               } else if (this.busy == 0 && this.casBusy()) {// 73
+                  try {
+                     if (this.cells == as) {// 75
+                        TestStriped64.Cell[] rs = new TestStriped64.Cell[n << 1];// 76
+
+                        for (int i = 0; i < n; i++) {// 77
+                           rs[i] = as[i];
+                        }
+
+                        this.cells = rs;// 78
+                     }
+                  } finally {
+                     this.busy = 0;// 81
+                  }
+
+                  collide = false;// 82 83
+                  continue;
+               }
+            }
+
+            int var32 = h ^ h << 13;// 86
+            int var33 = var32 ^ var32 >>> 17;// 87
+            h = var33 ^ var33 << 5;// 88
+            hc[0] = h;// 89
+         } else if (this.busy == 0 && this.cells == as && this.casBusy()) {// 90
+            boolean init = false;// 91
+
+            try {
+               if (this.cells == as) {// 93
+                  TestStriped64.Cell[] rs = new TestStriped64.Cell[2];// 94
+                  rs[h & 1] = new TestStriped64.Cell(x);// 95
+                  this.cells = rs;// 96
+                  init = true;// 97
+               }
+            } finally {
+               this.busy = 0;// 100
+            }
+
+            if (init) {// 101 102
+               break;
+            }
+         } else {
+            long v;
+            if (this.casBase(v = this.base, this.fn(v, x))) {// 103
+               break;
+            }
+         }
+      }
+   }// 105
+
+   final void retryUpdateReduced() {
+      boolean created;
+      do {
+         created = false;// 111
+
+         try {
+            if (this.cells != null) {// 113
+               created = true;// 114
+            }
+         } finally {
+            this.busy = 0;// 117
+         }
+      } while (!created);// 118 119
+   }// 121
+
+   final void retryUpdateReducedNoLoadBearing() {
+      boolean created;
+      do {
+         created = false;// 125
+
+         try {
+            if (this.cells != null) {// 127
+               created = true;// 128
+            }
+         } finally {
+            this.busy = 0;// 131
+         }
+      } while (!created);// 132 133
+   }// 135
+
+   final boolean casBase(long cmp, long val) {
+      return true;// 140
+   }
+
+   final boolean casBusy() {
+      return true;// 145
+   }
+
+   abstract long fn(long var1, long var3);
+
+   static final class Cell {
+      volatile long p0;
+      volatile long p1;
+      volatile long p2;
+      volatile long p3;
+      volatile long p4;
+      volatile long p5;
+      volatile long p6;
+      volatile long value;
+      volatile long q0;
+      volatile long q1;
+      volatile long q2;
+      volatile long q3;
+      volatile long q4;
+      volatile long q5;
+      volatile long q6;
+
+      Cell(long x) {
+         this.value = x;// 17
+      }// 18
+
+      final boolean cas(long cmp, long val) {
+         return true;// 22
+      }
+   }
+}
+
+class 'pkg/TestStriped64' {
+   method '<clinit> ()V' {
+      14      7
+      15      7
+      16      7
+      17      7
+      18      7
+      19      7
+   }
+
+   method 'retryUpdate (J[IZ)V' {
+      0      14
+      1      14
+      2      14
+      3      14
+      4      15
+      5      15
+      6      15
+      7      15
+      b      15
+      c      15
+      d      15
+      e      15
+      f      16
+      10      16
+      11      16
+      12      16
+      13      16
+      14      16
+      15      16
+      16      16
+      17      17
+      18      17
+      19      17
+      1a      17
+      1b      17
+      1c      17
+      1d      17
+      1e      17
+      22      17
+      23      17
+      25      17
+      26      17
+      27      17
+      2b      19
+      2c      19
+      2d      19
+      2e      19
+      2f      19
+      30      22
+      31      22
+      32      22
+      33      25
+      34      25
+      35      25
+      36      25
+      38      25
+      39      25
+      3a      27
+      3b      27
+      3c      27
+      3d      27
+      3e      27
+      3f      27
+      41      27
+      42      27
+      43      27
+      44      27
+      45      27
+      46      29
+      47      29
+      48      29
+      49      29
+      4a      29
+      4b      29
+      4c      29
+      4d      29
+      4e      29
+      4f      29
+      51      29
+      52      29
+      53      29
+      54      29
+      55      29
+      56      30
+      57      30
+      58      30
+      59      30
+      5a      30
+      5b      30
+      5c      30
+      61      31
+      65      31
+      66      31
+      67      32
+      68      32
+      69      32
+      6a      32
+      6b      32
+      6c      32
+      6d      32
+      6e      32
+      6f      32
+      70      32
+      71      32
+      72      32
+      73      32
+      74      32
+      75      33
+      76      33
+      77      33
+      78      36
+      79      36
+      7a      36
+      7b      36
+      7d      36
+      7e      36
+      7f      39
+      80      39
+      81      39
+      82      39
+      83      39
+      84      39
+      86      39
+      87      39
+      88      39
+      89      39
+      8a      39
+      8b      39
+      8c      39
+      8d      39
+      8e      39
+      8f      39
+      90      39
+      91      39
+      92      39
+      93      39
+      95      39
+      96      39
+      97      39
+      98      39
+      99      39
+      9a      39
+      9b      40
+      9c      40
+      9d      40
+      9e      40
+      9f      40
+      a0      40
+      a1      40
+      a2      41
+      a3      41
+      a4      41
+      aa      47
+      ab      47
+      af      44
+      b0      44
+      b1      44
+      b2      44
+      b3      44
+      b7      47
+      b8      47
+      b9      47
+      bf      54
+      c0      54
+      c1      54
+      c5      55
+      c6      55
+      c7      55
+      c8      55
+      c9      55
+      ca      56
+      cb      56
+      cc      56
+      d0      59
+      d1      59
+      d2      59
+      d3      59
+      d4      59
+      d5      59
+      d6      59
+      d8      59
+      d9      59
+      da      59
+      db      59
+      dc      59
+      dd      59
+      de      59
+      df      59
+      e0      59
+      e1      59
+      e2      59
+      e3      59
+      e4      59
+      e5      59
+      e6      59
+      ea      63
+      eb      63
+      ec      63
+      ed      63
+      ee      63
+      ef      63
+      f0      63
+      f1      63
+      f2      63
+      f3      63
+      f4      63
+      f5      63
+      f6      63
+      f7      63
+      f8      63
+      f9      63
+      fa      63
+      fb      64
+      fc      64
+      fd      64
+      101      65
+      102      65
+      103      65
+      104      65
+      105      65
+      106      66
+      107      66
+      108      66
+      10c      67
+      10d      67
+      10e      67
+      10f      67
+      110      67
+      111      67
+      112      67
+      113      67
+      114      67
+      115      67
+      116      67
+      117      67
+      118      67
+      119      67
+      11a      69
+      11b      69
+      11c      69
+      11d      69
+      11e      69
+      11f      69
+      120      69
+      121      69
+      122      69
+      123      70
+      124      70
+      125      70
+      126      70
+      12a      70
+      12b      70
+      12c      72
+      12d      72
+      12e      72
+      12f      72
+      130      72
+      131      72
+      132      72
+      133      72
+      134      72
+      135      72
+      136      73
+      137      73
+      138      73
+      139      73
+      13a      73
+      13b      73
+      13c      73
+      13d      73
+      13e      73
+      13f      73
+      140      72
+      141      72
+      142      72
+      146      76
+      147      76
+      148      76
+      149      76
+      14a      76
+      14b      76
+      151      82
+      156      79
+      157      79
+      158      79
+      159      79
+      15a      79
+      15e      82
+      15f      82
+      164      87
+      165      87
+      166      87
+      167      87
+      168      87
+      169      87
+      16a      87
+      16b      87
+      16c      87
+      16d      87
+      16e      88
+      16f      88
+      170      88
+      171      88
+      172      88
+      173      88
+      174      88
+      175      88
+      176      88
+      177      88
+      178      89
+      179      89
+      17a      89
+      17b      89
+      17c      89
+      17d      89
+      17e      89
+      17f      89
+      180      89
+      181      90
+      182      90
+      183      90
+      184      90
+      185      90
+      189      91
+      18a      91
+      18b      91
+      18c      91
+      18d      91
+      18e      91
+      18f      91
+      190      91
+      191      91
+      192      91
+      193      91
+      194      91
+      195      91
+      196      91
+      197      91
+      198      91
+      199      91
+      19a      91
+      19b      91
+      19c      91
+      19d      91
+      19e      91
+      19f      91
+      1a0      92
+      1a1      92
+      1a2      92
+      1a3      95
+      1a4      95
+      1a5      95
+      1a6      95
+      1a7      95
+      1a8      95
+      1a9      95
+      1aa      95
+      1ab      95
+      1ac      96
+      1b0      96
+      1b1      96
+      1b2      97
+      1b3      97
+      1b4      97
+      1b5      97
+      1b6      97
+      1b7      97
+      1bc      97
+      1c0      97
+      1c1      98
+      1c2      98
+      1c3      98
+      1c4      98
+      1c5      98
+      1c6      98
+      1c7      99
+      1c8      99
+      1c9      99
+      1cf      105
+      1d0      105
+      1d4      102
+      1d5      102
+      1d6      102
+      1d7      102
+      1d8      102
+      1dc      105
+      1dd      105
+      1de      105
+      1e7      110
+      1e8      110
+      1e9      110
+      1ea      110
+      1eb      110
+      1ed      110
+      1ee      110
+      1ef      110
+      1f0      110
+      1f1      110
+      1f2      110
+      1f3      110
+      1f4      110
+      1f5      110
+      1f6      110
+      1f7      110
+      1f8      110
+      1f9      110
+      1fa      110
+      1fb      110
+      202      115
+   }
+
+   method 'retryUpdateReduced ()V' {
+      0      120
+      1      120
+      2      123
+      3      123
+      4      123
+      5      123
+      6      123
+      7      123
+      8      123
+      9      124
+      a      124
+      10      129
+      15      127
+      16      127
+      17      127
+      18      127
+      19      127
+      1d      129
+      1e      129
+      1f      129
+      27      130
+   }
+
+   method 'retryUpdateReducedNoLoadBearing ()V' {
+      0      135
+      1      135
+      2      138
+      3      138
+      4      138
+      5      138
+      6      138
+      7      138
+      8      138
+      9      139
+      a      139
+      10      144
+      14      142
+      15      142
+      16      142
+      17      142
+      18      142
+      1b      144
+      1c      144
+      1d      144
+      25      145
+   }
+
+   method 'casBase (JJ)Z' {
+      0      148
+      1      148
+   }
+
+   method 'casBusy ()Z' {
+      0      152
+      1      152
+   }
+}
+
+class 'pkg/TestStriped64$Cell' {
+   method '<init> (J)V' {
+      4      175
+      5      175
+      6      175
+      7      175
+      8      175
+      9      176
+   }
+
+   method 'cas (JJ)Z' {
+      0      179
+      1      179
+   }
+}
+
+Lines mapping:
+17 <-> 176
+18 <-> 177
+22 <-> 180
+28 <-> 8
+36 <-> 15
+37 <-> 16
+38 <-> 17
+39 <-> 18
+40 <-> 20
+41 <-> 23
+47 <-> 26
+48 <-> 30
+49 <-> 31
+50 <-> 32
+51 <-> 33
+52 <-> 34
+56 <-> 37
+57 <-> 41
+58 <-> 42
+61 <-> 45
+62 <-> 48
+63 <-> 48
+67 <-> 55
+68 <-> 56
+69 <-> 57
+70 <-> 60
+71 <-> 64
+72 <-> 66
+73 <-> 68
+75 <-> 70
+76 <-> 71
+77 <-> 73
+78 <-> 77
+81 <-> 80
+82 <-> 83
+83 <-> 83
+86 <-> 88
+87 <-> 89
+88 <-> 90
+89 <-> 91
+90 <-> 92
+91 <-> 93
+93 <-> 96
+94 <-> 97
+95 <-> 98
+96 <-> 99
+97 <-> 100
+100 <-> 103
+101 <-> 106
+102 <-> 106
+103 <-> 111
+105 <-> 116
+111 <-> 121
+113 <-> 124
+114 <-> 125
+117 <-> 128
+118 <-> 130
+119 <-> 130
+121 <-> 131
+125 <-> 136
+127 <-> 139
+128 <-> 140
+131 <-> 143
+132 <-> 145
+133 <-> 145
+135 <-> 146
+140 <-> 149
+145 <-> 153
+Not mapped:
+16
+26
+27
+84
+104
+120
+134
