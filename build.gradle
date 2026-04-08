@@ -190,7 +190,7 @@ jar {
       'Main-Class': 'org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler',
       'Implementation-Name': "Vineflower",
       'Implementation-Version': project.version,
-      'Automatic-Module-Name': "org.vineflower.vineflower"
+      'Automatic-Module-Name': "org.jetbrains.java.decompiler"
     )
   }
 }
@@ -230,7 +230,7 @@ def allJar = tasks.register('allJar', Jar) {allJar ->
       'Main-Class': 'org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler',
       'Implementation-Name': "Vineflower",
       'Implementation-Version': project.version,
-      'Automatic-Module-Name': "org.vineflower.vineflower"
+      'Automatic-Module-Name': "org.jetbrains.java.decompiler"
     )
   }
 
