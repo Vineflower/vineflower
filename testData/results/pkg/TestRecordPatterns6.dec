@@ -11,15 +11,11 @@ public class TestRecordPatterns6 {
    }
 
    public String test2(TestRecordPatterns6.I in) {
-      TestRecordPatterns6.I var2 = in;
-
-      while (true) {
-         return (String)(switch (var2) {// 19
-            case TestRecordPatterns6.I.R1(String s) -> s;// 20
-            case TestRecordPatterns6.I.R3(String s) -> s;// 21
-            default -> throw new IllegalStateException();// 22
-         });
-      }
+      return (String)(switch (in) {// 19
+         case TestRecordPatterns6.I.R1(String s) -> s;// 20
+         case TestRecordPatterns6.I.R3(String s) -> s;// 21
+         default -> throw new IllegalStateException();// 22
+      });
    }
 
    sealed interface I permits TestRecordPatterns6.I.R1, TestRecordPatterns6.I.R2, TestRecordPatterns6.I.R3 {
@@ -88,46 +84,44 @@ class 'pkg/TestRecordPatterns6' {
 
    method 'test2 (Lpkg/TestRecordPatterns6$I;)Ljava/lang/String;' {
       0      13
-      6      13
-      9      16
-      10      16
-      11      16
-      12      16
-      13      16
-      14      16
-      15      16
-      16      16
-      17      16
-      18      16
-      19      16
-      1a      16
-      1b      16
-      1c      16
-      1d      16
-      1e      16
-      1f      16
-      20      16
-      21      16
-      22      16
-      23      16
-      24      16
-      25      16
-      26      16
-      27      16
-      28      16
-      29      16
-      2a      16
-      2b      16
-      46      17
-      47      17
-      48      17
-      49      17
-      64      18
-      65      18
-      66      18
-      67      18
-      72      19
-      73      16
+      10      13
+      11      13
+      12      13
+      13      13
+      14      13
+      15      13
+      16      13
+      17      13
+      18      13
+      19      13
+      1a      13
+      1b      13
+      1c      13
+      1d      13
+      1e      13
+      1f      13
+      20      13
+      21      13
+      22      13
+      23      13
+      24      13
+      25      13
+      26      13
+      27      13
+      28      13
+      29      13
+      2a      13
+      2b      13
+      46      14
+      47      14
+      48      14
+      49      14
+      64      15
+      65      15
+      66      15
+      67      15
+      72      16
+      73      13
    }
 }
 
@@ -136,7 +130,7 @@ Lines mapping:
 12 <-> 6
 13 <-> 7
 14 <-> 8
-19 <-> 17
-20 <-> 18
-21 <-> 19
-22 <-> 20
+19 <-> 14
+20 <-> 15
+21 <-> 16
+22 <-> 17
