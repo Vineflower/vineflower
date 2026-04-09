@@ -306,9 +306,21 @@ public final class SwitchPatternMatchProcessor {
       }
     }
 
-    if (guarded && stat.getParent() instanceof DoStatement) {
+    Statement replaceWith = stat;
+    Statement parent = stat.getParent();
+    if (parent instanceof SequenceStatement seq
+        && seq.getStats().size() == 2
+        && seq.getStats().get(0) == stat
+        && seq.getStats().get(1) instanceof BasicBlockStatement block
+        && block.getExprents().size() == 1
+        && block.getExprents().get(0) instanceof ExitExprent exit
+        && exit.getValue() != null) {
+      replaceWith = parent;
+      parent = parent.getParent();
+    }
+    if (guarded && parent instanceof DoStatement) {
       // remove the enclosing while(true) loop of a guarded switch
-      stat.getParent().replaceWith(stat);
+      parent.replaceWith(replaceWith);
       // FIXME: this replacement code looks wrong,
       //  doesn't get any coverage in tests
       // update continue-loops into break-switches
@@ -330,7 +342,7 @@ public final class SwitchPatternMatchProcessor {
     List<Exprent> basicHead = stat.getBasichead().getExprents();
     // In the case of a guarded switch the synthetic variable assignment and requireNonNull is in the previous statement
     if (basicHead.isEmpty()) {
-      List<StatEdge> edges = stat.getPredecessorEdges(StatEdge.TYPE_REGULAR);
+      List<StatEdge> edges = replaceWith.getPredecessorEdges(StatEdge.TYPE_REGULAR);
       if (edges.size() == 1 && edges.get(0).getSource() instanceof BasicBlockStatement block) {
         basicHead = block.getExprents();
       }
