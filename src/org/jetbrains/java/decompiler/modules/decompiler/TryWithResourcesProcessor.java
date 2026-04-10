@@ -266,6 +266,32 @@ public final class TryWithResourcesProcessor {
         tryStatement.getResources().set(0, assignment.getRight());
       }
 
+      destinations = findExitpoints(tryStatement);
+      for (Statement destination : destinations) {
+        Statement exitStat = destination;
+        if (exitStat instanceof BasicBlockStatement block
+            && block.getExprents().isEmpty()
+            && block.getAllSuccessorEdges().size() == 1) {
+          exitStat = block.getAllSuccessorEdges().get(0).getDestination();
+        }
+
+        if (exitStat instanceof BasicBlockStatement block
+            && block.getExprents().size() == 1
+            && block.getExprents().get(0) instanceof ExitExprent exit
+            && exit.getExitType() == ExitExprent.Type.RETURN
+            && destination.getPredecessorEdges(StatEdge.TYPE_BREAK).size() == 1
+            && destination.getPredecessorEdges(StatEdge.TYPE_BREAK).get(0).getSource() instanceof BasicBlockStatement setExit
+            && !setExit.getExprents().isEmpty()
+            && setExit.getExprents().get(setExit.getExprents().size() - 1) instanceof AssignmentExprent assign
+            && assign.getLeft() instanceof VarExprent variable
+            && variable.equalsVersions(exit.getValue())
+            && !variable.isVarReferenced(tryStatement.getTopParent(), (VarExprent) exit.getValue())) {
+          exit.replaceExprent(exit.getValue(), assign.getRight());
+          setExit.getExprents().set(setExit.getExprents().size() - 1, exit);
+          exitStat.replaceWithEmpty();
+        }
+      }
+
       return true;
     }
 
