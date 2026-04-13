@@ -88,8 +88,7 @@ public class FinallyProcessor {
             root.addComment("$VF: Could not inline inconsistent finally blocks", true);
           } else {
             if (DecompilerContext.getOption(IFernflowerPreferences.FINALLY_DEINLINE) && this.verifyFinallyEx(graph, fin, inf)) {
-              // FIXME: inlines improperly, breaks TestLoopFinally#emptyInnerFinally
-//              inlineReturnVar(graph, handler);
+              inlineReturnVar(graph, handler, inf);
 
               this.finallyBlocks.put(handler, null);
             } else {
@@ -122,10 +121,12 @@ public class FinallyProcessor {
 
   private static final class Record {
     private final int firstCode;
+    private final int exceptionOffset;
     private final Map<BasicBlock, Boolean> mapLast;
 
-    private Record(int firstCode, Map<BasicBlock, Boolean> mapLast) {
+    private Record(int firstCode, int exceptionOffset, Map<BasicBlock, Boolean> mapLast) {
       this.firstCode = firstCode;
+      this.exceptionOffset = exceptionOffset;
       this.mapLast = mapLast;
     }
   }
@@ -331,7 +332,7 @@ public class FinallyProcessor {
       }
     }
 
-    return new Record(firstcode, mapLast);
+    return new Record(firstcode, instrFirst.startOffset, mapLast);
   }
 
   private static void insertSemaphore(ControlFlowGraph graph,
@@ -1089,7 +1090,7 @@ public class FinallyProcessor {
   // ireturn
   //
   // into the predecessor
-  private static void inlineReturnVar(ControlFlowGraph graph, BasicBlock handler) {
+  private static void inlineReturnVar(ControlFlowGraph graph, BasicBlock handler, Record inf) {
     List<ExceptionRangeCFG> ranges = new ArrayList<>();
 
     // Find all exception ranges with this finally block as the handler
@@ -1115,49 +1116,23 @@ public class FinallyProcessor {
       }
     }
 
-    mainloop:
     for (BasicBlock exit : exits) {
       // We only want exits with 1 successor block
-      if (exit.getSuccs().size() == 1) {
+      if (exit.getSuccs().size() == 1 && !exit.getSeq().isEmpty()) {
         Instruction instr = exit.getLastInstruction();
 
         int index = indexOf(instr);
 
         if (index >= 0) {
 
-          // Traverse up predecessors for old stores
-
-          Deque<BasicBlock> stack = new LinkedList<>(exit.getPreds());
-          Set<BasicBlock> visited = new HashSet<>();
-
-          while (!stack.isEmpty()) {
-            BasicBlock pred = stack.pop();
-
-            // Somehow found the handler from predecessor traversal- stop
-            if (pred == handler) {
-              continue mainloop;
-            }
-
-            // Go through all instructions of predecessor
-            for (Instruction predInstr : pred.getSeq()) {
-              if (predInstr.opcode == STORE_CODES[index]) {
-                // Found an earlier store to the same variable, we cannot inline this
-                if (predInstr.operand(0) == instr.operand(0)) {
-                  continue mainloop;
-                }
-              }
-            }
-
-            // Find preds until we reach the start block
-            for (BasicBlock p : pred.getPreds()) {
-              if (visited.add(p)) {
-                stack.push(p);
-              }
-            }
+          BasicBlock succ = exit.getSuccs().get(0);
+          if (succ.getPreds().size() != 1 || succ.getPredExceptions().size() != 0) {
+            continue;
           }
 
-          InstructionSequence nextSeq = exit.getSuccs().get(0).getSeq();
-          if (nextSeq.length() == 2) {
+          InstructionSequence nextSeq = succ.getSeq();
+          // Returns in finally blocks are always placed before the exception block
+          if (nextSeq.length() == 2 && nextSeq.getInstr(0).startOffset < inf.exceptionOffset) {
             // Check if next block's sequence is load and return
             if (nextSeq.getInstr(0).opcode == NEXT_CODES[index][0] && nextSeq.getInstr(1).opcode == NEXT_CODES[index][1]) {
               // Make sure variable index is correct
