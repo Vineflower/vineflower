@@ -423,6 +423,11 @@ public interface IFernflowerPreferences {
   @Type(DecompilerOption.Type.BOOLEAN)
   String COLORIZE_OUTPUT = "color";
 
+  @Name("Color map")
+  @Description("If colorizing output, which colors should be used for syntax highlighting.")
+  @Type(DecompilerOption.Type.STRING)
+  String COLOR_MAP = "color-map";
+
   Map<String, Object> DEFAULTS = getDefaults();
 
   static Map<String, Object> getDefaults() {
@@ -501,6 +506,7 @@ public interface IFernflowerPreferences {
     defaults.put(PRETTIFY_IFS, "1");
     defaults.put(METHOD_TO_DECOMPILE, "");
     defaults.put(COLORIZE_OUTPUT, "0");
+    defaults.put(COLOR_MAP, "");
 
     return Collections.unmodifiableMap(defaults);
   }

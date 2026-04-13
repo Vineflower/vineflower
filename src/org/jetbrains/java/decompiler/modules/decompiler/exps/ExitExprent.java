@@ -117,7 +117,7 @@ public class ExitExprent extends Exprent {
         }
       }
 
-      return buf.append(value.toJava(indent)).prepend("throw ");
+      return buf.appendKeyword("throw").appendWhitespace(" ").append(value.toJava(indent));
     }
   }
 

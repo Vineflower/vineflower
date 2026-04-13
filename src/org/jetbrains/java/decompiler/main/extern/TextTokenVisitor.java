@@ -5,6 +5,7 @@ import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.struct.gen.FieldDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.util.token.TextRange;
+import org.jetbrains.java.decompiler.util.token.TokenType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -110,6 +111,13 @@ public abstract class TextTokenVisitor {
   public void visitGeneric(TextRange range, boolean declaration, String className, String methodName, MethodDescriptor methodDescriptor, String genericType) {
     if (next != null) {
       next.visitGeneric(range, declaration, className, methodName, methodDescriptor, genericType);
+    }
+  }
+
+  @MustBeInvokedByOverriders
+  public void visitSyntax(TextRange range, TokenType type) {
+    if (next != null) {
+      next.visitSyntax(range, type);
     }
   }
 

@@ -7,11 +7,10 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.Fun
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.SFormsConstructor;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.VarMapHolder;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
-import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
-import org.jetbrains.java.decompiler.util.collections.ListStack;
 import org.jetbrains.java.decompiler.util.TextBuffer;
+import org.jetbrains.java.decompiler.util.collections.ListStack;
 
 import java.util.BitSet;
 import java.util.List;
@@ -92,10 +91,12 @@ public class IfExprent extends Exprent {
     // The general context of if conditions is that they must always return booleans
     condition.getInferredExprType(VarType.VARTYPE_BOOLEAN);
 
-    TextBuffer buf = condition.toJava(indent);
+    TextBuffer buf = new TextBuffer();
+    buf.appendKeyword("if").appendWhitespace(" ").appendPunctuation("(");
     buf.pushNewlineGroup(indent, 1);
+    buf.append(condition.toJava(indent + 1));
     buf.appendPossibleNewline();
-    buf.enclose("if (", ")");
+    buf.appendPunctuation(")");
     buf.appendPossibleNewline("", true);
     buf.popNewlineGroup();
     buf.addStartBytecodeMapping(bytecode);

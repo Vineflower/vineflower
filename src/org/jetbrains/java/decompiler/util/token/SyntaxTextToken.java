@@ -14,6 +14,6 @@ public class SyntaxTextToken extends TextToken {
 
   @Override
   public void visit(TextTokenVisitor visitor) {
-
+    visitor.visitSyntax(new TextRange(start, length), type);
   }
 }

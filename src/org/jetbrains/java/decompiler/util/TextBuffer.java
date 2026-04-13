@@ -156,6 +156,7 @@ public class TextBuffer {
         String name = castName.substring(0, castName.length() - type.arrayDim * 2);
         appendAllClasses(name, type.value);
         addGenericTypeTokens(length() - name.length(), name, type);
+        addToken(new SyntaxTextToken(length(), castName.length() - name.length(), TokenType.PUNCTUATION));
         append(castName.substring(castName.length() - type.arrayDim * 2));
       } else {
         appendAllClasses(castName, type.value);
@@ -163,6 +164,13 @@ public class TextBuffer {
       }
 
       return this;
+    }
+
+    if (VarType.isPrimitive(type.resizeArrayDim(0)) || type.resizeArrayDim(0).equals(VarType.VARTYPE_VOID)) {
+      addToken(new SyntaxTextToken(length(), castName.length() - 2 * type.arrayDim, TokenType.KEYWORD));
+      if (type.arrayDim > 0) {
+        addToken(new SyntaxTextToken(length() + castName.length() - 2 * type.arrayDim, 2 * type.arrayDim, TokenType.PUNCTUATION));
+      }
     }
 
     return append(castName);
@@ -302,10 +310,12 @@ public class TextBuffer {
   }
 
   public TextBuffer append(String value, TokenType type) {
-    addToken(new SyntaxTextToken(length(), value.length(), type));
+    if (!value.isBlank()) {
+      addToken(new SyntaxTextToken(length(), value.length(), type));
+    }
     return append(value);
   }
-  
+
   public TextBuffer appendWhitespace(String value) {
     assert value.isBlank();
     return append(value);

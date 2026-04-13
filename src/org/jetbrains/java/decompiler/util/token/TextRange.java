@@ -12,4 +12,9 @@ public class TextRange {
   public int getEnd() {
     return start + length;
   }
+
+  @Override
+  public String toString() {
+    return String.format("%d-%d", start, getEnd());
+  }
 }
