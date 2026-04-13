@@ -39,9 +39,9 @@ public class TestAnonymousEverything {
          }
       }
 
-      ({ x, y ->// 13
+      { x, y ->// 13
          return x + y
-      } as Function2)(1, 2)// 12
+      }(1, 2)// 12
    }// 14
 
    public fun testAnonymousObject() {
@@ -79,7 +79,7 @@ public class TestAnonymousEverything {
    }// 49
 
    public fun testNoTypeReference() {
-      (CollectionsKt::listOf as Function1)(1)// 52 53
+      CollectionsKt::listOf(1)// 52 53
    }// 54
 
    public fun testMultipleSubtypes() {
