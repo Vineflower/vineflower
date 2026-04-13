@@ -94,11 +94,11 @@ public class IfExprent extends Exprent {
     TextBuffer buf = new TextBuffer();
     buf.appendKeyword("if").appendWhitespace(" ").appendPunctuation("(");
     buf.pushNewlineGroup(indent, 1);
-    buf.append(condition.toJava(indent + 1));
     buf.appendPossibleNewline();
-    buf.appendPunctuation(")");
+    buf.append(condition.toJava(indent));
     buf.appendPossibleNewline("", true);
     buf.popNewlineGroup();
+    buf.appendPunctuation(")");
     buf.addStartBytecodeMapping(bytecode);
     return buf;
   }
