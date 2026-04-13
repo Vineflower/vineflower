@@ -252,8 +252,6 @@ public final class TryWithResourcesProcessor {
       // Get catch block
       Statement remove = tryStatement.getStats().get(1);
 
-      int exceptionOffset = remove.getStartEndRange().start;
-
       // Flatten references to statement
       SequenceHelper.destroyAndFlattenStatement(remove);
 
@@ -271,7 +269,7 @@ public final class TryWithResourcesProcessor {
       destinations = findExitpoints(tryStatement);
       for (Statement destination : destinations) {
         Statement exitStat = destination;
-        while (exitStat instanceof BasicBlockStatement block
+        if (exitStat instanceof BasicBlockStatement block
             && block.getExprents().isEmpty()
             && block.getAllSuccessorEdges().size() == 1) {
           exitStat = block.getAllSuccessorEdges().get(0).getDestination();
@@ -280,7 +278,6 @@ public final class TryWithResourcesProcessor {
         if (exitStat instanceof BasicBlockStatement block
             && block.getExprents().size() == 1
             && block.getExprents().get(0) instanceof ExitExprent exit
-            && (exit.bytecode == null || exceptionOffset == -1 || exit.bytecode.length() < exceptionOffset)
             && exit.getExitType() == ExitExprent.Type.RETURN
             && destination.getPredecessorEdges(StatEdge.TYPE_BREAK).size() == 1
             && destination.getPredecessorEdges(StatEdge.TYPE_BREAK).get(0).getSource() instanceof BasicBlockStatement setExit

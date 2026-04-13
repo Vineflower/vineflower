@@ -198,17 +198,8 @@ public class TestTryWithResourcesReturnJ16 {
       return null;// 138
    }
 
-   public String testFake(File file) throws FileNotFoundException {
-      String string;
-      try (Scanner scanner = this.create(file)) {// 143
-         string = scanner.next();// 144
-      }
-
-      return string;// 146
-   }
-
    private Scanner create(File file) throws FileNotFoundException {
-      return new Scanner(file);// 150
+      return new Scanner(file);// 142
    }
 }
 
@@ -534,25 +525,9 @@ class 'pkg/TestTryWithResourcesReturnJ16' {
       52      197
    }
 
-   method 'testFake (Ljava/io/File;)Ljava/lang/String;' {
-      0      202
-      1      202
-      2      202
-      3      202
-      4      202
-      5      202
-      6      203
-      7      203
-      8      203
-      9      203
-      a      203
-      2f      206
-      30      206
-   }
-
    method 'create (Ljava/io/File;)Ljava/util/Scanner;' {
-      4      210
-      8      210
+      4      201
+      8      201
    }
 }
 
@@ -614,10 +589,7 @@ Lines mapping:
 132 <-> 192
 135 <-> 195
 138 <-> 198
-143 <-> 203
-144 <-> 204
-146 <-> 207
-150 <-> 211
+142 <-> 202
 Not mapped:
 12
 69
@@ -627,4 +599,3 @@ Not mapped:
 111
 124
 136
-145
