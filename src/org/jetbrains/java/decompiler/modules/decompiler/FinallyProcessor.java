@@ -1116,7 +1116,6 @@ public class FinallyProcessor {
       }
     }
 
-    mainloop:
     for (BasicBlock exit : exits) {
       // We only want exits with 1 successor block
       if (exit.getSuccs().size() == 1 && !exit.getSeq().isEmpty()) {
