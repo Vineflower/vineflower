@@ -250,8 +250,9 @@ public class KNewExprent extends NewExprent implements KExprent {
       String methodName = returnType.equals("kotlin/Array") ? "arrayOfNulls" : "<init>";
       String containingClass = returnType.equals("kotlin/Array") ? "kotlin/LibraryKt" : "kotlin/" + returnType;
       String desc = "(I)L" + returnType + ";";
+      String text = "<init>".equals(methodName) ? returnType : methodName;
 
-      buf.appendMethod(methodName, false, containingClass, methodName, desc).appendPunctuation('(');
+      buf.appendMethod(text, false, containingClass, methodName, desc).appendPunctuation('(');
 
       Exprent dim = getLstDims().get(getNewType().arrayDim - 1);
       if (dim.type == Type.CONST) {

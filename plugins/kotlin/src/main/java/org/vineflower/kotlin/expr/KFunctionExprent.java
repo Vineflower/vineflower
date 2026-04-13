@@ -309,6 +309,8 @@ public class KFunctionExprent extends FunctionExprent implements KExprent {
         setFuncType(FunctionType.EQ);
       }
     }
+    
+    getInferredExprType(null);
   }
 
   public Typed getAnyFunctionType() {

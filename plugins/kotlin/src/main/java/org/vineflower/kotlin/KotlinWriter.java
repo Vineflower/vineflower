@@ -1380,27 +1380,37 @@ public class KotlinWriter implements StatementWriter, Flags {
 
     buffer.appendPunctuation('{').appendLineSeparator();
 
-    RootStatement root = methodWrapper.root;
-
-    if (root != null && methodWrapper.decompileError == null) { // check for existence
-      try {
-        // Avoid generating imports for ObjectMethods during root.toJava(...)
-        if (!RecordHelper.isHiddenRecordMethod(cl, mt, root)) {
-          TextBuffer code = root.toJava(indent + 1);
-          code.addBytecodeMapping(root.getDummyExit().bytecode);
-          hideMethod = code.length() == 0 && hideIfInit;
-          buffer.append(code, cl.qualifiedName, InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor()));
-        }
-      } catch (Throwable t) {
-        String message = "Method " + mt.getName() + " " + mt.getDescriptor() + " in class " + cl.qualifiedName + " couldn't be written.";
-        DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.WARN, t);
-        methodWrapper.decompileError = t;
+    MethodWrapper outerWrapper = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
+    try {
+      if (outerWrapper != methodWrapper) {
+        DecompilerContext.setProperty(DecompilerContext.CURRENT_METHOD_WRAPPER, methodWrapper);
       }
+
+      RootStatement root = methodWrapper.root;
+
+      if (root != null && methodWrapper.decompileError == null) { // check for existence
+        try {
+          // Avoid generating imports for ObjectMethods during root.toJava(...)
+          if (!RecordHelper.isHiddenRecordMethod(cl, mt, root)) {
+            TextBuffer code = root.toJava(indent + 1);
+            code.addBytecodeMapping(root.getDummyExit().bytecode);
+            hideMethod = code.length() == 0 && hideIfInit;
+            buffer.append(code, cl.qualifiedName, InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor()));
+          }
+        } catch (Throwable t) {
+          String message = "Method " + mt.getName() + " " + mt.getDescriptor() + " in class " + cl.qualifiedName + " couldn't be written.";
+          DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.WARN, t);
+          methodWrapper.decompileError = t;
+        }
+      }
+
+      if (methodWrapper.decompileError != null) {
+        dumpError(buffer, methodWrapper, indent + 1);
+      }
+    } finally {
+      DecompilerContext.setProperty(DecompilerContext.CURRENT_METHOD_WRAPPER, outerWrapper);
     }
 
-    if (methodWrapper.decompileError != null) {
-      dumpError(buffer, methodWrapper, indent + 1);
-    }
     buffer.appendIndent(indent).appendPunctuation('}').appendLineSeparator();
     return !hideMethod;
   }
@@ -1960,7 +1970,7 @@ public class KotlinWriter implements StatementWriter, Flags {
 
     for (int i = 0; i < parameters.size(); i++) {
       if (i > 0) {
-        buffer.appendPunctuation(",").appendPossibleNewline(" ");
+        buffer.appendPunctuation(",").appendWhitespace(" ");
       }
 
       buffer.appendGeneric(parameters.get(i), false, cl.qualifiedName, null, null);
