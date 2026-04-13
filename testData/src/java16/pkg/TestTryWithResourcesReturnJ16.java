@@ -138,6 +138,14 @@ public class TestTryWithResourcesReturnJ16 {
     return null;
   }
 
+  public String testFake(File file) throws FileNotFoundException {
+    String string;
+    try (Scanner scanner = create(file)) {
+      string = scanner.next();
+    }
+    return string;
+  }
+
   private Scanner create(File file) throws FileNotFoundException {
     return new Scanner(file);
   }
