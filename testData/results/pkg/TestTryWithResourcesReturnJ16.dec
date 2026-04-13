@@ -147,28 +147,28 @@ public class TestTryWithResourcesReturnJ16 {
    }
 
    public String testComplex(File f, File f2, File f3) throws FileNotFoundException {
-      Object var16;
+      String o;
       try (
          Scanner scanner = this.create(f);// 94
          Scanner s2 = this.create(f2);// 95
       ) {
          scanner.next();// 96
-         if (scanner.hasNext() && s2.hasNext()) {// 98
-            try (Scanner s = this.create(f3)) {// 102
-               scanner.next();// 103
-
-               for (int i = 0; i < s.nextInt(); i++) {// 105
-                  System.out.println(i);// 106
-               }
-
-               return s.next();// 109 113
-            }
+         if (!scanner.hasNext() || !s2.hasNext()) {// 98
+            return null;// 99
          }
 
-         var16 = null;
+         try (Scanner s = this.create(f3)) {// 102
+            scanner.next();// 103
+
+            for (int i = 0; i < s.nextInt(); i++) {// 105
+               System.out.println(i);// 106
+            }
+
+            o = s.next();// 109
+         }
       }
 
-      return (String)var16;// 99
+      return o;// 113
    }
 
    public String testComplex1(File f, File f2, File f3) throws FileNotFoundException {
@@ -407,54 +407,54 @@ class 'pkg/TestTryWithResourcesReturnJ16' {
       21      155
       22      155
       23      155
-      24      167
-      25      167
-      26      167
-      3b      170
-      3c      170
-      3d      170
-      3e      156
-      3f      156
-      40      156
-      41      156
-      42      156
-      43      156
-      44      156
-      45      157
-      46      157
-      47      157
-      48      157
-      49      157
-      4b      159
-      4c      159
-      4d      159
-      4e      159
-      4f      159
-      50      159
-      51      159
-      52      159
-      53      159
-      54      159
-      55      159
-      56      159
-      57      159
-      58      160
-      59      160
-      5a      160
-      5b      160
-      5c      160
-      5d      160
-      5e      160
-      5f      160
-      60      159
-      61      159
-      62      159
-      66      163
-      67      163
-      68      163
-      69      163
-      6a      163
-      e7      163
+      24      156
+      3d      156
+      3e      159
+      3f      159
+      40      159
+      41      159
+      42      159
+      43      159
+      44      159
+      45      160
+      46      160
+      47      160
+      48      160
+      49      160
+      4b      162
+      4c      162
+      4d      162
+      4e      162
+      4f      162
+      50      162
+      51      162
+      52      162
+      53      162
+      54      162
+      55      162
+      56      162
+      57      162
+      58      163
+      59      163
+      5a      163
+      5b      163
+      5c      163
+      5d      163
+      5e      163
+      5f      163
+      60      162
+      61      162
+      62      162
+      66      166
+      67      166
+      68      166
+      69      166
+      6a      166
+      6b      166
+      6c      166
+      e5      170
+      e6      170
+      e7      170
    }
 
    method 'testComplex1 (Ljava/io/File;Ljava/io/File;Ljava/io/File;)Ljava/lang/String;' {
@@ -596,13 +596,13 @@ Lines mapping:
 95 <-> 153
 96 <-> 155
 98 <-> 156
-99 <-> 171
-102 <-> 157
-103 <-> 158
-105 <-> 160
-106 <-> 161
-109 <-> 164
-113 <-> 164
+99 <-> 157
+102 <-> 160
+103 <-> 161
+105 <-> 163
+106 <-> 164
+109 <-> 167
+113 <-> 171
 117 <-> 176
 118 <-> 177
 119 <-> 179
