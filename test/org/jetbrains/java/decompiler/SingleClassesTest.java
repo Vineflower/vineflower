@@ -829,6 +829,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestPatternMatchingVariableScope");
 
     register(JAVA_17, "TestStringSwitchTypes");
+
+    register(JAVA_16, "TestSwitchExpressionIfBlocks");
   }
 
   private void registerEntireClassPath() {
