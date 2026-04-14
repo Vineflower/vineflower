@@ -179,6 +179,14 @@ public final class SwitchExpressionHelper {
 
         seq.setAllParent();
 
+        for (StatEdge edge : oldSuc.getAllPredecessorEdges()) {
+          if (stat.containsStatement(edge.getSource())) {
+            Statement source = edge.getSource();
+            source.removeSuccessor(edge);
+
+            source.addSuccessor(new StatEdge(edge.getType(), source, suc, stat));
+          }
+        }
         // Replace successors with the new basic block
         for (Statement st : stat.getCaseStatements()) {
           for (StatEdge edge : st.getAllSuccessorEdges()) {
