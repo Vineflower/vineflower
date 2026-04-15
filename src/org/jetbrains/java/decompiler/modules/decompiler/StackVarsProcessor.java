@@ -14,10 +14,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNodeType;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.*;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.CatchStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.DoStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionNode;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionsGraph;
@@ -34,6 +31,7 @@ import org.jetbrains.java.decompiler.util.collections.SFormsFastMapDirect;
 
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class StackVarsProcessor {
@@ -123,21 +121,47 @@ public class StackVarsProcessor {
     FlattenStatementsHelper flatthelper = new FlattenStatementsHelper();
     DirectGraph dgraph = flatthelper.buildDirectGraph(root);
 
+    Map<VarVersionPair, LocalVariable> lvts = new HashMap<>();
+
+    boolean res = iterateStatementsNested(root, dgraph.first, ssa, options, dgraph, lvts, new HashSet<>(), new LinkedList<>(), new LinkedList<>(), null);
+
+    dgraph.iterateExprentsDeep(ex -> {
+      if (ex instanceof VarExprent var && lvts.containsKey(var.getVarVersionPair())) {
+        LocalVariable lvt = lvts.get(var.getVarVersionPair());
+        if (var.getLVT() == null) {
+          var.setLVT(lvt);
+        }
+      }
+
+      return 0;
+    });
+
+    return res;
+  }
+
+  private static boolean iterateStatementsNested(Statement root, DirectNode start, SSAUConstructorSparseEx ssa, StackSimplifyOptions options, DirectGraph dgraph, Map<VarVersionPair, LocalVariable> lvts, Set<DirectNode> setVisited, LinkedList<DirectNode> parentStack, LinkedList<Map<VarVersionPair, Exprent>> parentStackMaps, Map<VarVersionPair, Exprent> currentParentStackMap) {
     boolean res = false;
 
-    Set<DirectNode> setVisited = new HashSet<>();
     LinkedList<DirectNode> stack = new LinkedList<>();
     LinkedList<Map<VarVersionPair, Exprent>> stackMaps = new LinkedList<>();
 
-    stack.add(dgraph.first);
+    stack.add(start);
     stackMaps.add(new HashMap<>());
-
-    Map<VarVersionPair, LocalVariable> lvts = new HashMap<>();
 
     int[] ret = {0, 0};
     while (!stack.isEmpty()) {
       DirectNode nd = stack.removeFirst();
       Map<VarVersionPair, Exprent> mapVarValues = stackMaps.removeFirst();
+      
+      // Treat phantom switch statements as a sub method
+      if (nd.statement instanceof SwitchStatement switchSt && switchSt.isPhantom() && root != switchSt) {
+        res |= iterateStatementsNested(switchSt, nd, ssa, options, dgraph, lvts, setVisited, stack, stackMaps, mapVarValues);
+        continue;
+      } else if (!root.containsStatement(nd.statement) && !(root instanceof RootStatement)) {
+        parentStack.add(nd);
+        parentStackMaps.add(new HashMap<>(currentParentStackMap));
+        continue;
+      }
 
       if (setVisited.contains(nd)) {
         continue;
@@ -156,8 +180,51 @@ public class StackVarsProcessor {
         DirectNode ndsucc = succs.get(0).getDestination();
 
         if (ndsucc.type == DirectNodeType.TAIL && !ndsucc.exprents.isEmpty()) {
-          lstLists.add(succs.get(0).getDestination().exprents);
-          nd = ndsucc;
+
+          // Skip over phantom switch statements
+          if (ndsucc.statement instanceof SwitchStatement switchSt && switchSt.isPhantom()) {
+            Set<DirectNode> visited = new HashSet<>();
+            List<DirectNode> nodes = new ArrayList<>();
+            nodes.add(ndsucc);
+            boolean changed = false;
+            do {
+              changed = false;
+              List<DirectNode> newNodes = new ArrayList<>();
+              for (DirectNode node : nodes) {
+                if (switchSt.containsStatement(node.statement)) {
+                  for (DirectEdge next : node.getSuccessors(DirectEdgeType.REGULAR)) {
+                    if (!(next.getDestination().statement instanceof DummyExitStatement) && visited.add(next.getDestination())) {
+                      newNodes.add(next.getDestination());
+                      changed = true;
+                    }
+                  }
+                } else {
+                  newNodes.add(node);
+                }
+              }
+              nodes = newNodes;
+            } while (changed);
+
+            if (nodes.size() == 1) {
+              ndsucc = nodes.get(0);
+            } else {
+              ndsucc = null;
+            }
+
+            while (ndsucc != null && ndsucc.exprents.isEmpty()) {
+              List<DirectEdge> next = ndsucc.getSuccessors(DirectEdgeType.REGULAR);
+              if (next.size() == 1) {
+                ndsucc = next.get(0).getDestination();
+              } else {
+                ndsucc = null;
+              }
+            }
+          }
+
+          if (ndsucc != null) {
+            lstLists.add(ndsucc.exprents);
+            nd = ndsucc;
+          }
         }
       }
 
@@ -235,18 +302,6 @@ public class StackVarsProcessor {
         }
       }
     }
-
-    dgraph.iterateExprentsDeep(ex -> {
-      if (ex instanceof VarExprent var && lvts.containsKey(var.getVarVersionPair())) {
-        LocalVariable lvt = lvts.get(var.getVarVersionPair());
-        if (var.getLVT() == null) {
-          var.setLVT(lvt);
-        }
-      }
-
-      return 0;
-    });
-
     return res;
   }
 
@@ -316,7 +371,11 @@ public class StackVarsProcessor {
     int changed = 0;
 
     Object[] arr = {null, false, false};
-    for (Exprent expr : exprent.getAllExprents()) {
+    List<Exprent> containing = exprent.getAllExprents();
+    if (exprent instanceof SwitchExprent switchExp) {
+      containing = switchExp.getBacking().getHeadexprentList();
+    }
+    for (Exprent expr : containing) {
       while (true) {
         iterateChildExprent(expr, exprent, next, mapVarValues, ssau, arr, options);
         Exprent retexpr = (Exprent)arr[0];
@@ -758,7 +817,11 @@ public class StackVarsProcessor {
     boolean changed = false;
 
     Object[] arr = {null, false, false};
-    for (Exprent expr : exprent.getAllExprents()) {
+    List<Exprent> containing = exprent.getAllExprents();
+    if (exprent instanceof SwitchExprent switchExp) {
+      containing = switchExp.getBacking().getHeadexprentList();
+    }
+    for (Exprent expr : containing) {
       while (true) {
         iterateChildExprent(expr, parent, next, mapVarValues, ssau, arr, options);
         Exprent retexpr = (Exprent)arr[0];
