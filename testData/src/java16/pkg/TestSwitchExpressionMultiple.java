@@ -1,7 +1,5 @@
 package pkg;
 
-import java.io.IOException;
-
 public class TestSwitchExpressionMultiple {
   public int test(int i1, int i2) {
     return switch (switch (i2) {

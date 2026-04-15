@@ -2,27 +2,27 @@ package pkg;
 
 public class TestSwitchExpressionMultiple {
    public int test(int i1, int i2) {
-      return switch (switch (i2) {// 7
-         case 0 -> 1;// 8
-         case 1 -> 0;// 9
-         default -> 0;// 10
+      return switch (switch (i2) {// 5
+         case 0 -> 1;// 6
+         case 1 -> 0;// 7
+         default -> 0;// 8
       }) {
-         case 0 -> 1;// 12
-         case 1 -> 0;// 13
-         default -> 0;// 14
+         case 0 -> 1;// 10
+         case 1 -> 0;// 11
+         default -> 0;// 12
       } + switch (i1) {
          case 0 -> {
-            switch (i2) {// 16
+            switch (i2) {// 14
                case 0:
-                  yield 1;// 17
+                  yield 1;// 15
                case 1:
-                  yield 0;// 18
+                  yield 0;// 16
                default:
-                  yield 0;// 19
+                  yield 0;// 17
             }
          }
-         case 1 -> 0;// 21
-         default -> 0;// 22
+         case 1 -> 0;// 19
+         default -> 0;// 20
       };
    }
 }
@@ -156,16 +156,16 @@ class 'pkg/TestSwitchExpressionMultiple' {
 }
 
 Lines mapping:
-7 <-> 5
-8 <-> 6
-9 <-> 7
-10 <-> 8
-12 <-> 10
-13 <-> 11
-14 <-> 12
-16 <-> 15
-17 <-> 17
-18 <-> 19
-19 <-> 21
-21 <-> 24
-22 <-> 25
+5 <-> 5
+6 <-> 6
+7 <-> 7
+8 <-> 8
+10 <-> 10
+11 <-> 11
+12 <-> 12
+14 <-> 15
+15 <-> 17
+16 <-> 19
+17 <-> 21
+19 <-> 24
+20 <-> 25
