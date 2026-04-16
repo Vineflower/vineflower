@@ -6,14 +6,10 @@ import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
-import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectEdge;
-import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectEdgeType;
-import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
-import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNode;
-import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNodeType;
-import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
-import org.jetbrains.java.decompiler.modules.decompiler.sforms.*;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.*;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.SSAConstructorSparseEx;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.SSAUConstructorSparseEx;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionNode;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
@@ -24,14 +20,12 @@ import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribu
 import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
-import org.jetbrains.java.decompiler.util.DotExporter;
-import org.jetbrains.java.decompiler.util.collections.FastSparseSetFactory.FastSparseSet;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
+import org.jetbrains.java.decompiler.util.collections.FastSparseSetFactory.FastSparseSet;
 import org.jetbrains.java.decompiler.util.collections.SFormsFastMapDirect;
 
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class StackVarsProcessor {
@@ -117,13 +111,17 @@ public class StackVarsProcessor {
     }
   }
 
+  record NodePath(DirectNode node, Map<VarVersionPair, Exprent> map, List<Node> nodes) {}
+  
+  record Node(List<Exprent> exprents, Statement stat) {}
+
   private static boolean iterateStatements(RootStatement root, SSAUConstructorSparseEx ssa, StackSimplifyOptions options) {
     FlattenStatementsHelper flatthelper = new FlattenStatementsHelper();
     DirectGraph dgraph = flatthelper.buildDirectGraph(root);
 
     Map<VarVersionPair, LocalVariable> lvts = new HashMap<>();
 
-    boolean res = iterateStatementsNested(root, dgraph.first, ssa, options, dgraph, lvts, new HashSet<>(), new LinkedList<>(), new LinkedList<>(), null);
+    boolean res = iterateStatementsNested(root, dgraph.first, ssa, options, dgraph, lvts, new HashSet<>(Set.of(dgraph.first)), new LinkedList<>());
 
     dgraph.iterateExprentsDeep(ex -> {
       if (ex instanceof VarExprent var && lvts.containsKey(var.getVarVersionPair())) {
@@ -139,150 +137,103 @@ public class StackVarsProcessor {
     return res;
   }
 
-  private static boolean iterateStatementsNested(Statement root, DirectNode start, SSAUConstructorSparseEx ssa, StackSimplifyOptions options, DirectGraph dgraph, Map<VarVersionPair, LocalVariable> lvts, Set<DirectNode> setVisited, LinkedList<DirectNode> parentStack, LinkedList<Map<VarVersionPair, Exprent>> parentStackMaps, Map<VarVersionPair, Exprent> currentParentStackMap) {
+  private static boolean iterateStatementsNested(Statement root, DirectNode start, SSAUConstructorSparseEx ssa, StackSimplifyOptions options, DirectGraph dgraph, Map<VarVersionPair, LocalVariable> lvts, Set<DirectNode> setVisited, List<DirectNode> exits) {
     boolean res = false;
 
-    LinkedList<DirectNode> stack = new LinkedList<>();
-    LinkedList<Map<VarVersionPair, Exprent>> stackMaps = new LinkedList<>();
+    LinkedList<NodePath> stack = new LinkedList<>();
 
-    stack.add(start);
-    stackMaps.add(new HashMap<>());
+    stack.add(new NodePath(start, new HashMap<>(), new ArrayList<>()));
 
     int[] ret = {0, 0};
     while (!stack.isEmpty()) {
-      DirectNode nd = stack.removeFirst();
-      Map<VarVersionPair, Exprent> mapVarValues = stackMaps.removeFirst();
-      
-      // Treat phantom switch statements as a sub method
-      if (nd.statement instanceof SwitchStatement switchSt && switchSt.isPhantom() && root != switchSt) {
-        res |= iterateStatementsNested(switchSt, nd, ssa, options, dgraph, lvts, setVisited, stack, stackMaps, mapVarValues);
-        continue;
-      } else if (!root.containsStatement(nd.statement) && !(root instanceof RootStatement)) {
-        parentStack.add(nd);
-        parentStackMaps.add(new HashMap<>(currentParentStackMap));
-        continue;
-      }
+      NodePath path = stack.removeFirst();
+      DirectNode nd = path.node;
+      Map<VarVersionPair, Exprent> mapVarValues = path.map;
 
-      if (setVisited.contains(nd)) {
-        continue;
-      }
-
-      setVisited.add(nd);
-
-      List<List<Exprent>> lstLists = new ArrayList<>();
-
+      List<Node> lstLists = path.nodes;
       if (!nd.exprents.isEmpty()) {
-        lstLists.add(nd.exprents);
+        lstLists.add(new Node(nd.exprents, nd.statement));
       }
 
-      List<DirectEdge> succs = nd.getSuccessors(DirectEdgeType.REGULAR);
+      List<DirectNode> succs = nd.getSuccessors(DirectEdgeType.REGULAR).stream().map(DirectEdge::getDestination).toList();
+      List<DirectNode> newSuccs = new ArrayList<>();
+
+      for (DirectNode succ : succs) {
+        if (!setVisited.add(succ)) {
+          // Skip seen nodes
+        } else if (succ.statement instanceof SwitchStatement switchSt && switchSt.isPhantom() && root != switchSt) {
+          // Treat phantom switch statements as a sub method
+          List<DirectNode> subExits = new ArrayList<>();
+          res |= iterateStatementsNested(switchSt, succ, ssa, options, dgraph, lvts, setVisited, subExits);
+          newSuccs.addAll(subExits);
+        } else if (!root.containsStatement(succ.statement) && !(root instanceof RootStatement)) {
+          exits.add(succ);
+        } else {
+          newSuccs.add(succ);
+        }
+      }
+
+      succs = newSuccs;
+
       if (succs.size() == 1) {
-        DirectNode ndsucc = succs.get(0).getDestination();
+        stack.add(new NodePath(succs.get(0), new HashMap<>(mapVarValues), new ArrayList<>(lstLists)));
+      } else {
+        // To handle stacks created by some duplicated bytecode (dup, dup_x2, etc.) better, we run the simplification algorithm in 2 passes.
+        // The first pass is the classic algorithm, and the second pass is a more aggressive one that allows some slightly unsafe operations, such as simplifying across variables.
+        // To ensure the second pass doesn't break good bytecode, if the first pass manages to update any exprent it will cancel the second pass.
+        // This behavior can be turned off with a fernflower preference.
+        for (int stackStage = 0; stackStage < 2; stackStage++) {
+          // If instructed to not use the second pass, set it to 2 here to prevent the loop from working
+          if (!DecompilerContext.getOption(IFernflowerPreferences.SIMPLIFY_STACK_SECOND_PASS)) {
+            stackStage = 2;
+          }
 
-        if (ndsucc.type == DirectNodeType.TAIL && !ndsucc.exprents.isEmpty()) {
+          for (int i = 0; i < lstLists.size(); i++) {
+            Node node = lstLists.get(i);
+            List<Exprent> lst = node.exprents;
 
-          // Skip over phantom switch statements
-          if (ndsucc.statement instanceof SwitchStatement switchSt && switchSt.isPhantom()) {
-            Set<DirectNode> visited = new HashSet<>();
-            List<DirectNode> nodes = new ArrayList<>();
-            nodes.add(ndsucc);
-            boolean changed = false;
-            do {
-              changed = false;
-              List<DirectNode> newNodes = new ArrayList<>();
-              for (DirectNode node : nodes) {
-                if (switchSt.containsStatement(node.statement)) {
-                  for (DirectEdge next : node.getSuccessors(DirectEdgeType.REGULAR)) {
-                    if (!(next.getDestination().statement instanceof DummyExitStatement) && visited.add(next.getDestination())) {
-                      newNodes.add(next.getDestination());
-                      changed = true;
-                    }
-                  }
-                } else {
-                  newNodes.add(node);
+            int index = 0;
+            while (index < lst.size()) {
+              Exprent next = null;
+
+              if (index == lst.size() - 1) {
+                if (i < lstLists.size() - 1) {
+                  next = lstLists.get(i + 1).exprents.get(0);
                 }
-              }
-              nodes = newNodes;
-            } while (changed);
-
-            if (nodes.size() == 1) {
-              ndsucc = nodes.get(0);
-            } else {
-              ndsucc = null;
-            }
-
-            while (ndsucc != null && ndsucc.exprents.isEmpty()) {
-              List<DirectEdge> next = ndsucc.getSuccessors(DirectEdgeType.REGULAR);
-              if (next.size() == 1) {
-                ndsucc = next.get(0).getDestination();
               } else {
-                ndsucc = null;
+                next = lst.get(index + 1);
               }
-            }
-          }
 
-          if (ndsucc != null) {
-            lstLists.add(ndsucc.exprents);
-            nd = ndsucc;
-          }
-        }
-      }
+              boolean simplifyAcrossStack = stackStage == 1;
 
-      // To handle stacks created by some duplicated bytecode (dup, dup_x2, etc.) better, we run the simplification algorithm in 2 passes.
-      // The first pass is the classic algorithm, and the second pass is a more aggressive one that allows some slightly unsafe operations, such as simplifying across variables.
-      // To ensure the second pass doesn't break good bytecode, if the first pass manages to update any exprent it will cancel the second pass.
-      // This behavior can be turned off with a fernflower preference.
-      for (int stackStage = 0; stackStage < 2; stackStage++) {
-        // If instructed to not use the second pass, set it to 2 here to prevent the loop from working
-        if (!DecompilerContext.getOption(IFernflowerPreferences.SIMPLIFY_STACK_SECOND_PASS)) {
-          stackStage = 2;
-        }
+              // {newIndex, changed}
+              iterateExprent(lst, node.stat, lvts, index, next, mapVarValues, ssa, simplifyAcrossStack, ret, options);
 
-        for (int i = 0; i < lstLists.size(); i++) {
-          List<Exprent> lst = lstLists.get(i);
-
-          int index = 0;
-          while (index < lst.size()) {
-            Exprent next = null;
-
-            if (index == lst.size() - 1) {
-              if (i < lstLists.size() - 1) {
-                next = lstLists.get(i + 1).get(0);
+              // If index is specified, set to that
+              if (ret[0] >= 0) {
+                index = ret[0];
+              } else {
+                // Otherwise, continue to next index
+                index++;
               }
-            } else {
-              next = lst.get(index + 1);
+
+              // Mark if we changed
+              boolean changed = ret[1] == 1;
+              res |= changed;
+
+              // We only want to simplify across stack bounds if we were not able to change *anything*
+              if (changed) {
+                // Cancel the second pass by setting the stage to 2, preventing the check next time it runs
+                stackStage = 2;
+              }
+              // An (unintentional) side effect of this implementation is that as soon as the second pass is able to change the stack, it'll cancel further iteration of the second pass, preventing it from creating wrong code by accident.
             }
-
-            boolean simplifyAcrossStack = stackStage == 1;
-
-            // {newIndex, changed}
-            iterateExprent(lst, nd.statement, lvts, index, next, mapVarValues, ssa, simplifyAcrossStack, ret, options);
-
-            // If index is specified, set to that
-            if (ret[0] >= 0) {
-              index = ret[0];
-            } else {
-              // Otherwise, continue to next index
-              index++;
-            }
-
-            // Mark if we changed
-            boolean changed = ret[1] == 1;
-            res |= changed;
-
-            // We only want to simplify across stack bounds if we were not able to change *anything*
-            if (changed) {
-              // Cancel the second pass by setting the stage to 2, preventing the check next time it runs
-              stackStage = 2;
-            }
-            // An (unintentional) side effect of this implementation is that as soon as the second pass is able to change the stack, it'll cancel further iteration of the second pass, preventing it from creating wrong code by accident.
           }
         }
-      }
 
-      for (DirectEdge ndx : succs) {
-        stack.add(ndx.getDestination());
-        stackMaps.add(new HashMap<>(mapVarValues));
+        for (DirectNode ndx : succs) {
+          stack.add(new NodePath(ndx, new HashMap<>(mapVarValues), new ArrayList<>()));
+        }
       }
 
       // make sure the 3 special exprent lists in a loop (init, condition, increment) are not empty
@@ -792,7 +743,7 @@ public class StackVarsProcessor {
   private static Set<VarVersionPair> getAllVersions(Exprent exprent) {
     Set<VarVersionPair> res = new HashSet<>();
 
-    List<Exprent> exprents = exprent.getAllExprents(true);
+    List<Exprent> exprents = getAllExprents(exprent);
     exprents.add(exprent);
 
     for (Exprent expr : exprents) {
@@ -1066,7 +1017,7 @@ public class StackVarsProcessor {
     Map<Integer, Set<VarVersionPair>> map = new HashMap<>();
     SFormsFastMapDirect mapLiveVars = ssau.getLiveVarVersionsMap(leftvar);
 
-    List<Exprent> lst = exprent.getAllExprents(true);
+    List<Exprent> lst = getAllExprents(exprent);
     lst.add(exprent);
 
     for (Exprent expr : lst) {
@@ -1270,6 +1221,16 @@ public class StackVarsProcessor {
     }
 
     return ret;
+  }
+
+  private static List<Exprent> getAllExprents(Exprent exprent) {
+    List<Exprent> exprents = exprent.getAllExprents(true);
+    for (int i = 0; i < exprents.size(); i++) {
+      if (exprents.get(i) instanceof SwitchExprent switchExp) {
+        exprents.addAll(getAllExprents(switchExp.getBacking().getHeadexprent()));
+      }
+    }
+    return exprents;
   }
 
   public static class StackSimplifyOptions {
