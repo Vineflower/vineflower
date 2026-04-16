@@ -92,9 +92,8 @@ public class IfExprent extends Exprent {
     condition.getInferredExprType(VarType.VARTYPE_BOOLEAN);
 
     TextBuffer buf = new TextBuffer();
-    buf.appendKeyword("if").appendWhitespace(" ").appendPunctuation("(");
     buf.pushNewlineGroup(indent, 1);
-    buf.appendPossibleNewline();
+    buf.appendKeyword("if").appendWhitespace(" ").appendPunctuation("(");
     buf.append(condition.toJava(indent));
     buf.appendPossibleNewline("", true);
     buf.popNewlineGroup();
