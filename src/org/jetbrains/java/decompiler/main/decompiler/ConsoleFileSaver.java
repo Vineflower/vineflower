@@ -10,9 +10,14 @@ import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.util.token.TextRange;
 import org.jetbrains.java.decompiler.util.token.TokenType;
 
+import java.io.Console;
 import java.io.File;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.util.*;
 import java.util.jar.Manifest;
+import java.util.stream.Collectors;
 
 // "Saves" a file to the standard out console
 public class ConsoleFileSaver implements IResultSaver {
@@ -25,9 +30,16 @@ public class ConsoleFileSaver implements IResultSaver {
     }
 
     private final SortedSet<Token> tokens = new TreeSet<>();
+    String content;
 
     ConsoleTokenVisitor(TextTokenVisitor next) {
       super(next);
+    }
+
+    @Override
+    public void start(String content) {
+      this.content = content;
+      super.start(content);
     }
 
     @Override
@@ -86,14 +98,15 @@ public class ConsoleFileSaver implements IResultSaver {
   }
 
   private static final String ESCAPE_RESET = "\u001B[0m";
-  private List<ConsoleTokenVisitor> visitors = new ArrayList<>();
+  private final Set<ConsoleTokenVisitor> visitors = new HashSet<>();
   private Map<TokenType, String> colorMap;
+  private Map<String, SortedSet<ConsoleTokenVisitor.Token>> mappedVisitors;
 
   public ConsoleFileSaver(File ignored) {
     ConsoleDecompiler.tokenizerInitializer = () -> {
       boolean color = switch (DecompilerContext.getProperty(IFernflowerPreferences.COLORIZE_OUTPUT).toString()) {
         case "always" -> true;
-        case "1", "auto" -> System.console() != null;
+        case "1", "auto" -> isatty();
         default -> false;
       };
 
@@ -105,6 +118,20 @@ public class ConsoleFileSaver implements IResultSaver {
         });
       }
     };
+  }
+
+  private boolean isatty() {
+    if (System.console() == null) {
+      return false;
+    }
+
+    // If on new JDK, check `isTerminal`; on old JDK, we're already in a terminal
+    try {
+      MethodHandle isTerminal = MethodHandles.lookup().findVirtual(Console.class, "isTerminal", MethodType.methodType(boolean.class));
+      return (boolean) isTerminal.invokeExact(System.console());
+    } catch (Throwable e) {
+      return true;
+    }
   }
 
   private void setupColors() {
@@ -171,11 +198,19 @@ public class ConsoleFileSaver implements IResultSaver {
     }
   }
 
+  private void setupVisitors() {
+    if (mappedVisitors == null) {
+      mappedVisitors = visitors.stream()
+        .collect(Collectors.toMap(visitor -> visitor.content, visitor -> visitor.tokens));
+    }
+  }
+
   private void printClass(String content) {
     setupColors();
+    setupVisitors();
 
     var index = 0;
-    for (ConsoleTokenVisitor.Token token : visitors.remove(0).tokens) {
+    for (ConsoleTokenVisitor.Token token : mappedVisitors.get(content)) {
       System.out.print(content.substring(index, token.range().start));
       if (colorMap.containsKey(token.type())) {
         System.out.print(colorMap.get(token.type()));
