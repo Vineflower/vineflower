@@ -824,7 +824,7 @@ public class StackVarsProcessor {
     }
 
     boolean isHeadSynchronized = false;
-    if (next == null && parent instanceof MonitorExprent) {
+    if (parent instanceof MonitorExprent) {
       MonitorExprent monexpr = (MonitorExprent)parent;
       if (monexpr.getMonType() == MonitorExprent.Type.ENTER && exprent.equals(monexpr.getValue())) {
         isHeadSynchronized = true;
