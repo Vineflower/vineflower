@@ -161,7 +161,7 @@ public class KotlinWriter implements StatementWriter, Flags {
     KElement ktData = cl.getAttribute(KElement.KEY);
     if (ktData instanceof KFile file) {
       if (file.multifileName() != null) {
-        buffer.appendAnnotation(new TextBuffer()
+        buffer.append(new TextBuffer()
           .appendPunctuation("@")
           .appendKeyword("file")
           .appendPunctuation(":")
@@ -178,7 +178,7 @@ public class KotlinWriter implements StatementWriter, Flags {
             .appendPunctuation("(")
             .appendText("\"" + (file.multifileName().startsWith(pkg) ? file.multifileName().substring(pkg.length() + 1) : file.multifileName()) + "\"")
             .appendPunctuation(")");
-          buffer.appendAnnotation(jvmName).appendLineSeparator();
+          buffer.append(jvmName).appendLineSeparator();
         } else {
           TextBuffer jvmName = new TextBuffer();
           jvmName.appendPunctuation("@")
@@ -188,7 +188,7 @@ public class KotlinWriter implements StatementWriter, Flags {
             .appendPunctuation("(")
             .appendText("\"" + file.multifileName() + "\"")
             .appendPunctuation(")");
-          buffer.appendAnnotation(jvmName).appendLineSeparator();
+          buffer.append(jvmName).appendLineSeparator();
         }
       }
 
@@ -1762,10 +1762,10 @@ public class KotlinWriter implements StatementWriter, Flags {
     switch (targetType) {
       case TypeAnnotation.METHOD_RETURN_TYPE:
         if (isInterface && !mb.hasModifier(CodeConstants.ACC_ABSTRACT)) {
-          buffer.appendIndent(indent).appendAnnotation(noargAnnotation("JvmDefault")).appendLineSeparator();
+          buffer.appendIndent(indent).append(noargAnnotation("JvmDefault")).appendLineSeparator();
         }
         if (mb.hasModifier(CodeConstants.ACC_SYNCHRONIZED)) {
-          buffer.appendIndent(indent).appendAnnotation(noargAnnotation("Synchronized")).appendLineSeparator();
+          buffer.appendIndent(indent).append(noargAnnotation("Synchronized")).appendLineSeparator();
         }
         if (mb.hasAttribute(StructGeneralAttribute.ATTRIBUTE_EXCEPTIONS)) {
           StructExceptionsAttribute attrib = mb.getAttribute(StructGeneralAttribute.ATTRIBUTE_EXCEPTIONS);
@@ -1787,32 +1787,32 @@ public class KotlinWriter implements StatementWriter, Flags {
           inner.popNewlineGroup();
           inner.appendPunctuation(")");
 
-          buffer.appendIndent(indent).appendAnnotation(inner).appendLineSeparator();
+          buffer.appendIndent(indent).append(inner).appendLineSeparator();
         }
         break;
       case TypeAnnotation.FIELD:
         // TODO: use site targets
         if (mb.hasModifier(CodeConstants.ACC_TRANSIENT)) {
-          buffer.appendIndent(indent).appendAnnotation(noargAnnotation("Transient")).appendLineSeparator();
+          buffer.appendIndent(indent).append(noargAnnotation("Transient")).appendLineSeparator();
         }
         if (mb.hasModifier(CodeConstants.ACC_VOLATILE)) {
-          buffer.appendIndent(indent).appendAnnotation(noargAnnotation("Volatile")).appendLineSeparator();
+          buffer.appendIndent(indent).append(noargAnnotation("Volatile")).appendLineSeparator();
         }
         break;
       case TypeAnnotation.CLASS_TYPE_PARAMETER:
         if (mb.hasAttribute(StructRecordAttribute.ATTRIBUTE_RECORD)) {
-          buffer.appendIndent(indent).appendAnnotation(noargAnnotation("JvmRecord")).appendLineSeparator();
+          buffer.appendIndent(indent).append(noargAnnotation("JvmRecord")).appendLineSeparator();
         }
     }
 
     if (mb.hasModifier(CodeConstants.ACC_STATIC) && targetType != TypeAnnotation.CLASS_TYPE_PARAMETER && !isInFile && !mb.hasModifier(CodeConstants.ACC_ENUM)) {
-      buffer.appendIndent(indent).appendAnnotation(noargAnnotation("JvmStatic")).appendLineSeparator();
+      buffer.appendIndent(indent).append(noargAnnotation("JvmStatic")).appendLineSeparator();
     }
     if (mb.hasModifier(CodeConstants.ACC_STRICT)) {
-      buffer.appendIndent(indent).appendAnnotation(noargAnnotation("Strictfp")).appendLineSeparator();
+      buffer.appendIndent(indent).append(noargAnnotation("Strictfp")).appendLineSeparator();
     }
     if (mb.hasModifier(CodeConstants.ACC_SYNTHETIC)) {
-      buffer.appendIndent(indent).appendAnnotation(noargAnnotation("JvmSynthetic")).appendLineSeparator();
+      buffer.appendIndent(indent).append(noargAnnotation("JvmSynthetic")).appendLineSeparator();
     }
   }
 

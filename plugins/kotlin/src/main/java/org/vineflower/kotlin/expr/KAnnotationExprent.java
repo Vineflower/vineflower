@@ -76,7 +76,7 @@ public class KAnnotationExprent extends AnnotationExprent implements KExprent {
       }
     }
 
-    return buffer.appendIndent(indent).appendAnnotation(inner);
+    return buffer.appendIndent(indent).append(inner);
   }
 
   public static void writeAnnotationValue(Exprent expr, TextBuffer buffer) {
@@ -131,7 +131,7 @@ public class KAnnotationExprent extends AnnotationExprent implements KExprent {
           inner.appendPunctuation(')');
         }
       }
-      buffer.appendAnnotation(inner);
+      buffer.append(inner);
     } else if (expr instanceof ConstExprent constExprent) {
       if (constExprent.getConstType().equals(VarType.VARTYPE_CLASS)) {
         VarType type = new VarType((String) constExprent.getValue(), true);

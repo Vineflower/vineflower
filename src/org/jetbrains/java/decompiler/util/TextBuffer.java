@@ -86,11 +86,6 @@ public class TextBuffer {
     return append(text, TokenType.TEXT);
   }
 
-  public TextBuffer appendAnnotation(TextBuffer buffer) {
-    addToken(new SyntaxTextToken(length(), buffer.length(), TokenType.ANNOTATION));
-    return append(buffer);
-  }
-
   public TextBuffer appendNumber(String number) {
     return append(number, TokenType.NUMBER);
   }
@@ -1007,8 +1002,8 @@ public class TextBuffer {
           itr.remove();
         }
       }
-      myReplacements.removeIf(r -> r.myStart > stringLength);
-      myTokens.removeIf(t -> t.getStart() > stringLength);
+      myReplacements.removeIf(r -> r.myStart >= stringLength);
+      myTokens.removeIf(t -> t.getStart() >= stringLength);
     }
 
     void dump(String indent) {
@@ -1025,6 +1020,9 @@ public class TextBuffer {
         copy.myChildren.add(child.copy());
       }
       for (TextToken token : myTokens) {
+        if (token.getStart() < 0) {
+          continue; // when `setStart` deletes tokens, don't pass them along
+        }
         copy.myTokens.add(token.copy());
       }
       copy.myReplacements.addAll(myReplacements);

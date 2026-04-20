@@ -1164,7 +1164,7 @@ public class ClassWriter implements StatementWriter {
 
         if (isOverride && !alreadyHasOverride) {
           buffer.appendIndent(indent);
-          buffer.appendAnnotation(new TextBuffer().appendPunctuation("@").appendClass("Override", false, "java/lang/Override"));
+          buffer.append(new TextBuffer().appendPunctuation("@").appendClass("Override", false, "java/lang/Override"));
           buffer.appendLineSeparator();
         }
       }
