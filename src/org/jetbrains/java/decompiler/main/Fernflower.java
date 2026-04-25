@@ -142,6 +142,10 @@ public class Fernflower implements IDecompiledData {
   }
 
   public void decompileContext() {
+    for (Plugin plugin : this.structContext.getPluginContext().getPlugins()) {
+      plugin.beforeDecompile();
+    }
+
     if (converter != null) {
       converter.rename();
     }
