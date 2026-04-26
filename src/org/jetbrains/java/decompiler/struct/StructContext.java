@@ -381,4 +381,7 @@ public class StructContext {
     this.classes.clear();
   }
 
+  public List<ContextUnit> getUnits() {
+    return units;
+  }
 }

@@ -323,4 +323,8 @@ public class ContextUnit {
       this.pendingError.addSuppressed(thr);
     }
   }
+
+  public InputStream getStream(IContextSource.Entry entry) throws IOException {
+    return source.getInputStream(entry);
+  }
 }
