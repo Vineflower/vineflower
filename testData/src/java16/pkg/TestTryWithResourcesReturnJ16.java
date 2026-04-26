@@ -69,6 +69,12 @@ public class TestTryWithResourcesReturnJ16 {
     }
   }
 
+  public Scanner testFunc2(File file) throws FileNotFoundException {
+    try (Scanner scanner = create(file); Scanner scanner2 = create(file)) {
+      return Math.random() > 0.5 ? scanner2 : scanner;
+    }
+  }
+
   public Scanner testFinally(File file) {
     try (Scanner scanner = new Scanner(file)) {
       return scanner;
@@ -136,6 +142,42 @@ public class TestTryWithResourcesReturnJ16 {
     }
 
     return null;
+  }
+
+  public Scanner testFakeSimple(File file) throws FileNotFoundException {
+    Scanner sc;
+    try (Scanner scanner = new Scanner(file)) {
+      sc = scanner;
+    }
+
+    return sc;
+  }
+
+  public String testFake(File file) throws FileNotFoundException {
+    String string;
+    try (Scanner scanner = this.create(file)) {
+      string = scanner.next();
+    }
+
+    return string;
+  }
+
+  public String testFake2(File file) throws FileNotFoundException {
+    String string;
+    try (Scanner scanner = create(file); Scanner scanner2 = create(file)) {
+      string = scanner.next() + scanner2.next();
+    }
+
+    return string;
+  }
+
+  public String testFake3(File file) throws FileNotFoundException {
+    String string;
+    try (Scanner scanner = create(file); Scanner scanner2 = create(file)) {
+      string = Math.random() > 0.5 ? scanner.next() : scanner2.next();
+    }
+
+    return string;
   }
 
   private Scanner create(File file) throws FileNotFoundException {
