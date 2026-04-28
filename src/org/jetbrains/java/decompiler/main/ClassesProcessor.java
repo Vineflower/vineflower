@@ -627,7 +627,7 @@ public class ClassesProcessor implements CodeConstants {
 
     public Type type;
     public int access;
-    public String simpleName;
+    public @Nullable String simpleName;
     public final StructClass classStruct;
     private @Nullable ClassWrapper wrapper;
     public String enclosingMethod;

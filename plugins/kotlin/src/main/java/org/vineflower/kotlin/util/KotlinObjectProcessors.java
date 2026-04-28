@@ -23,7 +23,7 @@ public class KotlinObjectProcessors {
     if (ktData instanceof KClass cls && cls.proto().hasCompanionObjectName()) {
       String name = cls.resolver().resolve(cls.proto().getCompanionObjectName());
       Optional<ClassesProcessor.ClassNode> companion = node.nested.stream()
-        .filter(n -> n.simpleName.equals(name))
+        .filter(n -> n.simpleName != null && n.simpleName.equals(name))
         .findAny();
       if (companion.isPresent()) {
         // Re-parse companion data to associate non-companion entries
