@@ -276,6 +276,10 @@ public final class SwitchPatternMatchProcessor {
             } else {
               newValue = new ConstExprent(VarType.VARTYPE_STRING, p.value, null);
             }
+
+            // Switch on string that's a pattern match (e.g. has a null case) is structured as a pattern match where each string in the bootstrap index maps to case value with the index as the matched value.
+            // See TestPatternMatchSwitchString for context.
+            replaceIndex = getIndex(i, stat.getCaseValues());
             break;
           case CodeConstants.CONSTANT_Class:
             // may happen if the switch head is a supertype of the pattern
@@ -377,6 +381,20 @@ public final class SwitchPatternMatchProcessor {
     head.setValue(realSelector); // SwitchBootstraps.typeSwitch(o, var1) -> o
 
     return true;
+  }
+
+  private static int getIndex(int check, List<List<Exprent>> values) {
+    for (int i = 0; i < values.size(); i++) {
+      List<Exprent> list = values.get(i);
+
+      for (Exprent exp : list) {
+        if (exp instanceof ConstExprent cons && cons.getValue() instanceof Integer val && val == check) {
+          return i;
+        }
+      }
+    }
+
+    throw new IllegalStateException("Unexpected case in switch pattern matching");
   }
 
   private static boolean eliminateGuardRef(SwitchStatement stat, Map<List<Exprent>, Exprent> guards, Pair<Statement, Exprent> reference, boolean simulate) {
