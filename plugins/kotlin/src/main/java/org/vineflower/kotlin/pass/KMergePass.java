@@ -162,6 +162,10 @@ public class KMergePass extends MergeHelper implements Pass {
 
         InvocationExprent holder = (InvocationExprent)right;
 
+        if (holder.getInstance() == null) {
+          return false;
+        }
+
         initExprents[0].getBytecodeRange(holder.getInstance().bytecode);
         holder.getBytecodeRange(holder.getInstance().bytecode);
         firstDoExprent.getBytecodeRange(ass.getLeft().bytecode);
