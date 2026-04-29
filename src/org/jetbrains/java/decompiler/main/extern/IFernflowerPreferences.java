@@ -225,6 +225,12 @@ public interface IFernflowerPreferences {
   @Type(DecompilerOption.Type.BOOLEAN)
   String VERIFY_VARIABLE_MERGES = "verify-merges";
 
+  @Name("[Experimental] Verify Pre Post Variable Merges")
+  @Description("Will try to validate that code before and after variable merges is equivalent")
+  @ShortName("pvm")
+  @Type(DecompilerOption.Type.BOOLEAN)
+  String VERIFY_PRE_POST_VARIABLE_MERGES = "verify-pre-post-merges";
+
   @Name("[Experimental] Use old try deduplication")
   @Description("Use the old try deduplication algorithm for methods with obfuscated exceptions, which inserts dummy exception handlers instead of duplicating blocks")
   @Type(DecompilerOption.Type.BOOLEAN)
@@ -392,10 +398,25 @@ public interface IFernflowerPreferences {
   @Type(DecompilerOption.Type.STRING)
   String EXCLUDED_CLASSES = "excluded-classes";
 
+  @Name("Included Classes")
+  @Description("Include classes in decompilation only if their fully qualified names match the specified regular expression.")
+  @Type(DecompilerOption.Type.STRING)
+  String INCLUDED_CLASSES = "included-classes";
+
   @Name("Validate inner classes names")
   @Description("Validates that the inner class name is correct (if it is separated using \"$\" for example BaseClass$InnerClass). If not then inner class won't be processed.")
-  @Type(DecompilerOption.Type.STRING)
+  @Type(DecompilerOption.Type.BOOLEAN)
   String VALIDATE_INNER_CLASSES_NAMES = "validate-inner-classes-names";
+
+  @Name("Prettify Ifs")
+  @Description("Use heuristics to restructure if statements to make them clearer to read.")
+  @Type(DecompilerOption.Type.BOOLEAN)
+  String PRETTIFY_IFS = "prettify-ifs";
+
+  @Name("Method to decompile")
+  @Description("Option to decompile a single method. Set to owner + \".\" + name + descriptor, e.g. foo/Bar.baz()V, or simply name + descriptor if you're only decompiling a single file and the method belongs to the root class.")
+  @Type(DecompilerOption.Type.STRING)
+  String METHOD_TO_DECOMPILE = "method-to-decompile";
 
   Map<String, Object> DEFAULTS = getDefaults();
 
@@ -437,11 +458,12 @@ public interface IFernflowerPreferences {
     defaults.put(SHOW_HIDDEN_STATEMENTS, "0"); // Extra debugging that isn't useful in most cases
     defaults.put(SIMPLIFY_STACK_SECOND_PASS, "1"); // Generally produces better bytecode, useful to debug if it does something strange
     defaults.put(VERIFY_VARIABLE_MERGES, "0"); // Produces more correct code in rare cases, but hurts code cleanliness in the majority of cases. Default off until a better fix is created.
+    defaults.put(VERIFY_PRE_POST_VARIABLE_MERGES, "0");
     defaults.put(OLD_TRY_DEDUP, "0");
     defaults.put(DECOMPILE_PREVIEW, "1"); // Preview features are useful to decompile in almost all cases
 
     defaults.put(INCLUDE_ENTIRE_CLASSPATH, "0");
-    defaults.put(INCLUDE_JAVA_RUNTIME, "");
+    defaults.put(INCLUDE_JAVA_RUNTIME, "1");
     defaults.put(EXPLICIT_GENERIC_ARGUMENTS, "0");
     defaults.put(INLINE_SIMPLE_LAMBDAS, "1");
 
@@ -469,7 +491,10 @@ public interface IFernflowerPreferences {
     defaults.put(REMOVE_IMPORTS, "0");
     defaults.put(MARK_CORRESPONDING_SYNTHETICS, "0");
     defaults.put(EXCLUDED_CLASSES, "");
+    defaults.put(INCLUDED_CLASSES, "");
     defaults.put(VALIDATE_INNER_CLASSES_NAMES, "1");
+    defaults.put(PRETTIFY_IFS, "1");
+    defaults.put(METHOD_TO_DECOMPILE, "");
 
     return Collections.unmodifiableMap(defaults);
   }

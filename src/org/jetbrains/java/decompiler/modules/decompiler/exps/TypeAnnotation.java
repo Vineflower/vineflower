@@ -182,7 +182,7 @@ public class TypeAnnotation {
           stepwiseWriteAnnotations(buffer, typeAnnotations, filter, v -> v.kind() == TypeAnnotation.PathKind.DEEPER_NESTED);
         }
 
-        buffer.appendClass(name, false, clazz);
+        buffer.appendClass(name, false, clazz.replace(".", "/"));
 
         i++;
       }

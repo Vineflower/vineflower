@@ -7,12 +7,12 @@ public class TestTrySplit {
       try {
          obj = new Object();// 7
          return;// 17
-      } catch (ArithmeticException var6) {// 8
+      } catch (ArithmeticException ex) {// 8
          if (obj != null) {// 9
             System.out.println("a");// 10
          }
 
-         throwMyException(var6.getMessage());// 13
+         throwMyException(ex.getMessage());// 13
       } finally {
          System.out.println("b");// 16
       }

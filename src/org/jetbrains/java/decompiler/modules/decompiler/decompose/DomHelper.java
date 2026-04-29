@@ -546,7 +546,15 @@ public final class DomHelper implements GraphParser {
         if (set != null) {
           List<Integer> element = new ArrayList<>(set.size());
           for (Integer integer : set) {
-            if (!stats.containsKey(integer) || !stats.getWithKey(integer).hasSuccessor(StatEdge.TYPE_FINALLYEXIT)) {
+            Statement s = stats.getWithKey(integer);
+            boolean isSame = true;
+            if (s != null) {
+              if (s.hasSuccessor(StatEdge.TYPE_FINALLYEXIT)) {
+                isSame = doesFinallyExitMatch(st, s);
+              }
+            }
+
+            if (s == null || isSame) {
               element.add(integer);
             }
           }
@@ -690,6 +698,26 @@ public final class DomHelper implements GraphParser {
     }
 
     return null;
+  }
+
+  // st: statement that we are checking postdominance for
+  // s: statement that is being considered for addition to st's postdominance set
+  private static boolean doesFinallyExitMatch(Statement st, Statement s) {
+    List<StatEdge> finallyExits = s.getSuccessorEdgeView(StatEdge.TYPE_FINALLYEXIT);
+    ValidationHelper.validateTrue(finallyExits.size() == 1, "Must have just one exit from a finally end block");
+    for (StatEdge edge : finallyExits) {
+      Statement finallyEnd = edge.getSource(); // The last (postdominating) block in a finally construct
+
+      // Find entrypoints to the dominating exit
+      for (StatEdge pred : finallyEnd.getAllPredecessorEdges()) {
+        // Does the current statement have a path to the finally end?
+        if (pred.getSource() == st) {
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 
   private static boolean checkSynchronizedCompleteness(Set<Statement> setNodes) {

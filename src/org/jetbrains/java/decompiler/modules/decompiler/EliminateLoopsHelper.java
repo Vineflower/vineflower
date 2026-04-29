@@ -1,7 +1,9 @@
 // Copyright 2000-2017 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler;
 
+import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.DoStatement;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.struct.StructClass;
 
@@ -200,7 +202,14 @@ public class EliminateLoopsHelper {
     Statement loopcontent = loop.getFirst();
     // TODO: originally was getAllSuccessorEdges
     if (loopcontent.hasSuccessor(StatEdge.TYPE_BREAK)) {
-      loopcontent.removeSuccessor(loopcontent.getSuccessorEdges(StatEdge.TYPE_BREAK).get(0));
+      StatEdge edge = loopcontent.getSuccessorEdges(StatEdge.TYPE_BREAK).get(0);
+
+      // TODO: is this correct? This is required to make sure we don't remove an if->if break that causes a failure in && processing
+      if (edge.getDestination() instanceof IfStatement) {
+        edge.changeClosure(parentloop);
+      } else {
+        loopcontent.removeSuccessor(edge);
+      }
     }
 
     // move continue edges to the parent loop

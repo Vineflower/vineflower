@@ -1,6 +1,8 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.stats;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.code.SwitchInstruction;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
@@ -146,17 +148,13 @@ public class SwitchStatement extends Statement {
           buf.appendLineSeparator();
         } else {
           Exprent value = values.get(j);
-          if (value == null) { // TODO: how can this be null? Is it trying to inject a synthetic case value in switch-on-string processing? [TestSwitchDefaultBefore]
-            continue;
-          }
 
           buf.appendIndent(indent + 1).append("case ");
 
           if (value instanceof ConstExprent && !value.getExprType().equals(VarType.VARTYPE_NULL)) {
             value = value.copy();
             ((ConstExprent)value).setConstType(switch_type);
-          } if (value instanceof FieldExprent && ((FieldExprent)value).isStatic()) { // enum values
-            FieldExprent field = (FieldExprent) value;
+          } if (value instanceof FieldExprent field && field.isStatic()) { // enum values
             buf.appendField(field.getName(), false, field.getClassname(), field.getName(), field.getDescriptor());
           } else if (value instanceof FunctionExprent && ((FunctionExprent) value).getFuncType() == FunctionType.INSTANCEOF) {
             // Pattern matching variables
@@ -210,10 +208,8 @@ public class SwitchStatement extends Statement {
   }
 
   @Override
-  public List<Object> getSequentialObjects() {
-
-    List<Object> lst = new ArrayList<>(stats);
-    lst.add(1, headexprent.get(0));
+  public List<Exprent> getStatExprents() {
+    List<Exprent> lst = new ArrayList<>(headexprent);
     // make sure guards can be simplified by other helpers
     for (Exprent caseGuard : getCaseGuards()) {
       if (caseGuard != null) {
@@ -222,7 +218,11 @@ public class SwitchStatement extends Statement {
     }
 
     for (List<Exprent> caseList : this.caseValues) {
-      lst.addAll(caseList);
+      for (Exprent exp : caseList) {
+        if (exp != null) {
+          lst.add(exp);
+        }
+      }
     }
 
     return lst;
@@ -513,7 +513,7 @@ public class SwitchStatement extends Statement {
     return caseStatements;
   }
 
-  public StatEdge getDefaultEdge() {
+  public @Nullable StatEdge getDefaultEdge() {
     return defaultEdge;
   }
 
@@ -531,5 +531,105 @@ public class SwitchStatement extends Statement {
     }
 
     this.scopedCaseStatements.add(stat);
+  }
+
+  public void setDefaultEdge(StatEdge edge) {
+    this.defaultEdge = edge;
+  }
+
+  public Optional<Statement> getDefaultCase() {
+    StatEdge defaultEdge = this.getDefaultEdge();
+    return defaultEdge != null ? Optional.of(defaultEdge.getDestination()) : Optional.empty();
+  }
+
+  /**
+   * Replaces the default case if it exists. Adds a new default case to the switch if it doesn't exist.
+   * @param stat the case statement to be linked to
+   */
+  public void setDefaultCase(Statement stat) {
+    Optional<Statement> defaultCase = this.getDefaultCase();
+    if (defaultCase.isPresent()) {
+      defaultCase.get().replaceWith(stat);
+      return;
+    }
+
+    this.addCaseInternal(0, Collections.singletonList(null), stat);
+  }
+
+  /**
+   * Adds a new case to the switch.
+   * @param values the list of non-null exprents to use as case values
+   * @param stat the case statement to be linked to
+   */
+  public void addCase(List<Exprent> values, Statement stat) {
+    int caseCount = this.getCaseStatements().size();
+    this.addCaseInternal(this.getDefaultEdge() != null ? caseCount - 1 : caseCount, values, stat);
+  }
+
+  /**
+   * Adds a new case to the switch.
+   * @param index the index of where the case should be added
+   * @param values the list of exprents to use as case values
+   * @param stat the case statement to be linked to
+   */
+  public void addCase(int index, List<Exprent> values, Statement stat) {
+    this.addCaseInternal(index, values, stat);
+  }
+
+  private void addCaseInternal(int index, List<@Nullable Exprent> values, Statement stat) {
+    // Basichead is always the first stat
+    this.getStats().add(1 + index, stat);
+    this.getCaseStatements().add(index, stat);
+    this.getCaseValues().add(index, values);
+
+    // If it's a default case, or a regular case
+    if (values.size() == 1 && values.get(0) == null) {
+      StatEdge edge = new StatEdge(StatEdge.TYPE_REGULAR, this.getBasichead(), stat);
+      this.getCaseEdges().add(index, List.of(edge));
+      this.setDefaultEdge(edge);
+    } else {
+      ArrayList<StatEdge> newCaseEdgeLst = new ArrayList<>();
+      for (int i = 0; i < values.size(); i++) {
+        StatEdge edge = new StatEdge(StatEdge.TYPE_REGULAR, this.getBasichead(), stat);
+        newCaseEdgeLst.add(i, edge);
+
+        this.getBasichead().addSuccessor(edge);
+      }
+
+      this.getCaseEdges().add(index, newCaseEdgeLst);
+    }
+
+    stat.setParent(this);
+  }
+
+  /**
+   * Removes a case from the switch statement. This includes the case statement, values, and edges.
+   * You should NOT manually handle stats/values/edges if you are calling this method.
+   * @param stat the case statement to remove
+   */
+  public void removeCase(Statement stat) {
+    int index = this.caseStatements.indexOf(stat);
+    if (index == -1) {
+      throw new IllegalStateException("Tried to remove a case statement that isn't in the switch!");
+    }
+
+    this.removeCase(index);
+  }
+
+  /**
+   * Removes a case from the switch statement. This includes the case statement, values, and edges.
+   * You should NOT manually handle stats/values/edges if you are calling this method.
+   * @param index the index of the case to remove
+   */
+  public void removeCase(int index) {
+    Statement stat = this.getCaseStatements().get(index);
+    stat.getAllPredecessorEdges().forEach(StatEdge::remove);
+    stat.getAllSuccessorEdges().forEach(StatEdge::remove);
+
+    this.getStats().removeWithKey(stat.id);
+    this.getCaseStatements().remove(index);
+    this.getCaseValues().remove(index);
+    this.getCaseEdges().get(index).forEach(StatEdge::remove);
+    this.getCaseEdges().remove(index);
   }
 }

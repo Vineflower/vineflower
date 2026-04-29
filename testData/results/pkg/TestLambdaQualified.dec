@@ -4,7 +4,7 @@ import java.util.function.Supplier;
 
 public class TestLambdaQualified {
    private static final Supplier<String> S = () -> TestLambdaQualified.STR;// 7
-   private static final String STR = make();
+   private static final String STR = make();// 8
    private static Runnable r = new Runnable() {
       private final Supplier<String> S_ = () -> TestLambdaQualified.STR;// 27
 
@@ -23,7 +23,7 @@ public class TestLambdaQualified {
       private static final Supplier<String> S2 = () -> TestLambdaQualified.I1.I2.STR2;// 19
 
       private static class I2 {
-         private static final String STR2 = TestLambdaQualified.make();
+         private static final String STR2 = TestLambdaQualified.make();// 21
       }
    }
 
@@ -38,6 +38,12 @@ class 'pkg/TestLambdaQualified' {
       1      5
       2      5
       3      5
+   }
+
+   method '<clinit> ()V' {
+      8      6
+      9      6
+      a      6
    }
 
    method 'make ()Ljava/lang/String;' {
@@ -101,6 +107,14 @@ class 'pkg/TestLambdaQualified$I1' {
    }
 }
 
+class 'pkg/TestLambdaQualified$I1$I2' {
+   method '<clinit> ()V' {
+      0      25
+      1      25
+      2      25
+   }
+}
+
 class 'pkg/TestLambdaQualified$Inner' {
    method 'lambda$new$0 ()Ljava/lang/String;' {
       0      30
@@ -112,11 +126,15 @@ class 'pkg/TestLambdaQualified$Inner' {
 
 Lines mapping:
 7 <-> 6
+8 <-> 7
 12 <-> 31
 17 <-> 21
 18 <-> 22
 19 <-> 23
+21 <-> 26
 27 <-> 9
 31 <-> 12
 32 <-> 13
 37 <-> 17
+Not mapped:
+26

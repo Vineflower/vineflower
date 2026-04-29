@@ -3,21 +3,15 @@ package org.jetbrains.java.decompiler.code;
 
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 
-public class ExceptionHandler {
-  public int from = 0;
-  public int to = 0;
-  public int handler = 0;
-
-  public int from_instr = 0;
-  public int to_instr = 0;
-  public int handler_instr = 0;
-
-  public String exceptionClass = null;
-
+public record ExceptionHandler(
+  int from,
+  int to,
+  int handler,
+  String exceptionClass
+) {
   public String toString() {
-    String new_line_separator = DecompilerContext.getNewLineSeparator();
-    return "from: " + from + " to: " + to + " handler: " + handler + new_line_separator +
-           "from_instr: " + from_instr + " to_instr: " + to_instr + " handler_instr: " + handler_instr + new_line_separator +
-           "exceptionClass: " + exceptionClass + new_line_separator;
+    String newLineSeparator = DecompilerContext.getNewLineSeparator();
+    return "from instr: " + this.from + " to instr: " + this.to + " handler instr: " + handler +
+      newLineSeparator + "exception class: " + this.exceptionClass + newLineSeparator;
   }
 }

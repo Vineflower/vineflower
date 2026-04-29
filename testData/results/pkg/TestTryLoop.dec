@@ -17,8 +17,8 @@ public class TestTryLoop {
          while (this.field) {// 16
             new Scanner(file);// 17
          }
-      } catch (FileNotFoundException var3) {// 19
-         var3.printStackTrace();// 20
+      } catch (FileNotFoundException e) {// 19
+         e.printStackTrace();// 20
       }
    }// 22
 
@@ -31,9 +31,9 @@ public class TestTryLoop {
             }
 
             return false;// 32
-         } catch (ServiceConfigurationError var5) {// 33
+         } catch (ServiceConfigurationError e) {// 33
             System.out.println(1);// 34
-         } catch (NoClassDefFoundError var6) {// 35
+         } catch (NoClassDefFoundError e) {// 35
             System.out.println(2);// 36
          }
       }

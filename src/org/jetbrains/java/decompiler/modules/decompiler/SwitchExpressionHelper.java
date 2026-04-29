@@ -179,16 +179,18 @@ public final class SwitchExpressionHelper {
 
         seq.setAllParent();
 
-        // Replace successors with the new basic block
-        for (Statement st : stat.getCaseStatements()) {
-          for (StatEdge edge : st.getAllSuccessorEdges()) {
-            if (edge.getDestination() == oldSuc) {
-              st.removeSuccessor(edge);
+        for (StatEdge edge : oldSuc.getAllPredecessorEdges()) {
+          if (stat.containsStatement(edge.getSource())) {
+            Statement source = edge.getSource();
+            source.removeSuccessor(edge);
 
-              st.addSuccessor(new StatEdge(edge.getType(), st, suc, stat));
-            }
+            source.addSuccessor(new StatEdge(edge.getType(), source, suc, stat));
           }
         }
+
+        // Re-add control flow from switch to basic block successor
+        // TODO: this is required for validation, but causes certain switches to have an unreferenced label
+        //stat.addSuccessor(new StatEdge(StatEdge.TYPE_REGULAR, stat, suc, seq));
 
         // Control flow from new basic block to the next one
         suc.addSuccessor(new StatEdge(StatEdge.TYPE_REGULAR, suc, oldSuc, seq));

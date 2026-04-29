@@ -29,6 +29,14 @@ public class KotlinTests extends SingleClassesTestBase {
       IFernflowerPreferences.REMOVE_SYNTHETIC, "0",
       IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1"
     );
+    registerSet("Multifile Facade", this::registerMultifileTests,
+      IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
+      IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
+      IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
+      IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
+      IFernflowerPreferences.REMOVE_SYNTHETIC, "0",
+      KotlinOptions.DECOMPILE_FACADES, "1"
+      );
   }
 
   private void registerKotlinTests() {
@@ -39,7 +47,21 @@ public class KotlinTests extends SingleClassesTestBase {
     register(KOTLIN, "TestSmartCasts");
     register(KOTLIN, "TestTailrecFunctions");
     register(KOTLIN, "TestTryCatchExpressions");
+    register(KOTLIN, "TestTryCatchFinally");
+    register(KOTLIN, "TestTryCatchNested");
+    register(KOTLIN, "TestTryCatchThrowable");
+    register(KOTLIN, "TestTryFinally");
     register(KOTLIN, "TestTryFinallyExpressions");
+    register(KOTLIN, "TestTryLoop");
+    register(KOTLIN, "TestTryLoop2");
+    register(KOTLIN, "TestTryLoopNoCatch");
+    register(KOTLIN, "TestTryLoopRecompile");
+    register(KOTLIN, "TestTryLoopReturnFinally");
+    register(KOTLIN, "TestTryLoopSimpleFinally");
+    register(KOTLIN, "TestTryReturn");
+    register(KOTLIN, "TestTrySplit");
+    register(KOTLIN, "TestTrySynchronized");
+    register(KOTLIN, "TestTryVar");
     register(KOTLIN, "TestVars");
     // TODO: handle lambdas
     register(KOTLIN, "TestNonInlineLambda");
@@ -82,6 +104,7 @@ public class KotlinTests extends SingleClassesTestBase {
     register(KOTLIN, "TestAnnotations");
     register(KOTLIN, "TestBitwiseFunctions");
     register(KOTLIN, "TestCompileTimeErrors");
+    // TODO: unneeded escaping of poor name
     register(KOTLIN, "TestPoorNames");
     register(KOTLIN, "TestSafeCasts");
     register(KOTLIN, "TestSynchronized");
@@ -92,5 +115,14 @@ public class KotlinTests extends SingleClassesTestBase {
     register(KOTLIN_OLD, "TestClassicStringInterpolation");
     register(KOTLIN, "TestCompanionObject");
     register(KOTLIN, "TestEnumClass");
+    register(KOTLIN, "TestAnonymousEverything");
+    register(KOTLIN, "TestPropertyAccess", "ext/Person");
+    register(KOTLIN, "TestVarReplace");
+  }
+
+  private void registerMultifileTests() {
+    register(KOTLIN, "TestMultifile");
+    register(KOTLIN, "TestMultifile__TestMultifileA");
+    register(KOTLIN, "TestMultifile__TestMultifileB");
   }
 }

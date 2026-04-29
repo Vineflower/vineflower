@@ -13,7 +13,6 @@ public class TestSwitchPatternMatchingReturn1 {
 class 'pkg/TestSwitchPatternMatchingReturn1' {
    method 'test (Ljava/lang/Object;)I' {
       0      4
-      9      4
       10      4
       11      4
       12      4

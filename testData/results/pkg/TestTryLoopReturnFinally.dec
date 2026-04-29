@@ -16,8 +16,8 @@ public class TestTryLoopReturnFinally {
 
             new Scanner(file);// 17
          }
-      } catch (FileNotFoundException var6) {
-         var6.printStackTrace();// 20
+      } catch (FileNotFoundException e) {
+         e.printStackTrace();// 20
       } finally {
          System.out.println("Finally");// 22
       }

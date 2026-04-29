@@ -18,8 +18,6 @@ import java.util.stream.Collectors;
 /**
  * Processes try catch statements to turns them into try-with-resources statements wherever possible.
  * Including the entire classpath is generally needed for this to work as it needs to know which classes implement AutoCloseable.
- *
- * @author ForgeFlower devs, SuperCoder79
  */
 public final class TryWithResourcesProcessor {
   // Make try with resources with the old style bytecode (J8)
@@ -259,6 +257,43 @@ public final class TryWithResourcesProcessor {
 
       // Destroy catch block
       tryStatement.getStats().remove(1);
+
+      // Check for synthetic variable in the case that the resource is just a variable or field
+      if (assignment.getLeft() instanceof VarExprent declaration
+          && (assignment.getRight() instanceof VarExprent
+              || assignment.getRight() instanceof FieldExprent)
+          && !declaration.isVarReferenced(tryStatement)) {
+        tryStatement.getResources().set(0, assignment.getRight());
+      }
+
+      // Find the destinations again, as we might have changed them in previous processing.
+      destinations = findExitpoints(tryStatement);
+
+      for (Statement destination : destinations) {
+        Statement exitStat = destination;
+
+        // Hop through any empty blocks
+        while (exitStat instanceof BasicBlockStatement block && block.getExprents().isEmpty() && block.getAllSuccessorEdges().size() == 1) {
+          exitStat = block.getAllSuccessorEdges().get(0).getDestination();
+        }
+
+        // Check for "return var<idx>;"
+        if (exitStat instanceof BasicBlockStatement block && block.getExprents().size() == 1 && block.getExprents().get(0) instanceof ExitExprent exit && exit.getExitType() == ExitExprent.Type.RETURN) {
+          // Does this return block have a single break statement to it?
+          if (destination.getPredecessorEdges(StatEdge.TYPE_BREAK).size() == 1 && destination.getPredecessorEdges(StatEdge.TYPE_BREAK).get(0).getSource() instanceof BasicBlockStatement setExit) {
+            // Check for "var<idx> = <expr>;" at the end of the try with resources
+            if (!setExit.getExprents().isEmpty() && setExit.getExprents().get(setExit.getExprents().size() - 1) instanceof AssignmentExprent assign && assign.getLeft() instanceof VarExprent variable) {
+              // Is the variable in the exit and the variable in the try with resources the same?
+              if (variable.equalsVersions(exit.getValue()) && !variable.isVarReferenced(tryStatement.getTopParent(), (VarExprent) exit.getValue())) {
+                // Then remove the return and inline it into the try
+                exit.replaceExprent(exit.getValue(), assign.getRight());
+                setExit.getExprents().set(setExit.getExprents().size() - 1, exit);
+                exitStat.replaceWithEmpty();
+              }
+            }
+          }
+        }
+      }
 
       return true;
     }

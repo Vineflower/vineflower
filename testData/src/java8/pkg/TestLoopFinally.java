@@ -1,5 +1,9 @@
 package pkg;
 
+import java.io.File;
+import java.util.Random;
+import java.util.Scanner;
+
 public class TestLoopFinally {
   public void test() {
     for (int i = 0; i < 10; i++) {
@@ -183,6 +187,103 @@ public class TestLoopFinally {
       short var18 = (short) 15080;
       while (var18 > (short) -14704) {
         int var9 = 0;
+      }
+    }
+  }
+
+  public void test6(Object o) {
+    while (true) {
+      try {
+        System.out.println("try");
+      } finally {
+        if (o != null) {
+          try {
+            System.out.println("finally");
+            break;
+          } catch (Exception ex) {}
+        }
+      }
+    }
+  }
+
+  public void test7(Object o) {
+    while (true) {
+      try {
+        System.out.println("try");
+      } finally {
+        if (o != null) {
+          try {
+            System.out.println("finally");
+            break;
+          } catch (Exception ex) {}
+        }
+      }
+    }
+
+    System.out.println("outer");
+  }
+
+  public void test8(Object o) {
+    while (true) {
+      try {
+        System.out.println("try");
+      } finally {
+        if (o != null) {
+          try {
+            System.out.println("finally");
+            continue;
+          } catch (Exception ex) {}
+        }
+      }
+    }
+  }
+
+  public void test9(Object o) {
+    while (true) {
+      try {
+        System.out.println("try");
+      } finally {
+        if (o != null) {
+          try {
+            System.out.println("finally");
+            break;
+          } catch (Exception ex) {}
+
+          System.out.println("outer finally");
+        }
+      }
+    }
+  }
+
+  public void testComplex(Object o) {
+    boolean b = true;
+    do {
+      try {
+        while (new Random().nextBoolean()) {
+
+        }
+      } finally {
+        synchronized (o) {
+          if (new Random().nextBoolean() && new Random().nextBoolean()) {
+            if (new Random().nextBoolean()) {
+              b = false;
+            } else {
+              System.out.println("a");
+            }
+          }
+        }
+      }
+
+    } while (b);
+  }
+
+  public void test10(File file, int i) {
+    try {
+      new Scanner(file);
+    } catch (Exception e) {
+    } finally {
+      for (int k = 0; k < i; k++) {
+        System.out.println(k);
       }
     }
   }

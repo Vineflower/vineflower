@@ -2,47 +2,124 @@ package pkg;
 
 public class TestAssertMerge {
    public void test(int i, int j) {
-      while ($assertionsDisabled || i > 0) {// 6
+      while (true) {
+         assert i > 0;// 6
          if (i < j) {// 7
             return;// 13
          }
 
          i++;// 11
       }
-
-      throw new AssertionError();
    }
+
+   public void test1(int i, int j) {
+      while (j > 10) {// 16
+         assert i > 0;// 17
+         if (i >= j) {// 18
+            i++;// 22
+            continue;
+         }
+         break;
+      }
+   }// 24
+
+   public void test2(int i, int j) {
+      assert i > 0;// 27
+
+      while (j > 10 && i >= j) {// 29 30
+         j++;// 34
+      }
+   }// 36
 }
 
 class 'pkg/TestAssertMerge' {
    method 'test (II)V' {
-      0      4
-      1      4
-      2      4
-      3      4
-      4      4
-      5      4
-      6      4
-      7      4
-      8      4
-      9      4
-      11      12
-      12      5
-      13      5
-      14      5
-      15      5
-      16      5
-      1a      9
-      1b      9
-      1c      9
-      20      6
+      6      5
+      7      5
+      8      5
+      9      5
+      e      5
+      f      5
+      10      5
+      12      6
+      13      6
+      14      6
+      15      6
+      16      6
+      1a      10
+      1b      10
+      1c      10
+      20      7
+   }
+
+   method 'test1 (II)V' {
+      0      15
+      1      15
+      2      15
+      3      15
+      4      15
+      5      15
+      c      16
+      d      16
+      e      16
+      f      16
+      14      16
+      15      16
+      16      16
+      18      17
+      19      17
+      1a      17
+      1b      17
+      1c      17
+      20      18
+      21      18
+      22      18
+      23      19
+      26      23
+   }
+
+   method 'test2 (II)V' {
+      6      26
+      7      26
+      8      26
+      9      26
+      e      26
+      f      26
+      10      26
+      12      28
+      13      28
+      14      28
+      15      28
+      16      28
+      17      28
+      18      28
+      19      28
+      1a      28
+      1b      28
+      1c      28
+      20      29
+      21      29
+      22      29
+      26      31
    }
 }
 
 Lines mapping:
-6 <-> 5
-7 <-> 6
-11 <-> 10
-13 <-> 7
+6 <-> 6
+7 <-> 7
+11 <-> 11
+13 <-> 8
+16 <-> 16
+17 <-> 17
+18 <-> 18
+22 <-> 19
+24 <-> 24
+27 <-> 27
+29 <-> 29
+30 <-> 29
+34 <-> 30
+36 <-> 32
 Not mapped:
 8
+19
+31

@@ -2,90 +2,46 @@ package pkg;
 
 public class TestSingleCaseStrSwitch {
    public String test(String s) {
-      byte var3 = -1;
-      switch (s.hashCode()) {
-         case 0:
-            if (s.equals("")) {
-               var3 = 0;
-            }
-         default:
-            return switch (var3) {// 5
-               case 0 -> "foo bar";// 6
-               default -> s;// 7
-            };
-      }
+      return switch (s) {// 5
+         case "" -> "foo bar";// 6
+         default -> s;// 7
+      };
    }
 }
 
 class 'pkg/TestSingleCaseStrSwitch' {
    method 'test (Ljava/lang/String;)Ljava/lang/String;' {
-      0      5
-      2      4
-      3      4
-      4      5
-      5      5
-      6      5
-      7      5
-      8      5
-      9      5
-      a      5
-      b      5
-      c      5
-      d      5
-      e      5
-      f      5
-      10      5
-      11      5
-      12      5
-      13      5
-      14      5
-      15      5
-      16      5
-      17      5
-      18      5
-      19      5
-      1a      5
-      1b      5
-      1c      7
-      1d      7
-      1e      7
-      1f      7
-      20      7
-      21      7
-      22      7
-      23      7
-      24      7
-      25      8
-      26      8
-      27      11
-      28      11
-      29      11
-      2a      11
-      2b      11
-      2c      11
-      2d      11
-      2e      11
-      2f      11
-      30      11
-      31      11
-      32      11
-      33      11
-      34      11
-      35      11
-      36      11
-      37      11
-      38      11
-      39      11
-      3a      11
-      3b      11
-      3c      12
-      3d      12
-      41      13
-      42      11
+      0      4
+      1d      5
+      1e      5
+      28      4
+      29      4
+      2a      4
+      2b      4
+      2c      4
+      2d      4
+      2e      4
+      2f      4
+      30      4
+      31      4
+      32      4
+      33      4
+      34      4
+      35      4
+      36      4
+      37      4
+      38      4
+      39      4
+      3a      4
+      3b      4
+      3c      5
+      3d      5
+      41      6
+      42      4
    }
 }
 
 Lines mapping:
-5 <-> 12
-6 <-> 13
-7 <-> 14
+5 <-> 5
+6 <-> 6
+7 <-> 7

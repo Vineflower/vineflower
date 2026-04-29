@@ -15,14 +15,14 @@ public interface TestGenericSubclassTypes<T> {
       return i -> i;// 27
    }
 
-   public static class Constant<T> implements TestGenericSubclassTypes.Numerical<T> {
+   class Constant<T> implements TestGenericSubclassTypes.Numerical<T> {
       @Override
       public int get(T in) {
          return 1;// 16
       }
    }
 
-   public interface Numerical<T> {
+   interface Numerical<T> {
       int get(T var1);
    }
 }

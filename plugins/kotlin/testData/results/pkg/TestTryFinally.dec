@@ -1,0 +1,143 @@
+package pkg
+
+public class TestTryFinally {
+   public fun test0() {
+      try {
+         System.out.println("Hello")// 6
+      } finally {
+         val var2: Long = 5L// 8
+      }
+   }// 9
+
+   public fun test1() {
+      try {
+         System.out.println("Hello")// 14
+      } finally {
+         System.out.println("Finally")// 16
+      }
+
+      System.out.println("Bye")// 17 19
+   }
+
+   public fun test2(i: Int) {
+      try {
+         System.out.println("Hello")// 25
+      } finally {
+         System.out.println("Finally")// 27
+         if (i > 0) {// 28
+            System.out.println(i)// 29
+            return// 30
+         }
+      }
+
+      System.out.println("Bye")// 34
+   }// 35
+}
+
+class 'pkg/TestTryFinally' {
+   method 'test0 ()V' {
+      1      5
+      2      5
+      3      5
+      4      5
+      5      5
+      7      5
+      8      5
+      9      5
+      e      9
+      12      7
+      13      7
+      14      7
+      15      7
+   }
+
+   method 'test1 ()V' {
+      1      13
+      2      13
+      3      13
+      4      13
+      5      13
+      7      13
+      8      13
+      9      13
+      13      18
+      14      18
+      17      15
+      18      15
+      19      15
+      1a      15
+      1b      15
+      1d      15
+      1e      15
+      1f      15
+      22      18
+      23      18
+      24      18
+      27      18
+      28      18
+      29      18
+   }
+
+   method 'test2 (I)V' {
+      1      23
+      2      23
+      3      23
+      4      23
+      5      23
+      7      23
+      8      23
+      9      23
+      23      25
+      24      25
+      25      25
+      26      25
+      27      25
+      29      25
+      2a      25
+      2b      25
+      2c      26
+      2d      26
+      2e      26
+      2f      26
+      30      27
+      31      27
+      32      27
+      33      27
+      34      27
+      35      27
+      36      27
+      37      28
+      3a      32
+      3b      32
+      3c      32
+      3d      32
+      3e      32
+      40      32
+      41      32
+      42      32
+      43      33
+   }
+}
+
+Lines mapping:
+6 <-> 6
+8 <-> 8
+9 <-> 10
+14 <-> 14
+16 <-> 16
+17 <-> 19
+19 <-> 19
+25 <-> 24
+27 <-> 26
+28 <-> 27
+29 <-> 28
+30 <-> 29
+34 <-> 33
+35 <-> 34
+Not mapped:
+5
+10
+13
+20
+24
+32

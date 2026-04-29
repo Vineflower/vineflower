@@ -2,6 +2,7 @@ package pkg;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Scanner;
 
 public class TestTryWithResourcesReturnJ16 {
@@ -11,9 +12,66 @@ public class TestTryWithResourcesReturnJ16 {
     }
   }
 
+  public Scanner test2(File file) throws FileNotFoundException {
+    try (Scanner scanner = new Scanner(file)) {
+      System.out.println("try");
+      return scanner;
+    } catch (IOException e) {
+      System.out.println("catch");
+      throw new RuntimeException(e);
+    }
+  }
+
+  public Scanner test3(File file) throws FileNotFoundException {
+    try (Scanner scanner = new Scanner(file)) {
+      return scanner;
+    } catch (IOException e) {
+      System.out.println("catch");
+      return null;
+    }
+  }
+
+  public Scanner test4(File file) throws FileNotFoundException {
+    System.out.println("pre");
+
+    try (Scanner scanner = new Scanner(file)) {
+      return scanner;
+    } catch (IOException e) {
+      System.out.println("catch");
+      return null;
+    }
+  }
+
+  public Scanner test5(File file) throws FileNotFoundException {
+    System.out.println("pre");
+
+    try (Scanner scanner = new Scanner(file)) {
+      System.out.println("try");
+      return scanner;
+    } catch (IOException e) {
+      System.out.println("catch");
+      return null;
+    }
+  }
+
+  public Scanner test6(File file) throws FileNotFoundException {
+    try (Scanner scanner = create(file)) {
+      return scanner != null ? new Scanner(System.in) : scanner;
+    } catch (IOException e) {
+      System.out.println("catch");
+      return null;
+    }
+  }
+
   public Scanner testFunc(File file) throws FileNotFoundException {
     try (Scanner scanner = create(file)) {
       return scanner;
+    }
+  }
+
+  public Scanner testFunc2(File file) throws FileNotFoundException {
+    try (Scanner scanner = create(file); Scanner scanner2 = create(file)) {
+      return Math.random() > 0.5 ? scanner2 : scanner;
     }
   }
 
@@ -84,6 +142,42 @@ public class TestTryWithResourcesReturnJ16 {
     }
 
     return null;
+  }
+
+  public Scanner testFakeSimple(File file) throws FileNotFoundException {
+    Scanner sc;
+    try (Scanner scanner = new Scanner(file)) {
+      sc = scanner;
+    }
+
+    return sc;
+  }
+
+  public String testFake(File file) throws FileNotFoundException {
+    String string;
+    try (Scanner scanner = this.create(file)) {
+      string = scanner.next();
+    }
+
+    return string;
+  }
+
+  public String testFake2(File file) throws FileNotFoundException {
+    String string;
+    try (Scanner scanner = create(file); Scanner scanner2 = create(file)) {
+      string = scanner.next() + scanner2.next();
+    }
+
+    return string;
+  }
+
+  public String testFake3(File file) throws FileNotFoundException {
+    String string;
+    try (Scanner scanner = create(file); Scanner scanner2 = create(file)) {
+      string = Math.random() > 0.5 ? scanner.next() : scanner2.next();
+    }
+
+    return string;
   }
 
   private Scanner create(File file) throws FileNotFoundException {

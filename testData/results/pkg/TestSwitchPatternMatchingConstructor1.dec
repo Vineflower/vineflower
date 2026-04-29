@@ -9,7 +9,7 @@ public class TestSwitchPatternMatchingConstructor1 {
       this(switch (s) {// 9
          case null -> "null";// 12
          case TestSwitchPatternMatchingConstructor1.Triangle t when t.calculateArea() > 100.0 -> "Large triangle";// 10
-         case TestSwitchPatternMatchingConstructor1.Triangle tx -> "Small triangle";// 11
+         case TestSwitchPatternMatchingConstructor1.Triangle t -> "Small triangle";// 11
          default -> "Non-triangle";// 13
       });
    }// 15
@@ -40,7 +40,6 @@ class 'pkg/TestSwitchPatternMatchingConstructor1' {
 
    method '<init> (Lpkg/TestSwitchPatternMatchingConstructor1$Shape;)V' {
       1      8
-      5      8
       c      8
       d      8
       e      8

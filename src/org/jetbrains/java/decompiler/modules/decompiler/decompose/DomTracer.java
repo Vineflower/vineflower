@@ -22,6 +22,7 @@ class DomTracer {
   }
 
   private void add(Statement gen, String s, Map<Statement, String> props) {
+    String sb = "";
     if (COLLECT_DOTS) {
       HashMap<Statement, String> map = new HashMap<>(props);
       if (map.containsKey(gen)) {
@@ -32,39 +33,44 @@ class DomTracer {
       DotExporter.toDotFile(gen, this.structMethod, this.filePrefix, "g" + this.counter, map);
 
       if (COLLECT_STRINGS) {
-        string += "(g" + this.counter +") ";
+        sb += "(g" + this.counter +") ";
       }
     }
 
     if (COLLECT_STRINGS) {
-      this.string += ("[" + gen + "] " + s + "\n");
+      sb += ("[" + gen + "] " + s);
+
+      // Uncomment this for debugging:
+//      System.out.println(sb);
+
+      string += sb + "\n";
     }
 
     this.counter++;
   }
 
   void error(Statement stat, String s) {
-    this.add(stat, s, Map.of(stat, "fillcolor=coral1,style=filled"));
+    this.add(stat, s, Map.of(stat, "fillcolor=" + DotExporter.BG_DOM_ERROR + ",style=filled"));
   }
 
   void warn(Statement stat, String s) {
-    this.add(stat, s, Map.of(stat, "fillcolor=tan1,style=filled"));
+    this.add(stat, s, Map.of(stat, "fillcolor=" + DotExporter.BG_DOM_WARN + ",style=filled"));
   }
 
   void info(Statement stat, String s) {
-    this.add(stat, s, Map.of(stat, "fillcolor=lightblue,style=filled"));
+    this.add(stat, s, Map.of(stat, "fillcolor=" + DotExporter.BG_DOM_INFO + ",style=filled"));
   }
 
   void success(Statement stat, String s) {
-    this.add(stat, s, Map.of(stat, "fillcolor=lawngreen,style=filled"));
+    this.add(stat, s, Map.of(stat, "fillcolor=" + DotExporter.BG_DOM_SUCCESS + ",style=filled"));
   }
 
   void successCreated(Statement stat, String s, Statement newStat) {
     Map<Statement, String> props = new HashMap<>();
-    props.put(stat, "fillcolor=orange,style=filled");
-    props.put(newStat, "fillcolor=lawngreen,style=filled");
+    props.put(stat, "fillcolor=" + DotExporter.BG_DOM_OLDSTAT + ",style=filled");
+    props.put(newStat, "fillcolor=" + DotExporter.BG_DOM_NEWSTAT + ",style=filled");
     for (Statement st : newStat.getStats()) {
-      props.put(st, "fillcolor=pink,style=filled");
+      props.put(st, "fillcolor=" + DotExporter.BG_DOM_NEWSTAT_CHILDREN + ",style=filled");
     }
     this.add(stat, s, props);
   }

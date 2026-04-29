@@ -26,8 +26,8 @@ public class TestDoubleForeach {
       String[] twoArr = (String[])this.two.toArray(String[]::new);// 28
       String[] x = oneArr;// 32
       String[] x2 = twoArr;// 33
-      int l = oneArr.length;// 34
-      int l2 = twoArr.length;// 35
+      int l = x.length;// 34
+      int l2 = x2.length;// 35
 
       for (int i = 0; i < l; i++) {// 37
          String myString = x[i];// 38

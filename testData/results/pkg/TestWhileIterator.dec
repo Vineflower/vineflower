@@ -2,96 +2,1031 @@ package pkg;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 public class TestWhileIterator {
    public int testNested(List<Object> list, Set<Object> set) {
-      Iterator<Object> it1 = list.iterator();// 9
-      Iterator<Object> it2 = set.iterator();// 10
-      int i = 0;// 11
+      Iterator<Object> it1 = list.iterator();// 10
+      Iterator<Object> it2 = set.iterator();// 11
+      int i = 0;// 12
 
-      while (it1.hasNext() && it2.hasNext()) {// 13
-         if (it1.next().equals(it2.next())) {// 14
-            i++;// 15
+      while (it1.hasNext() && it2.hasNext()) {// 14
+         if (it1.next().equals(it2.next())) {// 15
+            i++;// 16
          }
       }
 
-      return i;// 19
+      return i;// 20
    }
+
+   public Iterator<?> testDoubleUse1(Iterable<?> iterable) {
+      System.out.println(iterable);// 24
+      Iterator<?> iterator = iterable.iterator();// 25
+
+      while (iterator.hasNext()) {// 26
+         Object next = iterator.next();// 27
+         if (next != null) {// 28
+            System.out.println(next);// 29
+            break;// 30
+         }
+      }
+
+      while (iterator.hasNext()) {// 33
+         Object next = iterator.next();// 34
+         if (next != null) {// 35
+            System.out.println(next);// 36
+         }
+      }
+
+      return iterator;// 39
+   }
+
+   public Iterator<?> testDoubleUse2(Iterable<?> iterable) {
+      System.out.println(iterable);// 43
+      Iterator<?> iterator = iterable.iterator();// 44
+
+      while (iterator.hasNext()) {// 45
+         Object next = iterator.next();// 46
+         if (next != null) {// 47
+            System.out.println(next);// 48
+            break;// 49
+         }
+      }
+
+      System.out.println(iterable);// 52
+
+      while (iterator.hasNext()) {// 53
+         Object next = iterator.next();// 54
+         if (next != null) {// 55
+            System.out.println(next);// 56
+         }
+      }
+
+      return iterator;// 59
+   }
+
+   public Iterator<?> testDoubleUse3(Iterable<?> iterable) {
+      System.out.println(iterable);// 63
+      Iterator<?> iterator = iterable.iterator();// 64
+
+      while (iterator.hasNext()) {// 65
+         Object next = iterator.next();// 66
+         if (next != null) {// 67
+            System.out.println(next);// 68
+            break;// 69
+         }
+      }
+
+      if (iterator != null) {// 72
+         while (iterator.hasNext()) {// 73
+            Object next = iterator.next();// 74
+            if (next != null) {// 75
+               System.out.println(next);// 76
+            }
+         }
+      }
+
+      return iterator;// 80
+   }
+
+   public Iterator<?> testDoubleUse4(Iterable<?> iterable) {
+      System.out.println(iterable);// 84
+      Iterator<?> iterator = iterable.iterator();// 85
+
+      while (iterator.hasNext()) {// 86
+         Object next = iterator.next();// 87
+         if (next != null) {// 88
+            System.out.println(next);// 89
+            break;// 90
+         }
+      }
+
+      if (iterable != null) {// 93
+         while (iterator.hasNext()) {// 94
+            Object next = iterator.next();// 95
+            if (next != null) {// 96
+               System.out.println(next);// 97
+            }
+         }
+      }
+
+      return iterator;// 101
+   }
+
+   public Iterator<?> testDoubleUse5(Iterable<?> iterable) {
+      System.out.println(iterable);// 105
+
+      for (Object next : iterable) {// 106 108
+         if (next != null) {// 109
+            System.out.println(next);// 110
+            break;// 111
+         }
+      }
+
+      Iterator<?> var4 = iterable.iterator();// 114
+
+      while (var4.hasNext()) {// 115
+         Object next = var4.next();// 116
+         if (next != null) {// 117
+            System.out.println(next);// 118
+         }
+      }
+
+      return var4;// 121
+   }
+
+   public void testDoubleUse6(Iterable<?> iterable) {
+      System.out.println(iterable);// 125
+
+      for (Object next : iterable) {// 126 128
+         if (next != null) {// 129
+            System.out.println(next);// 130
+            break;// 131
+         }
+      }
+
+      for (Object next : iterable) {// 134 136
+         if (next != null) {// 137
+            System.out.println(next);// 138
+         }
+      }
+   }// 141
+
+   public Iterator<?> testOtherUse1(Iterable<?> iterable) {
+      System.out.println(iterable);// 144
+      Iterator<?> iterator = iterable.iterator();// 145
+
+      while (iterator.hasNext()) {// 146
+         Object next = iterator.next();// 147
+         if (next != null) {// 148
+            System.out.println(next);// 149
+            break;// 150
+         }
+      }
+
+      return iterator;// 154
+   }
+
+   public Iterator<?> testOtherUse2(Iterable<?> iterable) {
+      System.out.println(iterable);// 158
+
+      for (Object next : iterable) {// 159 161
+         if (next != null) {// 162
+            System.out.println(next);// 163
+            break;// 164
+         }
+      }
+
+      return iterable.iterator();// 168
+   }
+
+   public void testOtherUse3(Iterable<?> iterable) {
+      System.out.println(iterable);// 172
+      Iterator<?> iterator = iterable.iterator();// 173
+
+      while (iterator.hasNext()) {// 174
+         Object next = iterator.next();// 175
+         if (next != null) {// 176
+            System.out.println(next);// 177
+            break;// 178
+         }
+      }
+
+      if (new Random().nextBoolean()) {// 182
+         System.out.println(iterator);// 183
+      }
+   }// 185
+
+   public void testOtherUse4(Iterable<?> iterable) {
+      System.out.println(iterable);// 188
+
+      for (Object next : iterable) {// 189 191
+         if (next != null) {// 192
+            System.out.println(next);// 193
+            break;// 194
+         }
+      }
+
+      if (new Random().nextBoolean()) {// 198
+         System.out.println(iterable);// 199
+      }
+   }// 201
 }
 
 class 'pkg/TestWhileIterator' {
    method 'testNested (Ljava/util/List;Ljava/util/Set;)I' {
-      0      8
-      1      8
-      2      8
-      3      8
-      4      8
-      5      8
-      6      8
-      7      9
-      8      9
-      9      9
-      a      9
-      b      9
-      c      9
-      d      9
-      e      9
-      f      10
-      10      10
-      11      10
-      12      12
-      13      12
-      14      12
-      15      12
-      16      12
-      17      12
-      18      12
-      19      12
-      1a      12
-      1b      12
-      1c      12
-      1d      12
-      1e      12
-      1f      12
-      20      12
-      21      12
-      22      12
-      23      12
-      24      12
-      25      13
-      26      13
-      27      13
-      28      13
-      29      13
-      2a      13
-      2b      13
-      2c      13
-      2d      13
-      2e      13
-      2f      13
-      30      13
-      31      13
-      32      13
-      33      13
-      34      13
-      35      13
-      36      13
-      37      13
-      38      14
-      39      14
-      3a      14
-      3e      18
-      3f      18
-      40      18
+      0      9
+      1      9
+      2      9
+      3      9
+      4      9
+      5      9
+      6      9
+      7      10
+      8      10
+      9      10
+      a      10
+      b      10
+      c      10
+      d      10
+      e      10
+      f      11
+      10      11
+      11      11
+      12      13
+      13      13
+      14      13
+      15      13
+      16      13
+      17      13
+      18      13
+      19      13
+      1a      13
+      1b      13
+      1c      13
+      1d      13
+      1e      13
+      1f      13
+      20      13
+      21      13
+      22      13
+      23      13
+      24      13
+      25      14
+      26      14
+      27      14
+      28      14
+      29      14
+      2a      14
+      2b      14
+      2c      14
+      2d      14
+      2e      14
+      2f      14
+      30      14
+      31      14
+      32      14
+      33      14
+      34      14
+      35      14
+      36      14
+      37      14
+      38      15
+      39      15
+      3a      15
+      3e      19
+      3f      19
+      40      19
+   }
+
+   method 'testDoubleUse1 (Ljava/lang/Iterable;)Ljava/util/Iterator;' {
+      0      23
+      1      23
+      2      23
+      3      23
+      4      23
+      5      23
+      6      23
+      7      24
+      8      24
+      9      24
+      a      24
+      b      24
+      c      24
+      d      24
+      e      26
+      f      26
+      10      26
+      11      26
+      12      26
+      13      26
+      17      27
+      18      27
+      19      27
+      1a      27
+      1b      27
+      1c      27
+      1d      27
+      1e      28
+      1f      28
+      20      28
+      21      28
+      22      29
+      23      29
+      24      29
+      25      29
+      26      29
+      27      29
+      28      29
+      29      30
+      2f      34
+      30      34
+      31      34
+      32      34
+      33      34
+      34      34
+      38      35
+      39      35
+      3a      35
+      3b      35
+      3c      35
+      3d      35
+      3e      35
+      3f      36
+      40      36
+      41      36
+      42      36
+      43      37
+      44      37
+      45      37
+      46      37
+      47      37
+      48      37
+      49      37
+      4d      41
+      4e      41
+   }
+
+   method 'testDoubleUse2 (Ljava/lang/Iterable;)Ljava/util/Iterator;' {
+      0      45
+      1      45
+      2      45
+      3      45
+      4      45
+      5      45
+      6      45
+      7      46
+      8      46
+      9      46
+      a      46
+      b      46
+      c      46
+      d      46
+      e      48
+      f      48
+      10      48
+      11      48
+      12      48
+      13      48
+      17      49
+      18      49
+      19      49
+      1a      49
+      1b      49
+      1c      49
+      1d      49
+      1e      50
+      1f      50
+      20      50
+      21      50
+      22      51
+      23      51
+      24      51
+      25      51
+      26      51
+      27      51
+      28      51
+      29      52
+      2f      56
+      30      56
+      31      56
+      32      56
+      33      56
+      34      56
+      35      56
+      36      58
+      37      58
+      38      58
+      39      58
+      3a      58
+      3b      58
+      3f      59
+      40      59
+      41      59
+      42      59
+      43      59
+      44      59
+      45      59
+      46      60
+      47      60
+      48      60
+      49      60
+      4a      61
+      4b      61
+      4c      61
+      4d      61
+      4e      61
+      4f      61
+      50      61
+      54      65
+      55      65
+   }
+
+   method 'testDoubleUse3 (Ljava/lang/Iterable;)Ljava/util/Iterator;' {
+      0      69
+      1      69
+      2      69
+      3      69
+      4      69
+      5      69
+      6      69
+      7      70
+      8      70
+      9      70
+      a      70
+      b      70
+      c      70
+      d      70
+      e      72
+      f      72
+      10      72
+      11      72
+      12      72
+      13      72
+      17      73
+      18      73
+      19      73
+      1a      73
+      1b      73
+      1c      73
+      1d      73
+      1e      74
+      1f      74
+      20      74
+      21      74
+      22      75
+      23      75
+      24      75
+      25      75
+      26      75
+      27      75
+      28      75
+      29      76
+      2f      80
+      30      80
+      31      80
+      32      80
+      33      81
+      34      81
+      35      81
+      36      81
+      37      81
+      38      81
+      3c      82
+      3d      82
+      3e      82
+      3f      82
+      40      82
+      41      82
+      42      82
+      43      83
+      44      83
+      45      83
+      46      83
+      47      84
+      48      84
+      49      84
+      4a      84
+      4b      84
+      4c      84
+      4d      84
+      51      89
+      52      89
+   }
+
+   method 'testDoubleUse4 (Ljava/lang/Iterable;)Ljava/util/Iterator;' {
+      0      93
+      1      93
+      2      93
+      3      93
+      4      93
+      5      93
+      6      93
+      7      94
+      8      94
+      9      94
+      a      94
+      b      94
+      c      94
+      d      94
+      e      96
+      f      96
+      10      96
+      11      96
+      12      96
+      13      96
+      17      97
+      18      97
+      19      97
+      1a      97
+      1b      97
+      1c      97
+      1d      97
+      1e      98
+      1f      98
+      20      98
+      21      98
+      22      99
+      23      99
+      24      99
+      25      99
+      26      99
+      27      99
+      28      99
+      29      100
+      2f      104
+      30      104
+      31      104
+      32      104
+      33      105
+      34      105
+      35      105
+      36      105
+      37      105
+      38      105
+      3c      106
+      3d      106
+      3e      106
+      3f      106
+      40      106
+      41      106
+      42      106
+      43      107
+      44      107
+      45      107
+      46      107
+      47      108
+      48      108
+      49      108
+      4a      108
+      4b      108
+      4c      108
+      4d      108
+      51      113
+      52      113
+   }
+
+   method 'testDoubleUse5 (Ljava/lang/Iterable;)Ljava/util/Iterator;' {
+      0      117
+      1      117
+      2      117
+      3      117
+      4      117
+      5      117
+      6      117
+      7      119
+      8      119
+      9      119
+      a      119
+      b      119
+      c      119
+      d      119
+      17      119
+      18      119
+      19      119
+      1a      119
+      1b      119
+      1c      119
+      1d      119
+      1e      120
+      1f      120
+      20      120
+      21      120
+      22      121
+      23      121
+      24      121
+      25      121
+      26      121
+      27      121
+      28      121
+      29      122
+      2f      126
+      30      126
+      31      126
+      32      126
+      33      126
+      34      126
+      35      126
+      36      128
+      37      128
+      38      128
+      39      128
+      3a      128
+      3b      128
+      3f      129
+      40      129
+      41      129
+      42      129
+      43      129
+      44      129
+      45      129
+      46      130
+      47      130
+      48      130
+      49      130
+      4a      131
+      4b      131
+      4c      131
+      4d      131
+      4e      131
+      4f      131
+      50      131
+      54      135
+      55      135
+   }
+
+   method 'testDoubleUse6 (Ljava/lang/Iterable;)V' {
+      0      139
+      1      139
+      2      139
+      3      139
+      4      139
+      5      139
+      6      139
+      7      141
+      8      141
+      9      141
+      a      141
+      b      141
+      c      141
+      d      141
+      17      141
+      18      141
+      19      141
+      1a      141
+      1b      141
+      1c      141
+      1d      141
+      1e      142
+      1f      142
+      20      142
+      21      142
+      22      143
+      23      143
+      24      143
+      25      143
+      26      143
+      27      143
+      28      143
+      29      144
+      2f      148
+      30      148
+      31      148
+      32      148
+      33      148
+      34      148
+      35      148
+      3f      148
+      40      148
+      41      148
+      42      148
+      43      148
+      44      148
+      45      148
+      46      149
+      47      149
+      48      149
+      49      149
+      4a      150
+      4b      150
+      4c      150
+      4d      150
+      4e      150
+      4f      150
+      50      150
+      54      153
+   }
+
+   method 'testOtherUse1 (Ljava/lang/Iterable;)Ljava/util/Iterator;' {
+      0      156
+      1      156
+      2      156
+      3      156
+      4      156
+      5      156
+      6      156
+      7      157
+      8      157
+      9      157
+      a      157
+      b      157
+      c      157
+      d      157
+      e      159
+      f      159
+      10      159
+      11      159
+      12      159
+      13      159
+      17      160
+      18      160
+      19      160
+      1a      160
+      1b      160
+      1c      160
+      1d      160
+      1e      161
+      1f      161
+      20      161
+      21      161
+      22      162
+      23      162
+      24      162
+      25      162
+      26      162
+      27      162
+      28      162
+      29      163
+      2f      167
+      30      167
+   }
+
+   method 'testOtherUse2 (Ljava/lang/Iterable;)Ljava/util/Iterator;' {
+      0      171
+      1      171
+      2      171
+      3      171
+      4      171
+      5      171
+      6      171
+      7      173
+      8      173
+      9      173
+      a      173
+      b      173
+      c      173
+      d      173
+      17      173
+      18      173
+      19      173
+      1a      173
+      1b      173
+      1c      173
+      1d      173
+      1e      174
+      1f      174
+      20      174
+      21      174
+      22      175
+      23      175
+      24      175
+      25      175
+      26      175
+      27      175
+      28      175
+      29      176
+      2f      180
+      30      180
+      31      180
+      32      180
+      33      180
+      34      180
+      35      180
+   }
+
+   method 'testOtherUse3 (Ljava/lang/Iterable;)V' {
+      0      184
+      1      184
+      2      184
+      3      184
+      4      184
+      5      184
+      6      184
+      7      185
+      8      185
+      9      185
+      a      185
+      b      185
+      c      185
+      d      185
+      e      187
+      f      187
+      10      187
+      11      187
+      12      187
+      13      187
+      17      188
+      18      188
+      19      188
+      1a      188
+      1b      188
+      1c      188
+      1d      188
+      1e      189
+      1f      189
+      20      189
+      21      189
+      22      190
+      23      190
+      24      190
+      25      190
+      26      190
+      27      190
+      28      190
+      29      191
+      36      195
+      37      195
+      38      195
+      39      195
+      3a      195
+      3b      195
+      3c      196
+      3d      196
+      3e      196
+      3f      196
+      40      196
+      41      196
+      42      196
+      43      198
+   }
+
+   method 'testOtherUse4 (Ljava/lang/Iterable;)V' {
+      0      201
+      1      201
+      2      201
+      3      201
+      4      201
+      5      201
+      6      201
+      7      203
+      8      203
+      9      203
+      a      203
+      b      203
+      c      203
+      d      203
+      17      203
+      18      203
+      19      203
+      1a      203
+      1b      203
+      1c      203
+      1d      203
+      1e      204
+      1f      204
+      20      204
+      21      204
+      22      205
+      23      205
+      24      205
+      25      205
+      26      205
+      27      205
+      28      205
+      29      206
+      36      210
+      37      210
+      38      210
+      39      210
+      3a      210
+      3b      210
+      3c      211
+      3d      211
+      3e      211
+      3f      211
+      40      211
+      41      211
+      42      211
+      43      213
    }
 }
 
 Lines mapping:
-9 <-> 9
 10 <-> 10
 11 <-> 11
-13 <-> 13
+12 <-> 12
 14 <-> 14
 15 <-> 15
-19 <-> 19
+16 <-> 16
+20 <-> 20
+24 <-> 24
+25 <-> 25
+26 <-> 27
+27 <-> 28
+28 <-> 29
+29 <-> 30
+30 <-> 31
+33 <-> 35
+34 <-> 36
+35 <-> 37
+36 <-> 38
+39 <-> 42
+43 <-> 46
+44 <-> 47
+45 <-> 49
+46 <-> 50
+47 <-> 51
+48 <-> 52
+49 <-> 53
+52 <-> 57
+53 <-> 59
+54 <-> 60
+55 <-> 61
+56 <-> 62
+59 <-> 66
+63 <-> 70
+64 <-> 71
+65 <-> 73
+66 <-> 74
+67 <-> 75
+68 <-> 76
+69 <-> 77
+72 <-> 81
+73 <-> 82
+74 <-> 83
+75 <-> 84
+76 <-> 85
+80 <-> 90
+84 <-> 94
+85 <-> 95
+86 <-> 97
+87 <-> 98
+88 <-> 99
+89 <-> 100
+90 <-> 101
+93 <-> 105
+94 <-> 106
+95 <-> 107
+96 <-> 108
+97 <-> 109
+101 <-> 114
+105 <-> 118
+106 <-> 120
+108 <-> 120
+109 <-> 121
+110 <-> 122
+111 <-> 123
+114 <-> 127
+115 <-> 129
+116 <-> 130
+117 <-> 131
+118 <-> 132
+121 <-> 136
+125 <-> 140
+126 <-> 142
+128 <-> 142
+129 <-> 143
+130 <-> 144
+131 <-> 145
+134 <-> 149
+136 <-> 149
+137 <-> 150
+138 <-> 151
+141 <-> 154
+144 <-> 157
+145 <-> 158
+146 <-> 160
+147 <-> 161
+148 <-> 162
+149 <-> 163
+150 <-> 164
+154 <-> 168
+158 <-> 172
+159 <-> 174
+161 <-> 174
+162 <-> 175
+163 <-> 176
+164 <-> 177
+168 <-> 181
+172 <-> 185
+173 <-> 186
+174 <-> 188
+175 <-> 189
+176 <-> 190
+177 <-> 191
+178 <-> 192
+182 <-> 196
+183 <-> 197
+185 <-> 199
+188 <-> 202
+189 <-> 204
+191 <-> 204
+192 <-> 205
+193 <-> 206
+194 <-> 207
+198 <-> 211
+199 <-> 212
+201 <-> 214
+Not mapped:
+32
+38
+51
+58
+71
+78
+92
+99
+107
+113
+120
+127
+133
+135
+140
+152
+160
+166
+180
+190
+196

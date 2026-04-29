@@ -1,21 +1,21 @@
 package pkg;
 
 public class TestIllegalMethodNames {
-   public void _I_V/* $VF was: (I)V*/(int var1) {
-      this.()V();// 21 22
-      System.out.println(this.(I)Z(var1));// 23 24 25 26 27
+   public void _I_V/* $VF was: (I)V */(int var1) {
+      this.__V/* $VF was: ()V */();// 21 22
+      System.out.println(this._I_Z/* $VF was: (I)Z */(var1));// 23 24 25 26 27
    }// 28
 
-   public void __V/* $VF was: ()V*/() {
-      System.out.println(this.()I());// 34 35 36 37
+   public void __V/* $VF was: ()V */() {
+      System.out.println(this.__I/* $VF was: ()I */());// 34 35 36 37
    }// 38
 
-   public int __I/* $VF was: ()I*/() {
+   public int __I/* $VF was: ()I */() {
       return 13;// 44 45
    }
 
-   public boolean _I_Z/* $VF was: (I)Z*/(int var1) {
-      return var1 <= this.()I();// 51 52 53 54 61
+   public boolean _I_Z/* $VF was: (I)Z */(int var1) {
+      return var1 <= this.__I/* $VF was: ()I */();// 51 52 53 54 61
    }
 
    public void __V() {

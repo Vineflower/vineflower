@@ -28,17 +28,16 @@ public class IntersectionCastProcessor {
 
   private static boolean makeIntersectionCastsRec(Statement stat, RootStatement root) {
     boolean result = false;
+    for (Statement st : stat.getStats()) {
+      result |= makeIntersectionCastsRec(st, root);
+    }
     if (stat.getExprents() != null) {
       for (Exprent e : stat.getExprents()) {
         result |= makeIntersectionCasts(e, root);
       }
     } else {
-      for (Object o : stat.getSequentialObjects()) {
-        if (o instanceof Statement s) {
-          result |= makeIntersectionCastsRec(s, root);
-        } else if (o instanceof Exprent e) {
-          result |= makeIntersectionCasts(e, root);
-        }
+      for (Exprent e : stat.getStatExprents()) {
+        result |= makeIntersectionCasts(e, root);
       }
     }
     return result;
@@ -162,17 +161,16 @@ public class IntersectionCastProcessor {
   }
 
   private static void findReferencesRec(VarExprent varExp, Statement stat, RootStatement root, List<VariablePosition> list) {
+    for (Statement s : stat.getStats()) {
+      findReferencesRec(varExp, s, root, list);
+    }
     if (stat.getExprents() != null) {
       for (Exprent e : stat.getExprents()) {
         findReferences(varExp, e, root, list);
       }
     } else {
-      for (Object o : stat.getSequentialObjects()) {
-        if (o instanceof Statement s) {
-          findReferencesRec(varExp, s, root, list);
-        } else if (o instanceof Exprent e) {
-          findReferences(varExp, e, root, list);
-        }
+      for (Exprent e : stat.getStatExprents()) {
+        findReferences(varExp, e, root, list);
       }
     }
   }

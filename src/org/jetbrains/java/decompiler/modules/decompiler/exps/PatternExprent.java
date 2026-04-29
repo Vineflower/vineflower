@@ -82,9 +82,9 @@ public class PatternExprent extends Exprent implements Pattern {
       for (int i = 0; i < exprents.size(); i++) {
         VarType type = boundTypes.get(i);
         if (type != null) {
-          res.addMinTypeExprent(exprents.get(i), type);
+          res.addExprLowerBound(exprents.get(i), type);
         } else {
-          res.addMinTypeExprent(exprents.get(i), new VarType(record.cl.getRecordComponents().get(i).getDescriptor()));
+          res.addExprLowerBound(exprents.get(i), new VarType(record.cl.getRecordComponents().get(i).getDescriptor()));
         }
       }
 

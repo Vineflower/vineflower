@@ -13,6 +13,8 @@ import java.util.regex.Pattern;
 public final class KTypes {
   private static final int MAX_KOTLIN_FUNCTION_ARITY = 22;
 
+  public static final String UNIT = "kotlin/Unit";
+
   private static final Pattern GENERICS_PATTERN = Pattern.compile("(.+)<(.+)>");
   private static final Map<String, String> JAVA_CLASS_TRANSLATIONS = Map.of(
     "java/lang/Integer", "Int",
@@ -166,6 +168,16 @@ public final class KTypes {
   }
 
   private static String mapJavaTypeToKotlin(String type) {
+    if (type.startsWith("?")) {
+      if (type.equals("?")) {
+        return "*";
+      } else if (type.startsWith("? extends ")) {
+        return "out " + type.substring("? extends ".length());
+      } else if (type.startsWith("? super ")) {
+        return "in " + type.substring("? super ".length());
+      }
+    }
+
     if (type.endsWith("[]")) {
       String baseType = type.substring(0, type.length() - 2);
       return switch (baseType) {
@@ -191,6 +203,12 @@ public final class KTypes {
         boolean appendDot = false;
         for (String part : parts) {
           Matcher matcher = GENERICS_PATTERN.matcher(part);
+
+          if (appendDot) {
+            sb.append(".");
+          }
+          appendDot = true;
+
           if (matcher.matches()) {
             sb.append(mapJavaTypeToKotlin(matcher.group(1)));
             sb.append("<");
@@ -204,11 +222,7 @@ public final class KTypes {
             }
             sb.append(">");
           } else {
-            if (appendDot) {
-              sb.append(".");
-            }
             sb.append(part);
-            appendDot = true;
           }
         }
         yield sb.toString();

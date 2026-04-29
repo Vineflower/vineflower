@@ -9,7 +9,7 @@ import java.util.function.IntBinaryOperator;
 import java.util.function.Supplier;
 
 public class TestClassLambda {
-   public int field = 0;
+   public int field = 0;// 26
 
    public void testLambda() {
       List<Integer> list = Arrays.asList(1, 2, 3, 4, 5, 6, 7);// 29
@@ -76,6 +76,10 @@ public class TestClassLambda {
 }
 
 class 'pkg/TestClassLambda' {
+   method '<init> ()V' {
+      5      11
+   }
+
    method 'testLambda ()V' {
       7      14
       8      14
@@ -361,6 +365,7 @@ class 'pkg/TestClassLambda' {
 }
 
 Lines mapping:
+26 <-> 12
 29 <-> 15
 30 <-> 16
 32 <-> 17
@@ -397,3 +402,5 @@ Lines mapping:
 88 <-> 73
 89 <-> 74
 90 <-> 75
+Not mapped:
+24

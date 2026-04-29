@@ -1,0 +1,861 @@
+package pkg
+
+import java.util.Random
+import java.util.function.Supplier
+
+public class TestTryReturn {
+   public fun test(supplier: Supplier<Boolean>): Boolean {
+      try {
+         val var10000: Any = supplier.get()// 9
+         return var10000 as java.lang.Boolean
+      } catch (var3: Exception) {// 10
+         throw RuntimeException(var3 as java.lang.Throwable)// 11
+      }
+   }
+
+   public fun testFinally(supplier: Supplier<Boolean>): Boolean {
+      try {
+         val var10000: Any = supplier.get()// 17
+         return var10000 as java.lang.Boolean
+      } finally {
+         System.out.println("Finally")// 19
+      }
+   }
+
+   public fun testFinally1(supplier: Supplier<Boolean>) {
+      System.out.println("pred")// 24
+
+      try {
+         if (supplier.get() as java.lang.Boolean) {// 27
+            return// 28
+         }
+      } finally {
+         System.out.println("Finally")// 31
+      }
+
+      System.out.println("suc")// 32 34
+   }
+
+   public fun testFinally2(supplier: Supplier<Boolean>): Boolean {
+      var var6: Boolean
+      try {
+         var6 = supplier.get() as java.lang.Boolean// 40
+      } finally {
+         System.out.println("Finally")// 42
+      }
+
+      return var6// 43 45
+   }
+
+   public fun testFinally3(b: Boolean, c: Boolean, a: Int, supplier: Supplier<Boolean>): Boolean {
+      try {
+         if (!b) {// 50
+            if (a > 0) {// 54
+               return a == 1// 55
+            } else {
+               val var10000: Any = supplier.get()// 58
+               return var10000 as java.lang.Boolean
+            }
+         } else {
+            return c && supplier.get() as java.lang.Boolean// 51
+         }
+      } finally {
+         System.out.println("Finally")// 60
+      }
+   }
+
+   public fun testFinally4(supplier: Supplier<Boolean>): Boolean {
+      var var6: Boolean
+      try {
+         var6 = supplier.get() as java.lang.Boolean// 67
+      } finally {
+         System.out.println("Finally")// 69
+      }
+
+      return var6// 70 72
+   }
+
+   public fun testFinally5(supplier: Supplier<Boolean>): Boolean {
+      var var8: Boolean
+      try {
+         var8 = supplier.get() as java.lang.Boolean// 78
+      } catch (var6: Exception) {// 79
+         System.out.println("Catch")// 80
+         var8 = supplier.get() as java.lang.Boolean// 81
+      } finally {
+         System.out.println("Finally")// 83
+      }
+
+      return var8// 86
+   }
+
+   public fun testFinally6(a: Boolean, supplier: Supplier<Boolean>): Boolean {
+      var var9: Boolean
+      try {
+         if (a) {// 92
+            var9 = true// 93
+            System.out.println("If")// 94
+         }
+
+         var9 = supplier.get() as java.lang.Boolean// 97
+      } catch (var7: Exception) {// 98
+         System.out.println("Catch")// 99
+         var9 = supplier.get() as java.lang.Boolean// 100
+      } finally {
+         System.out.println("Finally")// 102
+      }
+
+      return var9// 105
+   }
+
+   public fun testLoopFinally() {
+      val a: Boolean = true// 109
+
+      try {
+         ;
+      } finally {
+         System.out.println("Finally")// 117
+      }
+   }// 114
+
+   public fun testParsingFailure() {
+      val var1: Char = 't'// 123
+
+      try {
+         label59:
+         try {
+            try {
+               System.out.println(var1)// 127
+            } catch (var9: Exception) {// 128
+            }
+         } finally {
+            ;
+         }
+      } finally {
+         System.out.println((char)'t')// 135
+         return// 136
+      }
+   }
+
+   public fun testParsingFailureSimple() {
+      try {
+         try {
+            System.out.println("inner")// 143
+         } finally {
+            return// 145
+         }
+      } finally {
+         System.out.println("fin")// 148
+      }
+   }
+
+   public fun testPostdomFailure() {
+      System.out.println(1)// 155
+
+      while (Random().nextBoolean()) {// 156
+         try {
+            try {
+               System.out.println(2)// 159
+            } catch (var10: Exception) {// 160
+               System.out.println(3)// 161
+            } finally {
+               continue;
+            }
+         } finally {
+            val var3: Byte = 28// 167
+         }
+      }
+   }// 170
+
+   public fun testVarWrong() {
+      try {
+         System.out.println("Hi")// 175
+         return// 185
+      } catch (var6: Exception) {// 176
+         if (var6 == null) {// 177
+            System.out.println(var6)// 180
+            return// 181
+         }
+      } finally {
+         val var3: Float = 9.18F// 184
+      }
+   }// 178
+
+   public fun testInvalidUse() {
+      val var1: Boolean = false// 189
+
+      try {
+         var var4: Exception
+         try {
+            System.out.println(var1)// 192
+            return// 193
+         } catch (var13: Exception) {// 194
+            var4 = var13
+         }
+
+         try {
+            System.out.println(var4)// 196
+            return// 206
+         } catch (var14: Exception) {// 197
+         } finally {
+            System.out.println(var13)// 201
+         }
+      } finally {
+         System.out.println("Hi!")// 190 205
+      }
+   }// 198
+
+   public fun returnInCatch() {
+      run label31@{
+         try {
+            System.out.println("Hi!")// 211
+            break label31;
+         } catch (var4: Exception) {// 212
+            System.out.println("hello")// 213
+         } finally {
+            System.out.println("finally")// 216
+         }
+
+         return// 214
+      }
+
+      System.out.println("post")// 217 219
+   }
+}
+
+class 'pkg/TestTryReturn' {
+   method 'test (Ljava/util/function/Supplier;)Z' {
+      7      8
+      8      8
+      9      8
+      a      8
+      b      8
+      c      8
+      13      9
+      14      9
+      15      9
+      16      9
+      17      9
+      18      9
+      19      9
+      1a      10
+      1f      11
+      20      11
+      21      11
+      22      11
+      26      11
+   }
+
+   method 'testFinally (Ljava/util/function/Supplier;)Z' {
+      7      17
+      8      17
+      9      17
+      a      17
+      b      17
+      c      17
+      13      18
+      14      18
+      15      18
+      16      18
+      17      18
+      18      18
+      19      18
+      26      20
+      27      20
+      28      20
+      29      20
+      2a      20
+      2c      20
+      2d      20
+      2e      20
+   }
+
+   method 'testFinally1 (Ljava/util/function/Supplier;)V' {
+      6      25
+      7      25
+      8      25
+      9      25
+      a      25
+      c      25
+      d      25
+      e      25
+      10      28
+      11      28
+      12      28
+      13      28
+      14      28
+      15      28
+      16      28
+      17      28
+      18      28
+      19      28
+      1a      28
+      1b      28
+      1c      28
+      1d      28
+      1e      28
+      29      29
+      33      35
+      34      35
+      37      32
+      38      32
+      39      32
+      3a      32
+      3b      32
+      3d      32
+      3e      32
+      3f      32
+      42      35
+      43      35
+      44      35
+      47      35
+      48      35
+      49      35
+   }
+
+   method 'testFinally2 (Ljava/util/function/Supplier;)Z' {
+      9      41
+      a      41
+      b      41
+      c      41
+      d      41
+      e      41
+      f      41
+      10      41
+      11      41
+      12      41
+      13      41
+      14      41
+      15      41
+      1f      46
+      23      43
+      24      43
+      25      43
+      26      43
+      27      43
+      29      43
+      2a      43
+      2b      43
+      2e      46
+   }
+
+   method 'testFinally3 (ZZILjava/util/function/Supplier;)Z' {
+      8      51
+      9      51
+      a      51
+      b      51
+      c      59
+      d      59
+      e      59
+      f      59
+      10      59
+      11      59
+      12      59
+      13      59
+      14      59
+      15      59
+      16      59
+      17      59
+      18      59
+      19      59
+      1a      59
+      1b      59
+      1c      59
+      1d      59
+      1e      59
+      1f      59
+      25      59
+      33      52
+      34      52
+      35      52
+      36      52
+      37      53
+      38      53
+      39      53
+      3a      53
+      3b      53
+      41      53
+      4f      55
+      50      55
+      51      55
+      52      55
+      53      55
+      54      55
+      55      55
+      5c      56
+      5d      56
+      5e      56
+      5f      56
+      60      56
+      61      56
+      62      56
+      72      62
+      73      62
+      74      62
+      75      62
+      76      62
+      78      62
+      79      62
+      7a      62
+   }
+
+   method 'testFinally4 (Ljava/util/function/Supplier;)Z' {
+      9      69
+      a      69
+      b      69
+      c      69
+      d      69
+      e      69
+      f      69
+      10      69
+      11      69
+      12      69
+      13      69
+      14      69
+      15      69
+      1f      74
+      23      71
+      24      71
+      25      71
+      26      71
+      27      71
+      29      71
+      2a      71
+      2b      71
+      2e      74
+   }
+
+   method 'testFinally5 (Ljava/util/function/Supplier;)Z' {
+      9      80
+      a      80
+      b      80
+      c      80
+      d      80
+      e      80
+      f      80
+      10      80
+      11      80
+      12      80
+      13      80
+      14      80
+      15      80
+      22      81
+      23      82
+      24      82
+      25      82
+      26      82
+      27      82
+      29      82
+      2a      82
+      2b      82
+      2c      83
+      2d      83
+      2e      83
+      2f      83
+      30      83
+      31      83
+      32      83
+      33      83
+      34      83
+      35      83
+      36      83
+      37      83
+      38      83
+      46      85
+      47      85
+      48      85
+      49      85
+      4a      85
+      4c      85
+      4d      85
+      4e      85
+      51      88
+      52      88
+   }
+
+   method 'testFinally6 (ZLjava/util/function/Supplier;)Z' {
+      9      94
+      a      94
+      b      94
+      c      94
+      d      95
+      e      95
+      f      96
+      10      96
+      11      96
+      12      96
+      13      96
+      15      96
+      16      96
+      17      96
+      18      99
+      19      99
+      1a      99
+      1b      99
+      1c      99
+      1d      99
+      1e      99
+      1f      99
+      20      99
+      21      99
+      22      99
+      23      99
+      24      99
+      31      100
+      33      101
+      34      101
+      35      101
+      36      101
+      37      101
+      39      101
+      3a      101
+      3b      101
+      3c      102
+      3d      102
+      3e      102
+      3f      102
+      40      102
+      41      102
+      42      102
+      43      102
+      44      102
+      45      102
+      46      102
+      47      102
+      48      102
+      57      104
+      58      104
+      59      104
+      5a      104
+      5b      104
+      5d      104
+      5e      104
+      5f      104
+      63      107
+      64      107
+   }
+
+   method 'testLoopFinally ()V' {
+      0      111
+      1      111
+      f      118
+      11      116
+      12      116
+      13      116
+      14      116
+      15      116
+      17      116
+      18      116
+      19      116
+   }
+
+   method 'testParsingFailure ()V' {
+      0      121
+      1      121
+      2      121
+      6      127
+      7      127
+      8      127
+      9      127
+      a      127
+      b      127
+      c      127
+      16      128
+      2b      134
+      2c      134
+      2d      134
+      2e      134
+      2f      134
+      30      134
+      31      134
+      32      135
+   }
+
+   method 'testParsingFailureSimple ()V' {
+      2      142
+      3      142
+      4      142
+      5      142
+      6      142
+      8      142
+      9      142
+      a      142
+      15      149
+      20      144
+      22      147
+      23      147
+      24      147
+      25      147
+      26      147
+      28      147
+      29      147
+      2a      147
+   }
+
+   method 'testPostdomFailure ()V' {
+      2      152
+      4      152
+      5      152
+      6      152
+      7      152
+      8      152
+      9      152
+      a      152
+      12      154
+      13      154
+      14      154
+      1a      157
+      1c      157
+      1d      157
+      1e      157
+      1f      157
+      20      157
+      21      157
+      22      157
+      2a      158
+      2b      159
+      2d      159
+      2e      159
+      2f      159
+      30      159
+      31      159
+      32      159
+      33      159
+      44      164
+      45      164
+      46      164
+      49      167
+   }
+
+   method 'testVarWrong ()V' {
+      3      171
+      4      171
+      5      171
+      6      171
+      7      171
+      9      171
+      a      171
+      b      171
+      f      172
+      12      173
+      13      174
+      14      174
+      15      174
+      16      174
+      1b      181
+      22      175
+      23      175
+      24      175
+      25      175
+      27      175
+      28      175
+      29      175
+      2e      176
+      30      179
+      31      179
+      32      179
+   }
+
+   method 'testInvalidUse ()V' {
+      0      184
+      1      184
+      2      203
+      3      203
+      6      189
+      7      189
+      8      189
+      9      189
+      a      189
+      b      189
+      c      189
+      15      190
+      16      191
+      18      196
+      19      196
+      1a      196
+      1b      196
+      1c      196
+      1d      196
+      1e      196
+      29      198
+      3a      205
+      3d      200
+      3e      200
+      3f      200
+      40      200
+      41      200
+      42      200
+      43      200
+      4e      197
+      52      203
+      53      203
+      54      203
+      55      203
+      56      203
+      57      203
+      58      203
+   }
+
+   method 'returnInCatch ()V' {
+      1      210
+      2      210
+      3      210
+      4      210
+      5      210
+      7      210
+      8      210
+      9      210
+      13      221
+      14      221
+      16      212
+      17      213
+      18      213
+      19      213
+      1a      213
+      1b      213
+      1d      213
+      1e      213
+      1f      213
+      2a      218
+      2c      215
+      2d      215
+      2e      215
+      2f      215
+      30      215
+      32      215
+      33      215
+      34      215
+      37      221
+      38      221
+      39      221
+      3c      221
+      3d      221
+      3e      221
+   }
+}
+
+Lines mapping:
+9 <-> 9
+10 <-> 11
+11 <-> 12
+17 <-> 18
+19 <-> 21
+24 <-> 26
+27 <-> 29
+28 <-> 30
+31 <-> 33
+32 <-> 36
+34 <-> 36
+40 <-> 42
+42 <-> 44
+43 <-> 47
+45 <-> 47
+50 <-> 52
+51 <-> 60
+54 <-> 53
+55 <-> 54
+58 <-> 56
+60 <-> 63
+67 <-> 70
+69 <-> 72
+70 <-> 75
+72 <-> 75
+78 <-> 81
+79 <-> 82
+80 <-> 83
+81 <-> 84
+83 <-> 86
+86 <-> 89
+92 <-> 95
+93 <-> 96
+94 <-> 97
+97 <-> 100
+98 <-> 101
+99 <-> 102
+100 <-> 103
+102 <-> 105
+105 <-> 108
+109 <-> 112
+114 <-> 119
+117 <-> 117
+123 <-> 122
+127 <-> 128
+128 <-> 129
+135 <-> 135
+136 <-> 136
+143 <-> 143
+145 <-> 145
+148 <-> 148
+155 <-> 153
+156 <-> 155
+159 <-> 158
+160 <-> 159
+161 <-> 160
+167 <-> 165
+170 <-> 168
+175 <-> 172
+176 <-> 174
+177 <-> 175
+178 <-> 182
+180 <-> 176
+181 <-> 177
+184 <-> 180
+185 <-> 173
+189 <-> 185
+190 <-> 204
+192 <-> 190
+193 <-> 191
+194 <-> 192
+196 <-> 197
+197 <-> 199
+198 <-> 206
+201 <-> 201
+205 <-> 204
+206 <-> 198
+211 <-> 211
+212 <-> 213
+213 <-> 214
+214 <-> 219
+216 <-> 216
+217 <-> 222
+219 <-> 222
+Not mapped:
+8
+16
+26
+35
+38
+39
+49
+65
+66
+76
+77
+84
+90
+91
+103
+111
+112
+113
+124
+125
+126
+129
+131
+141
+142
+154
+157
+158
+162
+164
+173
+174
+186
+191
+195
+202
+207
+210
+220

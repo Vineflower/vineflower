@@ -1,0 +1,158 @@
+package pkg
+
+public class TestTrySplit {
+   public fun test() {
+      try {
+         Any()
+         return// 17
+      } catch (var5: ArithmeticException) {// 8
+         Companion.throwMyException(var5.getMessage())// 13
+      } finally {
+         System.out.println("b")// 16
+      }
+   }// 14
+
+   public fun testFlat() {
+      val `$this$testFlat_u24lambda_u241`: TestTrySplit = this// 22
+
+      run label27@{
+         try {
+            try {
+               Any()
+               break label27;
+            } catch (var8: ArithmeticException) {// 27
+               Companion.throwMyException(var8.getMessage())// 32
+            }
+         } catch (var9: java.lang.Throwable) {// 36
+            System.out.println("b")// 37
+            throw var9// 38
+         }
+
+         System.out.println("b")// 41
+         return// 42
+      }
+
+      System.out.println("b")// 46
+   }// 47
+
+   public companion object {
+      public fun throwMyException(message: String?) {
+         throw RuntimeException(message)// 51
+      }
+   }
+}
+
+class 'pkg/TestTrySplit' {
+   method 'test ()V' {
+      14      6
+      17      7
+      19      8
+      1a      8
+      1b      8
+      1c      8
+      1d      8
+      1e      8
+      1f      8
+      20      8
+      21      8
+      22      8
+      2d      12
+      2f      10
+      30      10
+      31      10
+      32      10
+      33      10
+      35      10
+      36      10
+      37      10
+   }
+
+   method 'testFlat ()V' {
+      2      15
+      3      15
+      4      15
+      5      15
+      6      15
+      1c      22
+      1f      23
+      20      23
+      21      23
+      22      23
+      23      23
+      24      23
+      25      23
+      26      23
+      27      23
+      28      23
+      29      23
+      30      25
+      32      26
+      33      26
+      34      26
+      35      26
+      36      26
+      38      26
+      39      26
+      3a      26
+      3b      27
+      3c      27
+      3d      27
+      3f      30
+      40      30
+      41      30
+      42      30
+      43      30
+      45      30
+      46      30
+      47      30
+      48      31
+      4a      34
+      4b      34
+      4c      34
+      4d      34
+      4e      34
+      50      34
+      51      34
+      52      34
+      53      35
+   }
+}
+
+class 'pkg/TestTrySplit$Companion' {
+   method 'throwMyException (Ljava/lang/String;)V' {
+      4      39
+      8      39
+   }
+}
+
+Lines mapping:
+8 <-> 8
+13 <-> 9
+14 <-> 13
+16 <-> 11
+17 <-> 7
+22 <-> 16
+27 <-> 23
+32 <-> 24
+36 <-> 26
+37 <-> 27
+38 <-> 28
+41 <-> 31
+42 <-> 32
+46 <-> 35
+47 <-> 36
+51 <-> 40
+Not mapped:
+5
+6
+7
+9
+18
+21
+23
+24
+25
+26
+28
+33
+35

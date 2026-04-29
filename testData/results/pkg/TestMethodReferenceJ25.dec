@@ -1,0 +1,232 @@
+package pkg;
+
+import ext.RefsExt;
+import java.util.function.Consumer;
+
+public class TestMethodReferenceJ25 extends RefsExt {
+   private void test() {
+      this.consume(x$0 -> this.accept(x$0));// 9
+   }// 10
+
+   private void test_() {
+      this.consume(s -> this.accept(s));// 13
+   }// 14
+
+   private void test2() {
+      this.consume(this::accept2);// 17
+   }// 18
+
+   private void test3(TestMethodReferenceJ25 ref) {
+      this.consume(x$0 -> ref.accept(x$0));// 21
+   }// 22
+
+   private void test3_(TestMethodReferenceJ25 ref) {
+      this.consume(s -> ref.accept(s));// 25
+   }// 26
+
+   private void test4(TestMethodReferenceJ25 ref) {
+      this.consume(ref::accept2);// 29
+   }// 30
+
+   private void test5(RefsExt ref) {
+      this.consume(ref::accept2);// 33
+   }// 34
+
+   private void test6() {
+      this.consume(x$0 -> rec$.accept(x$0));// 37
+   }// 38
+
+   private void test6_() {
+      this.consume(s -> this.ref().accept(s));// 41
+   }// 42
+
+   private void test7() {
+      this.consume(this.ref()::accept2);// 45
+   }// 46
+
+   public TestMethodReferenceJ25 ref() {
+      return this;// 49
+   }
+
+   protected void consume(Consumer<String> c) {
+   }// 54
+}
+
+class 'pkg/TestMethodReferenceJ25' {
+   method 'test ()V' {
+      0      7
+      9      7
+      a      7
+      b      7
+      c      8
+   }
+
+   method 'lambda$test$0 (Lpkg/TestMethodReferenceJ25;Ljava/lang/String;)V' {
+      0      7
+      1      7
+      2      7
+      3      7
+      4      7
+      5      7
+   }
+
+   method 'test_ ()V' {
+      0      11
+      7      11
+      8      11
+      9      11
+      a      12
+   }
+
+   method 'lambda$test_$0 (Ljava/lang/String;)V' {
+      0      11
+      1      11
+      2      11
+      3      11
+      4      11
+      5      11
+   }
+
+   method 'test2 ()V' {
+      0      15
+      1      15
+      7      15
+      8      15
+      9      15
+      a      16
+   }
+
+   method 'test3 (Lpkg/TestMethodReferenceJ25;)V' {
+      0      19
+      e      19
+      f      19
+      10      19
+      11      20
+   }
+
+   method 'lambda$test3$0 (Lpkg/TestMethodReferenceJ25;Ljava/lang/String;)V' {
+      0      19
+      1      19
+      2      19
+      3      19
+      4      19
+      5      19
+   }
+
+   method 'test3_ (Lpkg/TestMethodReferenceJ25;)V' {
+      0      23
+      7      23
+      8      23
+      9      23
+      a      24
+   }
+
+   method 'lambda$test3_$0 (Lpkg/TestMethodReferenceJ25;Ljava/lang/String;)V' {
+      0      23
+      1      23
+      2      23
+      3      23
+      4      23
+      5      23
+   }
+
+   method 'test4 (Lpkg/TestMethodReferenceJ25;)V' {
+      0      27
+      1      27
+      c      27
+      d      27
+      e      27
+      f      28
+   }
+
+   method 'test5 (Lext/RefsExt;)V' {
+      0      31
+      1      31
+      c      31
+      d      31
+      e      31
+      f      32
+   }
+
+   method 'test6 ()V' {
+      0      35
+      11      35
+      12      35
+      13      35
+      14      36
+   }
+
+   method 'lambda$test6$0 (Lpkg/TestMethodReferenceJ25;Ljava/lang/String;)V' {
+      0      35
+      1      35
+      2      35
+      3      35
+      4      35
+      5      35
+   }
+
+   method 'test6_ ()V' {
+      0      39
+      7      39
+      8      39
+      9      39
+      a      40
+   }
+
+   method 'lambda$test6_$0 (Ljava/lang/String;)V' {
+      0      39
+      1      39
+      2      39
+      3      39
+      4      39
+      5      39
+      6      39
+      7      39
+      8      39
+   }
+
+   method 'test7 ()V' {
+      0      43
+      1      43
+      2      43
+      3      43
+      4      43
+      f      43
+      10      43
+      11      43
+      12      44
+   }
+
+   method 'ref ()Lpkg/TestMethodReferenceJ25;' {
+      0      47
+      1      47
+   }
+
+   method 'consume (Ljava/util/function/Consumer;)V' {
+      0      51
+   }
+}
+
+Lines mapping:
+9 <-> 8
+10 <-> 9
+13 <-> 12
+14 <-> 13
+17 <-> 16
+18 <-> 17
+21 <-> 20
+22 <-> 21
+25 <-> 24
+26 <-> 25
+29 <-> 28
+30 <-> 29
+33 <-> 32
+34 <-> 33
+37 <-> 36
+38 <-> 37
+41 <-> 40
+42 <-> 41
+45 <-> 44
+46 <-> 45
+49 <-> 48
+54 <-> 52

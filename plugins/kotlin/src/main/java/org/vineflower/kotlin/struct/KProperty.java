@@ -1,12 +1,12 @@
 package org.vineflower.kotlin.struct;
 
-import kotlinx.metadata.internal.metadata.ProtoBuf;
-import kotlinx.metadata.internal.metadata.jvm.JvmProtoBuf;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.java.decompiler.util.Key;
+import org.vineflower.kotlin.expr.KConstExprent;
+import org.vineflower.kt.metadata.ProtoBuf;
+import org.vineflower.kt.metadata.deserialization.Flags;
+import org.vineflower.kt.metadata.jvm.JvmProtoBuf;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.code.CodeConstants;
-import org.jetbrains.java.decompiler.main.ClassesProcessor;
-import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.AnnotationExprent;
@@ -23,38 +23,37 @@ import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
-import org.vineflower.kotlin.KotlinDecompilationContext;
-import org.vineflower.kotlin.KotlinOptions;
 import org.vineflower.kotlin.KotlinWriter;
 import org.vineflower.kotlin.metadata.MetadataNameResolver;
 import org.vineflower.kotlin.util.KTypes;
 import org.vineflower.kotlin.util.KUtils;
-import org.vineflower.kotlin.util.ProtobufFlags;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
 
 public record KProperty(
   String name,
   KType type,
-  ProtobufFlags.Property flags,
+  int flags,
   @Nullable KPropertyAccessor getter,
   @Nullable KPropertyAccessor setter,
   @Nullable String setterParamName,
   @Nullable StructField underlyingField,
-  @Nullable Exprent initializer,
+  @Nullable Function<ClassWrapper, Exprent> initializer,
   @Nullable List<AnnotationExprent> annotations,
-  ClassesProcessor.ClassNode node
-) {
+  StructClass classStruct
+) implements KElement, Flags {
   private static final AnnotationExprent DEPRECATED_ANNOTATION = new AnnotationExprent(
     new VarType("kotlin/Deprecated").value,
     List.of("message"),
     List.of(new ConstExprent(VarType.VARTYPE_STRING, "Deprecated by attribute.", null))
   );
 
-  public TextBuffer stringify(int indent) {
+  public TextBuffer stringify(ClassWrapper classWrapper, int indent) {
     TextBuffer buf = new TextBuffer();
 
-    if (flags.hasAnnotations) {
+    if (HAS_ANNOTATIONS.get(flags)) {
       if (annotations != null) {
         for (AnnotationExprent anno : annotations) {
           buf.appendIndent(indent)
@@ -71,92 +70,94 @@ public record KProperty(
     buf.appendIndent(indent);
 
     // Modifiers in the order that Kotlin's coding conventions specify
-    KUtils.appendVisibility(buf, flags.visibility);
+    KUtils.appendVisibility(buf, VISIBILITY.get(flags));
 
-    if (flags.isExpect) {
+    if (IS_EXPECT_PROPERTY.get(flags)) {
       buf.append("expect ");
     }
 
-    if (Objects.requireNonNull(flags.modality) == ProtoBuf.Modality.FINAL) {
-      buf.append(flags.isConst ? "const " : "final ");
-    } else if (!node.classStruct.hasModifier(CodeConstants.ACC_INTERFACE) || flags.modality != ProtoBuf.Modality.ABSTRACT) {
-      buf.append(flags.modality.name().toLowerCase())
+    if (MODALITY.get(flags) == ProtoBuf.Modality.FINAL) {
+      buf.append(IS_CONST.get(flags) ? "const " : "final ");
+    } else if (!classStruct.hasModifier(CodeConstants.ACC_INTERFACE) || MODALITY.get(flags) != ProtoBuf.Modality.ABSTRACT) {
+      buf.append(MODALITY.get(flags).name().toLowerCase())
         .append(' ');
     }
 
-    if (flags.isExternal) {
+    if (IS_EXTERNAL_PROPERTY.get(flags)) {
       buf.append("external ");
     }
 
-    if (flags.isLateinit) {
+    if (IS_LATEINIT.get(flags)) {
       buf.append("lateinit ");
     }
 
-    buf.append(flags.isVar ? "var " : "val ")
+    buf.append(IS_VAR.get(flags) ? "var " : "val ")
       .append(KotlinWriter.toValidKotlinIdentifier(name))
       .append(": ")
       .append(type.stringify(indent)); 
 
     if (initializer != null) {
-      TextBuffer initializerBuf = initializer.toJava(indent);
-      initializerBuf.clearUnassignedBytecodeMappingData();
-      if (flags.isDelegated) {
-        buf.append(" by ")
-          .append(initializerBuf);
-      } else {
-        buf.append(" =")
-          .pushNewlineGroup(indent, 1)
-          .appendPossibleNewline(" ")
-          .append(initializerBuf)
-          .popNewlineGroup();
+      Exprent expr = initializer.apply(classWrapper);
+      if (expr != null) {
+        TextBuffer initializerBuf = expr.toJava(indent);
+        if (IS_DELEGATED.get(flags)) {
+          buf.append(" by ")
+            .append(initializerBuf);
+        } else {
+          buf.append(" =")
+            .pushNewlineGroup(indent, 1)
+            .appendPossibleNewline(" ")
+            .append(initializerBuf)
+            .popNewlineGroup();
+        }
       }
     }
 
     // Custom getters and setters, and possible modifier differences
-    if (getter != null && getter.flags().isNotDefault) {
+    if (getter != null && IS_NOT_DEFAULT.get(getter.flags())) {
       buf.pushNewlineGroup(indent, 1)
           .appendLineSeparator()
           .appendIndent(indent + 1);
 
-      KUtils.appendVisibility(buf, getter.flags().visibility);
+      KUtils.appendVisibility(buf, VISIBILITY.get(getter.flags()));
 
-      buf.append(getter.flags().modality.name().toLowerCase())
+      buf.append(MODALITY.get(getter.flags()).name().toLowerCase())
         .append(' ');
 
-      if (getter.flags().isExternal) {
+      if (IS_EXTERNAL_ACCESSOR.get(getter.flags())) {
         buf.append("external ");
       }
 
-      if (getter.flags().isInline) {
+      if (IS_INLINE_ACCESSOR.get(getter.flags())) {
         buf.append("inline ");
       }
 
       buf.append("get() ");
 
-      KotlinWriter.writeMethodBody(node, getter.underlyingMethod(), buf, indent + 1, false);
+      KotlinWriter.writeMethodBody(classStruct, getter.methodSupplier().apply(classWrapper), buf, indent + 1, false);
 
       buf.popNewlineGroup();
-    } else if (getter != null && getter.flags().isExternal) {
+    } else if (getter != null && IS_EXTERNAL_ACCESSOR.get(getter.flags())) {
       buf.appendLineSeparator()
         .appendIndent(indent + 1)
         .append("external get");
     }
 
-    if (setter != null && setter.flags().isNotDefault) {
+    if (setter != null && IS_NOT_DEFAULT.get(setter.flags())) {
       buf.pushNewlineGroup(indent, 1)
         .appendLineSeparator()
         .appendIndent(indent + 1);
 
-      KUtils.appendVisibility(buf, getter.flags().visibility);
+      KUtils.appendVisibility(buf, VISIBILITY.get(setter.flags()));
 
-      buf.append(setter.flags().modality.name().toLowerCase())
+      buf.append(MODALITY.get(setter.flags()).name().toLowerCase())
         .append(' ');
 
-      if (setter.flags().isExternal) {
+      if (IS_EXTERNAL_ACCESSOR.get(setter.flags())) {
         buf.append("external ");
       }
 
-      if (setter.flags().isInline) {
+      if (IS_INLINE_ACCESSOR.get(setter.flags())) {
         buf.append("inline ");
       }
 
@@ -164,27 +165,27 @@ public record KProperty(
         .append(setterParamName)
         .append(") ");
 
-      KotlinWriter.writeMethodBody(node, setter.underlyingMethod(), buf, indent + 1, false);
+      KotlinWriter.writeMethodBody(classStruct, setter.methodSupplier().apply(classWrapper), buf, indent + 1, false);
 
       buf.popNewlineGroup();
-    } else if (setter != null && (setter.flags().isExternal || setter.flags().visibility != flags.visibility || setter.flags().modality != flags.modality)) {
+    } else if (setter != null && (IS_EXTERNAL_ACCESSOR.get(setter.flags()) || VISIBILITY.get(setter.flags()) != VISIBILITY.get(flags) || MODALITY.get(setter.flags()) != MODALITY.get(flags))) {
       buf.appendLineSeparator().appendIndent(indent + 1);
 
-      if (setter.flags().visibility != flags.visibility) {
-        KUtils.appendVisibility(buf, setter.flags().visibility);
+      if (VISIBILITY.get(setter.flags()) != VISIBILITY.get(flags)) {
+        KUtils.appendVisibility(buf, VISIBILITY.get(setter.flags()));
       }
 
-      if (setter.flags().modality != flags.modality) {
-        buf.append(setter.flags().modality.name().toLowerCase())
+      if (MODALITY.get(setter.flags()) != MODALITY.get(flags)) {
+        buf.append(MODALITY.get(setter.flags()).name().toLowerCase())
           .append(' ');
       }
 
-      if (setter.flags().isExternal) {
+      if (IS_EXTERNAL_ACCESSOR.get(setter.flags())) {
         buf.append("external ");
       }
 
       buf.append("set");
-    } else if (setter == null && flags.isVar && flags.visibility != ProtoBuf.Visibility.PRIVATE) { // Special case: no setter is generated if it's a var with a private setter
+    } else if (setter == null && IS_VAR.get(flags) && VISIBILITY.get(flags) != ProtoBuf.Visibility.PRIVATE) { // Special case: no setter is generated if it's a var with a private setter
       buf.appendLineSeparator()
         .appendIndent(indent + 1)
         .append("private set");
@@ -193,44 +194,13 @@ public record KProperty(
     return buf;
   }
 
-  private static void appendVisibility(TextBuffer buf, ProtoBuf.Visibility visibility) {
-    switch (visibility) {
-      case LOCAL -> buf.append("// QF: local property")
-        .appendLineSeparator()
-        .append("internal ");
-      case PRIVATE_TO_THIS -> buf.append("private ");
-      case PUBLIC -> {
-        if (DecompilerContext.getOption(KotlinOptions.SHOW_PUBLIC_VISIBILITY)) {
-          buf.append("public ");
-        }
-      }
-      default -> buf.append(visibility.name().toLowerCase()).append(' ');
+  public static void parse(StructClass classStruct, List<ProtoBuf.Property> protoProperties, @Nullable MetadataNameResolver nameResolver, StructClass companionParent) {
+    if (nameResolver == null) {
+      return;
     }
-  }
-
-  public static @Nullable Data parse(ClassesProcessor.ClassNode node) {
-    MetadataNameResolver nameResolver = KotlinDecompilationContext.getNameResolver();
-    ClassWrapper wrapper = node.getWrapper();
-    StructClass structClass = wrapper.getClassStruct();
-
-    KotlinDecompilationContext.KotlinType currentType = KotlinDecompilationContext.getCurrentType();
-    if (currentType == null) return null;
-
-    List<ProtoBuf.Property> protoProperties = switch (currentType) {
-      case CLASS -> KotlinDecompilationContext.getCurrentClass().getPropertyList();
-      case FILE -> KotlinDecompilationContext.getFilePackage().getPropertyList();
-      case MULTIFILE_CLASS -> KotlinDecompilationContext.getMultifilePackage().getPropertyList();
-      case SYNTHETIC_CLASS -> null;
-    };
-
-    if (protoProperties == null) return null;
-
-    List<KProperty> properties = new ArrayList<>();
-    Set<StructField> associatedFields = new HashSet<>();
-    Set<StructMethod> associatedMethods = new HashSet<>();
 
     for (ProtoBuf.Property property : protoProperties) {
-      ProtobufFlags.Property flags = new ProtobufFlags.Property(property.getFlags());
+      int flags = property.getFlags();
 
       JvmProtoBuf.JvmPropertySignature jvmProp = property.getExtension(JvmProtoBuf.propertySignature);
 
@@ -241,12 +211,12 @@ public record KProperty(
         JvmProtoBuf.JvmMethodSignature syntheticMethod = jvmProp.getSyntheticMethod();
         String methodName = nameResolver.resolve(syntheticMethod.getName());
         String desc = nameResolver.resolve(syntheticMethod.getDesc());
-        StructMethod method = structClass.getMethod(methodName, desc);
+        StructMethod method = classStruct.getMethod(methodName, desc);
         if (method != null) {
-          associatedMethods.add(method);
+          method.getAttributes().put(KElement.KEY, KHiddenElement.GENERIC);
           if (method.hasAttribute(StructGeneralAttribute.ATTRIBUTE_RUNTIME_VISIBLE_ANNOTATIONS)) {
             StructAnnotationAttribute attribute = method.getAttribute(StructGeneralAttribute.ATTRIBUTE_RUNTIME_VISIBLE_ANNOTATIONS);
-            annotations = attribute.getAnnotations();
+            annotations.addAll(attribute.getAnnotations());
           }
           if (method.hasAttribute(StructGeneralAttribute.ATTRIBUTE_RUNTIME_INVISIBLE_ANNOTATIONS)) {
             StructAnnotationAttribute attribute = method.getAttribute(StructGeneralAttribute.ATTRIBUTE_RUNTIME_INVISIBLE_ANNOTATIONS);
@@ -265,73 +235,101 @@ public record KProperty(
       }
 
       // Delegates create a hidden field containing the created delegate, so reference that instead
-      Exprent delegateExprent = null;
-      if (flags.isDelegated) {
+      Function<ClassWrapper, Exprent> delegateSupplier = null;
+      StructField delegateField = null;
+      if (IS_DELEGATED.get(flags)) {
         String delegateFieldName = nameResolver.resolve(jvmProp.getField().getName());
         String delegateDesc = nameResolver.resolve(jvmProp.getField().getDesc());
-        StructField delegateField = structClass.getField(delegateFieldName, delegateDesc);
+        delegateField = classStruct.getField(delegateFieldName, delegateDesc);
         if (delegateField != null) {
-          associatedFields.add(delegateField);
+          delegateField.getAttributes().put(KElement.KEY, KHiddenElement.GENERIC);
           String key = InterpreterUtil.makeUniqueKey(delegateFieldName, delegateDesc);
           if (delegateField.hasModifier(CodeConstants.ACC_STATIC)) {
-            delegateExprent = wrapper.getStaticFieldInitializers().getWithKey(key);
+            delegateSupplier = wrapper -> wrapper.getStaticFieldInitializers().getWithKey(key);
           } else {
-            delegateExprent = wrapper.getDynamicFieldInitializers().getWithKey(key);
+            delegateSupplier = wrapper -> wrapper.getDynamicFieldInitializers().getWithKey(key);
           }
         }
       }
 
       KPropertyAccessor getter = null;
-      if (flags.hasGetter) {
+      StructMethod getterMethod = null;
+      if (HAS_GETTER.get(flags)) {
         String methodName = nameResolver.resolve(jvmProp.getGetter().getName());
         String desc = nameResolver.resolve(jvmProp.getGetter().getDesc());
-        StructMethod method = structClass.getMethod(methodName, desc);
-        if (method != null) {
-          MethodWrapper methodWrapper = wrapper.getMethodWrapper(methodName, desc);
-          getter = new KPropertyAccessor(new ProtobufFlags.PropertyAccessor(property.getGetterFlags()), methodWrapper);
-          associatedMethods.add(method);
+        getterMethod = classStruct.getMethod(methodName, desc);
+        if (getterMethod != null) {
+          Function<ClassWrapper, MethodWrapper> supplier = wrapper -> wrapper.getMethodWrapper(methodName, desc);
+          getter = new KPropertyAccessor(property.getGetterFlags(), supplier);
 
           if (propDesc == null) {
-            propDesc = method.getDescriptor().substring(method.getDescriptor().indexOf(')') + 1);
+            propDesc = getterMethod.getDescriptor().substring(getterMethod.getDescriptor().indexOf(')') + 1);
+          }
+        }
+
+        if (companionParent != null) {
+          StructMethod inParent = companionParent.getMethod(methodName, desc);
+          if (inParent != null) {
+            inParent.getAttributes().put(KElement.KEY, KHiddenElement.COMPANION_ITEM);
           }
         }
       }
 
       KPropertyAccessor setter = null;
+      StructMethod setterMethod = null;
       String setterParamName = null;
-      if (flags.hasSetter) {
+      if (HAS_SETTER.get(flags)) {
         String methodName = nameResolver.resolve(jvmProp.getSetter().getName());
         String desc = nameResolver.resolve(jvmProp.getSetter().getDesc());
-        StructMethod method = structClass.getMethod(methodName, desc);
-        if (method != null) {
-          MethodWrapper methodWrapper = wrapper.getMethodWrapper(methodName, desc);
-          setter = new KPropertyAccessor(new ProtobufFlags.PropertyAccessor(property.getSetterFlags()), methodWrapper);
-          associatedMethods.add(method);
+        setterMethod = classStruct.getMethod(methodName, desc);
+        if (setterMethod != null) {
+          Function<ClassWrapper, MethodWrapper> supplier = wrapper -> wrapper.getMethodWrapper(methodName, desc);
+          setter = new KPropertyAccessor(property.getSetterFlags(), supplier);
           setterParamName = nameResolver.resolve(property.getSetterValueParameter().getName());
         }
-      }
 
-      StructField field = null;
-      if (propDesc != null) {
-        field = structClass.getField(name, propDesc);
-        if (field != null) {
-          associatedFields.add(field);
-        }
-      } else {
-        VBStyleCollection<StructField, String> fields = structClass.getFields();
-        for (StructField f : fields) {
-          if (f.getName().equals(name)) {
-            field = f;
-            propDesc = f.getDescriptor();
-            associatedFields.add(field);
-            break;
+        if (companionParent != null) {
+          StructMethod inParent = companionParent.getMethod(methodName, desc);
+          if (inParent != null) {
+            inParent.getAttributes().put(KElement.KEY, KHiddenElement.COMPANION_ITEM);
           }
         }
       }
 
-      if (flags.hasAnnotations && annotations == null && field != null) {
-        annotations = new ArrayList<>();
+      StructField field = null;
+      StructClass fieldContainer = classStruct;
+      if (jvmProp.hasField()) {
+        String fieldName = jvmProp.getField().hasName() ? nameResolver.resolve(jvmProp.getField().getName()) : name;
+        String fieldDesc = jvmProp.getField().hasDesc() ? nameResolver.resolve(jvmProp.getField().getDesc()) : propDesc;
 
+        if (fieldName != null && fieldDesc != null) {
+          field = classStruct.getField(fieldName, fieldDesc);
+
+          if (companionParent != null) {
+            // Companion objects put fields in the parent class sometimes
+            StructField inParent = companionParent.getField(fieldName, fieldDesc);
+            if (inParent != null) {
+              inParent.getAttributes().put(KElement.KEY, KHiddenElement.COMPANION_ITEM);
+
+              if (field == null) {
+                field = inParent;
+                fieldContainer = companionParent;
+              }
+            }
+          }
+        } else {
+          VBStyleCollection<StructField, String> fields = classStruct.getFields();
+          for (StructField f : fields) {
+            if (f.getName().equals(name)) {
+              field = f;
+              propDesc = f.getDescriptor();
+              break;
+            }
+          }
+        }
+      }
+
+      if (HAS_ANNOTATIONS.get(flags) && annotations.isEmpty() && field != null) {
         if (field.hasAttribute(StructGeneralAttribute.ATTRIBUTE_RUNTIME_VISIBLE_ANNOTATIONS)) {
           StructAnnotationAttribute attribute = field.getAttribute(StructGeneralAttribute.ATTRIBUTE_RUNTIME_VISIBLE_ANNOTATIONS);
           annotations.addAll(attribute.getAnnotations());
@@ -348,31 +346,58 @@ public record KProperty(
       VarType varType = propDesc != null ? new VarType(propDesc) : VarType.VARTYPE_OBJECT;
 
       String key = InterpreterUtil.makeUniqueKey(name, varType.toString());
-      Exprent initializer;
+      Function<ClassWrapper, Exprent> initializer;
 
-      if (delegateExprent != null) {
-        initializer = delegateExprent;
+      if (delegateSupplier != null) {
+        initializer = delegateSupplier;
+        field = delegateField;
       } else if (field == null) {
         initializer = null;
       } else if (field.hasAttribute(StructGeneralAttribute.ATTRIBUTE_CONSTANT_VALUE)) {
         StructConstantValueAttribute attr = field.getAttribute(StructGeneralAttribute.ATTRIBUTE_CONSTANT_VALUE);
-        PrimitiveConstant constant = structClass.getPool().getPrimitiveConstant(attr.getIndex());
-        initializer = new ConstExprent(varType, constant.value, null);
+        PrimitiveConstant constant = fieldContainer.getPool().getPrimitiveConstant(attr.getIndex());
+        VarType constType = type != null ? type : varType;
+        initializer = ignored -> new KConstExprent(new ConstExprent(constType, constant.value, null));
       } else if (field.hasModifier(CodeConstants.ACC_STATIC)) {
-        initializer = wrapper.getStaticFieldInitializers().getWithKey(key);
+        initializer = wrapper -> wrapper.getStaticFieldInitializers().getWithKey(key);
       } else {
-        initializer = wrapper.getDynamicFieldInitializers().getWithKey(key);
+        initializer = wrapper -> wrapper.getDynamicFieldInitializers().getWithKey(key);
       }
 
-      properties.add(new KProperty(name, type, flags, getter, setter, setterParamName, field, initializer, annotations, node));
+      KProperty kprop = new KProperty(name, type, flags, getter, setter, setterParamName, field, initializer, annotations, classStruct);
+
+      if (field != null) {
+        field.getAttributes().put(KElement.KEY, kprop);
+      }
+      if (getterMethod != null) {
+        getterMethod.getAttributes().put(KElement.KEY, kprop);
+        getterMethod.getAttributes().put(PropertyMethod.KEY, PropertyMethod.GETTER);
+      }
+      if (setterMethod != null) {
+        setterMethod.getAttributes().put(KElement.KEY, kprop);
+        setterMethod.getAttributes().put(PropertyMethod.KEY, PropertyMethod.SETTER);
+      }
+
+      if (classStruct != fieldContainer) {
+        // pretend the field is present in the class if it's a companion field in the parent class
+        // why do you do this kotlin
+        if (field != null) {
+          classStruct.getFields().addWithKey(field, InterpreterUtil.makeUniqueKey(field.getName(), field.getDescriptor()));
+        }
+        if (getterMethod != null) {
+          classStruct.getMethods().addWithKey(getterMethod, InterpreterUtil.makeUniqueKey(getterMethod.getName(), getterMethod.getDescriptor()));
+        }
+        if (setterMethod != null) {
+          classStruct.getMethods().addWithKey(setterMethod, InterpreterUtil.makeUniqueKey(setterMethod.getName(), setterMethod.getDescriptor()));
+        }
+      }
     }
-
-    return new Data(properties, associatedFields, associatedMethods);
   }
-
-  public record Data(
-    @NotNull List<KProperty> properties,
-    @NotNull Set<StructField> associatedFields,
-    @NotNull Set<StructMethod> associatedMethods
-  ) { }
+  
+  public enum PropertyMethod {
+    GETTER,
+    SETTER;
+    
+    public static final Key<PropertyMethod> KEY = Key.of(PropertyMethod.class.getName());
+  }
 }

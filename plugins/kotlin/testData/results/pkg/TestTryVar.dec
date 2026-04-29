@@ -1,0 +1,138 @@
+package pkg
+
+import kotlin.jvm.internal.SourceDebugExtension
+
+@SourceDebugExtension(["SMAP\nTestTryVar.kt\nKotlin\n*S Kotlin\n*F\n+ 1 TestTryVar.kt\npkg/TestTryVar\n+ 2 fake.kt\nkotlin/jvm/internal/FakeKt\n*L\n1#1,31:1\n1#2:32\n*E\n"])
+public class TestTryVar {
+   public fun test(x: Int, y: Int): Int {
+      var xx: Int = x// 5
+
+      repeat(9) { i ->// 6
+         try {
+            xx = y + i// 8
+            xx = 5000 - i// 9
+            xx = y / y// 10
+         } catch (var6: java.lang.Throwable) {// 11
+         }
+      }
+
+      return xx// 15
+   }
+
+   public fun test2(x: Int, y: Int): Int {
+      var var12: Int = x// 19
+
+      repeat(9) { i ->// 20
+         try {
+            var12 = y + i// 22
+            var12 += (7 - i as java.lang.Number).intValue()
+            var12 = (5000 - i / var12) / y// 23
+         } catch (var11: java.lang.Throwable) {// 24
+         }
+      }
+
+      return var12// 28
+   }
+}
+
+class 'pkg/TestTryVar' {
+   method 'test (II)I' {
+      0      7
+      1      7
+      3      9
+      4      9
+      7      9
+      8      9
+      d      11
+      e      11
+      f      11
+      10      11
+      11      11
+      12      12
+      13      12
+      14      12
+      15      12
+      16      12
+      17      12
+      18      12
+      19      13
+      1a      13
+      1b      13
+      1c      13
+      20      14
+      28      18
+      29      18
+   }
+
+   method 'test2 (II)I' {
+      2      22
+      3      22
+      5      24
+      6      24
+      9      24
+      a      24
+      f      26
+      10      26
+      11      26
+      12      26
+      13      26
+      14      28
+      15      28
+      16      28
+      17      28
+      18      28
+      19      27
+      1a      27
+      1b      27
+      1c      27
+      1d      27
+      1e      27
+      1f      27
+      20      27
+      23      27
+      24      27
+      25      27
+      26      27
+      27      27
+      28      27
+      29      27
+      2a      27
+      35      27
+      36      27
+      38      27
+      39      28
+      3c      28
+      3d      28
+      3e      28
+      3f      28
+      40      28
+      41      28
+      43      28
+      44      28
+      45      28
+      46      28
+      47      28
+      4b      29
+      53      33
+      54      33
+   }
+}
+
+Lines mapping:
+5 <-> 8
+6 <-> 10
+8 <-> 12
+9 <-> 13
+10 <-> 14
+11 <-> 15
+15 <-> 19
+19 <-> 23
+20 <-> 25
+22 <-> 27
+23 <-> 29
+24 <-> 30
+28 <-> 34
+Not mapped:
+7
+21
+32

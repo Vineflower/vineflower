@@ -85,8 +85,8 @@ public class DirectoryResultSaver implements IResultSaver {
     try (ZipFile srcArchive = new ZipFile(new File(source))) {
       ZipEntry entry = srcArchive.getEntry(entryName);
       if (entry != null) {
-        try (InputStream in = srcArchive.getInputStream(entry)) {
-          InterpreterUtil.copyStream(in, new FileOutputStream(this.root.resolve(entryName).toFile()));
+        try (InputStream in = srcArchive.getInputStream(entry); OutputStream out = Files.newOutputStream(this.root.resolve(entryName))) {
+          InterpreterUtil.copyStream(in, out);
         }
       }
     }

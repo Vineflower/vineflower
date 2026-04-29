@@ -3,6 +3,7 @@ package org.jetbrains.java.decompiler.api.plugin;
 import org.jetbrains.java.decompiler.main.ClassesProcessor;
 import org.jetbrains.java.decompiler.main.collectors.ImportCollector;
 import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.struct.StructMethod;
@@ -16,4 +17,6 @@ public interface StatementWriter {
   void writeField(ClassWrapper wrapper, StructClass cl, StructField fd, TextBuffer buffer, int indent);
 
   boolean writeMethod(ClassesProcessor.ClassNode node, StructMethod mt, int methodIndex, TextBuffer buffer, int indent);
+  
+  boolean endsWithSemicolon(Exprent expr);
 }

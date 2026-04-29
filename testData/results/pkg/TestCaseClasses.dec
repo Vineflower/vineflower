@@ -59,7 +59,8 @@ public class Option1 implements TestCaseClasses, Product, Serializable {
    }
 
    public Object productElement(final int n) {
-      if (0 == n) {
+      int var2 = n;
+      if (0 == var2) {
          return BoxesRunTime.boxToInteger(this._1());
       } else {
          throw new IndexOutOfBoundsException(BoxesRunTime.boxToInteger(n).toString());
@@ -67,7 +68,8 @@ public class Option1 implements TestCaseClasses, Product, Serializable {
    }
 
    public String productElementName(final int n) {
-      if (0 == n) {
+      int var2 = n;
+      if (0 == var2) {
          return "value";
       } else {
          throw new IndexOutOfBoundsException(BoxesRunTime.boxToInteger(n).toString());
@@ -174,7 +176,6 @@ class 'pkg/Option1' {
       3      35
       4      35
       5      35
-      7      35
       8      35
       9      35
       a      35
@@ -240,81 +241,83 @@ class 'pkg/Option1' {
 
    method 'productElement (I)Ljava/lang/Object;' {
       0      55
-      2      55
-      3      55
-      4      55
-      5      55
-      6      55
-      7      56
-      8      56
-      9      56
-      a      56
-      b      56
-      c      56
-      d      56
-      12      58
-      13      58
-      14      58
-      15      58
-      16      58
-      17      58
-      18      58
-      1c      58
-      1d      56
+      1      55
+      2      56
+      3      56
+      4      56
+      5      56
+      6      56
+      7      57
+      8      57
+      9      57
+      a      57
+      b      57
+      c      57
+      d      57
+      12      59
+      13      59
+      14      59
+      15      59
+      16      59
+      17      59
+      18      59
+      1c      59
+      1d      57
    }
 
    method 'productElementName (I)Ljava/lang/String;' {
-      0      63
-      2      63
-      3      63
-      4      63
-      5      63
-      6      63
-      7      64
-      8      64
-      9      64
-      e      66
-      f      66
-      10      66
-      11      66
-      12      66
-      13      66
-      14      66
-      18      66
+      0      64
+      1      64
+      2      65
+      3      65
+      4      65
+      5      65
+      6      65
+      7      66
+      8      66
+      9      66
+      e      68
+      f      68
+      10      68
+      11      68
+      12      68
+      13      68
+      14      68
+      18      68
    }
 
    method 'value ()I' {
-      0      71
-      1      71
-      2      71
-      3      71
-      4      71
+      0      73
+      1      73
+      2      73
+      3      73
+      4      73
    }
 
    method 'copy (I)Lpkg/Option1;' {
-      4      75
-      8      75
+      4      77
+      8      77
    }
 
    method 'copy$default$1 ()I' {
-      0      79
-      1      79
-      2      79
-      3      79
-      4      79
+      0      81
+      1      81
+      2      81
+      3      81
+      4      81
    }
 
    method '_1 ()I' {
-      0      83
-      1      83
-      2      83
-      3      83
-      4      83
+      0      85
+      1      85
+      2      85
+      3      85
+      4      85
    }
 }
 
 Lines mapping:
-5 <-> 84
+5 <-> 86
 
 // Decompiled companion from pkg/Option1$
 package pkg;
@@ -458,7 +461,9 @@ public class Option2 implements TestCaseClasses, Product, Serializable {
    }
 
    public Object productElement(final int n) {
-      return BoxesRunTime.boxToDouble(switch (n) {
+      int var2 = n;
+
+      return BoxesRunTime.boxToDouble(switch (var2) {
          case 0 -> this._1();
          case 1 -> this._2();
          case 2 -> this._3();
@@ -467,7 +472,8 @@ public class Option2 implements TestCaseClasses, Product, Serializable {
    }
 
    public String productElementName(final int n) {
-      switch (n) {
+      int var2 = n;
+      switch (var2) {
          case 0:
             return "x";
          case 1:
@@ -644,7 +650,6 @@ class 'pkg/Option2' {
       3      41
       4      41
       5      41
-      7      41
       8      41
       9      41
       a      41
@@ -735,188 +740,190 @@ class 'pkg/Option2' {
 
    method 'productElement (I)Ljava/lang/Object;' {
       0      61
-      2      61
-      3      61
-      4      61
-      5      61
-      6      61
-      7      61
-      8      61
-      9      61
-      a      61
-      b      61
-      c      61
-      d      61
-      e      61
-      f      61
-      10      61
-      11      61
-      12      61
-      13      61
-      14      61
-      15      61
-      16      61
-      17      61
-      18      61
-      19      61
-      1a      61
-      1b      61
-      1c      62
-      1d      62
-      1e      62
-      1f      62
-      23      63
-      24      63
-      25      63
-      26      63
-      2a      64
-      2b      64
-      2c      64
-      2d      64
-      35      65
-      36      65
-      37      65
-      38      65
-      39      65
-      3a      65
-      3b      65
-      3f      65
-      41      61
-      42      61
-      43      61
-      44      61
+      1      61
+      2      63
+      3      63
+      4      63
+      5      63
+      6      63
+      7      63
+      8      63
+      9      63
+      a      63
+      b      63
+      c      63
+      d      63
+      e      63
+      f      63
+      10      63
+      11      63
+      12      63
+      13      63
+      14      63
+      15      63
+      16      63
+      17      63
+      18      63
+      19      63
+      1a      63
+      1b      63
+      1c      64
+      1d      64
+      1e      64
+      1f      64
+      23      65
+      24      65
+      25      65
+      26      65
+      2a      66
+      2b      66
+      2c      66
+      2d      66
+      35      67
+      36      67
+      37      67
+      38      67
+      39      67
+      3a      67
+      3b      67
+      3f      67
+      41      63
+      42      63
+      43      63
+      44      63
    }
 
    method 'productElementName (I)Ljava/lang/String;' {
-      0      70
-      2      70
-      3      70
-      4      70
-      5      70
-      6      70
-      7      70
-      8      70
-      9      70
-      a      70
-      b      70
-      c      70
-      d      70
-      e      70
-      f      70
-      10      70
-      11      70
-      12      70
-      13      70
-      14      70
-      15      70
-      16      70
-      17      70
-      18      70
-      19      70
-      1a      70
-      1b      70
-      1c      72
-      1d      72
-      1e      72
-      1f      74
-      20      74
-      21      74
-      22      76
-      23      76
-      24      76
-      29      78
-      2a      78
-      2b      78
-      2c      78
-      2d      78
-      2e      78
-      2f      78
-      33      78
+      0      72
+      1      72
+      2      73
+      3      73
+      4      73
+      5      73
+      6      73
+      7      73
+      8      73
+      9      73
+      a      73
+      b      73
+      c      73
+      d      73
+      e      73
+      f      73
+      10      73
+      11      73
+      12      73
+      13      73
+      14      73
+      15      73
+      16      73
+      17      73
+      18      73
+      19      73
+      1a      73
+      1b      73
+      1c      75
+      1d      75
+      1e      75
+      1f      77
+      20      77
+      21      77
+      22      79
+      23      79
+      24      79
+      29      81
+      2a      81
+      2b      81
+      2c      81
+      2d      81
+      2e      81
+      2f      81
+      33      81
    }
 
    method 'x ()D' {
-      0      83
-      1      83
-      2      83
-      3      83
-      4      83
+      0      86
+      1      86
+      2      86
+      3      86
+      4      86
    }
 
    method 'y ()D' {
-      0      87
-      1      87
-      2      87
-      3      87
-      4      87
+      0      90
+      1      90
+      2      90
+      3      90
+      4      90
    }
 
    method 'z ()D' {
-      0      91
-      1      91
-      2      91
-      3      91
-      4      91
+      0      94
+      1      94
+      2      94
+      3      94
+      4      94
    }
 
    method 'copy (DDD)Lpkg/Option2;' {
-      4      95
-      5      95
-      6      95
-      7      95
-      b      95
+      4      98
+      5      98
+      6      98
+      7      98
+      b      98
    }
 
    method 'copy$default$1 ()D' {
-      0      99
-      1      99
-      2      99
-      3      99
-      4      99
+      0      102
+      1      102
+      2      102
+      3      102
+      4      102
    }
 
    method 'copy$default$2 ()D' {
-      0      103
-      1      103
-      2      103
-      3      103
-      4      103
+      0      106
+      1      106
+      2      106
+      3      106
+      4      106
    }
 
    method 'copy$default$3 ()D' {
-      0      107
-      1      107
-      2      107
-      3      107
-      4      107
+      0      110
+      1      110
+      2      110
+      3      110
+      4      110
    }
 
    method '_1 ()D' {
-      0      111
-      1      111
-      2      111
-      3      111
-      4      111
+      0      114
+      1      114
+      2      114
+      3      114
+      4      114
    }
 
    method '_2 ()D' {
-      0      115
-      1      115
-      2      115
-      3      115
-      4      115
+      0      118
+      1      118
+      2      118
+      3      118
+      4      118
    }
 
    method '_3 ()D' {
-      0      119
-      1      119
-      2      119
-      3      119
-      4      119
+      0      122
+      1      122
+      2      122
+      3      122
+      4      122
    }
 }
 
 Lines mapping:
-6 <-> 120
+6 <-> 123
 
 // Decompiled companion from pkg/Option2$
 package pkg;
@@ -1093,7 +1100,8 @@ public class Option3 implements TestCaseClasses, Product, Serializable {
    }
 
    public Object productElement(final int n) {
-      if (0 == n) {
+      int var2 = n;
+      if (0 == var2) {
          return this._1();
       } else {
          throw new IndexOutOfBoundsException(BoxesRunTime.boxToInteger(n).toString());
@@ -1101,7 +1109,8 @@ public class Option3 implements TestCaseClasses, Product, Serializable {
    }
 
    public String productElementName(final int n) {
-      if (0 == n) {
+      int var2 = n;
+      if (0 == var2) {
          return "value";
       } else {
          throw new IndexOutOfBoundsException(BoxesRunTime.boxToInteger(n).toString());
@@ -1186,7 +1195,6 @@ class 'pkg/Option3' {
       3      32
       4      32
       5      34
-      7      34
       8      34
       9      34
       a      34
@@ -1269,78 +1277,80 @@ class 'pkg/Option3' {
 
    method 'productElement (I)Ljava/lang/Object;' {
       0      67
-      2      67
-      3      67
-      4      67
-      5      67
-      6      67
-      7      68
-      8      68
-      9      68
-      a      68
-      b      68
-      10      70
-      11      70
-      12      70
-      13      70
-      14      70
-      15      70
-      16      70
-      1a      70
+      1      67
+      2      68
+      3      68
+      4      68
+      5      68
+      6      68
+      7      69
+      8      69
+      9      69
+      a      69
+      b      69
+      10      71
+      11      71
+      12      71
+      13      71
+      14      71
+      15      71
+      16      71
+      1a      71
    }
 
    method 'productElementName (I)Ljava/lang/String;' {
-      0      75
-      2      75
-      3      75
-      4      75
-      5      75
-      6      75
-      7      76
-      8      76
-      9      76
-      e      78
-      f      78
-      10      78
-      11      78
-      12      78
-      13      78
-      14      78
-      18      78
+      0      76
+      1      76
+      2      77
+      3      77
+      4      77
+      5      77
+      6      77
+      7      78
+      8      78
+      9      78
+      e      80
+      f      80
+      10      80
+      11      80
+      12      80
+      13      80
+      14      80
+      18      80
    }
 
    method 'value ()Lscala/collection/immutable/List;' {
-      0      83
-      1      83
-      2      83
-      3      83
-      4      83
+      0      85
+      1      85
+      2      85
+      3      85
+      4      85
    }
 
    method 'copy (Lscala/collection/immutable/List;)Lpkg/Option3;' {
-      4      87
-      8      87
+      4      89
+      8      89
    }
 
    method 'copy$default$1 ()Lscala/collection/immutable/List;' {
-      0      91
-      1      91
-      2      91
-      3      91
-      4      91
+      0      93
+      1      93
+      2      93
+      3      93
+      4      93
    }
 
    method '_1 ()Lscala/collection/immutable/List;' {
-      0      95
-      1      95
-      2      95
-      3      95
-      4      95
+      0      97
+      1      97
+      2      97
+      3      97
+      4      97
    }
 }
 
 Lines mapping:
-7 <-> 96
+7 <-> 98
 
 // Decompiled companion from pkg/Option3$
 package pkg;

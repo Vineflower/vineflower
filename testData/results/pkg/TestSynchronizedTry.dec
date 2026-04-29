@@ -28,8 +28,8 @@ public class TestSynchronizedTry {
 
             System.out.println(3);// 29
          }
-      } catch (Exception var5) {// 30
-         var5.printStackTrace();// 31
+      } catch (Exception e) {// 30
+         e.printStackTrace();// 31
       }
 
       if (i > 2) {// 34
@@ -52,8 +52,8 @@ public class TestSynchronizedTry {
 
             System.out.println(3);// 52
          }
-      } catch (Exception var5) {// 54
-         var5.printStackTrace();// 55
+      } catch (Exception e) {// 54
+         e.printStackTrace();// 55
       }
 
       if (i > 2) {// 58

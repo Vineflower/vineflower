@@ -1,11 +1,12 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.main;
 
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.java.decompiler.api.java.ClassPassLocation;
 import org.jetbrains.java.decompiler.api.plugin.StatementWriter;
 import org.jetbrains.java.decompiler.api.plugin.LanguageSpec;
 import org.jetbrains.java.decompiler.code.CodeConstants;
-import org.jetbrains.java.decompiler.code.Instruction;
-import org.jetbrains.java.decompiler.code.InstructionSequence;
+import org.jetbrains.java.decompiler.code.FullInstructionSequence;
 import org.jetbrains.java.decompiler.main.collectors.BytecodeSourceMapper;
 import org.jetbrains.java.decompiler.main.collectors.ImportCollector;
 import org.jetbrains.java.decompiler.main.decompiler.CancelationManager;
@@ -22,6 +23,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.InvocationExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructContext;
+import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.attr.StructEnclosingMethodAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
@@ -102,6 +104,12 @@ public class ClassesProcessor implements CodeConstants {
       excludedMatcher = Pattern.compile(excludedRegex).matcher("");
     }
 
+    Matcher includedMatcher = null;
+    String includedRegex = DecompilerContext.getProperty(IFernflowerPreferences.INCLUDED_CLASSES).toString();
+    if (!includedRegex.isEmpty()) {
+      includedMatcher = Pattern.compile(includedRegex).matcher("");
+    }
+
     // Filter any duplicate classes
 
     List<StructClass> ownClasses = context.getOwnClasses();
@@ -118,9 +126,14 @@ public class ClassesProcessor implements CodeConstants {
 
     // create class nodes
     for (StructClass cl : classes) {
+      // Include & exclude
       if (excludedMatcher != null && excludedMatcher.reset(cl.qualifiedName).matches()) {
         continue;
       }
+      if (includedMatcher != null && !includedMatcher.reset(cl.qualifiedName).matches()) {
+        continue;
+      }
+
       if (!mapRootClasses.containsKey(cl.qualifiedName)) {
         if (bDecompileInner) {
           StructInnerClassesAttribute inner = cl.getAttribute(StructGeneralAttribute.ATTRIBUTE_INNER_CLASSES);
@@ -379,11 +392,9 @@ public class ClassesProcessor implements CodeConstants {
       try {
         mt.expandData(enclosingCl);
 
-        InstructionSequence seq = mt.getInstructionSequence();
+        FullInstructionSequence seq = mt.getInstructionSequence();
         if (seq != null) {
-          int len = seq.length();
-          for (int i = 0; i < len; i++) {
-            Instruction instr = seq.getInstr(i);
+          for (var instr : seq) {
             switch (instr.opcode) {
               case opc_checkcast:
               case opc_instanceof:
@@ -442,6 +453,8 @@ public class ClassesProcessor implements CodeConstants {
     DecompilerContext.startClass(importCollector);
     try {
       if (!packageInfo && !moduleInfo) {
+        DecompilerContext.getCurrentContext().structContext.getPluginContext()
+          .runClassPasses(ClassPassLocation.BEFORE_PROCESSING, root);
         new LambdaProcessor().processClass(root);
 
         // add simple class names to implicit import
@@ -457,7 +470,12 @@ public class ClassesProcessor implements CodeConstants {
             new NestedClassProcessor().processClass(root, root);
 
             new NestedMemberAccess().propagateMemberAccess(root);
+        } else {
+          spec.rootProcessor.run(root);
         }
+
+        DecompilerContext.getCurrentContext().structContext.getPluginContext()
+          .runClassPasses(ClassPassLocation.AFTER_PROCESSING, root);
       }
     } catch (CancelationManager.CanceledException e) {
       throw e;
@@ -496,6 +514,9 @@ public class ClassesProcessor implements CodeConstants {
         LanguageSpec spec = PluginContext.getCurrentContext().getLanguageSpec(cl);
         TextBuffer classBuffer = new TextBuffer(AVERAGE_CLASS_SIZE);
         StatementWriter writer = spec != null ? spec.writer : new ClassWriter();
+
+        DecompilerContext.getCurrentContext().structContext.getPluginContext()
+          .runClassPasses(ClassPassLocation.BEFORE_WRITING, root);
 
         writer.writeClass(root, classBuffer, 0);
         classBuffer.reformat();
@@ -554,7 +575,7 @@ public class ClassesProcessor implements CodeConstants {
       }
     }
 
-    ClassWrapper wrapper = new ClassWrapper(node.classStruct);
+    ClassWrapper wrapper = new ClassWrapper(node);
     wrapper.init(spec);
 
     node.wrapper = wrapper;
@@ -564,11 +585,12 @@ public class ClassesProcessor implements CodeConstants {
     }
   }
 
+  // Check for synthetic classes that hold switchmaps and assert fields
   private static boolean shouldInitEarly(ClassNode node) {
     if (node.classStruct.hasModifier(CodeConstants.ACC_SYNTHETIC)) {
       if (node.classStruct.getMethods().size() == 1 && node.classStruct.getMethods().get(0).getName().equals(CodeConstants.CLINIT_NAME)) {
         return node.classStruct.getFields().stream()
-          .allMatch( stField -> stField.getDescriptor().equals("[I") && stField.hasModifier(SwitchHelper.STATIC_FINAL_SYNTHETIC));
+          .allMatch( stField -> (stField.getDescriptor().equals("[I") || stField.getDescriptor().equals("Z")) && stField.hasModifier(SwitchHelper.STATIC_FINAL_SYNTHETIC));
       }
     }
     return false;
@@ -605,16 +627,16 @@ public class ClassesProcessor implements CodeConstants {
 
     public Type type;
     public int access;
-    public String simpleName;
+    public @Nullable String simpleName;
     public final StructClass classStruct;
-    private ClassWrapper wrapper;
+    private @Nullable ClassWrapper wrapper;
     public String enclosingMethod;
     public InvocationExprent superInvocation;
     public final Map<String, VarVersionPair> mapFieldsToVars = new HashMap<>();
     public VarType anonymousClassType;
     public final List<ClassNode> nested = new ArrayList<>();
     public final Set<String> enclosingClasses = new HashSet<>();
-    public ClassNode parent;
+    public @Nullable ClassNode parent;
     public LambdaInformation lambdaInformation;
 
     public ClassNode(String content_class_name,

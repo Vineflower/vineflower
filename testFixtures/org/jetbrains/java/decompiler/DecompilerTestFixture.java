@@ -13,10 +13,7 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -59,6 +56,7 @@ public class DecompilerTestFixture {
     options.put(IFernflowerPreferences.UNIT_TEST_MODE, "1");
     options.put(IFernflowerPreferences.NEW_LINE_SEPARATOR, "1");
     options.put(IFernflowerPreferences.ERROR_MESSAGE, "");
+    options.put(IFernflowerPreferences.INCLUDE_JAVA_RUNTIME, "");
     for (int i = 0; i < optionPairs.length; i += 2) {
       options.put((String) optionPairs[i], optionPairs[i + 1]);
     }
@@ -139,9 +137,20 @@ public class DecompilerTestFixture {
             Enumeration<? extends ZipEntry> expectedEntries = expectedZip.entries();
             Enumeration<? extends ZipEntry> actualEntries = actualZip.entries();
 
+            SortedSet<ZipEntry> expectedValues = new TreeSet<>(Comparator.comparing(ZipEntry::getName));
+            SortedSet<ZipEntry> actualValues = new TreeSet<>(Comparator.comparing(ZipEntry::getName));
+
             while (expectedEntries.hasMoreElements()) {
               ZipEntry expectedEntry = expectedEntries.nextElement();
               ZipEntry actualEntry = actualEntries.nextElement();
+              expectedValues.add(expectedEntry);
+              actualValues.add(actualEntry);
+            }
+
+            Iterator<ZipEntry> iterator = actualValues.iterator();
+
+            for (ZipEntry expectedEntry : expectedValues) {
+              ZipEntry actualEntry = iterator.next();
               assertEquals(expectedEntry.getName(), actualEntry.getName());
 
               if (!expectedEntry.isDirectory()) {
@@ -151,7 +160,7 @@ public class DecompilerTestFixture {
                     byte[] expectedBytes = expectedStream.readAllBytes();
                     byte[] actualBytes = actualStream.readAllBytes();
 
-                    assertEquals(new String(expectedBytes).replaceAll("\\r\\n?", "\n"), new String(actualBytes).replaceAll("\\r\\n?", "\n"));
+                    assertEquals(new String(expectedBytes).replaceAll("\\r\\n?", "\n").trim(), new String(actualBytes).replaceAll("\\r\\n?", "\n").trim());
                   }
                 }
               }

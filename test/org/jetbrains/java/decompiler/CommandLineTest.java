@@ -1,12 +1,15 @@
 package org.jetbrains.java.decompiler;
 
 import org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler;
+import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.jetbrains.java.decompiler.DecompilerTestFixture.assertFilesEqual;
 
@@ -15,7 +18,6 @@ public class CommandLineTest {
 
   @BeforeEach
   public void setUp() throws IOException {
-    System.setProperty("QF_NO_GUI_HELP", "true");
     fixture = new DecompilerTestFixture();
     fixture.setUp();
   }
@@ -94,5 +96,24 @@ public class CommandLineTest {
     TextBuffer.checkLeaks();
 
     assertFilesEqual(fixture.getTestDataDir().resolve("bulk"), fixture.getTempDir().resolve("bulk_out"));
+  }
+
+  // External debug testing
+  @Test
+  public void testExternal() {
+    String path = null;
+    String clazz = null;
+    if (path != null) {
+      List<String> args = new ArrayList<>();
+      if (clazz != null) {
+        args.add("--" + IFernflowerPreferences.INCLUDED_CLASSES + "=" + clazz + "((\\$.*)|$)");
+      }
+
+      args.add(path);
+
+      ConsoleDecompiler.main(args.toArray(String[]::new));
+
+      TextBuffer.checkLeaks();
+    }
   }
 }

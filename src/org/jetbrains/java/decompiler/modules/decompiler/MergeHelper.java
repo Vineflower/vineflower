@@ -1,12 +1,9 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler;
 
-import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectEdgeType;
-import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNode;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
@@ -20,9 +17,16 @@ import org.jetbrains.java.decompiler.struct.gen.VarType;
 import java.util.*;
 
 public class MergeHelper {
-  public static void enhanceLoops(Statement root) {
-    while (enhanceLoopsRec(root)) /**/;
-    SequenceHelper.condenseSequences(root);
+  public static boolean enhanceLoops(Statement root) {
+    boolean res = false;
+    while (enhanceLoopsRec(root)) {
+      res = true;
+    }
+
+    if (res) {
+      SequenceHelper.condenseSequences(root);
+    }
+    return res;
   }
 
   private static boolean enhanceLoopsRec(Statement stat) {
@@ -453,6 +457,13 @@ public class MergeHelper {
         }
       }
 
+      // Check if the init var is contained in the cond var or the inc var, otherwise don't make the loop
+      if (hasinit && preData.getExprents().get(preData.getExprents().size() - 1) instanceof AssignmentExprent assign) {
+        if (assign.getLeft() instanceof VarExprent var && !stat.getConditionExprent().containsVar(var.getVarVersionPair()) && !lastExp.containsVar(var.getVarVersionPair())) {
+          return;
+        }
+      }
+
       stat.setLooptype(DoStatement.Type.FOR);
       if (hasinit) {
         Exprent exp = preData.getExprents().remove(preData.getExprents().size() - 1);
@@ -473,12 +484,12 @@ public class MergeHelper {
 
   private static Set<VarExprent> getFinalVariables(Statement stat, Set<VarExprent> variables) {
     if (stat.getExprents() == null) {
-      for (Object o : stat.getSequentialObjects()) {
-        if (o instanceof Statement) {
-          getFinalVariables((Statement) o, variables);
-        } else if (o instanceof Exprent) {
-          getFinalVariables((Exprent) o, variables);
-        }
+      for (Statement s : stat.getStats()) {
+        getFinalVariables(s, variables);
+      }
+
+      for (Exprent exp : stat.getStatExprents()) {
+        getFinalVariables(exp, variables);
       }
     } else {
       for (Exprent exp : stat.getExprents()) {
@@ -678,6 +689,10 @@ public class MergeHelper {
           return false;
         }
 
+        if (isVarUsedAfter((VarExprent) initExprents[0].getLeft(), stat)) {
+          return false;
+        }
+
         InvocationExprent holder = (InvocationExprent)right;
         // base of the .iterator() call is null, so the iterator comes from a static method: cannot be a foreach
         if (holder.getInstance() == null) {
@@ -716,8 +731,8 @@ public class MergeHelper {
 
         // Type of assignment- store in var for type calculation
         CheckTypesResult typeRes = ass.checkExprTypeBounds();
-        if (typeRes != null && !typeRes.getLstMinTypeExprents().isEmpty()) {
-          VarType boundType = typeRes.getLstMinTypeExprents().get(0).type;
+        if (typeRes != null && !typeRes.getLowerBounds().isEmpty()) {
+          VarType boundType = typeRes.getLowerBounds().get(0).type;
           VarExprent var = (VarExprent) ass.getLeft();
           var.setBoundType(boundType);
         }
@@ -769,22 +784,8 @@ public class MergeHelper {
           }
         }
 
-        VarExprent assignPre = null;
-        for (Exprent e : preData.getExprents()) {
-          if (e instanceof AssignmentExprent) {
-            AssignmentExprent a = (AssignmentExprent)e;
-            if (a.getLeft() instanceof VarExprent) {
-              if (a.getRight() instanceof VarExprent) {
-                if (((VarExprent)a.getLeft()).getVarVersionPair().equals(array.getVarVersionPair())) {
-                  assignPre = (VarExprent)a.getRight();
-                }
-              }
-            }
-          }
-        }
-
-        // TODO: handle this case! don't just fail silently!
-        if (assignPre != null && !((VarExprent)funcRight.getLstOperands().get(0)).getVarVersionPair().equals(assignPre.getVarVersionPair())) {
+        // Check that the array being accessed is the same as the one used for getting the length
+        if (!array.equalsVersions(funcRight.getLstOperands().get(0))) {
           return false;
         }
 
@@ -808,10 +809,12 @@ public class MergeHelper {
         firstData.getExprents().remove(firstDoExprent);
         lastData.getExprents().remove(lastExprent);
 
-        if (initExprents[2] != null && initExprents[2].getLeft() instanceof VarExprent) {
+        // Check for the variable that the for each loop creates to store the array
+        // If it exists then and nothing else uses the variable then remove the assignment
+        if (initExprents[2] != null && initExprents[2].getLeft() instanceof VarExprent && stat.getIncExprent() instanceof VarExprent forArray) {
           VarExprent copy = (VarExprent)initExprents[2].getLeft();
 
-          if (copy.getIndex() == array.getIndex() && copy.getVersion() == array.getVersion()) {
+          if (copy.getIndex() == array.getIndex() && copy.getVersion() == array.getVersion() && !copy.isVarReferenced(stat.getParent(), forArray)) {
             preData.getExprents().remove(initExprents[2]);
             initExprents[2].getRight().addBytecodeOffsets(initExprents[2].bytecode);
             initExprents[2].getRight().addBytecodeOffsets(stat.getIncExprent().bytecode);
@@ -821,8 +824,8 @@ public class MergeHelper {
 
         // Type of assignment- store in var for type calculation
         CheckTypesResult typeRes = firstDoExprent.checkExprTypeBounds();
-        if (typeRes != null && !typeRes.getLstMinTypeExprents().isEmpty()) {
-          VarType boundType = typeRes.getLstMinTypeExprents().get(0).type;
+        if (typeRes != null && !typeRes.getLowerBounds().isEmpty()) {
+          VarType boundType = typeRes.getLowerBounds().get(0).type;
           VarExprent var = (VarExprent) firstDoExprent.getLeft();
           var.setBoundType(boundType);
         }
@@ -863,10 +866,8 @@ public class MergeHelper {
       // Try to find a var reference with the same index
       if (node.exprents != null) {
         for (Exprent exprent : node.exprents) {
-          for (Exprent ex : exprent.getAllExprents(true, true)) {
-            if (ex instanceof VarExprent && ((VarExprent) ex).getIndex() == var.getIndex()) {
-              return true;
-            }
+          if (containsVar(var, exprent)) {
+            return true;
           }
         }
       }
@@ -880,6 +881,56 @@ public class MergeHelper {
     }
 
     // Found nothing
+    return false;
+  }
+
+  // When encountering "iterator = iterable.iterator();", check if the iterator variable is used after loop.
+  private static boolean isVarUsedAfter(VarExprent var, DoStatement thisSt) {
+    Statement parent = thisSt.getParent();
+    if (!(parent instanceof SequenceStatement)) {
+      return false;
+    }
+    int idx = parent.getStats().indexOf(thisSt);
+    for (int i = idx + 1; i < parent.getStats().size(); i++) {
+      Statement st = parent.getStats().get(i);
+      if (isVarUsedIn(var, st)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  private static boolean isVarUsedIn(VarExprent var, Statement stat) {
+    for (Statement st : stat.getStats()) {
+      if (isVarUsedIn(var, st)) {
+        return true;
+      }
+    }
+
+    for (Exprent ex : stat.getStatExprents()) {
+      if (containsVar(var, ex)) {
+        return true;
+      }
+    }
+
+    if (stat.getExprents() != null) {
+      for (Exprent ex : stat.getExprents()) {
+        if (containsVar(var, ex)) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  private static boolean containsVar(VarExprent var, Exprent ex) {
+    for (Exprent e : ex.getAllExprents(true, true)) {
+      if (e instanceof VarExprent && ((VarExprent) e).getIndex() == var.getIndex()) {
+        return true;
+      }
+    }
     return false;
   }
 

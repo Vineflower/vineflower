@@ -11,40 +11,125 @@ public class TestUnnamedVar1 {
          TestUnnamedVar1.Point var10000 = var2;
 
          try {
-            var7 = var10000.x();
-         } catch (Throwable var6) {// 12
-            throw new MatchException(var6.toString(), var6);
+            var8 = var10000.x();
+         } catch (Throwable var7) {// 12
+            throw new MatchException(var7.toString(), var7);
          }
 
-         int var4 = var7;
-         var10000 = var2;
+         int var4 = var8;
+         if (true) {
+            int x = var4;
+            var10000 = var2;
 
-         try {
-            var10000.y();
-         } catch (Throwable var5) {
-            throw new MatchException(var5.toString(), var5);
+            try {
+               var10000.y();
+            } catch (Throwable var6) {
+               throw new MatchException(var6.toString(), var6);
+            }
+
+            System.out.println(x);// 13
          }
-
-         System.out.println(var4);// 13
       }
    }// 15
 
    public void test1(Object o) {
-      if (o instanceof TestUnnamedVar1.Point(int var5, Object var8)) {// 18
-         System.out.println(var5);// 19
+      if (o instanceof TestUnnamedVar1.Point(int x, Object var8)) {// 18
+         System.out.println(x);// 19
       }
    }// 21
 
+   public void test2(Object o) {
+      if (o instanceof TestUnnamedVar1.Point) {// 24
+         System.out.println(o);// 25
+      }
+   }// 27
+
+   public void def() {
+      byte var1 = 5;// 30
+      int x = 3;// 31
+      System.out.println(x);// 33
+   }// 34
+
+   public void patternSwitch(Object o) {
+      switch (o) {// 37
+         case Integer var4:
+            System.out.println("1");// 38
+            break;
+         default:
+            System.out.println("def");// 39
+      }
+   }// 41
+
+   public void patternSwitch2(Object o) {
+      switch (o) {// 44
+         case Integer var4:
+            System.out.println("1");// 45
+            break;
+         case String var5:
+            System.out.println("2");// 46
+            break;
+         default:
+            System.out.println("def");// 47
+      }
+   }// 49
+
+   public void patternSwitch3(Object o) {
+      // $VF: Couldn't be decompiled
+      // Bytecode:
+      // 00: aload 1
+      // 01: dup
+      // 02: invokestatic java/util/Objects.requireNonNull (Ljava/lang/Object;)Ljava/lang/Object;
+      // 05: pop
+      // 06: astore 2
+      // 07: bipush 0
+      // 08: istore 3
+      // 09: aload 2
+      // 0a: iload 3
+      // 0b: invokedynamic typeSwitch (Ljava/lang/Object;I)I bsm=java/lang/runtime/SwitchBootstraps.typeSwitch (Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite; args=[ java/lang/Integer, java/lang/String ]
+      // 10: lookupswitch 64 2 0 28 1 28
+      // 2c: aload 2
+      // 2d: instanceof java/lang/Integer
+      // 30: ifeq 36
+      // 33: goto 45
+      // 36: aload 2
+      // 37: instanceof java/lang/String
+      // 3a: ifeq 40
+      // 3d: goto 45
+      // 40: bipush 2
+      // 41: istore 3
+      // 42: goto 09
+      // 45: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 48: ldc "1"
+      // 4a: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // 4d: goto 5b
+      // 50: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 53: ldc "def"
+      // 55: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // 58: goto 5b
+      // 5b: return
+   }
+
    public List<String> stream(List<String> in) {
-      return in.stream().map(var0 -> "val").toList();// 24
+      return in.stream().map(var0 -> "val").toList();// 59
    }
 
    public void trycatch(File file) {
       try {
-         new Scanner(file);// 29
-      } catch (IOException var3) {// 30
+         new Scanner(file);// 64
+      } catch (IOException var3) {// 65
+         System.out.println("catch");// 66
       }
-   }// 33
+   }// 68
+
+   public void trycatch2(File file) {
+      try {
+         new Scanner(file);// 72
+      } catch (IOException var3) {// 73
+         System.out.println("catch");// 74
+      } catch (Exception var4) {// 75
+         System.out.println("catch2");// 76
+      }
+   }// 78
 
    record Point(int x, Object y) {
    }
@@ -66,96 +151,287 @@ class 'pkg/TestUnnamedVar1' {
       f      13
       10      18
       11      18
-      12      27
-      13      27
-      15      19
-      16      22
-      17      22
-      18      22
-      1b      27
-      1c      27
-      1d      27
-      1e      27
-      1f      27
-      20      27
-      21      27
-      25      14
-      2a      15
-      2b      15
-      2c      15
-      2d      15
-      2e      15
+      17      19
+      18      19
+      19      19
+      1a      20
+      1b      20
+      1c      20
+      1d      21
+      1e      24
+      1f      24
+      20      24
+      23      29
+      24      29
+      25      29
+      26      29
+      27      29
+      28      29
+      29      29
+      2d      14
       32      15
-      33      29
+      33      15
+      34      15
+      35      15
+      36      15
+      3a      15
+      3b      32
    }
 
    method 'test1 (Ljava/lang/Object;)V' {
-      0      32
-      1      32
-      2      32
-      3      32
-      4      32
-      5      32
-      6      32
-      10      32
-      11      32
-      12      33
-      13      33
-      1b      32
-      1c      32
-      23      33
-      24      33
-      25      33
-      26      33
-      27      33
-      28      33
-      29      33
-      3b      35
+      0      35
+      1      35
+      2      35
+      3      35
+      4      35
+      5      35
+      6      35
+      1c      35
+      23      35
+      24      35
+      2b      36
+      2c      36
+      2d      36
+      2e      36
+      2f      36
+      30      36
+      31      36
+      43      38
+   }
+
+   method 'test2 (Ljava/lang/Object;)V' {
+      0      41
+      1      41
+      2      41
+      3      41
+      4      41
+      5      41
+      6      41
+      7      42
+      8      42
+      9      42
+      a      42
+      b      42
+      c      42
+      d      42
+      e      44
+   }
+
+   method 'def ()V' {
+      0      47
+      1      47
+      2      48
+      3      48
+      6      49
+      7      49
+      8      49
+      9      49
+      a      49
+      b      49
+      c      49
+      d      50
+   }
+
+   method 'patternSwitch (Ljava/lang/Object;)V' {
+      0      53
+      10      53
+      11      53
+      12      53
+      13      53
+      14      53
+      15      53
+      16      53
+      17      53
+      18      53
+      19      53
+      1a      53
+      1b      53
+      1c      53
+      1d      53
+      1e      53
+      1f      53
+      20      53
+      21      53
+      22      53
+      23      53
+      24      55
+      25      55
+      26      55
+      27      55
+      28      55
+      29      55
+      2a      55
+      2b      55
+      2c      56
+      2f      58
+      30      58
+      31      58
+      32      58
+      33      58
+      34      58
+      35      58
+      36      58
+      37      60
+   }
+
+   method 'patternSwitch2 (Ljava/lang/Object;)V' {
+      0      63
+      10      63
+      11      63
+      12      63
+      13      63
+      14      63
+      15      63
+      16      63
+      17      63
+      18      63
+      19      63
+      1a      63
+      1b      63
+      1c      63
+      1d      63
+      1e      63
+      1f      63
+      20      63
+      21      63
+      22      63
+      23      63
+      24      63
+      25      63
+      26      63
+      27      63
+      28      63
+      29      63
+      2a      63
+      2b      63
+      2c      65
+      2d      65
+      2e      65
+      2f      65
+      30      65
+      31      65
+      32      65
+      33      65
+      34      66
+      37      68
+      38      68
+      39      68
+      3a      68
+      3b      68
+      3c      68
+      3d      68
+      3e      68
+      3f      69
+      42      71
+      43      71
+      44      71
+      45      71
+      46      71
+      47      71
+      48      71
+      49      71
+      4a      73
    }
 
    method 'stream (Ljava/util/List;)Ljava/util/List;' {
-      0      38
-      1      38
-      2      38
-      3      38
-      4      38
-      5      38
-      b      38
-      c      38
-      d      38
-      e      38
-      f      38
-      10      38
-      11      38
-      12      38
-      13      38
-      14      38
-      15      38
+      0      112
+      1      112
+      2      112
+      3      112
+      4      112
+      5      112
+      b      112
+      c      112
+      d      112
+      e      112
+      f      112
+      10      112
+      11      112
+      12      112
+      13      112
+      14      112
+      15      112
    }
 
    method 'lambda$stream$0 (Ljava/lang/String;)Ljava/lang/String;' {
-      0      38
-      1      38
-      2      38
+      0      112
+      1      112
+      2      112
    }
 
    method 'trycatch (Ljava/io/File;)V' {
-      4      43
-      c      44
-      d      46
+      4      117
+      c      118
+      d      119
+      e      119
+      f      119
+      10      119
+      11      119
+      12      119
+      13      119
+      14      119
+      15      121
+   }
+
+   method 'trycatch2 (Ljava/io/File;)V' {
+      4      125
+      c      126
+      d      127
+      e      127
+      f      127
+      10      127
+      11      127
+      12      127
+      13      127
+      14      127
+      18      128
+      19      129
+      1a      129
+      1b      129
+      1c      129
+      1d      129
+      1e      129
+      1f      129
+      20      129
+      21      131
    }
 }
 
 Lines mapping:
 12 <-> 15
-13 <-> 28
-15 <-> 30
-18 <-> 33
-19 <-> 34
-21 <-> 36
-24 <-> 39
-29 <-> 44
-30 <-> 45
-33 <-> 47
+13 <-> 30
+15 <-> 33
+18 <-> 36
+19 <-> 37
+21 <-> 39
+24 <-> 42
+25 <-> 43
+27 <-> 45
+30 <-> 48
+31 <-> 49
+33 <-> 50
+34 <-> 51
+37 <-> 54
+38 <-> 56
+39 <-> 59
+41 <-> 61
+44 <-> 64
+45 <-> 66
+46 <-> 69
+47 <-> 72
+49 <-> 74
+59 <-> 113
+64 <-> 118
+65 <-> 119
+66 <-> 120
+68 <-> 122
+72 <-> 126
+73 <-> 127
+74 <-> 128
+75 <-> 129
+76 <-> 130
+78 <-> 132
 Not mapped:
 32
+67
+77

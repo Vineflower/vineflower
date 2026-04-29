@@ -5,11 +5,11 @@ public class TestNullable {
    }// 6
 
    public fun nullableReturn(): String? {
-      return null;// 9
+      return null// 9
    }
 
    public fun nullableGenerics(v: List<String?>): List<String?>? {
-      return v;// 13
+      return v// 13
    }
 }
 

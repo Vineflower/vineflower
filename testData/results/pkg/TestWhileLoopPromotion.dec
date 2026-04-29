@@ -1,0 +1,52 @@
+package pkg;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class TestWhileLoopPromotion {
+   public void test() {
+      int i = 0;// 8
+      List<Integer> list = new ArrayList();// 9
+
+      while (i < 10) {// 10
+         list.add(i);// 11
+         i++;// 12
+      }
+   }// 14
+}
+
+class 'pkg/TestWhileLoopPromotion' {
+   method 'test ()V' {
+      0      7
+      1      7
+      9      8
+      a      10
+      b      10
+      c      10
+      d      10
+      e      10
+      f      10
+      10      11
+      11      11
+      12      11
+      13      11
+      14      11
+      15      11
+      16      11
+      17      11
+      18      11
+      19      11
+      1b      12
+      1c      12
+      1d      12
+      21      14
+   }
+}
+
+Lines mapping:
+8 <-> 8
+9 <-> 9
+10 <-> 11
+11 <-> 12
+12 <-> 13
+14 <-> 15

@@ -1,6 +1,7 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.struct;
 
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.main.ClassWriter;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.decompiler.CancelationManager;
@@ -8,6 +9,7 @@ import org.jetbrains.java.decompiler.main.extern.IContextSource;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.extern.IResultSaver;
+import org.jetbrains.java.decompiler.util.DataInputFullStream;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
 import java.io.IOException;
@@ -54,8 +56,8 @@ public class ContextUnit {
           // TODO: more proper handling of multirelease jars, rather than just stripping them
           this.classEntries = entries.classes().stream()
             .filter(ent -> ent.multirelease() == IContextSource.Entry.BASE_VERSION)
-            .map(entry -> entry.basePath())
-            .collect(Collectors.toUnmodifiableList());
+            .map(IContextSource.Entry::basePath)
+            .toList();
           this.dirEntries = entries.directories();
           boolean includeExtras = !DecompilerContext.getOption(IFernflowerPreferences.SKIP_EXTRA_FILES);
           this.otherEntries = new ArrayList<>();
@@ -87,8 +89,17 @@ public class ContextUnit {
     return this.source.hasClass(className);
   }
 
-  public byte/* @Nullable */[] getClassBytes(final String className) throws IOException {
+  public byte @Nullable [] getClassBytes(String className) throws IOException {
     return this.source.getClassBytes(className);
+  }
+
+  public @Nullable StructClass tryLoadClass(String className) throws IOException {
+    byte[] data = getClassBytes(className);
+    if (data == null) {
+      return null;
+    }
+
+    return StructClass.create(new DataInputFullStream(data), isOwn());
   }
 
   public List<String> getDirectoryNames() {
@@ -120,6 +131,10 @@ public class ContextUnit {
   }
 
   public void save(final Function<String, StructClass> loader) throws IOException {
+    if (!this.isOwn()) {
+      throw new IllegalStateException("Trying to save non-own unit?");
+    }
+
     this.initEntries();
     final IContextSource.IOutputSink sink = this.source.createOutputSink(this.resultSaver);
     if (sink == null) {
@@ -128,14 +143,26 @@ public class ContextUnit {
 
     sink.begin();
 
+    final DecompilerContext rootContext = DecompilerContext.getCurrentContext();
+
+    Set<String> otherNames = otherEntries.stream().map(IContextSource.Entry::path).collect(Collectors.toSet());
+
     // directory entries
     for (String dirEntry : dirEntries) {
-      sink.acceptDirectory(dirEntry);
+      boolean write = true;
+      if (!rootContext.classProcessor.isWhitelisted(dirEntry)) {
+        // not allowed? check if an other entry starts with this path
+        write = otherNames.stream().anyMatch(s -> s.startsWith(dirEntry));
+      }
+
+      if (write) {
+        sink.acceptDirectory(dirEntry);
+      }
     }
 
     // non-class entries
-    for (IContextSource.Entry otherEntry : otherEntries) {
-      sink.acceptOther(otherEntry.path());
+    for (String otherEntry : otherNames) {
+      sink.acceptOther(otherEntry);
     }
 
     //Whooo threads!
@@ -145,7 +172,6 @@ public class ContextUnit {
       threads = Runtime.getRuntime().availableProcessors();
     }
     ForkJoinPool pool = new ForkJoinPool(threads, namingScheme(), null, true);
-    final DecompilerContext rootContext = DecompilerContext.getCurrentContext();
     final List<ClassContext> toDump = new ArrayList<>(classEntries.size());
     Set<String> seen = new LinkedHashSet<>();
 
@@ -296,5 +322,9 @@ public class ContextUnit {
 
       this.pendingError.addSuppressed(thr);
     }
+  }
+
+  public InputStream getStream(IContextSource.Entry entry) throws IOException {
+    return source.getInputStream(entry);
   }
 }

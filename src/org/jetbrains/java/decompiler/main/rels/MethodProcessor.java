@@ -5,9 +5,8 @@ import org.jetbrains.java.decompiler.api.java.JavaPassLocation;
 import org.jetbrains.java.decompiler.api.plugin.LanguageSpec;
 import org.jetbrains.java.decompiler.api.plugin.pass.PassContext;
 import org.jetbrains.java.decompiler.code.CodeConstants;
-import org.jetbrains.java.decompiler.code.InstructionSequence;
+import org.jetbrains.java.decompiler.code.FullInstructionSequence;
 import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
-import org.jetbrains.java.decompiler.code.cfg.ExceptionRangeCFG;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.main.decompiler.CancelationManager;
@@ -17,7 +16,7 @@ import org.jetbrains.java.decompiler.main.plugins.PluginContext;
 import org.jetbrains.java.decompiler.modules.code.DeadCodeHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.*;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.DomHelper;
-import org.jetbrains.java.decompiler.modules.decompiler.deobfuscator.ExceptionDeobfuscator;
+import org.jetbrains.java.decompiler.modules.code.ExceptionDeobfuscator;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
@@ -96,10 +95,12 @@ public class MethodProcessor implements Runnable {
     PluginContext pluginContext = PluginContext.getCurrentContext();
 
     mt.expandData(cl);
-    InstructionSequence seq = mt.getInstructionSequence();
+    FullInstructionSequence seq = mt.getInstructionSequence();
     ControlFlowGraph graph = new ControlFlowGraph(seq);
     debugCurrentCFG.set(graph);
     DotExporter.toDotFile(graph, mt, "cfgConstructed", true);
+
+    DecompilerContext.getCounterContainer().setCounter(CounterContainer.VAR_COUNTER, mt.getLocalVariables());
 
     DeadCodeHelper.removeDeadBlocks(graph);
 
@@ -111,6 +112,24 @@ public class MethodProcessor implements Runnable {
     DeadCodeHelper.connectDummyExitBlock(graph);
 
     DeadCodeHelper.removeGotos(graph);
+
+    DecompileRecord decompileRecord = new DecompileRecord(mt);
+
+    if (spec != null) {
+      PassContext pctx = new PassContext(null, graph, mt, cl, varProc, decompileRecord);
+      spec.cfgPass.run(pctx);
+
+      RootStatement root = spec.graphParser.createStatement(graph, mt);
+
+      pctx.setRoot(root);
+      spec.pass.run(pctx);
+
+      return pctx.getRoot();
+    }
+
+    PassContext pctx = new PassContext(null, graph, mt, cl, varProc, decompileRecord);
+
+    pluginContext.runPasses(JavaPassLocation.CFG_CONSTRUCTION, pctx);
 
     ExceptionDeobfuscator.removeCircularRanges(graph);
 
@@ -135,8 +154,6 @@ public class MethodProcessor implements Runnable {
 
     DeadCodeHelper.mergeBasicBlocks(graph);
 
-    DecompilerContext.getCounterContainer().setCounter(CounterContainer.VAR_COUNTER, mt.getLocalVariables());
-
     if (ExceptionDeobfuscator.hasObfuscatedExceptions(graph)) {
       DotExporter.toDotFile(graph, mt, "cfgExceptionsPre", true);
 
@@ -151,21 +168,11 @@ public class MethodProcessor implements Runnable {
       DotExporter.toDotFile(graph, mt, "cfgMultipleExceptionDummyHandlers", true);
     }
 
-    if (spec != null) {
-      DecompileRecord decompileRecord = new DecompileRecord(mt);
-
-      RootStatement root = spec.graphParser.createStatement(graph, mt);
-
-      PassContext pctx = new PassContext(root, graph, mt, cl, varProc, decompileRecord);
-      spec.pass.run(pctx);
-
-      return root;
-    }
+    pluginContext.runPasses(JavaPassLocation.CFG_PRE_STATEMENT, pctx);
 
     DotExporter.toDotFile(graph, mt, "cfgParsed", true);
     RootStatement root = DomHelper.parseGraph(graph, mt, 0);
 
-    DecompileRecord decompileRecord = new DecompileRecord(mt);
     debugCurrentDecompileRecord.set(decompileRecord);
 
     decompileRecord.add("Initial", root);
@@ -235,7 +242,7 @@ public class MethodProcessor implements Runnable {
       decompileRecord.add("SetVarVersions_PPMM_" + stackVarsProcessed, root);
     } while (new PPandMMHelper(varProc).findPPandMM(root));
 
-    PassContext pctx = new PassContext(root, graph, mt, cl, varProc, decompileRecord);
+    pctx = new PassContext(root, graph, mt, cl, varProc, decompileRecord);
 
     // Inline ppi/mmi that we may have missed
     if (PPandMMHelper.inlinePPIandMMIIf(root)) {
@@ -248,8 +255,14 @@ public class MethodProcessor implements Runnable {
       decompileRecord.add("SimplifyStringConcat", root);
     }
 
+    if (AssertProcessor.buildAssertions(root)) {
+      decompileRecord.add("BuildAsserts", root);
+    }
+
     // Plugin passes to run before the main decompilation loop
     pluginContext.runPasses(JavaPassLocation.BEFORE_MAIN, pctx);
+    root = pctx.getRoot();
+    debugCurrentlyDecompiling.set(root);
 
     // Main loop
     while (true) {
@@ -271,8 +284,9 @@ public class MethodProcessor implements Runnable {
             continue;
           }
 
-          MergeHelper.enhanceLoops(root);
-          decompileRecord.add("EnhanceLoops", root);
+          if (MergeHelper.enhanceLoops(root)) {
+            decompileRecord.add("EnhanceLoops", root);
+          }
 
           if (LoopExtractHelper.extractLoops(root)) {
             decompileRecord.add("ExtractLoops", root);
@@ -281,8 +295,12 @@ public class MethodProcessor implements Runnable {
 
           // Plugin passes to run inside the merge loop
           if (pluginContext.runPasses(JavaPassLocation.IN_LOOP_DECOMP, pctx)) {
+            root = pctx.getRoot();
+            debugCurrentlyDecompiling.set(root);
             continue;
           }
+          root = pctx.getRoot();
+          debugCurrentlyDecompiling.set(root);
 
           if (IfHelper.mergeAllIfs(root)) {
             decompileRecord.add("MergeAllIfs", root);
@@ -319,7 +337,7 @@ public class MethodProcessor implements Runnable {
       if (DecompilerContext.getOption(IFernflowerPreferences.PATTERN_MATCHING)) {
         if (cl.getVersion().hasIfPatternMatching()) {
           if (IfPatternMatchProcessor.matchInstanceof(root)) {
-            decompileRecord.add("MatchIfInstanceof", root);
+            decompileRecord.add("MatchIfPatterns", root);
             continue;
           }
         }
@@ -365,8 +383,12 @@ public class MethodProcessor implements Runnable {
   
       // Apply main loop plugin passes
       if (pluginContext.runPasses(JavaPassLocation.MAIN_LOOP, pctx)) {
+        root = pctx.getRoot();
+        debugCurrentlyDecompiling.set(root);
         continue;
       }
+      root = pctx.getRoot();
+      debugCurrentlyDecompiling.set(root);
 
       // initializer may have at most one return point, so no transformation of method exits permitted
       if (!isInitializer && ExitHelper.condenseExits(root)) {
@@ -430,6 +452,8 @@ public class MethodProcessor implements Runnable {
 
     // Apply plugin passes before setting variable definitions
     pluginContext.runPasses(JavaPassLocation.AFTER_MAIN, pctx);
+    root = pctx.getRoot();
+    debugCurrentlyDecompiling.set(root);
 
     varProc.setVarDefinitions(root);
     decompileRecord.add("SetVarDefinitions", root);
@@ -454,6 +478,8 @@ public class MethodProcessor implements Runnable {
 
     // Apply plugin passes after setting variable definitions
     pluginContext.runPasses(JavaPassLocation.AT_END, pctx);
+    root = pctx.getRoot();
+    debugCurrentlyDecompiling.set(root);
 
     // must be the last invocation, because it makes the statement structure inconsistent
     // FIXME: new edge type needed

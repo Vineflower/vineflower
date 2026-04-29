@@ -38,8 +38,8 @@ public class TestClassTypes {
 
    public void testAssignmentType(List list) {
       List a = list;// 61
-      if (list != null) {// 63
-         (a = new ArrayList(list)).add("23");// 64
+      if (a != null) {// 63
+         (a = new ArrayList(a)).add("23");// 64
       }
 
       System.out.println(a.size());// 67

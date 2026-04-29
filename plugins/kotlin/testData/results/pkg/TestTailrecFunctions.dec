@@ -2,117 +2,99 @@ package pkg
 
 public class TestTailrecFunctions {
    public tailrec fun sum(x: Long, sum: Long): Long {
-      var var5: TestTailrecFunctions = this;// 4
+      var var5: TestTailrecFunctions = this// 4
 
       while (x != 0L) {// 5
-         val var7: Long = x - 1L;
-         val var9: Long = sum + x;
-         var5 = var5;// 6
-         x = var7;
-         sum = var9;
+         val var7: Long = x - 1L
+         val var9: Long = sum + x
+         var5 = var5// 6
+         x = var7
+         sum = var9
       }
 
-      return sum;
+      return sum
    }
 
    public tailrec fun testFinally() {
-      label12: {
-         try {
-            ;
-         } catch (var2: java.lang.Throwable) {
-            this.testFinally();
-         }
-
-         this.testFinally();// 13
+      try {
+         ;
+      } finally {
+         this.testFinally()// 13
       }
-   }
+   }// 14
 
    public tailrec fun testFinallyReturn(): Int {
       try {
          ;
-      } catch (var2: java.lang.Throwable) {
-         return this.testFinallyReturn();
+      } finally {
+         return this.testFinallyReturn()// 21
       }
-
-      return this.testFinallyReturn();// 21
    }
 
    public tailrec fun fooTry() {
       try {
-         this.fooTry();// 27
+         this.fooTry()// 27
       } catch (var2: java.lang.Throwable) {// 29
       }
    }// 31
 
    public tailrec fun testTryCatchFinally() {
-      label31: {
-         label32: {
-            try {
-               try {
-                  this.testTryCatchFinally();// 35
-                  break label32;
-               } catch (var2: Exception) {// 36
-                  this.testTryCatchFinally();// 37
-               }
-            } catch (var3: java.lang.Throwable) {
-               this.testTryCatchFinally();
-            }
-
-            this.testTryCatchFinally();// 39
-            return;// 41
-         }
-
-         this.testTryCatchFinally();
+      try {
+         this.testTryCatchFinally()// 35
+      } catch (var4: Exception) {// 36
+         this.testTryCatchFinally()// 37
+      } finally {
+         this.testTryCatchFinally()// 39
       }
-   }
+   }// 41
 
    public tailrec fun fastPow(x: Long, n: Long, acc: Long = 1L): Long {
-      var var7: TestTailrecFunctions = this;// 43
+      var var7: TestTailrecFunctions = this// 43
 
       while (n != 0L) {// 44
          if (n % 2 == 0L) {// 45
-            val var9: Long = x * x;
-            val var11: Long = n / 2;
-            var7 = var7;
-            x = var9;
-            n = var11;
-            acc = acc;
+            val var9: Long = x * x
+            val var11: Long = n / 2
+            var7 = var7
+            x = var9
+            n = var11
+            acc = acc
          } else {
-            val var15: Long = n - 1L;
-            val var13: Long = acc * x;
-            var7 = var7;// 46
-            x = x;
-            n = var15;
-            acc = var13;
+            val var17: Long = n - 1L
+            val var18: Long = acc * x
+            var7 = var7// 46
+            x = x
+            n = var17
+            acc = var18
          }
       }
 
-      return acc;
+      return acc
    }
 
    public tailrec fun fastPow(x: Long, n: Long): Long {
-      var var5: TestTailrecFunctions = this;// 49
+      var var5: TestTailrecFunctions = this// 49
 
-      var var10000: Long;
+      var var10000: Long
       while (true) {
          if (n == 0L) {// 50
-            var10000 = 1L;
-            break;
+            var10000 = 1L
+            break
          }
 
          if (n % 2 != 0L) {// 51
-            var10000 = x * var5.fastPow(x, n - 1L);// 52
-            break;
+            var10000 = x * var5.fastPow(x, n - 1L)// 52
+            break
          }
 
-         val var7: Long = x * x;
-         val var9: Long = n / 2;
-         var5 = var5;
-         x = var7;
-         n = var9;
+         val var7: Long = x * x
+         val var9: Long = n / 2
+         var5 = var5
+         x = var7
+         n = var9
       }
 
-      return var10000;// 53
+      return var10000// 53
    }
 }
 
@@ -151,199 +133,183 @@ class 'pkg/TestTailrecFunctions' {
    }
 
    method 'testFinally ()V' {
-      1      25
-      2      25
-      3      25
-      4      25
-      9      22
-      a      22
-      b      22
-      c      22
+      5      23
+      9      21
+      a      21
+      b      21
+      c      21
    }
 
    method 'testFinallyReturn ()I' {
-      1      36
-      2      36
-      3      36
-      4      36
-      5      36
-      7      33
-      8      33
-      9      33
-      a      33
-      b      33
+      7      29
+      8      29
+      9      29
+      a      29
+      b      29
    }
 
    method 'fooTry ()V' {
-      1      41
-      2      41
-      3      41
-      4      41
-      5      44
-      6      42
-      7      44
+      1      35
+      2      35
+      3      35
+      4      35
+      5      38
+      6      36
+      7      38
    }
 
    method 'testTryCatchFinally ()V' {
+      1      42
+      2      42
+      3      42
+      4      42
+      c      43
+      d      44
+      e      44
+      f      44
+      10      44
+      19      46
+      1a      46
+      1b      46
+      1c      46
+      1f      48
+   }
+
+   method 'fastPow (JJJ)J' {
+      0      51
       1      51
       2      51
-      3      51
-      4      51
-      5      64
-      6      64
-      7      64
-      8      64
-      c      53
+      3      53
+      4      53
+      5      53
+      7      50
+      9      71
+      a      71
+      b      71
+      c      54
       d      54
       e      54
       f      54
       10      54
-      11      60
-      12      60
-      13      60
-      14      60
-      19      57
-      1a      57
-      1b      57
-      1c      57
-      1f      61
-   }
-
-   method 'fastPow (JJJ)J' {
-      0      69
-      1      69
-      2      69
-      3      71
-      4      71
-      5      71
-      7      68
-      9      89
-      a      89
-      b      89
-      c      72
-      d      72
-      e      72
-      f      72
-      10      72
-      11      72
-      12      72
-      13      72
-      14      72
-      15      75
-      16      75
-      19      73
-      1a      73
-      1b      73
-      1c      73
-      1d      73
-      1e      74
-      1f      74
-      20      74
-      21      74
-      22      74
-      23      74
-      24      78
-      25      78
-      28      75
-      29      75
-      2a      75
-      2b      75
-      2c      76
-      2d      76
-      2e      76
-      2f      77
-      30      77
-      31      77
-      32      78
-      33      78
-      34      78
-      35      78
-      39      82
-      3a      82
-      3d      83
-      40      80
-      41      80
-      42      80
-      43      80
-      44      80
-      45      81
-      46      81
-      47      81
-      48      81
-      49      81
-      4a      81
-      4b      82
-      4c      82
-      4d      82
-      4e      82
-      4f      83
-      50      83
-      51      83
-      52      84
-      53      84
-      54      84
-      55      85
-      56      85
-      57      85
-      58      85
+      11      54
+      12      54
+      13      54
+      14      54
+      15      57
+      16      57
+      19      55
+      1a      55
+      1b      55
+      1c      55
+      1d      55
+      1e      56
+      1f      56
+      20      56
+      21      56
+      22      56
+      23      56
+      24      60
+      25      60
+      28      57
+      29      57
+      2a      57
+      2b      57
+      2c      58
+      2d      58
+      2e      58
+      2f      59
+      30      59
+      31      59
+      32      60
+      33      60
+      34      60
+      35      60
+      39      64
+      3a      64
+      3d      65
+      40      62
+      41      62
+      42      62
+      43      62
+      44      62
+      45      63
+      46      63
+      47      63
+      48      63
+      49      63
+      4a      63
+      4b      64
+      4c      64
+      4d      64
+      4e      64
+      4f      65
+      50      65
+      51      65
+      52      66
+      53      66
+      54      66
+      55      67
+      56      67
+      57      67
+      58      67
    }
 
    method 'fastPow (JJ)J' {
-      0      93
-      1      93
-      2      93
-      3      97
-      4      97
-      5      97
-      6      97
-      7      97
-      8      97
-      9      98
-      a      99
-      d      102
-      e      102
-      f      102
-      10      102
-      11      102
-      12      102
-      13      102
-      14      102
-      15      102
-      16      109
-      17      109
-      1a      107
-      1b      107
-      1c      107
-      1d      107
-      1e      107
-      1f      108
-      20      108
-      21      108
-      22      108
-      23      108
-      24      108
-      25      109
-      26      109
-      27      109
-      28      109
-      29      110
-      2a      110
-      2b      110
-      2c      111
-      2d      111
-      2e      111
-      32      103
-      33      103
-      34      103
-      35      103
-      36      103
-      37      103
-      38      103
-      39      103
-      3a      103
-      3b      103
-      3c      103
-      3d      114
+      0      75
+      1      75
+      2      75
+      3      79
+      4      79
+      5      79
+      6      79
+      7      79
+      8      79
+      9      80
+      a      81
+      d      84
+      e      84
+      f      84
+      10      84
+      11      84
+      12      84
+      13      84
+      14      84
+      15      84
+      16      91
+      17      91
+      1a      89
+      1b      89
+      1c      89
+      1d      89
+      1e      89
+      1f      90
+      20      90
+      21      90
+      22      90
+      23      90
+      24      90
+      25      91
+      26      91
+      27      91
+      28      91
+      29      92
+      2a      92
+      2b      92
+      2c      93
+      2d      93
+      2e      93
+      32      85
+      33      85
+      34      85
+      35      85
+      36      85
+      37      85
+      38      85
+      39      85
+      3a      85
+      3b      85
+      3c      85
+      3d      96
    }
 }
 
@@ -351,28 +317,28 @@ Lines mapping:
 4 <-> 5
 5 <-> 7
 6 <-> 10
-13 <-> 26
-21 <-> 37
-27 <-> 42
-29 <-> 43
-31 <-> 45
-35 <-> 52
-36 <-> 54
-37 <-> 55
-39 <-> 61
-41 <-> 62
-43 <-> 70
-44 <-> 72
-45 <-> 73
-46 <-> 83
-49 <-> 94
-50 <-> 98
-51 <-> 103
-52 <-> 104
-53 <-> 115
+13 <-> 22
+14 <-> 24
+21 <-> 30
+27 <-> 36
+29 <-> 37
+31 <-> 39
+35 <-> 43
+36 <-> 44
+37 <-> 45
+39 <-> 47
+41 <-> 49
+43 <-> 52
+44 <-> 54
+45 <-> 55
+46 <-> 65
+49 <-> 76
+50 <-> 80
+51 <-> 85
+52 <-> 86
+53 <-> 97
 Not mapped:
 10
-14
 15
 18
 26

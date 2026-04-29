@@ -1,0 +1,167 @@
+package pkg
+
+public fun asinh(x: Double): Double {
+   val var10000: Double
+   if (x >= Constants.INSTANCE.getTaylor_n_bound()) {// 21
+      var10000 = if (x > Constants.INSTANCE.getUpper_taylor_n_bound())// 22
+         (
+            if (x > Constants.INSTANCE.getUpper_taylor_2_bound())// 23
+               Math.log(x) + Constants.INSTANCE.getLN2()// 25
+               else
+               Math.log(x * (double)2 + (double)1 / (x * (double)2))// 28
+         )
+         else
+         Math.log(x + Math.sqrt(x * x + (double)1))// 31
+      } else if (x <= -Constants.INSTANCE.getTaylor_n_bound()) {// 33
+      var10000 = -asinh(-x)
+   } else {
+      var result: Double = x// 36
+      if (Math.abs(x) >= Constants.INSTANCE.getTaylor_2_bound()) {// 37
+         result -= x * x * x / 6// 39
+      }
+
+      var10000 = result// 41
+   }
+
+   return var10000// 43
+}
+
+class 'pkg/TestVarReplaceKt' {
+   method 'asinh (D)D' {
+      1      4
+      2      4
+      3      4
+      4      4
+      5      4
+      6      4
+      7      4
+      8      4
+      9      4
+      a      4
+      b      4
+      c      5
+      d      5
+      e      5
+      f      5
+      10      5
+      11      5
+      12      5
+      13      5
+      14      5
+      15      5
+      16      5
+      17      7
+      18      7
+      19      7
+      1a      7
+      1b      7
+      1c      7
+      1d      7
+      1e      7
+      1f      7
+      20      7
+      21      7
+      22      8
+      23      8
+      24      8
+      25      8
+      26      8
+      27      8
+      28      8
+      29      8
+      2a      8
+      2b      8
+      2c      8
+      30      10
+      31      10
+      32      10
+      33      10
+      34      10
+      35      10
+      36      10
+      37      10
+      38      10
+      39      10
+      3a      10
+      3b      10
+      3c      10
+      3d      10
+      3e      10
+      42      13
+      43      13
+      44      13
+      45      13
+      46      13
+      47      13
+      48      13
+      49      13
+      4a      13
+      4b      13
+      4c      13
+      4d      13
+      4e      13
+      4f      13
+      53      14
+      54      14
+      55      14
+      56      14
+      57      14
+      58      14
+      59      14
+      5a      14
+      5b      14
+      5c      14
+      5d      14
+      5e      14
+      5f      15
+      60      15
+      61      15
+      62      15
+      63      15
+      64      15
+      68      17
+      69      17
+      6a      18
+      6b      18
+      6c      18
+      6d      18
+      6e      18
+      6f      18
+      70      18
+      71      18
+      72      18
+      73      18
+      74      18
+      75      18
+      76      18
+      77      18
+      79      19
+      7a      19
+      7b      19
+      7c      19
+      7d      19
+      7e      19
+      7f      19
+      80      19
+      81      19
+      83      19
+      84      22
+      85      25
+   }
+}
+
+Lines mapping:
+21 <-> 5
+22 <-> 6
+23 <-> 8
+25 <-> 9
+28 <-> 11
+31 <-> 14
+33 <-> 15
+36 <-> 18
+37 <-> 19
+39 <-> 20
+41 <-> 23
+43 <-> 26
+Not mapped:
+20

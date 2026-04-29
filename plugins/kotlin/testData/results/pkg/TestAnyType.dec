@@ -3,10 +3,10 @@ package pkg
 public class TestAnyType {
    public fun test(param: Any): Int {
       if (param is java.lang.String) {// 5
-         return (param as java.lang.String).length();// 6
+         return (param as java.lang.String).length()// 6
       } else {
-         System.out.println(param);// 9
-         return 0;// 11
+         System.out.println(param)// 9
+         return 0// 11
       }
    }
 }

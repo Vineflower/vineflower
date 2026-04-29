@@ -1,0 +1,84 @@
+package pkg;
+
+public class TestFinallyVarDef {
+   public void test1() {
+      try {
+         System.out.println("a");// 7
+      } finally {
+         int i = 5;// 9
+      }
+
+      byte var5;
+      System.out.println(var5);// 10 12
+   }
+
+   public void test2() {
+      int i = 2;// 16
+
+      try {
+         System.out.println("a");// 18
+      } finally {
+         int var5 = 5;// 20
+      }
+
+      System.out.println(i);// 21 23
+   }
+}
+
+class 'pkg/TestFinallyVarDef' {
+   method 'test1 ()V' {
+      0      5
+      1      5
+      2      5
+      3      5
+      4      5
+      5      5
+      6      5
+      7      5
+      a      11
+      b      11
+      c      11
+      e      7
+      f      7
+      12      11
+      15      11
+      16      11
+      17      11
+   }
+
+   method 'test2 ()V' {
+      0      15
+      1      15
+      2      18
+      3      18
+      4      18
+      5      18
+      6      18
+      7      18
+      8      18
+      9      18
+      c      23
+      d      23
+      e      23
+      10      20
+      11      20
+      14      23
+      17      23
+      18      23
+      19      23
+   }
+}
+
+Lines mapping:
+7 <-> 6
+9 <-> 8
+10 <-> 12
+12 <-> 12
+16 <-> 16
+18 <-> 19
+20 <-> 21
+21 <-> 24
+23 <-> 24
+Not mapped:
+13
+24

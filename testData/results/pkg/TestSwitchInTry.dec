@@ -9,20 +9,12 @@ public class TestSwitchInTry {
 
       for (String arg : args) {// 14
          try {
-            byte var7 = -1;
-            switch (arg.hashCode()) {// 16
-               case 97:
-                  if (arg.equals("a")) {
-                     var7 = 0;
-                  }
+            switch (arg) {// 16
+               case "a":
+                  ret = "a";// 18
+                  return Arrays.asList(ret);// 24
                default:
-                  switch (var7) {
-                     case 0:
-                        ret = "a";// 18
-                        return Arrays.asList(ret);// 24
-                     default:
-                        return Arrays.asList(ret);
-                  }
+                  return Arrays.asList(ret);
             }
          } catch (Exception var8) {// 21
          }
@@ -45,86 +37,48 @@ class 'pkg/TestSwitchInTry' {
       a      9
       15      9
       16      9
-      17      12
-      18      12
-      1b      11
-      1c      11
-      1d      11
-      1e      12
-      1f      12
-      20      12
-      21      12
-      22      12
-      23      12
-      24      12
-      25      12
-      26      12
-      27      12
-      28      12
-      29      12
-      2a      12
-      2b      12
-      2c      12
-      2d      12
-      2e      12
-      2f      12
-      30      12
-      31      12
-      32      12
-      33      12
-      34      14
-      35      14
-      36      14
-      37      14
-      38      14
-      39      14
-      3a      14
-      3b      14
-      3c      14
-      3d      14
-      3e      15
-      3f      15
-      40      15
-      41      18
-      42      18
-      43      18
-      44      18
-      45      18
-      46      18
-      47      18
-      48      18
-      49      18
-      4a      18
-      4b      18
-      4c      18
-      4d      18
-      4e      18
-      4f      18
-      50      18
-      51      18
-      52      18
-      53      18
-      54      20
-      55      20
-      56      20
-      5a      26
+      17      11
+      18      11
+      36      12
+      37      12
+      43      11
+      44      11
+      45      11
+      46      11
+      47      11
+      48      11
+      49      11
+      4a      11
+      4b      11
+      4c      11
+      4d      11
+      4e      11
+      4f      11
+      50      11
+      51      11
+      52      11
+      53      11
+      54      13
+      55      13
+      56      13
+      5a      18
       5c      9
       5d      9
       5e      9
-      68      21
-      6a      21
-      6b      21
-      6c      21
-      6d      21
+      68      14
+      6a      14
+      6b      14
+      6c      14
+      6d      14
    }
 }
 
 Lines mapping:
 13 <-> 8
 14 <-> 10
-16 <-> 13
-18 <-> 21
-21 <-> 27
-24 <-> 22
+16 <-> 12
+18 <-> 14
+21 <-> 19
+24 <-> 15
 Not mapped:
 20

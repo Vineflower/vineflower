@@ -17,6 +17,10 @@ public class TestTypeAnnotations {
     public TestTypeAnnotations.@Anno Inner.InnerInner ad;
     public TestTypeAnnotations.Inner. @Anno InnerInner ae;
 
+    public Inner(@Anno String s, Object o, @Anno String s2) {
+
+    }
+
     public record InnerRec() {
       public static TestTypeAnnotations.Inner.@Anno InnerRec.A ba;
       public static TestTypeAnnotations.Inner.InnerRec.@Anno A bb;
@@ -135,5 +139,19 @@ public class TestTypeAnnotations {
 
   public void varargs3b(Object @Anno []... args) {
 
+  }
+
+  public enum TestEnum {
+    A("a"),
+    B("b"),
+    C("c");
+
+    TestEnum(@Anno String name) {
+      this(name, name.charAt(0), 0, null);
+    }
+
+    TestEnum(@Anno String name, char c, int i, @Anno Object o) {
+      System.out.println(name + " " + c + i + " " + o);
+    }
   }
 }

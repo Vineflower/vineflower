@@ -1,7 +1,7 @@
 package pkg;
 
 public class TestTextBlocks {
-   private final String text = "Hello!\nThis is a text block!\nIt's multiple lines long.\nI can use \"quotes\" in it.\nIt's rather cool.\n";
+   private final String text = "Hello!\nThis is a text block!\nIt's multiple lines long.\nI can use \"quotes\" in it.\nIt's rather cool.\n";// 4
 
    public void testLocal() {
       String local = "Hello!\nThis is a text block!\nIt's multiple lines long.\nI can use \"quotes\" in it.\nIt's rather cool.\n";// 13
@@ -17,6 +17,11 @@ public class TestTextBlocks {
 }
 
 class 'pkg/TestTextBlocks' {
+   method '<init> ()V' {
+      5      3
+      6      3
+   }
+
    method 'testLocal ()V' {
       0      6
       1      6
@@ -47,9 +52,12 @@ class 'pkg/TestTextBlocks' {
 }
 
 Lines mapping:
+4 <-> 4
 13 <-> 7
 20 <-> 8
 23 <-> 11
 30 <-> 12
 33 <-> 15
 34 <-> 16
+Not mapped:
+3

@@ -8,7 +8,6 @@ import org.jetbrains.java.decompiler.main.extern.IContextSource;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IResultSaver;
 import org.jetbrains.java.decompiler.main.plugins.PluginContext;
-import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericMain;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericMethodDescriptor;
 import org.jetbrains.java.decompiler.util.DataInputFullStream;
@@ -108,11 +107,11 @@ public class StructContext {
   private StructClass tryLoadClass(final ContextUnit unitForClass, final String key) {
     try {
       DecompilerContext.getLogger().writeMessage("Loading Class: " + key + " from " + unitForClass.getName(), IFernflowerLogger.Severity.INFO);
-      final byte[] classBytes = unitForClass.getClassBytes(key);
-      if (classBytes == null) {
+      StructClass clazz = unitForClass.tryLoadClass(key);
+      if (clazz == null) {
         return null;
       }
-      StructClass clazz = StructClass.create(new DataInputFullStream(classBytes), unitForClass.isOwn());
+
       if (!key.equals(clazz.qualifiedName)) {
         // also place the class in the right key if it's wrong
         this.unitsByClassName.put(clazz.qualifiedName, unitForClass);
@@ -149,7 +148,7 @@ public class StructContext {
       .filter(ContextUnit::isOwn)
       .flatMap(unit -> unit.getClassNames().stream())
       .map(name -> Objects.requireNonNull(this.getClass(name), () -> "Could not find class " + name))
-      .collect(Collectors.toUnmodifiableList());
+      .toList();
   }
 
   public void reloadContext() throws IOException {
@@ -276,6 +275,10 @@ public class StructContext {
 
   // return (valclass instanceof reflcass)
   public boolean instanceOf(String valclass, String refclass) {
+    if (refclass == null || valclass == null) {
+      return false;
+    }
+
     if (valclass.equals(refclass)) {
       return true;
     }
@@ -294,11 +297,8 @@ public class StructContext {
       return true;
     }
 
-    int[] interfaces = cl.getInterfaces();
-    for (int i = 0; i < interfaces.length; i++) {
-      String intfc = cl.getPool().getPrimitiveConstant(interfaces[i]).getString();
-
-      if (this.instanceOf(intfc, refclass)) {
+    for (int iface : cl.getInterfaces()) {
+      if (this.instanceOf(cl.getPool().getPrimitiveConstant(iface).getString(), refclass)) {
         return true;
       }
     }
@@ -306,18 +306,34 @@ public class StructContext {
     return false;
   }
 
-  public StructClass getFirstCommonClass(String firstclass, String secondclass) {
-    StructClass fcls = this.getClass(firstclass);
-    StructClass scls = this.getClass(secondclass);
+  // JOIN both classes on the lattice. Find a common ancestor.
+  public @Nullable StructClass findCommonAncestor(String classA, String classB) {
+    StructClass a = this.getClass(classA);
+    StructClass b = this.getClass(classB);
 
-    if (fcls != null && scls != null) {
-      List<StructClass> clsList = scls.getAllSuperClasses();
-      while (fcls != null) {
-        if (clsList.contains(fcls)) {
-          return fcls;
-        }
+    if (a == null || b == null) {
+      return null;
+    }
 
-        fcls = fcls.superClass == null ? null : this.getClass(fcls.superClass.getString());
+    if (instanceOf(classB, classA)) {
+      return a;
+    }
+
+    // Iterate through the superclasses and interfaces to find any that can be assigned.
+    // Don't return if the returned class is Object, otherwise we may miss out on other opportunities to do better
+    // The returned type is essentially arbitrary; extended superclasses are preferred before interfaces.
+
+    if (a.superClass != null) {
+      StructClass cl = findCommonAncestor(a.superClass.getString(), classB);
+      if (cl != null && !cl.qualifiedName.equals("java/lang/Object")) {
+        return cl;
+      }
+    }
+
+    for (int iface : a.getInterfaces()) {
+      StructClass cl = findCommonAncestor(a.getPool().getPrimitiveConstant(iface).getString(), classB);
+      if (cl != null && !cl.qualifiedName.equals("java/lang/Object")) {
+        return cl;
       }
     }
 
@@ -345,6 +361,8 @@ public class StructContext {
   }
 
   public void clear() {
+    this.pluginContext.close();
+
     try {
       this.saver.close();
     } catch (final IOException ex) {
@@ -363,4 +381,7 @@ public class StructContext {
     this.classes.clear();
   }
 
+  public List<ContextUnit> getUnits() {
+    return units;
+  }
 }

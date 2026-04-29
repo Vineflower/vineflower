@@ -1,5 +1,6 @@
 package org.jetbrains.java.decompiler.main.rels;
 
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.struct.StructMethod;
@@ -18,7 +19,7 @@ public final class DecompileRecord {
     this.mt = mt;
   }
 
-  public void add(String name, RootStatement root) {
+  public void add(String name, @Nullable RootStatement root) {
     String exportName = "";
     if (this.mainLoopIteration > 0) {
       exportName += "Loop_" + this.mainLoopIteration + "_";
@@ -31,6 +32,10 @@ public final class DecompileRecord {
     exportName += name;
 
     add(exportName);
+
+    if (root == null) {
+      return;
+    }
 
     DotExporter.toDotFile(root, mt, "debug", exportName);
 

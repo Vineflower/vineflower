@@ -106,9 +106,23 @@ public final class MethodDescriptor {
           }
         }
         if (actualParams != sig.parameterTypes.size()) {
-          String message = "Inconsistent generic signature in method " + struct.getName() + " " + struct.getDescriptor() + " in " + struct.getClassQualifiedName();
+          if (sigFields == null || sigFields.size() != sig.parameterTypes.size()) {
+            //TODO: figure out why scala, guava, and likely other libraries encounter this
+            String message = "Descriptor and signature parameter counts mismatch, assuming ok: " + struct.getClassQualifiedName() + " " + struct.getName() + struct.getDescriptor();
+            DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.WARN);
+            md.addGenericDescriptor(sig);
+            return md;
+          }
+
+          String message = "Descriptor and signature parameter counts mismatch, attempting to correct: " + struct.getClassQualifiedName() + " " + struct.getName() + struct.getDescriptor();
           DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.WARN);
-          sig = null;
+          List<VarType> newVarTypes = new ArrayList<>();
+          for (int i = 0; i < sigFields.size(); i++) {
+            if (sigFields.get(i) == null) {
+              newVarTypes.add(sig.parameterTypes.get(i));
+            }
+          }
+          sig = new GenericMethodDescriptor(sig.typeParameters, sig.typeParameterBounds, newVarTypes, sig.returnType, sig.exceptionTypes);
         }
       }
       md.addGenericDescriptor(sig);

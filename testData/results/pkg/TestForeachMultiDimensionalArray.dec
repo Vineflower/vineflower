@@ -11,7 +11,7 @@ public class TestForeachMultiDimensionalArray {
             case 0:
                try {
                   ElementType vvv8 = ElementType.METHOD;// 12
-               } catch (Exception var10) {// 13
+               } catch (Exception vvv8) {// 13
                } finally {
                   ;
                }

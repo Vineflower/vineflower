@@ -67,7 +67,7 @@ public class DecompilerContext {
     return currentContext.get();
   }
 
-  public static void setCurrentContext(DecompilerContext context) {
+  public static void setCurrentContext(@Nullable DecompilerContext context) {
     if (context == null) {
       currentContext.remove();
     } else {
@@ -94,6 +94,12 @@ public class DecompilerContext {
     DecompilerContext context = getCurrentContext();
     context.varProcessor = varProcessor;
     context.counterContainer = new CounterContainer();
+  }
+
+  public static void resetMethod(MethodWrapper wrapper) {
+    DecompilerContext context = getCurrentContext();
+    context.varProcessor = wrapper.varproc;
+    context.counterContainer = wrapper.counter;
   }
 
   public static void setImportCollector(ImportCollector importCollector) {

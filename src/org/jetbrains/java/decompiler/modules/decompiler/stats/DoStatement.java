@@ -154,9 +154,8 @@ public class DoStatement extends Statement {
   }
 
   @Override
-  public List<Object> getSequentialObjects() {
-
-    List<Object> lst = new ArrayList<>();
+  public List<Exprent> getStatExprents() {
+    List<Exprent> lst = new ArrayList<>();
 
     switch (looptype) {
       case FOR:
@@ -170,8 +169,6 @@ public class DoStatement extends Statement {
         lst.add(getInitExprent());
         lst.add(getIncExprent());
     }
-
-    lst.add(first);
 
     switch (looptype) {
       case DO_WHILE:
@@ -201,12 +198,23 @@ public class DoStatement extends Statement {
   public List<VarExprent> getImplicitlyDefinedVars() {
     List<VarExprent> vars = new ArrayList<>();
 
-    // Impossible in foreach loops, and quit if condition doesn't exist
-    if (looptype == Type.FOR_EACH || getConditionExprent() == null) {
+
+    if (looptype == Type.FOR_EACH) {
+      getPatterns(getIncExprent(), vars);
+      return vars;
+    }
+
+    if (getConditionExprent() == null) {
       return null;
     }
 
-    List<Exprent> conditionList = getConditionExprent().getAllExprents(true, true);
+    getPatterns(getConditionExprent(), vars);
+
+    return vars;
+  }
+
+  private static void getPatterns(Exprent cond, List<VarExprent> vars) {
+    List<Exprent> conditionList = cond.getAllExprents(true, true);
 
     for (Exprent condition : conditionList) {
       if (condition instanceof FunctionExprent func) {
@@ -217,8 +225,6 @@ public class DoStatement extends Statement {
         }
       }
     }
-
-    return vars;
   }
 
   @Override

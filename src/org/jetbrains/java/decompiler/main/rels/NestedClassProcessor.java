@@ -147,6 +147,7 @@ public class NestedClassProcessor {
     VarProcessor enclosingVarProc = enclosingMethod.varproc;
     Set<String> usedBefore = new HashSet<>(enclosingVarProc.getVarNamesCollector().getUsedNames());
     usedBefore.addAll(enclosingVarProc.getVarNames());
+    usedBefore.addAll(enclosingVarProc.clashingNames());
     for (VarVersionPair thisVar : enclosingVarProc.getThisVars().keySet()) {
       usedBefore.remove(enclosingVarProc.getVarName(thisVar));
     }
@@ -666,6 +667,17 @@ public class NestedClassProcessor {
               }
             }
 
+            if (CodeConstants.INIT_NAME.equals(method.methodStruct.getName())
+              && exprent instanceof InvocationExprent inv
+              && inv.isStatic()
+              && inv.getClassname().equals("java/util/Objects")
+              && inv.getName().equals("requireNonNull")
+              && inv.getStringDescriptor().equals("(Ljava/lang/Object;)Ljava/lang/Object;")
+              && inv.getLstParameters().get(0) instanceof VarExprent varExp
+              && mapParamsToNewVars.containsKey(varExp.getIndex())) {
+              return null;
+            }
+
             Exprent ret = replaceExprent(exprent);
 
             return ret == null ? exprent : ret;
@@ -1033,32 +1045,28 @@ public class NestedClassProcessor {
     if (stat.getExprents() == null) {
       int counter = 0;
 
-      for (Object obj : stat.getSequentialObjects()) {
-        if (obj instanceof Statement) {
-          Statement st = (Statement)obj;
+      for (Statement st : stat.getStats()) {
+        Statement stTemp = getDefStatement(st, classType, setStats);
 
-          Statement stTemp = getDefStatement(st, classType, setStats);
-
-          if (stTemp != null) {
-            if (counter == 1) {
-              retStat = stat;
-              break;
-            }
-            retStat = stTemp;
-            counter++;
+        if (stTemp != null) {
+          if (counter == 1) {
+            retStat = stat;
+            break;
           }
-
-          if (st instanceof DoStatement) {
-            DoStatement dost = (DoStatement)st;
-
-            lst.addAll(dost.getInitExprentList());
-            lst.addAll(dost.getConditionExprentList());
-          }
+          retStat = stTemp;
+          counter++;
         }
-        else if (obj instanceof Exprent) {
-          lst.add((Exprent)obj);
+
+        // TODO: is this needed?
+        if (st instanceof DoStatement) {
+          DoStatement dost = (DoStatement)st;
+
+          lst.addAll(dost.getInitExprentList());
+          lst.addAll(dost.getConditionExprentList());
         }
       }
+
+      lst.addAll(stat.getStatExprents());
     }
     else {
       lst = stat.getExprents();

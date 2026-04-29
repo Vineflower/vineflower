@@ -49,6 +49,8 @@ public abstract class SFormsConstructor {
   // set factory
   FastSparseSetFactory<Integer> factory;
 
+  private final Map<VarVersionPair, Integer> readCount = new HashMap<>();
+
 
   private SFormsFastMapDirect currentCatchableMap = null;
 
@@ -74,8 +76,7 @@ public abstract class SFormsConstructor {
     ValidationHelper.validateDGraph(dgraph, root);
     ValidationHelper.validateVars(dgraph, root, var -> var.getVersion() == 0, "Var version is not zero");
 
-    // FIXME: this overrides the previous iteration
-    DotExporter.toDotFile(dgraph, mt, "ssaSplitVariables");
+    // DotExporter.toDotFile(dgraph, mt, "ssaSplitVariables");
 
     List<Integer> setInit = new ArrayList<>();
     for (int i = 0; i < 64; i++) {
@@ -99,7 +100,7 @@ public abstract class SFormsConstructor {
 
   void ssaStatements(DirectGraph dgraph, Set<String> updated, boolean calcLiveVars, StructMethod mt, int iteration) {
 
-    DotExporter.toDotFile(dgraph, mt, "ssaStatements_" + iteration, this.outVarVersions);
+    // DotExporter.toDotFile(dgraph, mt, "ssaStatements_" + iteration, this.outVarVersions);
 
     for (DirectNode node : dgraph.nodes) {
 
@@ -171,6 +172,8 @@ public abstract class SFormsConstructor {
         this.varReadMultipleVersions(stat, calcLiveVars, varExprent, varmap, versions);
         break;
     }
+
+    readCount.compute(varExprent.getVarVersionPair(), (k, v) -> v == null ? 1 : v + 1);
   }
 
   abstract void varReadSingleVersion(
@@ -497,6 +500,10 @@ public abstract class SFormsConstructor {
 
   protected int getNextFreeVersion(int var, Statement stat) {
     return this.lastversion.compute(var, (k, v) -> v == null ? 1 : v + 1);
+  }
+
+  public int getReadCount(VarVersionPair var) {
+    return readCount.getOrDefault(var, 0);
   }
   
   public DirectGraph getDirectGraph() {

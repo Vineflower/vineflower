@@ -3,6 +3,7 @@ package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.code.CodeConstants;
+import org.jetbrains.java.decompiler.main.ClassWriter;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
@@ -25,7 +26,6 @@ import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.TypeFamily;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
-import org.jetbrains.java.decompiler.struct.gen.generics.GenericMethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.struct.match.MatchEngine;
 import org.jetbrains.java.decompiler.struct.match.MatchNode;
@@ -35,6 +35,7 @@ import org.jetbrains.java.decompiler.util.collections.NullableConcurrentHashMap;
 
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -285,7 +286,7 @@ public class InvocationExprent extends Exprent {
           // Don't capture as a real upper bound unless the upperbound is an object or a likewise generic.
           // FunctionExprent needs to inform its children about the type that it has, so it'll cause conflict here.
           if (r.type == CodeType.GENVAR && (upperBound.typeFamily == TypeFamily.OBJECT || upperBound.isGeneric())) {
-            upperBoundsMap.put(r.resizeArrayDim(0), upperBound.resizeArrayDim(upperBound.arrayDim - r.arrayDim));
+            upperBoundsMap.put(r.resizeArrayDim(0), upperBound.resizeArrayDim(Math.max(upperBound.arrayDim - r.arrayDim, 0)));
           }
           else {
             gatherGenerics(ub, r, tempMap);
@@ -653,8 +654,8 @@ public class InvocationExprent extends Exprent {
     CheckTypesResult result = new CheckTypesResult();
 
     if (instance != null) {
-      result.addMinTypeExprent(instance, VarType.getMinTypeInFamily(instance.getExprType().typeFamily));
-      result.addMaxTypeExprent(instance, instance.getExprType());
+      result.addExprLowerBound(instance, VarType.findFamilyBottom(instance.getExprType().typeFamily));
+      result.addExprUpperBound(instance, instance.getExprType());
     }
 
     for (int i = 0; i < lstParameters.size(); i++) {
@@ -662,8 +663,8 @@ public class InvocationExprent extends Exprent {
 
       VarType leftType = descriptor.params[i];
 
-      result.addMinTypeExprent(parameter, VarType.getMinTypeInFamily(leftType.typeFamily));
-      result.addMaxTypeExprent(parameter, leftType);
+      result.addExprLowerBound(parameter, VarType.findFamilyBottom(leftType.typeFamily));
+      result.addExprUpperBound(parameter, leftType);
     }
 
     return result;
@@ -852,9 +853,15 @@ public class InvocationExprent extends Exprent {
 
         buf.addBytecodeMapping(bytecode);
 
+        String validName = ClassWriter.toValidJavaIdentifier(name);
+
         if (invocationType == InvocationType.DYNAMIC || invocationType == InvocationType.CONSTANT_DYNAMIC) {
           if (bootstrapMethod == null) {
-            buf.append("<").appendMethod(name, false, classname, name, descriptor);
+            buf.append("<").appendMethod(validName, false, classname, name, descriptor);
+            if (!validName.equals(name)) {
+              buf.append("/* $VF was: ").append(name).append(" */");
+            }
+
             if (invocationType == InvocationType.DYNAMIC) {
               buf.append(">invokedynamic");
             } else {
@@ -862,7 +869,14 @@ public class InvocationExprent extends Exprent {
             }
           } else {
             buf.append(bootstrapMethod.elementname);
-            buf.append("<\"").appendMethod(name, false, classname, name, descriptor).append('"');
+            buf.append("<\"");
+            buf.appendMethod(validName, false, classname, name, descriptor);
+
+            if (!validName.equals(name)) {
+              buf.append("/* $VF was: ").append(name).append(" */");
+            }
+
+            buf.append('"');
             for (PooledConstant arg : bootstrapArguments) {
               buf.append(',');
               appendBootstrapArgument(buf, arg);
@@ -870,7 +884,10 @@ public class InvocationExprent extends Exprent {
             buf.append('>');
           }
         } else {
-          buf.appendMethod(name, false, classname, name, descriptor);
+          buf.appendMethod(validName, false, classname, name, descriptor);
+          if (!validName.equals(name)) {
+            buf.append("/* $VF was: ").append(name).append(" */");
+          }
         }
 
         buf.append("(");
@@ -943,10 +960,16 @@ public class InvocationExprent extends Exprent {
       } else {
         buf.append(stringValue);
       }
-    } else if (arg instanceof LinkConstant) {
-      // TODO: errors trying to print condy as const arg
-      VarType cls = new VarType(((LinkConstant) arg).classname);
-      buf.appendCastTypeName(cls).append("::").append(((LinkConstant) arg).elementname);
+    } else if (arg instanceof LinkConstant link) {
+      if (link.classname != null) {
+        buf.appendCastTypeName(new VarType(link.classname))
+          .append("::")
+          .append(link.elementname);
+      } else if (link.descriptor != null) {
+        buf.append("/* VF: Constant Dynamic */ (").appendCastTypeName(new VarType(link.descriptor))
+          .append(") ")
+          .append(link.elementname);
+      }
     }
   }
 
@@ -961,14 +984,17 @@ public class InvocationExprent extends Exprent {
       }
     }
     ClassNode currCls = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
-    List<StructMethod> matches = getMatchedDescriptors();
+    List<StructMethod> matches = getMatchedDescriptors(false);
+    boolean ambiguousVararg = isVarargsAmbiguous(getMatchedDescriptors(true));
     BitSet setAmbiguousParameters = getAmbiguousParameters(matches);
 
     // omit 'new Type[] {}' for the last parameter of a vararg method call
     if (lstParameters.size() == descriptor.params.length && isVarArgCall() && !lstParameters.isEmpty()) {
       Exprent lastParam = lstParameters.get(lstParameters.size() - 1);
-      if (lastParam instanceof NewExprent && lastParam.getExprType().arrayDim >= 1) {
-        ((NewExprent) lastParam).setVarArgParam(true);
+      if (lastParam instanceof NewExprent lastNew && lastParam.getExprType().arrayDim >= 1) {
+        if (!ambiguousVararg || lastNew.getLstArrayElements().size() != 1) {
+          lastNew.setVarArgParam(true);
+        }
       }
     }
 
@@ -997,7 +1023,7 @@ public class InvocationExprent extends Exprent {
           int count = 0;
           StructClass stClass = DecompilerContext.getStructContext().getClass(classname);
           if (stClass != null) {
-            List<StructMethod> customMatchedDescriptors = getMatchedDescriptors((md) -> {
+            List<StructMethod> customMatchedDescriptors = getMatchedDescriptors(false, (mt, md) -> {
               if (md.params.length == descriptor.params.length) {
                 for (int x = 0; x < md.params.length; x++) {
                   if (md.params[x].typeFamily != descriptor.params[x].typeFamily &&
@@ -1116,34 +1142,6 @@ public class InvocationExprent extends Exprent {
       if (mask == null || mask.get(i) == null) {
         TextBuffer buff = new TextBuffer();
         boolean ambiguous = setAmbiguousParameters.get(i);
-        /*
-        VarType type = descriptor.params[i];
-
-        // using info from the generic signature
-        if (desc != null && desc.getSignature() != null && desc.getSignature().params.size() == lstParameters.size()) {
-          type = desc.getSignature().params.get(i);
-        }
-
-        // applying generic info from the signature
-        VarType remappedType = type.remap(genArgs);
-        if(type != remappedType) {
-          type = remappedType;
-        }
-        else if (desc != null && desc.getSignature() != null && genericArgs.size() != 0) { // and from the inferred generic arguments
-          Map<VarType, VarType> genMap = new HashMap<VarType, VarType>();
-          for (int j = 0; j < genericArgs.size(); j++) {
-            VarType from = GenericType.parse("T" + desc.getSignature().fparameters.get(j) + ";");
-            VarType to = genericArgs.get(j);
-            genMap.put(from, to);
-          }
-        }
-
-        // not passing it along if what we get back is more specific
-        VarType exprType = lstParameters.get(i).getInferredExprType(type);
-        if (exprType != null && type != null && type.type == CodeType.GENVAR) {
-          //type = exprType;
-        }
-        */
 
         if (i == parameters.size() - 1 && lstParameters.get(i).getExprType() == VarType.VARTYPE_NULL && NewExprent.probablySyntheticParameter(descriptor.params[i].value)) {
           break;  // skip last parameter of synthetic constructor call
@@ -1288,14 +1286,16 @@ public class InvocationExprent extends Exprent {
     return boxing.forceUnboxing;
   }
 
-  private List<StructMethod> getMatchedDescriptors() {
-    return getMatchedDescriptors(null);
+  private List<StructMethod> getMatchedDescriptors(boolean varargs) {
+    return getMatchedDescriptors(varargs, null);
   }
-  private List<StructMethod> getMatchedDescriptors(@Nullable Predicate<MethodDescriptor> customParamMatcher) {
+
+  private List<StructMethod> getMatchedDescriptors(boolean varargs, @Nullable BiFunction<StructMethod, MethodDescriptor, Boolean> customParamMatcher) {
     List<StructMethod> matches = new ArrayList<>();
     ClassNode currCls = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
     StructClass cl = DecompilerContext.getStructContext().getClass(classname);
     if (cl == null) return matches;
+    StructMethod currentMethod = cl.getMethod(InterpreterUtil.makeUniqueKey(name, stringDescriptor));
 
     Set<String> visited = new HashSet<>();
     Queue<StructClass> que = new ArrayDeque<>();
@@ -1311,9 +1311,13 @@ public class InvocationExprent extends Exprent {
           MethodDescriptor md = MethodDescriptor.parseDescriptor(mt.getDescriptor());
           boolean matchedParams;
           if (customParamMatcher == null) {
-            matchedParams = matches(md.params, descriptor.params);
+            if (varargs) {
+              matchedParams = matchesVarargs(md.params, descriptor.params, mt, currentMethod);
+            } else {
+              matchedParams = matches(md.params, descriptor.params);
+            }
           } else {
-            matchedParams = customParamMatcher.test(md);
+            matchedParams = customParamMatcher.apply(mt, md);
           }
           if (matchedParams && (currCls == null || canAccess(currCls.classStruct, mt))) {
             matches.add(mt);
@@ -1356,8 +1360,39 @@ public class InvocationExprent extends Exprent {
           return false;
         }
 
-        if (left[i].arrayDim != right[i].arrayDim) {
+        if (i >= lstParameters.size() || lstParameters.get(i).getExprType().type != CodeType.NULL) {
+          if (left[i].arrayDim != right[i].arrayDim) {
+            return false;
+          }
+        }
+      }
+      return true;
+    }
+    return false;
+  }
+
+  private boolean matchesVarargs(VarType[] left, VarType[] right, StructMethod leftMethod, StructMethod rightMethod) {
+    if (left.length == right.length) {
+      for (int i = 0; i < left.length; i++) {
+        TypeFamily leftFamily = left[i].typeFamily;
+        TypeFamily rightFamily = right[i].typeFamily;
+        if (leftFamily != rightFamily && !(leftFamily.isNumeric() && rightFamily.isNumeric())) {
           return false;
+        }
+
+        VarType leftType = left[i];
+        if (leftMethod.hasModifier(CodeConstants.ACC_VARARGS) && i == left.length - 1) {
+          leftType = leftType.decreaseArrayDim();
+        }
+        VarType rightType = right[i];
+        if (rightMethod != null && rightMethod.hasModifier(CodeConstants.ACC_VARARGS) && i == right.length - 1) {
+          rightType = rightType.decreaseArrayDim();
+        }
+
+        if (i >= lstParameters.size() || lstParameters.get(i).getExprType().type != CodeType.NULL) {
+          if (leftType.arrayDim != rightType.arrayDim) {
+            return false;
+          }
         }
       }
       return true;
@@ -1397,6 +1432,35 @@ public class InvocationExprent extends Exprent {
     return pkg1.equals(pkg2);
   }
 
+  private boolean isVarargsAmbiguous(List<StructMethod> matches) {
+    Set<StructMethod> varargs = matches.stream().filter(mt -> mt.hasModifier(CodeConstants.ACC_VARARGS))
+      .collect(Collectors.toSet());
+
+    // Check for:
+    // method(type t)
+    // method(type... t) // overload
+
+    for (StructMethod match : matches) {
+      for (StructMethod vararg : varargs) {
+        if (match == vararg) {
+          continue;
+        }
+
+        MethodDescriptor md1 = match.methodDescriptor();
+        MethodDescriptor md2 = vararg.methodDescriptor();
+        if (md1.params.length != md2.params.length) {
+          // Should be impossible, but always be sure
+          continue;
+        }
+
+        if (md1.params[md1.params.length - 1].equals(md2.params[md2.params.length - 1].decreaseArrayDim())) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   private BitSet getAmbiguousParameters(List<StructMethod> matches) {
     StructClass cl = DecompilerContext.getStructContext().getClass(classname);
     if (cl == null || matches.size() == 1) {
@@ -1412,130 +1476,84 @@ public class InvocationExprent extends Exprent {
       return missed;
     }
 
-    // check if a call is unambiguous
-    StructMethod mt = cl.getMethod(InterpreterUtil.makeUniqueKey(name, stringDescriptor));
-    if (mt != null) {
-      MethodDescriptor md = MethodDescriptor.parseDescriptor(mt.getDescriptor());
-      if (md.params.length == lstParameters.size()) {
-        boolean exact = true;
-        for (int i = 0; i < md.params.length; i++) {
-          Exprent exp = lstParameters.get(i);
-          if (exp instanceof FunctionExprent && ((FunctionExprent) exp).getSimpleCastType() != null) {
-            ((FunctionExprent) exp).setNeedsCast(true);
-          }
+    StructMethod currentMethod = cl.getMethod(InterpreterUtil.makeUniqueKey(name, stringDescriptor));
 
-          if (i == md.params.length - 1 && mt.hasModifier(CodeConstants.ACC_VARARGS)) {
-            if (exp instanceof NewExprent newE && newE.getExprType().arrayDim > 0) {
-              for (Exprent entry : newE.getLstArrayElements()) {
-                if (entry instanceof FunctionExprent func && func.getSimpleCastType() != null) {
-                  func.setNeedsCast(true);
-                }
-              }
-            }
-          }
+    Set<StructMethod> possible = new HashSet<>();
+    Set<StructMethod> exacts = new HashSet<>();
 
-          // Check if the current parameters and method descriptor are of the same type, or if the descriptor's type is a superset of the parameter's type.
-          // This check ensures that parameters that can be safely passed don't have an unneeded cast on them, such as System.out.println((int)5);.
-          // TODO: The root cause of the above issue seems to be threading related- When debugging line by line it doesn't cast, but when running normally it does. More digging needs to be done to figure out why this happens.
-          if ((!(md.params[i].equals(exp.getExprType()) || isSuperset(md, i, exp))) || (exp instanceof NewExprent && ((NewExprent) exp).isLambda() && !((NewExprent) exp).isMethodReference())) {
-            exact = false;
-            missed.set(i);
-          }
-        }
-        if (exact) return EMPTY_BIT_SET;
-      }
-    }
-
-    List<StructMethod> mtds = new ArrayList<>();
-    for (StructMethod mtt : matches) {
-      boolean failed = false;
-      MethodDescriptor md = MethodDescriptor.parseDescriptor(mtt.getDescriptor());
-      for (int i = 0; i < lstParameters.size(); i++) {
-        Exprent exp = lstParameters.get(i);
-        VarType ptype = exp.getExprType();
-        if (!missed.get(i)) {
-          if (!md.params[i].equals(ptype)) {
-            failed = true;
-            break;
-          }
-        }
-        else {
-          if (exp instanceof NewExprent) {
-            NewExprent newExp = (NewExprent)exp;
-            if (newExp.isLambda() && !newExp.isMethodReference() && !DecompilerContext.getStructContext().instanceOf(md.params[i].value, exp.getExprType().value)) {
-              StructClass pcls = DecompilerContext.getStructContext().getClass(md.params[i].value);
-              if (pcls != null && pcls.getMethod(newExp.getLambdaMethodKey()) == null) {
-                failed = true;
-                break;
-              }
-              continue;
-            }
-          }
-          if (md.params[i].type == CodeType.OBJECT) {
-            if (ptype.type != CodeType.NULL) {
-              if (!DecompilerContext.getStructContext().instanceOf(ptype.value, md.params[i].value)) {
-                failed = true;
-                break;
-              }
-            }
-          }
-        }
-      }
-      if (!failed) {
-        mtds.add(mtt);
-      }
-    }
-    //TODO: This still causes issues in the case of:
-    //add(Object)
-    //add(Object...)
-    //Try and detect varargs/array?
-
-    // mark parameters
     BitSet ambiguous = new BitSet(descriptor.params.length);
-    for (int i = 0; i < descriptor.params.length; i++) {
-      VarType paramType = descriptor.params[i];
-      for (StructMethod mtt : mtds) {
+    for (StructMethod mt : matches) {
+      MethodDescriptor md = mt.methodDescriptor();
 
-        GenericMethodDescriptor gen = mtt.getSignature(); //TODO: Find synthetic flags for params, as Enum generic signatures do no contain the String,int params
-        if (gen != null && gen.parameterTypes.size() > i && gen.parameterTypes.get(i).isGeneric()) {
-          Exprent exp = lstParameters.get(i);
-          if (!(exp instanceof NewExprent) || !((NewExprent)exp).isLambda() || ((NewExprent)exp).isMethodReference()) {
-            break;
+      boolean exact = true;
+      for (int i = 0; i < md.params.length; i++) {
+        Exprent exp = lstParameters.get(i);
+
+        // Peek through non-casting types
+        if (exp instanceof FunctionExprent f && !f.doesCast()) {
+          exp = f.getLstOperands().get(0);
+        }
+
+        VarType type = exp.getExprType();
+
+        exact &= md.params[i].equals(type) || type.type == CodeType.NULL;
+
+        if (md.params[i].higherCrossFamilyThan(type, true)) {
+          possible.add(mt);
+        }
+      }
+
+      if (exact) {
+        // What method would we call if we were unambiguous?
+        exacts.add(mt);
+      }
+    }
+
+    if (possible.size() == 1) {
+      return EMPTY_BIT_SET;
+    }
+
+    if (exacts.isEmpty()) {
+      return EMPTY_BIT_SET;
+    } else if (exacts.size() == 1) {
+      StructMethod exact = exacts.iterator().next();
+
+      // Exact method is our own? No need to check ambiguity, we have our match!
+      if (exact == currentMethod) {
+        return EMPTY_BIT_SET;
+      }
+    }
+
+    // Now check for ambiguity
+    MethodDescriptor md = currentMethod == null ? MethodDescriptor.parseDescriptor(stringDescriptor) : currentMethod.methodDescriptor();
+    for (StructMethod p : possible) {
+      for (int i = 0; i < md.params.length; i++) {
+        Exprent exp = lstParameters.get(i);
+
+        // Poke through non-casting types
+        if (exp instanceof FunctionExprent f && !f.doesCast()) {
+          exp = f.getLstOperands().get(0);
+        }
+
+        VarType type = exp.getExprType();
+
+        MethodDescriptor pmd = p.methodDescriptor();
+        // Only consider non-equivalent types
+        if (!md.params[i].equals(pmd.params[i])) {
+          // If our desired method is higher in the lattice than
+
+          if (md.params[i].higherCrossFamilyThan(pmd.params[i], false)) {
+            ambiguous.set(i);
+          } else if (type.equals(pmd.params[i])) {
+            ambiguous.set(i);
+          } else if (type.type == CodeType.NULL) {
+            ambiguous.set(i);
           }
         }
-
-        MethodDescriptor md = MethodDescriptor.parseDescriptor(mtt.getDescriptor());
-        if (!paramType.equals(md.params[i])) {
-          ambiguous.set(i);
-          break;
-        }
       }
     }
+
     return ambiguous;
-  }
-
-  private boolean isSuperset(MethodDescriptor md, int i, Exprent exp) {
-    if (shouldBeAmbiguous(md.params[i], exp)) {
-      return false;
-    }
-
-    return md.params[i].isSuperset(exp.getExprType());
-  }
-
-  // Trying to coerce byte->int can cause ambiguity issues, consider it as ambigous and not a superset
-  // See also: TestVarIndex
-  private boolean shouldBeAmbiguous(VarType param, Exprent exp) {
-    if (exp instanceof VarExprent) {
-      if (exp.getExprType().typeFamily == TypeFamily.INTEGER && param.typeFamily == TypeFamily.INTEGER) {
-        return !param.equals(exp.getExprType());
-      }
-
-      if (param.equals(VarType.VARTYPE_OBJECT) && param.arrayDim == 0 && exp.getExprType().typeFamily == TypeFamily.OBJECT) {
-        return true;
-      }
-    }
-
-    return false;
   }
 
   private boolean processGenericMapping(VarType from, VarType to, Map<VarType, List<VarType>> named, Map<VarType, List<VarType>> bounds) {
@@ -1597,6 +1615,7 @@ public class InvocationExprent extends Exprent {
         };
         VarType mapped = map.apply(bound);
 
+        Map<VarType, VarType> seen = new HashMap<>();
         if (mapped != null && !mapped.equals(bound)) {
           VarType last = bound;
           while (bound != null) {
@@ -1606,6 +1625,12 @@ public class InvocationExprent extends Exprent {
             // TODO: fixes potential infinite loop, is this valid?
             if (last.equals(bound)) {
               break;
+            }
+            if (seen.containsKey(last) && seen.get(last).equals(bound)) {
+              // Not making any progress?
+              break;
+            } else {
+              seen.put(last, bound);
             }
           }
           bound = last;

@@ -52,6 +52,7 @@ public abstract class Exprent implements IMatchable {
     OTHER
   }
 
+  @Deprecated
   protected static ThreadLocal<Map<String, VarType>> inferredLambdaTypes = ThreadLocal.withInitial(HashMap::new);
 
   public final Type type;
@@ -291,8 +292,7 @@ public abstract class Exprent implements IMatchable {
           ret.put(GenericType.parse("T" + mtd.typeParameters.get(x) + ";"), mtd.typeParameterBounds.get(x));
         }
       }
-
-      if (class_ == null || class_.parent == null) {
+      if (class_ == null || class_.parent == null || class_.parent.getWrapper() == null) {
         break;
       }
       method = class_.enclosingMethod == null ? null : class_.parent.getWrapper().getMethods().getWithKey(class_.enclosingMethod);
@@ -364,6 +364,8 @@ public abstract class Exprent implements IMatchable {
 
   @Override
   public String toString() {
-    return toJava(0).convertToStringAndAllowDataDiscard();
+    try (var v = DecompilerContext.getImportCollector().lock()) {
+      return toJava(0).convertToStringAndAllowDataDiscard();
+    }
   }
 }

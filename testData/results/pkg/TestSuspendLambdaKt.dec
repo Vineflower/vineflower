@@ -48,7 +48,7 @@ public final class TestSuspendLambdaKt {
 
          public final Object invokeSuspend(Object $result) {
             IntrinsicsKt.getCOROUTINE_SUSPENDED();
-            switch (this.label) {
+            switch (this.label) {// 3
                case 0:
                   ResultKt.throwOnFailure($result);
                   System.out.println("SL1");// 4
@@ -67,19 +67,23 @@ public final class TestSuspendLambdaKt {
          }
       }
 
-   }// 3
+   }
 }
 
 class 'pkg/TestSuspendLambdaKt' {
+   method '<clinit> ()V' {
+      4      31
+      8      31
+      9      31
+      a      31
+      e      69
+   }
+
    method 'getSl1 ()Lkotlin/jvm/functions/Function1;' {
       0      35
       1      35
       2      35
       3      35
-   }
-
-   method '<clinit> ()V' {
-      e      69
    }
 }
 
@@ -170,6 +174,6 @@ class 'pkg/TestSuspendLambdaKt$sl1$1' {
 }
 
 Lines mapping:
-3 <-> 70
+3 <-> 51
 4 <-> 54
 5 <-> 55

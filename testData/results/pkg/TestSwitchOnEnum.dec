@@ -35,12 +35,12 @@ public class TestSwitchOnEnum {
          }
       }// 46
 
-      static enum A {
+      enum A {
          A1,
          A2;
       }
 
-      static enum B {
+      enum B {
          B1,
          B2;
       }
