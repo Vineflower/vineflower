@@ -831,6 +831,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_17, "TestStringSwitchTypes");
 
     register(JAVA_16, "TestSwitchExpressionIfBlocks");
+
+    register(JAVA_16, "TestSwitchExpressionMultiple");
   }
 
   private void registerEntireClassPath() {
