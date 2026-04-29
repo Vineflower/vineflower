@@ -6,7 +6,7 @@ import java.util.Scanner;
 
 public class TestLoopFinally {
    public void test() {
-      for (int i = 0; i < 10; i++) {// 9 20
+      for (int i = 0; i < 10; i++) {// 9
          try {
             System.out.println(i);// 11
          } finally {
@@ -310,9 +310,6 @@ class 'pkg/TestLoopFinally' {
       c      10
       d      10
       e      10
-      27      8
-      28      8
-      29      8
       2b      12
       2c      12
       2d      12
@@ -334,6 +331,9 @@ class 'pkg/TestLoopFinally' {
       40      17
       41      17
       42      17
+      45      8
+      46      8
+      47      8
       4b      21
       4c      21
       4d      21
@@ -469,7 +469,7 @@ class 'pkg/TestLoopFinally' {
       3      66
       4      66
       5      67
-      6      67
+      10      67
       11      70
       12      70
       13      70
@@ -485,7 +485,7 @@ class 'pkg/TestLoopFinally' {
       1d      71
       1e      71
       1f      72
-      20      72
+      2a      72
       2b      75
       2c      75
       2d      75
@@ -501,7 +501,7 @@ class 'pkg/TestLoopFinally' {
       37      76
       38      76
       39      77
-      3a      77
+      44      77
       4e      80
       4f      80
       50      80
@@ -532,7 +532,7 @@ class 'pkg/TestLoopFinally' {
       4      93
       5      93
       6      94
-      7      94
+      11      94
       1b      97
       1c      97
       1d      97
@@ -872,7 +872,6 @@ Lines mapping:
 13 <-> 13
 15 <-> 14
 19 <-> 18
-20 <-> 9
 23 <-> 22
 24 <-> 23
 27 <-> 26
@@ -973,6 +972,7 @@ Lines mapping:
 289 <-> 293
 Not mapped:
 16
+20
 42
 56
 85

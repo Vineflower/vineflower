@@ -187,7 +187,7 @@ class 'pkg/TestTryWithResourcesNestedLoop' {
       ba      29
       c0      30
       c1      30
-      c5      30
+      132      30
       212      35
       213      35
    }

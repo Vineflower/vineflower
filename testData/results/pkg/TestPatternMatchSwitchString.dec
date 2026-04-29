@@ -10,7 +10,7 @@ public class TestPatternMatchSwitchString {
          case "c":
          case "d":
             this.field = s;// 8
-            return;
+            return;// 11
          case null:
          default:
             throw new RuntimeException("illegal");// 9
@@ -75,10 +75,10 @@ class 'pkg/TestPatternMatchSwitchString' {
       2e      11
       2f      11
       30      11
-      31      12
       38      15
       39      15
       3d      15
+      3e      12
    }
 
    method 'test1 (Ljava/lang/String;)V' {
@@ -149,10 +149,9 @@ Lines mapping:
 7 <-> 7
 8 <-> 12
 9 <-> 16
+11 <-> 13
 14 <-> 21
 15 <-> 24
 16 <-> 28
 17 <-> 32
 19 <-> 34
-Not mapped:
-11

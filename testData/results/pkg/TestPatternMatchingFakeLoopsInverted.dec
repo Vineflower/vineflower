@@ -13,7 +13,7 @@ public class TestPatternMatchingFakeLoopsInverted {
          String s = (String)o;// 13
          System.out.println(s);// 14
       }
-   }
+   }// 16
 
    void test3(Object o) {
       while (o.hashCode() >= 0 && !(o instanceof String)) {// 19
@@ -137,9 +137,9 @@ public class TestPatternMatchingFakeLoopsInverted {
          System.out.println(s);// 132
       }
 
-      String var5 = (String)o;// 134
-      System.out.println(var5.hashCode() + var5.length());// 135
-   }
+      String u = (String)o;// 134
+      System.out.println(u.hashCode() + u.length());// 135
+   }// 136
 
    void test3A(Object o) {
       while (o.hashCode() >= 0 && !(o instanceof String)) {// 139
@@ -249,7 +249,6 @@ class 'pkg/TestPatternMatchingFakeLoopsInverted' {
       7      11
       8      11
       d      11
-      e      15
       11      12
       12      12
       13      12
@@ -262,6 +261,7 @@ class 'pkg/TestPatternMatchingFakeLoopsInverted' {
       1a      13
       1b      13
       1c      13
+      20      15
    }
 
    method 'test3 (Ljava/lang/Object;)V' {
@@ -789,7 +789,6 @@ class 'pkg/TestPatternMatchingFakeLoopsInverted' {
       7      134
       8      134
       d      134
-      e      139
       11      135
       12      135
       13      135
@@ -805,18 +804,24 @@ class 'pkg/TestPatternMatchingFakeLoopsInverted' {
       20      139
       21      139
       22      139
-      24      140
+      23      139
+      24      139
       25      140
       26      140
+      27      140
       28      140
       29      140
       2a      140
+      2b      140
       2c      140
       2d      140
       2e      140
+      2f      140
       30      140
       31      140
       32      140
+      33      140
+      34      141
    }
 
    method 'test3A (Ljava/lang/Object;)V' {
@@ -1185,6 +1190,7 @@ Lines mapping:
 12 <-> 12
 13 <-> 13
 14 <-> 14
+16 <-> 16
 19 <-> 19
 20 <-> 20
 21 <-> 21
@@ -1255,6 +1261,7 @@ Lines mapping:
 132 <-> 137
 134 <-> 140
 135 <-> 141
+136 <-> 142
 139 <-> 145
 140 <-> 146
 141 <-> 147
@@ -1300,7 +1307,6 @@ Lines mapping:
 Not mapped:
 8
 15
-16
 22
 29
 38
@@ -1315,7 +1321,6 @@ Not mapped:
 106
 124
 133
-136
 142
 152
 162
