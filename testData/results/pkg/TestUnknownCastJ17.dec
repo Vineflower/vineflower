@@ -33,7 +33,7 @@ public class TestUnknownCastJ17 {
                   System.out.println(vvv1);// 18
                }
 
-               yield 140;// 19
+               yield 140;
             }
          }; --var19 <= 395; var19 -= 6) {// 20
             int vvv6 = -91;// 21
@@ -128,9 +128,6 @@ class 'pkg/TestUnknownCastJ17' {
       5d      27
       5e      27
       5f      27
-      67      35
-      68      35
-      69      35
       6c      32
       6d      32
       6e      32
@@ -138,6 +135,9 @@ class 'pkg/TestUnknownCastJ17' {
       70      32
       71      32
       72      32
+      76      35
+      77      35
+      78      35
       7a      37
       7b      37
       7c      37
@@ -253,7 +253,6 @@ Lines mapping:
 16 <-> 20
 17 <-> 31
 18 <-> 33
-19 <-> 36
 20 <-> 38
 21 <-> 39
 22 <-> 40
@@ -274,5 +273,6 @@ Lines mapping:
 52 <-> 70
 54 <-> 72
 Not mapped:
+19
 26
 49

@@ -104,7 +104,7 @@ public class TestTryWithResourcesOuterJ16 {
       ) {
          scanner.next();// 98
       }
-   }// 100
+   }// 101
 
    private Scanner create(File file) throws FileNotFoundException {
       return new Scanner(file);// 104
@@ -250,7 +250,7 @@ class 'pkg/TestTryWithResourcesOuterJ16' {
       c      104
       d      104
       e      104
-      38      106
+      4d      106
    }
 
    method 'create (Ljava/io/File;)Ljava/util/Scanner;' {
@@ -308,7 +308,7 @@ Lines mapping:
 96 <-> 102
 97 <-> 103
 98 <-> 105
-100 <-> 107
+101 <-> 107
 104 <-> 110
 Not mapped:
 15
@@ -325,4 +325,4 @@ Not mapped:
 89
 92
 99
-101
+100
