@@ -1,6 +1,7 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler;
 
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
@@ -632,7 +633,8 @@ public class SimplifyExprentsHelper {
   //
   // array[++i] = 2;
   //
-  // While this helps simplify stack vars, it also has can potentially make invalid code! When evaluating ppmm correctness, this is a good place to start.
+  // While this helps simplify stack vars, it also has can potentially make invalid code!
+  // When evaluating ppmm correctness, this is a good place to start.
   // TODO: fernflower preference?
   private static boolean inlinePPIAndMMI(Exprent expr, Exprent next) {
     if (expr instanceof FunctionExprent func &&
@@ -660,7 +662,7 @@ public class SimplifyExprentsHelper {
 
   // Try to find the first valid usage of a variable for PPMM inlining.
   // Returns Pair{parent exprent, variable exprent to replace}
-  private static Pair<Exprent, VarExprent> findFirstValidUsage(VarExprent match, Exprent next) {
+  static @Nullable Pair<Exprent, VarExprent> findFirstValidUsage(VarExprent match, Exprent next) {
     List<Exprent> stack = new ArrayList<>();
     List<Exprent> parent = new ArrayList<>();
     stack.add(next);
