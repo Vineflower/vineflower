@@ -38,7 +38,6 @@ public class PPandMMHelper {
   }
 
   public boolean findPPandMM(RootStatement root) {
-
     FlattenStatementsHelper flatthelper = new FlattenStatementsHelper();
     this.dgraph = flatthelper.buildDirectGraph(root);
 
@@ -255,7 +254,7 @@ public class PPandMMHelper {
           parent.replaceExprent(old, func);
           func.addBytecodeOffsets(old.bytecode);
           stat.getExprents().remove(stat.getExprents().size() - 1); // remove the original
-          destination.setHasPPMM(true);
+          res = true;
         }
       }
     }

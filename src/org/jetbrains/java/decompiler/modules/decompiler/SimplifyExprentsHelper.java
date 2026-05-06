@@ -676,26 +676,31 @@ public class SimplifyExprentsHelper {
 
       if (parentExpr != null &&
         expr instanceof VarExprent ve &&
-        ve.getIndex() == match.getIndex() &&
-        ve.getVersion() == match.getVersion()) {
-        return Pair.of(parentExpr, ve);
+        ve.getIndex() == match.getIndex()) {
+        if (ve.getVersion() == match.getVersion()) {
+          return Pair.of(parentExpr, ve);
+        } else {
+          // wrong var index, something happened
+          ValidationHelper.assertTrue(false, "Unexpected var mutation");
+          return null;
+        }
       }
 
       if (expr instanceof FunctionExprent func) {
 
         // Don't inline ppmm into more ppmm
-        if (isPPMM(func)) {
+        if (isPPMM(func) && func.getLstOperands().get(0) instanceof VarExprent ve && ve.getIndex() == match.getIndex()) {
           return null;
         }
 
-        // Don't consider || or &&
-        if (func.getFuncType() == FunctionType.BOOLEAN_OR || func.getFuncType() == FunctionType.BOOLEAN_AND) {
-          return null;
-        }
-
-        // Don't consider ternaries
-        if (func.getFuncType() == FunctionType.TERNARY) {
-          return null;
+        // Only consider first argument for `||`, `&&` and ternary.
+        if (func.getFuncType() == FunctionType.BOOLEAN_OR || func.getFuncType() == FunctionType.BOOLEAN_AND || func.getFuncType() == FunctionType.TERNARY) {
+          // Var might be read in RHS.
+          stack.clear();
+          parent.clear();
+          stack.add(func.getLstOperands().get(0));
+          parent.add(expr);
+          continue;
         }
 
         // Subtraction and division make it hard to deduce which variable is used, especially without SSAU, so cancel if we find

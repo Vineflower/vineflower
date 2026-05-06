@@ -244,11 +244,6 @@ public class MethodProcessor implements Runnable {
 
     pctx = new PassContext(root, graph, mt, cl, varProc, decompileRecord);
 
-    // Inline ppi/mmi that we may have missed
-    if (PPandMMHelper.inlinePPIandMMIIf(root)) {
-      decompileRecord.add("InlinePPIandMMI", root);
-    }
-
     // Process invokedynamic string concat
     if (cl.getVersion().hasIndyStringConcat()) {
       ConcatenationHelper.simplifyStringConcat(root);
