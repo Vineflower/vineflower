@@ -1,6 +1,7 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.code;
 
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.code.*;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
@@ -8,6 +9,7 @@ import org.jetbrains.java.decompiler.code.cfg.ExceptionRangeCFG;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
+import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.GenericDominatorEngine;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.IGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.IGraphNode;
@@ -334,12 +336,16 @@ public final class ExceptionDeobfuscator {
       boolean splitted = false;
 
       for (ExceptionRangeCFG range : graph.getExceptions()) {
-        Set<BasicBlock> setEntries = getRangeEntries(range, graph.getFirst());
+        LinkedHashMap<BasicBlock, List<@Nullable BasicBlock>> setEntries = getRangeEntries(range, graph.getFirst());
 
         if (setEntries.size() > 1) { // multiple-entry protected range
           found = true;
 
-          if (splitExceptionRange(range, setEntries, graph, engine)) {
+          if (growExceptionRange(range, setEntries)) {
+            splitted = true;
+            graph.addComment("$VF: Handled exception range with multiple entry points by growing it");
+            break;
+          } else if (splitExceptionRange(range, setEntries.keySet(), graph, engine)) {
             splitted = true;
             graph.addComment("$VF: Handled exception range with multiple entry points by splitting it");
             break;
@@ -355,26 +361,91 @@ public final class ExceptionDeobfuscator {
     return !found;
   }
 
-  private static Set<BasicBlock> getRangeEntries(ExceptionRangeCFG range, BasicBlock first) {
-    Set<BasicBlock> setEntries = new HashSet<>();
+  private static LinkedHashMap<BasicBlock, List<@Nullable BasicBlock>> getRangeEntries(ExceptionRangeCFG range, BasicBlock first) {
+    LinkedHashMap<BasicBlock, List<@Nullable BasicBlock>> setEntries = new LinkedHashMap<>();
     Set<BasicBlock> setRange = new HashSet<>(range.getProtectedRange());
 
     for (BasicBlock block : range.getProtectedRange()) {
+      List<@Nullable BasicBlock> setPreds = new ArrayList<>(block.getPreds());
+      setPreds.removeAll(setRange);
       if (block == first){
-        setEntries.add(block);
-        continue;
+        setPreds.add(null);
       }
 
-      Set<BasicBlock> setPreds = new HashSet<>(block.getPreds());
-      setPreds.removeAll(setRange);
-
       if (!setPreds.isEmpty()) {
-        setEntries.add(block);
+        setEntries.put(block, setPreds);
       }
     }
 
     return setEntries;
   }
+
+  private static boolean growExceptionRange(
+    ExceptionRangeCFG range,
+    LinkedHashMap<BasicBlock, List<@Nullable BasicBlock>> setEntries
+  ) {
+    // Try to inline basic blocks that can't throw, but are only reachable from within this handler
+    //  and have successors in this handler
+    @Nullable BasicBlock missed = null;
+
+    for(var entry : setEntries.entrySet()) {
+      BasicBlock destination = entry.getKey();
+      if (!validateExceptionGrow(range, entry.getValue())){
+        if (missed == null) {
+          missed = destination;
+          continue;
+        }
+        return false; // At least 2 entry points exist that can't be fixed
+      }
+    }
+
+    // inlining time;
+    Set<BasicBlock> handled = new HashSet<>();
+    for(var entry : setEntries.entrySet()) {
+      if (missed == entry.getKey()) {
+        continue;
+      }
+      for (BasicBlock block : entry.getValue()) {
+        ValidationHelper.notNull(block);
+        if (!handled.add(block)) { // prevent handling twice
+          continue;
+        }
+        block.addSuccessorException(range.getHandler());
+        range.getProtectedRange().add(block);
+      }
+    }
+    return true;
+  }
+
+  private static boolean validateExceptionGrow(
+    ExceptionRangeCFG range,
+    List<@Nullable BasicBlock> blocks
+  ){
+    Set<BasicBlock> protectedRange = new HashSet<>(range.getProtectedRange());
+    for (BasicBlock block : blocks) {
+      // can't optimize away method entry
+      if (block == null) {
+        return false;
+      }
+
+      if(!protectedRange.containsAll(block.getPredecessors())) {
+          // limit to inlining single blocks, not sequences of blocks
+          return false;
+      }
+
+      for (Instruction inst:block.getSeq()){
+        if (!inst.canNotThrow()) {
+          // We don't want to catch extra exceptions
+          //  many instructions can only throw a very small number of exceptions
+          //  so we could actually filter more lenient based on the caught exception types
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+
 
   private static boolean splitExceptionRange(ExceptionRangeCFG range,
                                              Set<BasicBlock> setEntries,

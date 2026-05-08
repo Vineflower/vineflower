@@ -153,19 +153,28 @@ public class ControlFlowGraph implements CodeConstants {
   }
 
   public ExceptionRangeCFG getExceptionRange(BasicBlock handler, BasicBlock block) {
-
-    //List<ExceptionRangeCFG> ranges = new ArrayList<ExceptionRangeCFG>();
-
     for (int i = exceptions.size() - 1; i >= 0; i--) {
       ExceptionRangeCFG range = exceptions.get(i);
       if (range.getHandler() == handler && range.getProtectedRange().contains(block)) {
         return range;
-        //ranges.add(range);
       }
     }
 
     return null;
-    //return ranges.isEmpty() ? null : ranges;
+  }
+
+  public List<ExceptionRangeCFG> getAllExceptionRanges(BasicBlock handler, BasicBlock block) {
+
+    List<ExceptionRangeCFG> ranges = new ArrayList<>();
+
+    for (int i = exceptions.size() - 1; i >= 0; i--) {
+      ExceptionRangeCFG range = exceptions.get(i);
+      if (range.getHandler() == handler && range.getProtectedRange().contains(block)) {
+        ranges.add(range);
+      }
+    }
+
+    return ranges;
   }
 
   //	public String getExceptionsUniqueString(BasicBlock handler, BasicBlock block) {
