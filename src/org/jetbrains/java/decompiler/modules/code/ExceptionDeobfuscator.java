@@ -263,7 +263,9 @@ public final class ExceptionDeobfuscator {
     while (!stack.isEmpty()) {
       BasicBlock block = stack.removeFirst();
 
-      setVisited.add(block);
+      if(!setVisited.add(block)) {
+        continue;
+      }
 
       if (range.getProtectedRange().contains(block) && engine.isDominator(block, start)) {
         lstRes.add(block);
@@ -271,11 +273,7 @@ public final class ExceptionDeobfuscator {
         List<BasicBlock> lstSuccs = new ArrayList<>(block.getSuccs());
         lstSuccs.addAll(block.getSuccExceptions());
 
-        for (BasicBlock succ : lstSuccs) {
-          if (!setVisited.contains(succ)) {
-            stack.add(succ);
-          }
-        }
+        stack.addAll(lstSuccs);
       }
     }
 
@@ -336,7 +334,7 @@ public final class ExceptionDeobfuscator {
       boolean splitted = false;
 
       for (ExceptionRangeCFG range : graph.getExceptions()) {
-        Set<BasicBlock> setEntries = getRangeEntries(range);
+        Set<BasicBlock> setEntries = getRangeEntries(range, graph.getFirst());
 
         if (setEntries.size() > 1) { // multiple-entry protected range
           found = true;
@@ -357,11 +355,16 @@ public final class ExceptionDeobfuscator {
     return !found;
   }
 
-  private static Set<BasicBlock> getRangeEntries(ExceptionRangeCFG range) {
+  private static Set<BasicBlock> getRangeEntries(ExceptionRangeCFG range, BasicBlock first) {
     Set<BasicBlock> setEntries = new HashSet<>();
     Set<BasicBlock> setRange = new HashSet<>(range.getProtectedRange());
 
     for (BasicBlock block : range.getProtectedRange()) {
+      if (block == first){
+        setEntries.add(block);
+        continue;
+      }
+
       Set<BasicBlock> setPreds = new HashSet<>(block.getPreds());
       setPreds.removeAll(setRange);
 
