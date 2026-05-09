@@ -840,7 +840,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestSwitchExpressionIfBlocks");
 
     // TODO: String type info is lost; does not recompile; issue #573
-    register(JAVA_11, "TestStringConcatObjectAppend");
+    register(JAVA_8_NODEBUG, "TestStringConcatObjectAppend");
     register(JAVA_25, "TestStringConcatObjectAppendJ25");
   }
 

@@ -3,19 +3,19 @@ package pkg;
 import java.util.Vector;
 
 public class TestStringConcatObjectAppend {
-   public static void store(Vector values) {
-      String text = "";// 7
+   public static void store(Vector var0) {
+      Object var1 = "";
 
-      for (int i = 0; i < values.size(); i++) {// 8
-         text = text + values.elementAt(i) + ";";// 9
+      for (int var2 = 0; var2 < var0.size(); var2++) {
+         var1 = var1 + var0.elementAt(var2) + ";";
       }
 
-      sink(text);// 11
-      sink(String.valueOf(text));// 12
-   }// 13
+      sink((String)var1);
+      sink(String.valueOf(var1));
+   }
 
-   private static void sink(String value) {
-   }// 18
+   private static void sink(String var0) {
+   }
 }
 
 class 'pkg/TestStringConcatObjectAppend' {
@@ -33,33 +33,33 @@ class 'pkg/TestStringConcatObjectAppend' {
       a      8
       b      8
       c      8
-      d      9
-      e      9
-      f      9
-      10      9
-      11      9
-      12      9
-      13      9
       14      9
-      15      9
-      16      9
-      17      9
       18      9
-      19      8
-      1a      8
-      1b      8
-      1f      12
-      20      12
-      21      12
-      22      12
-      23      13
-      24      13
-      25      13
-      26      13
-      27      13
-      28      13
-      29      13
-      2a      14
+      19      9
+      1a      9
+      1b      9
+      1c      9
+      20      9
+      21      9
+      25      9
+      26      9
+      27      9
+      28      9
+      29      8
+      2a      8
+      2b      8
+      2f      12
+      30      12
+      31      12
+      32      12
+      33      13
+      34      13
+      35      13
+      36      13
+      37      13
+      38      13
+      39      13
+      3a      14
    }
 
    method 'sink (Ljava/lang/String;)V' {
@@ -68,10 +68,3 @@ class 'pkg/TestStringConcatObjectAppend' {
 }
 
 Lines mapping:
-7 <-> 7
-8 <-> 9
-9 <-> 10
-11 <-> 13
-12 <-> 14
-13 <-> 15
-18 <-> 18
