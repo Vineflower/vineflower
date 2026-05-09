@@ -445,6 +445,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestSwitchExpressionPPMM");
     register(JAVA_16, "TestSwitchExpressionNested1");
     register(JAVA_16, "TestSwitchExprInvoc");
+    // TODO: Wrong variable analysis
+    register(JAVA_16, "TestSwitchExpressionAssignmentOrder");
 
     register(JAVA_16, "TestAccidentalSwitchExpression");
 
@@ -654,6 +656,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     //   seems also is a bug in stack vars processing, disable main loop stackvars to replicate
     register(JAVA_8_NODEBUG, "TestCompoundAssignmentReplace");
 
+    // TODO: types are merged; issue #574
     register(JAVA_8, "TestSharedVarIndex");
 
     // NOTE: regular fernflower fails to merge the variables here, leading to incorrect results in both
@@ -745,6 +748,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestNumberCasts");
     // TODO: Disambiguate only the required parameters
     register(JAVA_8, "TestNumberDisambiguation");
+    // TODO: Dangling unboxing calls are still elided; issue #575
     register(JAVA_8, "TestDanglingBoxingCall");
     register(JAVA_21, "TestSwitchOnEnumJ21", "ext/TestEnum2");
     // Test switch-on-enum decompilation when enum does not exist in the classpath
@@ -830,7 +834,14 @@ public class SingleClassesTest extends SingleClassesTestBase {
 
     register(JAVA_17, "TestStringSwitchTypes");
 
+    // TODO: Fix issue #543
+    register(JAVA_8, "TestForEachInSwitch");
+
     register(JAVA_16, "TestSwitchExpressionIfBlocks");
+
+    // TODO: String type info is lost; does not recompile; issue #573
+    register(JAVA_11, "TestStringConcatObjectAppend");
+    register(JAVA_25, "TestStringConcatObjectAppendJ25");
   }
 
   private void registerEntireClassPath() {
@@ -926,6 +937,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: wrong cast in lambda for array
     register(JAVA_8, "TestArrayGenerics");
     register(JAVA_8, "TestEmptyLambda");
+    // TODO: test5b is missing a required cast in the output; issue #582
     register(JAVA_8, "TestArrayArg");
     register(JAVA_8, "TestGenericLattice");
     // TODO: parsing failure
