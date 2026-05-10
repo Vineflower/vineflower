@@ -5,6 +5,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.AssignmentExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.ConstExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectEdgeType;
@@ -18,11 +19,13 @@ import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
+import org.jetbrains.java.decompiler.util.Pair;
 
-import java.util.Deque;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+
+import static org.jetbrains.java.decompiler.modules.decompiler.SimplifyExprentsHelper.findFirstValidUsage;
 
 public class PPandMMHelper {
 
@@ -35,7 +38,6 @@ public class PPandMMHelper {
   }
 
   public boolean findPPandMM(RootStatement root) {
-
     FlattenStatementsHelper flatthelper = new FlattenStatementsHelper();
     this.dgraph = flatthelper.buildDirectGraph(root);
 
@@ -121,13 +123,13 @@ public class PPandMMHelper {
           }
         }
 
-        if (func.getFuncType() == FunctionExprent.FunctionType.ADD ||
-            func.getFuncType() == FunctionExprent.FunctionType.SUB) {
+        if (func.getFuncType() == FunctionType.ADD ||
+            func.getFuncType() == FunctionType.SUB) {
           Exprent econd = func.getLstOperands().get(0);
           Exprent econst = func.getLstOperands().get(1);
 
           if (!(econst instanceof ConstExprent) && econd instanceof ConstExprent &&
-              func.getFuncType() == FunctionExprent.FunctionType.ADD) {
+              func.getFuncType() == FunctionType.ADD) {
             econd = econst;
             econst = func.getLstOperands().get(0);
           }
@@ -138,7 +140,7 @@ public class PPandMMHelper {
             VarType condtype = left.getExprType();
             if (exprsEqual(left, econd) && (midlayer == null || midlayer.equals(condtype))) {
               FunctionExprent ret = new FunctionExprent(
-                func.getFuncType() == FunctionExprent.FunctionType.ADD ? FunctionExprent.FunctionType.PPI : FunctionExprent.FunctionType.MMI,
+                func.getFuncType() == FunctionType.ADD ? FunctionType.PPI : FunctionType.MMI,
                 econd, func.bytecode);
               ret.setImplicitType(condtype);
 
@@ -233,91 +235,26 @@ public class PPandMMHelper {
     if (stat.getExprents() != null && !stat.getExprents().isEmpty()) {
       IfStatement destination = findIfSuccessor(stat);
 
-      if (destination != null) {
-        // Last exprent
-        Exprent expr = stat.getExprents().get(stat.getExprents().size() - 1);
-        if (expr instanceof FunctionExprent) {
-          FunctionExprent func = (FunctionExprent)expr;
+      if (destination != null &&
+        // Last exprent is a PPI/MMI on a var
+        stat.getExprents().get(stat.getExprents().size() - 1) instanceof FunctionExprent func &&
+        (func.getFuncType() == FunctionType.PPI || func.getFuncType() == FunctionType.MMI) &&
+        func.getLstOperands().get(0) instanceof VarExprent inner) {
 
-          if (func.getFuncType() == FunctionExprent.FunctionType.PPI || func.getFuncType() == FunctionExprent.FunctionType.MMI) {
-            Exprent inner = func.getLstOperands().get(0);
 
-            if (inner instanceof VarExprent) {
-              Exprent ifExpr = destination.getHeadexprent().getCondition();
+        // Search for usages of variable
 
-              if (ifExpr instanceof FunctionExprent) {
-                FunctionExprent ifFunc = (FunctionExprent)ifExpr;
+        // parent, var
+        Pair<Exprent, VarExprent> usage = findFirstValidUsage(inner, destination.getHeadexprent().getCondition());
 
-                while (ifFunc.getFuncType() == FunctionExprent.FunctionType.BOOL_NOT) {
-                  Exprent innerFunc = ifFunc.getLstOperands().get(0);
-
-                  if (innerFunc instanceof FunctionExprent) {
-                    ifFunc = (FunctionExprent)innerFunc;
-                  } else {
-                    break;
-                  }
-                }
-
-                // Search for usages of variable
-                boolean found = false;
-                VarExprent old = null;
-                for (Exprent ex : ifFunc.getAllExprents(true)) {
-                  if (ex instanceof VarExprent) {
-                    VarExprent var = (VarExprent)ex;
-                    if (var.getIndex() == ((VarExprent)inner).getIndex()) {
-                      // Found variable to replace
-
-                      // Fail if we've already seen this variable!
-                      if (found) {
-                        return false;
-                      }
-
-                      // Store the var we want to replace
-                      old = var;
-                      found = true;
-                    }
-                  } else if (ex instanceof FunctionExprent) {
-                    FunctionExprent funcEx = (FunctionExprent)ex;
-
-                    if (funcEx.getFuncType() == FunctionExprent.FunctionType.BOOLEAN_AND || funcEx.getFuncType() == FunctionExprent.FunctionType.BOOLEAN_OR) {
-                      // Cannot yet handle these as we aren't able to decompose a condition into parts that are always run (not short-circuited) and parts that are
-                      // FIXME: handle this case
-                      return false;
-                    }
-                  }
-                }
-
-                if (found) {
-                  Deque<Exprent> stack = new LinkedList<>();
-                  stack.push(ifFunc);
-
-                  while (!stack.isEmpty()) {
-                    Exprent exprent = stack.pop();
-
-                    for (Exprent ex : exprent.getAllExprents()) {
-                      if (ex == old) {
-                        // Replace variable with ppi/mmi
-                        exprent.replaceExprent(old, expr);
-                        expr.addBytecodeOffsets(old.bytecode);
-
-                        // No more itr
-                        stack.clear();
-                        break;
-                      }
-
-                      stack.push(ex);
-                    }
-                  }
-
-                  // Remove old expr
-                  stat.getExprents().remove(expr);
-                  res = true;
-
-                  destination.setHasPPMM(true);
-                }
-              }
-            }
-          }
+        if (usage != null) {
+          var parent = usage.a;
+          var old = usage.b;
+          // Replace variable with ppi/mmi
+          parent.replaceExprent(old, func);
+          func.addBytecodeOffsets(old.bytecode);
+          stat.getExprents().remove(stat.getExprents().size() - 1); // remove the original
+          res = true;
         }
       }
     }
