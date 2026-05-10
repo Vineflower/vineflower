@@ -1,0 +1,20 @@
+final class TestCompactSourceFile {
+   void main() {
+      IO.println("Hello world!");// 2
+   }// 3
+}
+
+class 'TestCompactSourceFile' {
+   method 'main ()V' {
+      0      2
+      1      2
+      2      2
+      3      2
+      4      2
+      5      3
+   }
+}
+
+Lines mapping:
+2 <-> 3
+3 <-> 4

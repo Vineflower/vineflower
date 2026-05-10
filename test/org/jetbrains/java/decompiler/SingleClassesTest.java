@@ -842,6 +842,11 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: String type info is lost; does not recompile; issue #573
     register(JAVA_8_NODEBUG, "TestStringConcatObjectAppend");
     register(JAVA_25, "TestStringConcatObjectAppendJ25");
+
+    register(JAVA_25, "/TestCompactSourceFile");
+    register(JAVA_25, "/TestCompactSourceFileArgs");
+    register(JAVA_25, "/TestCompactSourceFileOtherMembers");
+    register(JAVA_25, "/TestCompactSourceFileOtherMembersStatic");
   }
 
   private void registerEntireClassPath() {
