@@ -1,9 +1,6 @@
 package org.jetbrains.java.decompiler.modules.decompiler;
 
-import org.jetbrains.java.decompiler.modules.decompiler.exps.AssignmentExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.PatternExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.CatchStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.DoStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
@@ -20,19 +17,10 @@ public class UnnamedVariablesHelper {
     if (statement.getExprents() != null) {
       for (Exprent exp : statement.getExprents()) {
         result |= setUnnamedLocalVariables(exp, root);
-        for (Exprent subExp : exp.getAllExprents(true, true)) {
-          result |= setUnnamedPatternVariables(subExp, root);
-        }
       }
     } else {
       for (Statement stat : statement.getStats()) {
         result |= setUnnamedVariables(stat, root);
-      }
-
-      for (Exprent exprent : statement.getStatExprents()) {
-        for (Exprent exp : exprent.getAllExprents(true, true)) {
-          result |= setUnnamedPatternVariables(exp, root);
-        }
       }
     }
 
@@ -72,11 +60,6 @@ public class UnnamedVariablesHelper {
       def.setUnnamedVar(true);
       return true;
     }
-    return false;
-  }
-
-  public static boolean setUnnamedPatternVariables(Exprent exp, RootStatement root) {
-//    if (exp instanceof PatternExprent)
     return false;
   }
 }

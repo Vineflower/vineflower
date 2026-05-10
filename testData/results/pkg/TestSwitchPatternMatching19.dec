@@ -15,7 +15,7 @@ public class TestSwitchPatternMatching19 {
          case TestSwitchPatternMatching19.D d when d == d:// 9
             System.out.println("d");
             break;
-         case TestSwitchPatternMatching19.XXX var8 when false:
+         case TestSwitchPatternMatching19.XXX _ when false:
             break;
          case null:
          default:
@@ -32,7 +32,7 @@ public class TestSwitchPatternMatching19 {
          case X1:
             System.out.println("x1");// 17
             break;
-         case TestSwitchPatternMatching19.XXX var4 when Math.random() > 0.0:// 19
+         case TestSwitchPatternMatching19.XXX _ when Math.random() > 0.0:// 19
             System.out.println("just making sure!");// 20
             break;
          default:

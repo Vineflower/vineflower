@@ -255,9 +255,11 @@ public final class SwitchPatternMatchProcessor {
       // replace the constant with the value of i, which may not be at index i
       int replaceIndex = i;
       for (List<Exprent> caseValueSet : stat.getCaseValues()) {
-        if (caseValueSet.get(0) instanceof ConstExprent constExpr) {
-          if (constExpr.getValue() instanceof Integer && (Integer) constExpr.getValue() == i) {
-            replaceIndex = stat.getCaseValues().indexOf(caseValueSet);
+        for (Exprent exp : caseValueSet) {
+          if (exp instanceof ConstExprent constExpr) {
+            if (constExpr.getValue() instanceof Integer && (Integer) constExpr.getValue() == i) {
+              replaceIndex = stat.getCaseValues().indexOf(caseValueSet);
+            }
           }
         }
       }
@@ -282,15 +284,19 @@ public final class SwitchPatternMatchProcessor {
             replaceIndex = getIndex(i, stat.getCaseValues());
             break;
           case CodeConstants.CONSTANT_Class:
-            // may happen if the switch head is a supertype of the pattern
-            if (stat.getCaseValues().get(replaceIndex).stream().allMatch(x -> x instanceof ConstExprent)) {
+            // may happen if the switch head is a supertype of the pattern or if the variable is unnamed
+            if (stat.getCaseValues().get(replaceIndex).stream().anyMatch(x -> x instanceof ConstExprent)) {
               VarType castType = new VarType(CodeType.OBJECT, 0, (String) p.value);
               List<Exprent> operands = new ArrayList<>();
               operands.add(realSelector); // checking var
               operands.add(new ConstExprent(castType, null, null)); // type
-              operands.add(new VarExprent(DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.VAR_COUNTER),
-                castType,
-                DecompilerContext.getVarProcessor()));
+
+              VarExprent variable = new VarExprent(DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.VAR_COUNTER),
+                  castType,
+                  DecompilerContext.getVarProcessor());
+              variable.setUnnamedVar(true);
+              operands.add(variable);
+
               newValue = new FunctionExprent(FunctionExprent.FunctionType.INSTANCEOF, operands, null);
             }
             break;
