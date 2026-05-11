@@ -297,7 +297,40 @@ public final class SwitchPatternMatchProcessor {
               variable.setUnnamedVar(true);
               operands.add(variable);
 
-              newValue = new FunctionExprent(FunctionExprent.FunctionType.INSTANCEOF, operands, null);
+              newValue = new FunctionExprent(FunctionType.INSTANCEOF, operands, null);
+              if (replaceIndex < stat.getCaseGuards().size()) {
+                Exprent guard = stat.getCaseGuards().get(replaceIndex);
+                Exprent not = SecondaryFunctionsHelper.propagateBoolNot(guard);
+                if (not != null) {
+                  stat.getCaseGuards().set(replaceIndex, not);
+                  guard = not;
+                }
+                Exprent parent = null;
+                Exprent replacement = null;
+                Exprent check = guard;
+                if (check instanceof FunctionExprent func && func.getFuncType() == FunctionType.BOOLEAN_AND) {
+                  parent = check;
+                  check = func.getLstOperands().get(0);
+                  replacement = func.getLstOperands().get(1);
+                }
+                if (check instanceof FunctionExprent func && func.getFuncType() == FunctionType.BOOLEAN_OR) {
+                  parent = check;
+                  check = func.getLstOperands().get(0);
+                  replacement = func.getLstOperands().get(1);
+                }
+                if (check instanceof FunctionExprent instance && instance.getFuncType() == FunctionType.INSTANCEOF
+                    && instance.getLstOperands().size() == 2
+                    && instance.getLstOperands().get(1) instanceof ConstExprent constExp
+                    && constExp.getConstType().equals(castType)) {
+                  if (parent == guard) {
+                    stat.replaceExprent(parent, replacement);
+                  } else if (parent != null) {
+                    guard.replaceExprent(parent, replacement);
+                  } else {
+                    stat.getCaseGuards().set(replaceIndex, null);
+                  }
+                }
+              }
             }
             break;
           default:

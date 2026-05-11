@@ -1,6 +1,7 @@
 package org.jetbrains.java.decompiler.modules.decompiler;
 
 import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
@@ -376,13 +377,25 @@ public final class IfPatternMatchProcessor {
           // Now make sure the inside of the try is ok
           Statement inner = catchSt.getStats().get(0);
           if (inner instanceof BasicBlockStatement) {
-            // var<x> = var10000.<comp>()
-            if (inner.getExprents().size() == 1 && inner.getExprents().get(0) instanceof AssignmentExprent assign) {
+            if (inner.getExprents().size() == 1) {
+
+              VarExprent variable;
+              Exprent exp = inner.getExprents().get(0);
+              // var<x> = var10000.<comp>()
+              if (exp instanceof AssignmentExprent assign && assign.getLeft() instanceof VarExprent var && var.isStack()) {
+                variable = var;
+                exp = assign.getRight();
+              } else {
+                variable = new VarExprent(DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.VAR_COUNTER), new VarType(c.getDescriptor(), false), DecompilerContext.getVarProcessor());
+                variable.setUnnamedVar(true);
+              }
+
+              // var10000.<comp>()
               // Make sure the invocation matches the record component
-              if (assign.getLeft() instanceof VarExprent var && var.isStack() && assign.getRight() instanceof InvocationExprent invok && invok.getClassname().equals(type.value)) {
+              if (exp instanceof InvocationExprent invok && invok.getClassname().equals(type.value)) {
                 if (invok.getName().equals(c.getName())) {
                   // Found one!
-                  foundVar = var;
+                  foundVar = variable;
                 }
               }
             }
@@ -519,6 +532,9 @@ public final class IfPatternMatchProcessor {
           }
 
           stIdx++;
+        } else {
+          vars.put(c, foundVar);
+          branch = BasicBlockStatement.create();
         }
       } else {
         return null;
