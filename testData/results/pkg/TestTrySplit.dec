@@ -18,8 +18,35 @@ public class TestTrySplit {
       }
    }// 14
 
+   public void testFlat() {
+      Object obj = null;// 21
+
+      label25: {
+         try {
+            try {
+               obj = new Object();// 27
+               break label25;
+            } catch (ArithmeticException ex) {// 28
+               if (obj != null) {// 29
+                  System.out.println("a");// 30
+               }
+            }
+
+            throwMyException(ex.getMessage());// 33
+         } catch (Throwable t) {// 37
+            System.out.println("b");// 38
+            throw t;// 39
+         }
+
+         System.out.println("b");// 41
+         return;// 42
+      }
+
+      System.out.println("b");// 44
+   }// 45
+
    public static void throwMyException(String message) {
-      throw new RuntimeException(message);// 21
+      throw new RuntimeException(message);// 48
    }
 }
 
@@ -60,9 +87,64 @@ class 'pkg/TestTrySplit' {
       3d      8
    }
 
+   method 'testFlat ()V' {
+      0      21
+      1      21
+      9      26
+      d      28
+      e      29
+      f      29
+      10      29
+      11      29
+      12      30
+      13      30
+      14      30
+      15      30
+      16      30
+      17      30
+      18      30
+      19      30
+      1a      34
+      1b      34
+      1c      34
+      1d      34
+      1e      34
+      1f      34
+      20      34
+      27      35
+      28      36
+      29      36
+      2a      36
+      2b      36
+      2c      36
+      2d      36
+      2e      36
+      2f      36
+      30      37
+      31      37
+      32      40
+      33      40
+      34      40
+      35      40
+      36      40
+      37      40
+      38      40
+      39      40
+      3a      41
+      3b      44
+      3c      44
+      3d      44
+      3e      44
+      3f      44
+      40      44
+      41      44
+      42      44
+      43      45
+   }
+
    method 'throwMyException (Ljava/lang/String;)V' {
-      4      21
-      8      21
+      4      48
+      8      48
    }
 }
 
@@ -77,5 +159,21 @@ Lines mapping:
 16 <-> 17
 18 <-> 9
 21 <-> 22
+27 <-> 27
+28 <-> 29
+29 <-> 30
+30 <-> 31
+33 <-> 35
+37 <-> 36
+38 <-> 37
+39 <-> 38
+41 <-> 41
+42 <-> 42
+44 <-> 45
+45 <-> 46
+48 <-> 49
 Not mapped:
 17
+34
+35
+36
