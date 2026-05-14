@@ -345,7 +345,7 @@ public class StructMethod extends StructMember {
       } else {
         exceptionClass = pool.getPrimitiveConstant(excClass).getString();
         if (DecompilerContext.getOption(DEBUG_MARKER_EXCEPTIONS)) {
-          if (exceptionClass.equals("vineflower/markerexception/CatchAllException")){
+          if ("vineflower/markerexception/CatchAllException".equals(exceptionClass)){
             exceptionClass = null;
           }
         }
