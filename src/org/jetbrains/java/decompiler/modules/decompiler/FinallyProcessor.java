@@ -289,11 +289,13 @@ public class FinallyProcessor {
               exExpr.getValue() instanceof VarExprent &&
               assExpr.getLeft().equals(exExpr.getValue())) {
               yield ExitType.IMPLICIT_EXIT;
-            } else if (next instanceof ExitExprent){
-              yield ExitType.METHOD_EXIT;
             } else{
               yield null;
             }
+          }
+
+          if (exprent instanceof ExitExprent){  // exit exprents are always the last exprent in their basic block
+            yield ExitType.METHOD_EXIT;
           }
         }
         yield ExitType.EXPLICIT_EXIT;
@@ -314,12 +316,13 @@ public class FinallyProcessor {
                 exExpr.getExitType() == ExitExprent.Type.THROW &&
                 exExpr.getValue() instanceof VarExprent) {
                 yield ExitType.IMPLICIT_EXIT;
-              } else if (exprent instanceof ExitExprent){
-                yield ExitType.METHOD_EXIT;
               } else {
                 yield null;
               }
             }
+          }
+          if (exprent instanceof ExitExprent){  // exit exprents are always the last exprent in their basic block
+            yield ExitType.METHOD_EXIT;
           }
         }
         yield ExitType.EXPLICIT_EXIT;
