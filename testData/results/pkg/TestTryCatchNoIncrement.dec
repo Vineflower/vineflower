@@ -1,0 +1,154 @@
+package pkg;
+
+import java.util.List;
+
+public class TestTryCatchNoIncrement {
+   public final void baseline(List<String> items) {
+      try {
+         for (int i = 0; i < items.size(); i++) {// 12
+            String item = (String)items.get(i);// 13
+            System.out.println(i + ": " + item);// 14
+         }
+      } catch (Throwable ex2) {// 17
+         ex2.printStackTrace();// 18
+      }
+   }// 20
+
+   public final void skippedInc(List<String> param1) {
+      // $VF: Couldn't be decompiled
+      // Bytecode:
+      // 00: bipush 0
+      // 01: istore 2
+      // 02: iload 2
+      // 03: aload 1
+      // 04: invokeinterface java/util/List.size ()I 1
+      // 09: if_icmpge 3f
+      // 0c: aload 1
+      // 0d: iload 2
+      // 0e: invokeinterface java/util/List.get (I)Ljava/lang/Object; 2
+      // 13: checkcast java/lang/String
+      // 16: astore 3
+      // 17: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 1a: new java/lang/StringBuilder
+      // 1d: dup
+      // 1e: invokespecial java/lang/StringBuilder.<init> ()V
+      // 21: iload 2
+      // 22: invokevirtual java/lang/StringBuilder.append (I)Ljava/lang/StringBuilder;
+      // 25: ldc ": "
+      // 27: invokevirtual java/lang/StringBuilder.append (Ljava/lang/String;)Ljava/lang/StringBuilder;
+      // 2a: aload 3
+      // 2b: invokevirtual java/lang/StringBuilder.append (Ljava/lang/String;)Ljava/lang/StringBuilder;
+      // 2e: invokevirtual java/lang/StringBuilder.toString ()Ljava/lang/String;
+      // 31: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // 34: iinc 2 1
+      // 37: goto 3c
+      // 3a: astore 4
+      // 3c: goto 02
+      // 3f: goto 47
+      // 42: astore 2
+      // 43: aload 2
+      // 44: invokevirtual java/lang/Throwable.printStackTrace ()V
+      // 47: return
+      // try (0 -> 23): 28 java/lang/Throwable
+      // try (24 -> 27): 28 java/lang/Throwable
+   }
+
+   public final void skipPrinting(List<String> param1) {
+      // $VF: Couldn't be decompiled
+      // Bytecode:
+      // 00: bipush 0
+      // 01: istore 2
+      // 02: iload 2
+      // 03: aload 1
+      // 04: invokeinterface java/util/List.size ()I 1
+      // 09: if_icmpge 3f
+      // 0c: aload 1
+      // 0d: iload 2
+      // 0e: invokeinterface java/util/List.get (I)Ljava/lang/Object; 2
+      // 13: checkcast java/lang/String
+      // 16: astore 3
+      // 17: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 1a: new java/lang/StringBuilder
+      // 1d: dup
+      // 1e: invokespecial java/lang/StringBuilder.<init> ()V
+      // 21: iload 2
+      // 22: invokevirtual java/lang/StringBuilder.append (I)Ljava/lang/StringBuilder;
+      // 25: ldc ": "
+      // 27: invokevirtual java/lang/StringBuilder.append (Ljava/lang/String;)Ljava/lang/StringBuilder;
+      // 2a: aload 3
+      // 2b: invokevirtual java/lang/StringBuilder.append (Ljava/lang/String;)Ljava/lang/StringBuilder;
+      // 2e: invokevirtual java/lang/StringBuilder.toString ()Ljava/lang/String;
+      // 31: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // 34: goto 39
+      // 37: astore 4
+      // 39: iinc 2 1
+      // 3c: goto 02
+      // 3f: goto 47
+      // 42: astore 2
+      // 43: aload 2
+      // 44: invokevirtual java/lang/Throwable.printStackTrace ()V
+      // 47: return
+      // try (0 -> 11): 28 java/lang/Throwable
+      // try (23 -> 27): 28 java/lang/Throwable
+   }
+}
+
+class 'pkg/TestTryCatchNoIncrement' {
+   method 'baseline (Ljava/util/List;)V' {
+      0      7
+      1      7
+      2      7
+      3      7
+      4      7
+      5      7
+      6      7
+      7      7
+      8      7
+      9      7
+      a      7
+      b      7
+      c      8
+      d      8
+      e      8
+      f      8
+      10      8
+      11      8
+      12      8
+      13      8
+      14      8
+      15      8
+      16      8
+      17      9
+      18      9
+      19      9
+      21      9
+      25      9
+      26      9
+      2a      9
+      2e      9
+      2f      9
+      30      9
+      31      9
+      32      9
+      33      9
+      34      7
+      35      7
+      36      7
+      3d      11
+      3e      12
+      3f      12
+      40      12
+      41      12
+      42      14
+   }
+}
+
+Lines mapping:
+12 <-> 8
+13 <-> 9
+14 <-> 10
+17 <-> 12
+18 <-> 13
+20 <-> 15
+Not mapped:
+19

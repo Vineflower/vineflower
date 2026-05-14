@@ -1,0 +1,452 @@
+package pkg;
+
+public class TestTryFinallyMarkerExceptionsInvalid {
+   // $VF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.
+   public Object testReturn() {
+      boolean var3 = false /* VF: Semaphore variable */;
+
+      try {
+         var3 = true;
+         System.out.println("Hello");// 8
+         var3 = false;
+      } finally {
+         if (var3) {
+            System.out.println("Finally");// 10
+            Object e;
+            return e;// 11
+         }
+      }
+
+      System.out.println("Finally");// 14
+      System.out.println("Bye");// 17
+      return null;// 18
+   }
+
+   // $VF: Could not inline inconsistent finally blocks
+   public void testLogged(int i) {
+      try {
+         System.out.println("Hello");// 24
+      } catch (Throwable var4) {
+         System.out.println(e.getMessage());// 27
+         System.out.println("Finally");// 29
+         throw e;// 30
+      }
+
+      System.out.println("Finally");// 33
+      System.out.println("Bye");// 36
+   }// 37
+
+   // $VF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.
+   public void testWeirdCatch(int i) {
+      boolean var5 = false /* VF: Semaphore variable */;
+
+      label26: {
+         try {
+            var5 = true;
+            System.out.println("Hello");// 44
+            var5 = false;
+            break label26;
+         } catch (NullPointerException npe) {
+            var5 = false;
+         } finally {
+            if (var5) {
+               System.out.println("Finally");// 48
+            }
+         }
+
+         System.out.println("NPE");// 46
+      }
+
+      System.out.println("Finally");// 52
+      System.out.println("Bye");// 55
+   }// 56
+
+   public void testWeirdCatch2(int param1) {
+      // $VF: Couldn't be decompiled
+      // Bytecode:
+      // 00: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 03: ldc "Hello"
+      // 05: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // 08: goto 22
+      // 0b: astore 2
+      // 0c: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 0f: ldc "Finally"
+      // 11: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // 14: goto 22
+      // 17: astore 2
+      // 18: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 1b: ldc "Finally"
+      // 1d: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // 20: aload 2
+      // 21: athrow
+      // 22: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 25: ldc "Finally"
+      // 27: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // 2a: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 2d: ldc "Bye"
+      // 2f: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // 32: return
+      // try (0 -> 3): 4 java/lang/NullPointerException
+      // try (0 -> 3): 9 null
+   }
+
+   public void testWeirdCatch3(int i) {
+      label26: {
+         NullPointerException npe;
+         try {
+            System.out.println("Hello");// 81
+            break label26;
+         } catch (NullPointerException var5) {
+            npe = var5;// 82
+         } finally {
+            System.out.println("Finally");// 86
+         }
+
+         System.out.println("NPE: " + npe.getMessage());// 84
+      }
+
+      System.out.println("Bye");// 93
+   }// 94
+
+   // $VF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.
+   public void testBlockReuse(int i) {
+      boolean var4 = false /* VF: Semaphore variable */;
+
+      try {
+         var4 = true;
+         System.out.println("Hello");// 101
+         var4 = false;
+      } finally {
+         if (var4) {
+            System.out.println("Finally");// 103
+            if (i > 0) {// 104
+               System.out.println("Cool 1");// 105
+            } else {
+               System.out.println("Cool 2");// 107
+            }
+
+            if (i < 0) {// 109
+            }
+         }
+      }
+
+      System.out.println("Finally");// 113
+      if (i > 0) {// 114
+      }
+
+      System.out.println("Cool 1");// 115
+      if (i < 0) {// 116
+      }
+
+      System.out.println("Bye");// 119
+   }// 120
+}
+
+class 'pkg/TestTryFinallyMarkerExceptionsInvalid' {
+   method 'testReturn ()Ljava/lang/Object;' {
+      0      9
+      1      9
+      2      9
+      3      9
+      4      9
+      5      9
+      6      9
+      7      9
+      c      13
+      d      13
+      e      13
+      f      13
+      10      13
+      11      13
+      12      13
+      13      13
+      14      15
+      15      15
+      16      19
+      17      19
+      18      19
+      19      19
+      1a      19
+      1b      19
+      1c      19
+      1d      19
+      1e      20
+      1f      20
+      20      20
+      21      20
+      22      20
+      23      20
+      24      20
+      25      20
+      26      21
+      27      21
+   }
+
+   method 'testLogged (I)V' {
+      0      27
+      1      27
+      2      27
+      3      27
+      4      27
+      5      27
+      6      27
+      7      27
+      c      29
+      d      29
+      e      29
+      f      29
+      10      29
+      11      29
+      12      29
+      13      29
+      14      29
+      15      29
+      16      30
+      17      30
+      18      30
+      19      30
+      1a      30
+      1b      30
+      1c      30
+      1d      30
+      1e      31
+      1f      31
+      20      34
+      21      34
+      22      34
+      23      34
+      24      34
+      25      34
+      26      34
+      27      34
+      28      35
+      29      35
+      2a      35
+      2b      35
+      2c      35
+      2d      35
+      2e      35
+      2f      35
+      30      36
+   }
+
+   method 'testWeirdCatch (I)V' {
+      0      45
+      1      45
+      2      45
+      3      45
+      4      45
+      5      45
+      6      45
+      7      45
+      c      56
+      d      56
+      e      56
+      f      56
+      10      56
+      11      56
+      12      56
+      13      56
+      18      52
+      19      52
+      1a      52
+      1b      52
+      1c      52
+      1d      52
+      1e      52
+      1f      52
+      22      59
+      23      59
+      24      59
+      25      59
+      26      59
+      27      59
+      28      59
+      29      59
+      2a      60
+      2b      60
+      2c      60
+      2d      60
+      2e      60
+      2f      60
+      30      60
+      31      60
+      32      61
+   }
+
+   method 'testWeirdCatch3 (I)V' {
+      0      96
+      1      96
+      2      96
+      3      96
+      4      96
+      5      96
+      6      96
+      7      96
+      b      99
+      14      104
+      15      104
+      16      104
+      1e      104
+      1f      104
+      23      104
+      24      104
+      25      104
+      26      104
+      2a      104
+      2b      104
+      2c      104
+      2d      104
+      2e      104
+      2f      104
+      34      101
+      35      101
+      36      101
+      37      101
+      38      101
+      39      101
+      3a      101
+      3b      101
+      46      107
+      47      107
+      48      107
+      49      107
+      4a      107
+      4b      107
+      4c      107
+      4d      107
+      4e      108
+   }
+
+   method 'testBlockReuse (I)V' {
+      0      116
+      1      116
+      2      116
+      3      116
+      4      116
+      5      116
+      6      116
+      7      116
+      c      120
+      d      120
+      e      120
+      f      120
+      10      120
+      11      120
+      12      120
+      13      120
+      14      121
+      15      121
+      16      121
+      17      121
+      18      122
+      19      122
+      1a      122
+      1b      122
+      1c      122
+      1d      122
+      1e      122
+      1f      122
+      23      124
+      24      124
+      25      124
+      26      124
+      27      124
+      28      124
+      29      124
+      2a      124
+      2b      127
+      2c      127
+      2d      127
+      2e      127
+      31      132
+      32      132
+      33      132
+      34      132
+      35      132
+      36      132
+      37      132
+      38      132
+      39      133
+      3a      133
+      3b      133
+      3c      133
+      3d      136
+      3e      136
+      3f      136
+      40      136
+      41      136
+      42      136
+      43      136
+      44      136
+      45      137
+      46      137
+      47      137
+      48      137
+      49      140
+      4a      140
+      4b      140
+      4c      140
+      4d      140
+      4e      140
+      4f      140
+      50      140
+      51      141
+   }
+}
+
+Lines mapping:
+8 <-> 10
+10 <-> 14
+11 <-> 16
+14 <-> 20
+17 <-> 21
+18 <-> 22
+24 <-> 28
+27 <-> 30
+29 <-> 31
+30 <-> 32
+33 <-> 35
+36 <-> 36
+37 <-> 37
+44 <-> 46
+46 <-> 57
+48 <-> 53
+52 <-> 60
+55 <-> 61
+56 <-> 62
+81 <-> 97
+82 <-> 100
+84 <-> 105
+86 <-> 102
+93 <-> 108
+94 <-> 109
+101 <-> 117
+103 <-> 121
+104 <-> 122
+105 <-> 123
+107 <-> 125
+109 <-> 128
+113 <-> 133
+114 <-> 134
+115 <-> 137
+116 <-> 138
+119 <-> 141
+120 <-> 142
+Not mapped:
+9
+12
+25
+31
+45
+47
+49
+50
+83
+85
+87
+88
+90
+102
+110
+111
