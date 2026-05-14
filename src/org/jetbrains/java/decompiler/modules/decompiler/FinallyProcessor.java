@@ -2,6 +2,7 @@
 package org.jetbrains.java.decompiler.modules.decompiler;
 
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNullByDefault;
 import org.jetbrains.java.decompiler.code.*;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
@@ -39,15 +40,16 @@ import org.jetbrains.java.decompiler.util.collections.ListStack;
 import java.util.*;
 import java.util.Map.Entry;
 
+@NotNullByDefault
 public class FinallyProcessor {
-  private final Map<BasicBlock, Integer> finallyBlocks = new HashMap<>();
+  private final Map<BasicBlock, @Nullable Integer> finallyBlocks = new HashMap<>();
   // seems to store catch-alls that can't be converted to a finally
   private final Set<BasicBlock> catchallBlocks = new HashSet<>();
 
   private final MethodDescriptor methodDescriptor;
   private final VarProcessor varProcessor;
-  private VarVersionsGraph ssuversions;
-  private Map<Instruction, Integer> instrRewrites;
+  private @Nullable VarVersionsGraph ssuversions;
+  private @Nullable Map<Instruction, Integer> instrRewrites;
 
   public FinallyProcessor(StructMethod mt, MethodDescriptor md, VarProcessor varProc) {
     this.methodDescriptor = md;
@@ -131,11 +133,11 @@ public class FinallyProcessor {
   private record Record(FinallyType firstCode, int exceptionOffset, Map<BasicBlock, ExitType> mapLast) {
   }
 
-  private record Area(BasicBlock start, Set<BasicBlock> sample, BasicBlock next /* true exit */, Set<BasicBlock> sideExits) {
+  private record Area(BasicBlock start, Set<BasicBlock> sample, @Nullable BasicBlock next /* true exit */, Set<BasicBlock> sideExits) {
   }
   private record FinallyExit(BasicBlock source, BasicBlock succ, ExitType type) {}
 
-  private Record getFinallyInformation(StructClass cl, StructMethod mt, RootStatement root, CatchAllStatement fstat) {
+  private @Nullable Record getFinallyInformation(StructClass cl, StructMethod mt, RootStatement root, CatchAllStatement fstat) {
     ExprProcessor proc = new ExprProcessor(this.methodDescriptor, this.varProcessor);
     proc.processStatement(root, cl);
 
@@ -563,7 +565,7 @@ public class FinallyProcessor {
     return true;
   }
 
-  private Area compareSubgraphsEx(
+  private @Nullable Area compareSubgraphsEx(
     ControlFlowGraph graph,
     BasicBlock startSample,
     Set<BasicBlock> catchBlocks,
@@ -626,8 +628,10 @@ public class FinallyProcessor {
             stack.add(new BlockStackEntry(sucCatch, sucSample, entry.lstStoreVars));
           }
         } else {
-          if (exitType == ExitType.EXPLICIT_EXIT ||exitType == ExitType.IMPLICIT_EXIT) {
-            mapNext.put(blockSample.getId() + "#" + sucSample.getId(), new FinallyExit(blockSample, sucSample, exitType));
+          if (exitType == ExitType.EXPLICIT_EXIT || exitType == ExitType.IMPLICIT_EXIT) {
+            if(mapNext.put(blockSample.getId() + "#" + sucSample.getId(), new FinallyExit(blockSample, sucSample, exitType)) != null){
+              throw new IllegalStateException("frick");
+            }
           }
         }
       }
@@ -707,7 +711,7 @@ public class FinallyProcessor {
     return set;
   }
 
-  private static BasicBlock getUniqueNext(ControlFlowGraph graph, Set<FinallyExit> setNext) {
+  private static @Nullable BasicBlock getUniqueNext(ControlFlowGraph graph, Set<FinallyExit> setNext) {
     // precondition: there is at most one true exit path in a "finally" statement
 
     BasicBlock next = null;
@@ -871,6 +875,8 @@ public class FinallyProcessor {
   }
 
   public boolean equalInstructions(Instruction first, Instruction second, List<int[]> lstStoreVars) {
+    ValidationHelper.notNull(this.instrRewrites);
+    ValidationHelper.notNull(this.ssuversions);
     if (!Instruction.equals(first, second)) {
       return false;
     }
