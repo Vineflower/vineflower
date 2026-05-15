@@ -1,6 +1,6 @@
 package pkg;
 
-import vineflower.markerexception.CatchAllException;
+import org.vineflower.marker.CatchAllException;
 
 public class TestTryFinallyMarkerExceptions {
   public void test0() {

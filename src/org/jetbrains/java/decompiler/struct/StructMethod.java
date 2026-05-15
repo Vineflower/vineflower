@@ -345,7 +345,7 @@ public class StructMethod extends StructMember {
       } else {
         exceptionClass = pool.getPrimitiveConstant(excClass).getString();
         if (DecompilerContext.getOption(DEBUG_MARKER_EXCEPTIONS)) {
-          if ("vineflower/markerexception/CatchAllException".equals(exceptionClass)){
+          if ("org/vineflower/marker/CatchAllException".equals(exceptionClass)){
             exceptionClass = null;
           }
         }
@@ -358,7 +358,7 @@ public class StructMethod extends StructMember {
       for (int i = 0; i < lstHandlers.size(); i++) {
         ExceptionHandler range = lstHandlers.get(i);
 
-        if ("vineflower/markerexception/UnCatchException".equals(range.exceptionClass())) {
+        if ("org/vineflower/marker/UnCatchException".equals(range.exceptionClass())) {
           lstHandlers = filterOutRange(lstHandlers, i, range.from(), range.to());
         }
       }

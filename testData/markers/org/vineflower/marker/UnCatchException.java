@@ -1,4 +1,4 @@
-package vineflower.markerexception;
+package org.vineflower.marker;
 
 public class UnCatchException extends RuntimeException {
   public UnCatchException(String message) {
