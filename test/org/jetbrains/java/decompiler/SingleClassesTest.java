@@ -681,7 +681,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestForCyclicVarDef");
     // TODO: merging of trycatch incorrect
     register(JAVA_8, "TestTryCatchNested");
-    register(JAVA_8, "TestTryCatchNoIncrement"); // #568
+    register(JAVA_8, "TestTryCatchNoIncrement"); // Issue #568
     register(JAVA_8, "TestSwitchTernary");
     register(JAVA_8, "TestBooleanExpressions");
     register(JAVA_8, "TestObjectBitwise");
