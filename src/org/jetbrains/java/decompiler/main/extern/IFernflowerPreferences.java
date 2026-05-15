@@ -324,6 +324,7 @@ public interface IFernflowerPreferences {
 
   String DUMP_ORIGINAL_LINES = "__dump_original_lines__";
   String UNIT_TEST_MODE = "__unit_test_mode__";
+  String DEBUG_MARKER_EXCEPTIONS = "__debug_marker_exceptions__";
 
   String LINE_SEPARATOR_WIN = "\r\n";
   String LINE_SEPARATOR_UNX = "\n";
@@ -418,11 +419,6 @@ public interface IFernflowerPreferences {
   @Type(DecompilerOption.Type.STRING)
   String METHOD_TO_DECOMPILE = "method-to-decompile";
 
-  @Name("DEBUG: Enable special handling of marker exceptions")
-  @Description("")
-  @Type(DecompilerOption.Type.BOOLEAN)
-  String DEBUG_MARKER_EXCEPTIONS = "debug-marker-exceptions";
-
   Map<String, Object> DEFAULTS = getDefaults();
 
   static Map<String, Object> getDefaults() {
@@ -483,6 +479,7 @@ public interface IFernflowerPreferences {
     defaults.put(ERROR_MESSAGE, "Please report this to the Vineflower issue tracker, at https://github.com/Vineflower/vineflower/issues with a copy of the class file (if you have the rights to distribute it!)");
     defaults.put(UNIT_TEST_MODE, "0");
     defaults.put(DUMP_ORIGINAL_LINES, "0");
+    defaults.put(DEBUG_MARKER_EXCEPTIONS, "0");
     defaults.put(THREADS, String.valueOf(Runtime.getRuntime().availableProcessors()));
     defaults.put(SKIP_EXTRA_FILES, "0");
     defaults.put(WARN_INCONSISTENT_INNER_CLASSES, "1");
@@ -500,7 +497,6 @@ public interface IFernflowerPreferences {
     defaults.put(VALIDATE_INNER_CLASSES_NAMES, "1");
     defaults.put(PRETTIFY_IFS, "1");
     defaults.put(METHOD_TO_DECOMPILE, "");
-    defaults.put(DEBUG_MARKER_EXCEPTIONS, "0");
 
     return Collections.unmodifiableMap(defaults);
   }
