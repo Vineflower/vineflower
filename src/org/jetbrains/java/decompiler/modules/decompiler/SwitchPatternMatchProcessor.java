@@ -255,9 +255,11 @@ public final class SwitchPatternMatchProcessor {
       // replace the constant with the value of i, which may not be at index i
       int replaceIndex = i;
       for (List<Exprent> caseValueSet : stat.getCaseValues()) {
-        if (caseValueSet.get(0) instanceof ConstExprent constExpr) {
-          if (constExpr.getValue() instanceof Integer && (Integer) constExpr.getValue() == i) {
-            replaceIndex = stat.getCaseValues().indexOf(caseValueSet);
+        for (Exprent exp : caseValueSet) {
+          if (exp instanceof ConstExprent constExpr) {
+            if (constExpr.getValue() instanceof Integer && (Integer) constExpr.getValue() == i) {
+              replaceIndex = stat.getCaseValues().indexOf(caseValueSet);
+            }
           }
         }
       }
@@ -282,16 +284,53 @@ public final class SwitchPatternMatchProcessor {
             replaceIndex = getIndex(i, stat.getCaseValues());
             break;
           case CodeConstants.CONSTANT_Class:
-            // may happen if the switch head is a supertype of the pattern
-            if (stat.getCaseValues().get(replaceIndex).stream().allMatch(x -> x instanceof ConstExprent)) {
+            // may happen if the switch head is a supertype of the pattern or if the variable is unnamed
+            if (stat.getCaseValues().get(replaceIndex).stream().anyMatch(x -> x instanceof ConstExprent)) {
               VarType castType = new VarType(CodeType.OBJECT, 0, (String) p.value);
               List<Exprent> operands = new ArrayList<>();
               operands.add(realSelector); // checking var
               operands.add(new ConstExprent(castType, null, null)); // type
-              operands.add(new VarExprent(DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.VAR_COUNTER),
-                castType,
-                DecompilerContext.getVarProcessor()));
-              newValue = new FunctionExprent(FunctionExprent.FunctionType.INSTANCEOF, operands, null);
+
+              VarExprent variable = new VarExprent(DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.VAR_COUNTER),
+                  castType,
+                  DecompilerContext.getVarProcessor());
+              variable.setUnnamedVar(true);
+              operands.add(variable);
+
+              newValue = new FunctionExprent(FunctionType.INSTANCEOF, operands, null);
+              if (replaceIndex < stat.getCaseGuards().size()) {
+                Exprent guard = stat.getCaseGuards().get(replaceIndex);
+                Exprent not = SecondaryFunctionsHelper.propagateBoolNot(guard);
+                if (not != null) {
+                  stat.getCaseGuards().set(replaceIndex, not);
+                  guard = not;
+                }
+                Exprent parent = null;
+                Exprent replacement = null;
+                Exprent check = guard;
+                if (check instanceof FunctionExprent func && func.getFuncType() == FunctionType.BOOLEAN_AND) {
+                  parent = check;
+                  check = func.getLstOperands().get(0);
+                  replacement = func.getLstOperands().get(1);
+                }
+                if (check instanceof FunctionExprent func && func.getFuncType() == FunctionType.BOOLEAN_OR) {
+                  parent = check;
+                  check = func.getLstOperands().get(0);
+                  replacement = func.getLstOperands().get(1);
+                }
+                if (check instanceof FunctionExprent instance && instance.getFuncType() == FunctionType.INSTANCEOF
+                    && instance.getLstOperands().size() == 2
+                    && instance.getLstOperands().get(1) instanceof ConstExprent constExp
+                    && constExp.getConstType().equals(castType)) {
+                  if (parent == guard) {
+                    stat.replaceExprent(parent, replacement);
+                  } else if (parent != null) {
+                    guard.replaceExprent(parent, replacement);
+                  } else {
+                    stat.getCaseGuards().set(replaceIndex, null);
+                  }
+                }
+              }
             }
             break;
           default:

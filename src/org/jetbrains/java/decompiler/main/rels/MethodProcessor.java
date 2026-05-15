@@ -458,6 +458,10 @@ public class MethodProcessor implements Runnable {
       decompileRecord.add("UpdateAssignments", root);
     }
 
+    if (mt.getBytecodeVersion().hasUnnamedVariables() && UnnamedVariablesHelper.setUnnamedVariables(root)) {
+      decompileRecord.add("UnnamedVariables", root);
+    }
+
     // Hide empty default edges caused by switch statement processing
     if (root.hasSwitch() && LabelHelper.hideDefaultSwitchEdges(root)) {
       decompileRecord.add("HideEmptyDefault", root);

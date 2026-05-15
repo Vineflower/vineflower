@@ -61,6 +61,7 @@ public class VarExprent extends Exprent implements Pattern {
   private VarType boundType;
   private boolean isIntersectionType = false;
   private boolean isCatchTempVar = false;
+  private boolean isUnnamed = false;
 
   public VarExprent(int index, VarType varType, VarProcessor processor) {
     this(index, varType, processor, null);
@@ -147,7 +148,9 @@ public class VarExprent extends Exprent implements Pattern {
 
       String name = getName();
       MethodWrapper method = (MethodWrapper) DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
-      if (method != null && (!"this".equals(name) || index != 0)) {
+      if (isUnnamed) {
+        buffer.append('_');
+      } else if (method != null && (!"this".equals(name) || index != 0)) {
         int varIndex = index;
         String thisVar = null;
         if (processor != null) {
@@ -517,23 +520,35 @@ public class VarExprent extends Exprent implements Pattern {
 
     return null;
   }
-
+  
   public boolean isVarReferenced(Statement stat, VarExprent... whitelist) {
+    VarExprent[] newArray = Arrays.copyOf(whitelist, whitelist.length + 1);
+    newArray[newArray.length - 1] = this;
+    return isVarReferenced(stat, getVarVersionPair(), newArray);
+  }
+
+  public boolean isVarReferenced(Exprent exp, VarExprent... whitelist) {
+    VarExprent[] newArray = Arrays.copyOf(whitelist, whitelist.length + 1);
+    newArray[newArray.length - 1] = this;
+    return isVarReferenced(exp, getVarVersionPair(), newArray);
+  }
+
+  public static boolean isVarReferenced(Statement stat, VarVersionPair varVersion, VarExprent... whitelist) {
     if (stat.getExprents() == null) {
       for (Statement st : stat.getStats()) {
-        if (isVarReferenced(st, whitelist)) {
+        if (isVarReferenced(st, varVersion, whitelist)) {
           return true;
         }
       }
       for (Exprent exp : stat.getStatExprents()) {
-        if (isVarReferenced(exp, whitelist)) {
+        if (isVarReferenced(exp, varVersion, whitelist)) {
           return true;
         }
       }
     }
     else {
       for (Exprent exp : stat.getExprents()) {
-        if (isVarReferenced(exp, whitelist)) {
+        if (isVarReferenced(exp, varVersion, whitelist)) {
           return true;
         }
       }
@@ -541,11 +556,11 @@ public class VarExprent extends Exprent implements Pattern {
     return false;
   }
 
-  public boolean isVarReferenced(Exprent exp, VarExprent... whitelist) {
+  public static boolean isVarReferenced(Exprent exp, VarVersionPair varVersion, VarExprent... whitelist) {
     List<Exprent> lst = exp.getAllExprents(true);
     lst.add(exp);
-    lst = lst.stream().filter(e -> e != this && e instanceof VarExprent &&
-      getVarVersionPair().equals(((VarExprent)e).getVarVersionPair()))
+    lst = lst.stream().filter(e -> e instanceof VarExprent &&
+      varVersion.equals(((VarExprent)e).getVarVersionPair()))
         .collect(Collectors.toList());
 
     for (Exprent var : lst) {
@@ -593,6 +608,14 @@ public class VarExprent extends Exprent implements Pattern {
 
   public boolean isCatchTempVar() {
     return this.isCatchTempVar;
+  }
+
+  public void setUnnamedVar(boolean unnamed) {
+    this.isUnnamed = unnamed;
+  }
+
+  public boolean isUnnamedVar() {
+    return this.isUnnamed;
   }
 
   // *****************************************************************************
