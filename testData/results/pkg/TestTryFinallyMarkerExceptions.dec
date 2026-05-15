@@ -1,0 +1,153 @@
+package pkg;
+
+public class TestTryFinallyMarkerExceptions {
+   public void test0() {
+      try {
+         System.out.println("Hello");// 8
+      } finally {
+         long l = 5L;// 10
+      }
+   }// 16
+
+   public void test1() {
+      try {
+         System.out.println("Hello");// 20
+      } finally {
+         System.out.println("Finally");// 22
+      }
+
+      System.out.println("Bye");// 29
+   }// 30
+
+   public void test2(int i) {
+      try {
+         System.out.println("Hello");// 35
+      } finally {
+         System.out.println("Finally");// 37
+         if (i > 0) {// 38
+            System.out.println(i);// 39
+            return;// 40
+         }
+      }
+
+      System.out.println("Bye");// 52
+   }// 53
+}
+
+class 'pkg/TestTryFinallyMarkerExceptions' {
+   method 'test0 ()V' {
+      0      5
+      1      5
+      2      5
+      3      5
+      4      5
+      5      5
+      6      5
+      7      5
+      c      7
+      d      7
+      e      7
+      f      7
+      16      9
+   }
+
+   method 'test1 ()V' {
+      0      13
+      1      13
+      2      13
+      3      13
+      4      13
+      5      13
+      6      13
+      7      13
+      c      15
+      d      15
+      e      15
+      f      15
+      10      15
+      11      15
+      12      15
+      13      15
+      1e      18
+      1f      18
+      20      18
+      21      18
+      22      18
+      23      18
+      24      18
+      25      18
+      26      19
+   }
+
+   method 'test2 (I)V' {
+      0      23
+      1      23
+      2      23
+      3      23
+      4      23
+      5      23
+      6      23
+      7      23
+      c      25
+      d      25
+      e      25
+      f      25
+      10      25
+      11      25
+      12      25
+      13      25
+      14      26
+      15      26
+      16      26
+      17      26
+      18      27
+      19      27
+      1a      27
+      1b      27
+      1c      27
+      1d      27
+      1e      27
+      1f      28
+      36      32
+      37      32
+      38      32
+      39      32
+      3a      32
+      3b      32
+      3c      32
+      3d      32
+      3e      33
+   }
+}
+
+Lines mapping:
+8 <-> 6
+10 <-> 8
+16 <-> 10
+20 <-> 14
+22 <-> 16
+29 <-> 19
+30 <-> 20
+35 <-> 24
+37 <-> 26
+38 <-> 27
+39 <-> 28
+40 <-> 29
+52 <-> 33
+53 <-> 34
+Not mapped:
+9
+11
+12
+14
+21
+23
+24
+26
+36
+42
+43
+45
+46
+47
+48

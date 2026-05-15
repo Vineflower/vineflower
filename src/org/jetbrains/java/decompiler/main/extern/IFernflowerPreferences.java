@@ -418,6 +418,11 @@ public interface IFernflowerPreferences {
   @Type(DecompilerOption.Type.STRING)
   String METHOD_TO_DECOMPILE = "method-to-decompile";
 
+  @Name("DEBUG: Enable special handling of marker exceptions")
+  @Description("")
+  @Type(DecompilerOption.Type.BOOLEAN)
+  String DEBUG_MARKER_EXCEPTIONS = "debug-marker-exceptions";
+
   Map<String, Object> DEFAULTS = getDefaults();
 
   static Map<String, Object> getDefaults() {
@@ -495,6 +500,7 @@ public interface IFernflowerPreferences {
     defaults.put(VALIDATE_INNER_CLASSES_NAMES, "1");
     defaults.put(PRETTIFY_IFS, "1");
     defaults.put(METHOD_TO_DECOMPILE, "");
+    defaults.put(DEBUG_MARKER_EXCEPTIONS, "0");
 
     return Collections.unmodifiableMap(defaults);
   }
