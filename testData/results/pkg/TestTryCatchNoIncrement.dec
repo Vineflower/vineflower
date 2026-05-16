@@ -14,33 +14,17 @@ public class TestTryCatchNoIncrement {
       }
    }// 20
 
-   // $VF: Handled exception range with multiple entry points by splitting it
-   // $VF: Duplicated exception handlers to handle obfuscated exceptions
+   // $VF: Handled exception range with multiple entry points by growing it
    public final void skippedInc(List<String> items) {
-      int i;
       try {
-         i = 0;// 24
-      } catch (Throwable ex2) {
-         ex2.printStackTrace();// 35
-         return;// 38
-      }
-
-      while (true) {
-         try {
-            if (i >= items.size()) {// 25
-               break;
-            }
-
+         for (int i = 0; i < items.size(); i++) {// 24 25 29
             String item = (String)items.get(i);// 26
             System.out.println(i + ": " + item);// 27
-         } catch (Throwable ex2) {
-            ex2.printStackTrace();
-            break;
          }
-
-         i++;// 29
+      } catch (Throwable ex2) {// 34
+         ex2.printStackTrace();// 35
       }
-   }
+   }// 38
 
    // $VF: Handled exception range with multiple entry points by splitting it
    // $VF: Duplicated exception handlers to handle obfuscated exceptions
@@ -128,97 +112,98 @@ class 'pkg/TestTryCatchNoIncrement' {
    }
 
    method 'skippedInc (Ljava/util/List;)V' {
-      0      21
-      1      21
-      2      29
-      3      29
-      4      29
-      5      29
-      6      29
-      7      29
-      8      29
-      9      29
-      a      29
-      b      29
-      c      33
-      d      33
-      e      33
-      f      33
-      10      33
-      11      33
-      12      33
-      13      33
-      14      33
-      15      33
-      16      33
-      17      34
-      18      34
-      19      34
-      21      34
-      25      34
-      26      34
-      2a      34
-      2e      34
-      2f      34
-      30      34
-      31      34
-      32      34
-      33      34
-      34      40
-      35      40
-      36      40
-      43      23
-      44      23
-      45      23
-      46      23
-      47      24
+      0      19
+      1      19
+      2      19
+      3      19
+      4      19
+      5      19
+      6      19
+      7      19
+      8      19
+      9      19
+      a      19
+      b      19
+      c      20
+      d      20
+      e      20
+      f      20
+      10      20
+      11      20
+      12      20
+      13      20
+      14      20
+      15      20
+      16      20
+      17      21
+      18      21
+      19      21
+      21      21
+      25      21
+      26      21
+      2a      21
+      2e      21
+      2f      21
+      30      21
+      31      21
+      32      21
+      33      21
+      34      19
+      35      19
+      36      19
+      42      23
+      43      24
+      44      24
+      45      24
+      46      24
+      47      26
    }
 
    method 'skipPrinting (Ljava/util/List;)V' {
-      0      49
-      1      49
-      2      58
-      3      58
-      4      58
-      5      58
-      6      58
-      7      58
-      8      58
-      9      58
-      a      58
-      b      58
-      c      62
-      d      62
-      e      62
-      f      62
-      10      62
-      11      62
-      12      62
-      13      62
-      14      62
-      15      62
-      16      62
-      17      68
-      18      68
-      19      68
-      21      68
-      25      68
-      26      68
-      2a      68
-      2e      68
-      2f      68
-      30      68
-      31      68
-      32      68
-      33      68
-      39      71
-      3a      71
-      3b      71
-      43      51
-      44      51
-      45      51
-      46      51
-      47      52
+      0      33
+      1      33
+      2      42
+      3      42
+      4      42
+      5      42
+      6      42
+      7      42
+      8      42
+      9      42
+      a      42
+      b      42
+      c      46
+      d      46
+      e      46
+      f      46
+      10      46
+      11      46
+      12      46
+      13      46
+      14      46
+      15      46
+      16      46
+      17      52
+      18      52
+      19      52
+      21      52
+      25      52
+      26      52
+      2a      52
+      2e      52
+      2f      52
+      30      52
+      31      52
+      32      52
+      33      52
+      39      55
+      3a      55
+      3b      55
+      43      35
+      44      35
+      45      35
+      46      35
+      47      36
    }
 }
 
@@ -229,24 +214,24 @@ Lines mapping:
 17 <-> 12
 18 <-> 13
 20 <-> 15
-24 <-> 22
-25 <-> 30
-26 <-> 34
-27 <-> 35
-29 <-> 41
-35 <-> 24
-38 <-> 25
-41 <-> 72
-42 <-> 63
-44 <-> 69
-50 <-> 52
-52 <-> 53
+24 <-> 20
+25 <-> 20
+26 <-> 21
+27 <-> 22
+29 <-> 20
+34 <-> 24
+35 <-> 25
+38 <-> 27
+41 <-> 56
+42 <-> 47
+44 <-> 53
+50 <-> 36
+52 <-> 37
 Not mapped:
 19
 30
 31
 32
-34
 36
 45
 46
