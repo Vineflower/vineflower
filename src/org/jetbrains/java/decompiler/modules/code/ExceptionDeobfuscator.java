@@ -336,6 +336,7 @@ public final class ExceptionDeobfuscator {
       boolean splitted = false;
 
       for (ExceptionRangeCFG range : graph.getExceptions()) {
+        // map of entry points to entry sources (null indicating method start)
         LinkedHashMap<BasicBlock, List<@Nullable BasicBlock>> setEntries = getRangeEntries(range, graph.getFirst());
 
         if (setEntries.size() > 1) { // multiple-entry protected range
@@ -386,6 +387,7 @@ public final class ExceptionDeobfuscator {
   ) {
     // Try to inline basic blocks that can't throw, but are only reachable from within this handler
     //  and have successors in this handler
+    // Each try handler must have at least one entry point that can't be removed
     @Nullable BasicBlock missed = null;
 
     for(var entry : setEntries.entrySet()) {
@@ -398,6 +400,8 @@ public final class ExceptionDeobfuscator {
         return false; // At least 2 entry points exist that can't be fixed
       }
     }
+
+    ValidationHelper.notNull(missed);
 
     // inlining time;
     Set<BasicBlock> handled = new HashSet<>();
