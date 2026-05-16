@@ -947,7 +947,8 @@ public abstract class Statement implements IMatchable {
     return varDefinitions;
   }
 
-  // The exprents stored in the body, only nonnull for BasicBlockStatements. To find other exprents, use getStatExprents.
+  // The exprents stored in the body, only nonnull for BasicBlockStatements, but only if exprents have been generated.
+  //  To find other exprents, use getStatExprents.
   public @Nullable List<Exprent> getExprents() {
     return exprents;
   }

@@ -73,13 +73,16 @@ public class FinallyProcessor {
 
         //noinspection StatementWithEmptyBody
         if (this.catchallBlocks.contains(handler)) {
+          // Already checked, can't be replaced by a finally statement.
           // do nothing
         } else if (this.finallyBlocks.containsKey(handler)) {
+          // Already validated and transformed. This is a finally statement.
           fin.setFinally(true);
 
           Integer var = this.finallyBlocks.get(handler);
           fin.setMonitor(var == null ? null : new VarExprent(var, VarType.VARTYPE_INT, this.varProcessor));
         } else {
+          // Check if this is a finally statement.
           Record inf = this.getFinallyInformation(cl, mt, root, fin);
 
           if (inf == null) { // inconsistent finally
@@ -87,10 +90,12 @@ public class FinallyProcessor {
             root.addComment("$VF: Could not inline inconsistent finally blocks", true);
           } else {
             if (DecompilerContext.getOption(IFernflowerPreferences.FINALLY_DEINLINE) && this.verifyFinallyEx(graph, fin, inf)) {
+              // Finally transformation was successful.
               inlineReturnVar(graph, handler, inf);
 
               this.finallyBlocks.put(handler, null);
             } else {
+              // Finally merging failed.
               int varIndex = DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.VAR_COUNTER);
               // Add the semaphore variable to the list so we can create a comment in the output
               this.varProcessor.getSyntheticSemaphores().add(varIndex);
@@ -178,7 +183,11 @@ public class FinallyProcessor {
     ssa.splitVariables(root, mt);
 
     List<Exprent> lstExprents = firstBlockStatement.getExprents();
+    ValidationHelper.notNull(lstExprents);  // All BBStatements will have exprents by now
 
+    // A catch block always starts with an assignment from a fake catch var to stack index 0
+    // In case of a STORE type, we don't care about this temp var, and immediately want to know where this stack var is
+    //  saved instead.
     VarVersionPair varpaar = new VarVersionPair((VarExprent) ((AssignmentExprent) lstExprents.get(firstcode == FinallyType.STORE ? 1 : 0)).getLeft());
 
     FlattenStatementsHelper flatthelper = new FlattenStatementsHelper();
@@ -204,7 +213,10 @@ public class FinallyProcessor {
         blockStatement = node.getPredecessors(DirectEdgeType.REGULAR).get(0).getSource().block;
       }
 
-      ExitType exitType = getExitType(firstcode, firstBlockStatement, node, varpaar);
+      // Null means the catch var leaked in a way that can't happen with true "finally"s.
+      //  This is thus not a true finally, return null.
+      // Will return "explicit" even if the block does not leave
+      @Nullable ExitType exitType = getExitType(firstcode, firstBlockStatement, node, varpaar);
       if (exitType == null) return null;
 
       // find finally exits
@@ -255,22 +267,19 @@ public class FinallyProcessor {
     VarVersionPair varPair
   ) {
     // Try to find the "true path" of the finally block by searching for a relevant 'athrow <var>'.
-    // We should search from the initial expression of each block, except in the case where the block we're searching
-    // contains the relevant var itself, in which case we should search from the 2nd or 3rd expression, depending on
-    // the firstcode. This is because we might accidentally stumble into the same expression we were searching from,
-    // leading to a false failure of finally processing.
+    // If we encounter a usage of <var> that isn't a throw, then, this isn't a valid finally.
 
     return switch (finallyType) {
       case DROP -> ExitType.IMPLICIT_EXIT;  // Why is this considered a normal exit?
       case EMPTY -> ExitType.EXPLICIT_EXIT;
       case STORE -> {
-        // Skip `astore` instruction and a second one on start block ??
+        // Skip the `var10000 = varx;` and `vary = var10000` statements on the entry block
         int startIdx = firstBlockStatement == node.block ? 2 : 0;
 
         for (int i = startIdx; i < node.exprents.size(); i++) {
           Exprent exprent = node.exprents.get(i);
 
-          // search for a load instruction
+          // The exception is in a var, so we need to look for `<stack var> = <var>`, and then a `throw <stack var>`
           if (exprent instanceof AssignmentExprent assExpr &&
             assExpr.getRight() instanceof VarExprent varExprent &&
             varExprent.getVarVersionPair().equals(varPair)) {
@@ -290,40 +299,45 @@ public class FinallyProcessor {
               exExpr.getExitType() == ExitExprent.Type.THROW &&
               exExpr.getValue() instanceof VarExprent &&
               assExpr.getLeft().equals(exExpr.getValue())) {
+              // found normal exit
               yield ExitType.IMPLICIT_EXIT;
             } else{
+              // found illegal usage of exception var.
               yield null;
             }
           }
 
-          if (exprent instanceof ExitExprent){  // exit exprents are always the last exprent in their basic block
+          if (exprent instanceof ExitExprent){
+            // We found a method exit
             yield ExitType.METHOD_EXIT;
           }
         }
         yield ExitType.EXPLICIT_EXIT;
       }
       case OTHER -> {
-        // Skip first instruction on start block ??
+        // Skip the `var10000 = varx` statement on the entry block
         int startIdx = firstBlockStatement == node.block ? 1 : 0;
 
         for (int i = startIdx; i < node.exprents.size(); i++) {
           Exprent exprent = node.exprents.get(i);
 
-          List<Exprent> lst = exprent.getAllExprents();
-          lst.add(exprent);
+          if (exprent instanceof ExitExprent exExpr &&
+            exExpr.getExitType() == ExitExprent.Type.THROW &&
+            exExpr.getValue() instanceof VarExprent varExpr &&
+            varExpr.getVarVersionPair().equals(varPair)) {
+            // Found `throw <stack var>`
+            yield ExitType.IMPLICIT_EXIT;
+          }
 
-          for (Exprent expr : lst) {
-            if (expr instanceof VarExprent varExpr && varExpr.getVarVersionPair().equals(varPair)) {
-              if (exprent instanceof ExitExprent exExpr &&
-                exExpr.getExitType() == ExitExprent.Type.THROW &&
-                exExpr.getValue() instanceof VarExprent) {
-                yield ExitType.IMPLICIT_EXIT;
-              } else {
+          for (VarVersionPair exprVar : exprent.getAllVariables()) {
+            if (exprVar.equals(varPair)) {
+                // Illegal usage of <stack var> containing exception
                 yield null;
-              }
             }
           }
-          if (exprent instanceof ExitExprent){  // exit exprents are always the last exprent in their basic block
+
+          if (exprent instanceof ExitExprent){
+            // We found a method exit
             yield ExitType.METHOD_EXIT;
           }
         }
@@ -630,7 +644,7 @@ public class FinallyProcessor {
         } else {
           if (exitType == ExitType.EXPLICIT_EXIT || exitType == ExitType.IMPLICIT_EXIT) {
             if(mapNext.put(blockSample.getId() + "#" + sucSample.getId(), new FinallyExit(blockSample, sucSample, exitType)) != null){
-              throw new IllegalStateException("frick");
+//              throw new IllegalStateException("frick");
             }
           }
         }
