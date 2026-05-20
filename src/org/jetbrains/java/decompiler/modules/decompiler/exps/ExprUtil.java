@@ -43,10 +43,15 @@ public final class ExprUtil {
       // own class
       MethodWrapper methodWrapper = wrapper.getMethodWrapper(CodeConstants.INIT_NAME, descriptor);
       if (methodWrapper == null) {
-        if (DecompilerContext.getOption(IFernflowerPreferences.IGNORE_INVALID_BYTECODE)) {
-          return null;
-        }
-        throw new RuntimeException("Constructor " + node.classStruct.qualifiedName + "." + CodeConstants.INIT_NAME + descriptor + " not found");
+        // Constructor not found. This happens legitimately when a caller has
+        // rewritten the descriptor — e.g. the Kotlin plugin strips the trailing
+        // `DefaultConstructorMarker` parameter from a default-args super call,
+        // so the resulting (ZI)V descriptor no longer matches any real
+        // (ZILDefaultConstructorMarker;)V constructor on the target. Downstream
+        // code (InvocationExprent.appendParamList et al.) already treats a null
+        // mask as "no synthetic parameters known"; returning null here recovers
+        // gracefully instead of aborting the entire enclosing class.
+        return null;
       }
       mask = methodWrapper.synthParameters;
     }
