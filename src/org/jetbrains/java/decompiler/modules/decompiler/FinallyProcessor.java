@@ -634,10 +634,6 @@ public class FinallyProcessor {
       boolean isFirstBlock = !skippedFirst && blockCatch == startCatch;
       @Nullable ExitType exitType = mapLast.get(blockCatch);  // null if not an exit
 
-      if (blockSample.getSuccs().size() != blockCatch.getSuccs().size()) {
-        return null;
-      }
-
       if (!this.compareBasicBlocksEx(
         graph,
         blockCatch,
@@ -646,6 +642,10 @@ public class FinallyProcessor {
         mapLast.get(blockCatch) == ExitType.IMPLICIT_EXIT,
         finallytype,
         entry.lstStoreVars)) {
+        return null;
+      }
+
+      if (blockSample.getSuccs().size() != blockCatch.getSuccs().size()) {
         return null;
       }
 
