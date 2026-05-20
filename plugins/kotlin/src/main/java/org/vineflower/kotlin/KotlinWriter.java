@@ -738,28 +738,48 @@ public class KotlinWriter implements StatementWriter, Flags {
 
   private void writeClassDefinition(ClassNode node, TextBuffer buffer, int indent, KElement ktData, int kotlinFlags) {
     if (node.type == ClassNode.Type.ANONYMOUS) {
-      if (!(ktData instanceof KClass cls)) {
-        throw new IllegalStateException("Anonymous class does not have Class Kotlin metadata");
-      }
-
       buffer.append("object");
 
-      boolean first = true;
-      for (ProtoBuf.Type supertype : cls.proto().getSupertypeList()) {
-        KType kType = KType.from(supertype, cls.resolver());
-        if (VarType.VARTYPE_OBJECT.equals(kType)) {
-          // skip Any / Object supertype
-          continue;
-        }
+      if (ktData instanceof KClass cls) {
+        boolean first = true;
+        for (ProtoBuf.Type supertype : cls.proto().getSupertypeList()) {
+          KType kType = KType.from(supertype, cls.resolver());
+          if (VarType.VARTYPE_OBJECT.equals(kType)) {
+            // skip Any / Object supertype
+            continue;
+          }
 
-        if (first) {
-          buffer.append(" : ");
-          first = false;
-        } else {
-          buffer.append(", ");
-        }
+          if (first) {
+            buffer.append(" : ");
+            first = false;
+          } else {
+            buffer.append(", ");
+          }
 
-        buffer.append(kType.stringify(indent));
+          buffer.append(kType.stringify(indent));
+        }
+      } else {
+        // No Kotlin Class metadata (synthetic/lambda anonymous, R8-stripped, or
+        // failed metadata parse). Fall back to JVM superclass + interface list.
+        StructClass cl = node.classStruct;
+        boolean first = true;
+        if (cl.superClass != null) {
+          VarType superType = new VarType(cl.superClass.getString(), true);
+          if (!VarType.VARTYPE_OBJECT.equals(superType)) {
+            buffer.append(" : ").append(ExprProcessor.getCastTypeName(superType));
+            first = false;
+          }
+        }
+        for (String iface : cl.getInterfaceNames()) {
+          VarType ifaceType = new VarType(iface, true);
+          if (first) {
+            buffer.append(" : ");
+            first = false;
+          } else {
+            buffer.append(", ");
+          }
+          buffer.append(ExprProcessor.getCastTypeName(ifaceType));
+        }
       }
 
       return;
