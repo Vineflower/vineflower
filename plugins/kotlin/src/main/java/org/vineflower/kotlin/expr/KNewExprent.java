@@ -229,14 +229,23 @@ public class KNewExprent extends NewExprent implements KExprent {
       buf.popNewlineGroup();
       buf.append(']');
     } else if (getLstArrayElements().isEmpty()) {
-      //TODO there should never be a multi-dimension new array created here - check if the handling is necessary
+      // The JVM `anewarray`/`multianewarray` opcodes only push as many sizes as
+      // dimensions actually allocated. When the receiver type was promoted to a
+      // higher rank (e.g. by a checkcast on the result), `getNewType().arrayDim`
+      // can exceed `getLstDims().size()`. Mirror NewExprent's `i < lstDims.size()`
+      // guard: emit the size for the dims we have, and `0` for the rest.
+      int sizedDims = Math.min(getLstDims().size(), getNewType().arrayDim);
       for (int i = 0; i < getNewType().arrayDim - 1; i++) {
         buf.append("Array(");
-        Exprent dim = getLstDims().get(i);
-        if (dim.type == Type.CONST) {
-          ((ConstExprent) dim).adjustConstType(VarType.VARTYPE_INT);
+        if (i < sizedDims) {
+          Exprent dim = getLstDims().get(i);
+          if (dim.type == Type.CONST) {
+            ((ConstExprent) dim).adjustConstType(VarType.VARTYPE_INT);
+          }
+          buf.append(dim.toJava(indent));
+        } else {
+          buf.append('0');
         }
-        buf.append(dim.toJava(indent));
         buf.append(") {");
         buf.pushNewlineGroup(indent, 1);
         buf.appendPossibleNewline(" ");
@@ -254,11 +263,17 @@ public class KNewExprent extends NewExprent implements KExprent {
         default -> "arrayOfNulls";
       }).append('(');
 
-      Exprent dim = getLstDims().get(getNewType().arrayDim - 1);
-      if (dim.type == Type.CONST) {
-        ((ConstExprent) dim).adjustConstType(VarType.VARTYPE_INT);
+      int innerIdx = getNewType().arrayDim - 1;
+      if (innerIdx < sizedDims) {
+        Exprent dim = getLstDims().get(innerIdx);
+        if (dim.type == Type.CONST) {
+          ((ConstExprent) dim).adjustConstType(VarType.VARTYPE_INT);
+        }
+        buf.append(dim.toJava(indent));
+      } else {
+        buf.append('0');
       }
-      buf.append(dim.toJava(indent)).append(')');
+      buf.append(')');
 
       for (int i = 0; i < getNewType().arrayDim - 1; i++) {
         buf.appendPossibleNewline(" ", true);
