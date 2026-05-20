@@ -297,8 +297,10 @@ public class KotlinWriter implements StatementWriter, Flags {
       Optional<ClassNode> companion;
       if (ktData instanceof KClass cls && cls.proto().hasCompanionObjectName()) {
         String name = cls.resolver().resolve(cls.proto().getCompanionObjectName());
+        // Anonymous nested classes have a null simpleName; reverse the equals
+        // direction so the non-null companion name is the receiver.
         companion = node.nested.stream()
-          .filter(n -> n.simpleName.equals(name))
+          .filter(n -> name.equals(n.simpleName))
           .findAny();
       } else {
         companion = Optional.empty();
