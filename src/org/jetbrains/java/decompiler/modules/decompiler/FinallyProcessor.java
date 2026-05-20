@@ -130,6 +130,7 @@ public class FinallyProcessor {
     STORE, // Store the exception immediately in a variable after catching it.
     EMPTY, //
   }
+
   private enum ExitType {
     IMPLICIT_EXIT,  // Normal end of the finally
     EXPLICIT_EXIT,  // `break` and `continue` that leave a finally block
@@ -139,9 +140,12 @@ public class FinallyProcessor {
   private record Record(FinallyType finallyType, int exceptionOffset, Map<BasicBlock, ExitType> mapLast) {
   }
 
-  private record Area(BasicBlock start, Set<BasicBlock> sample, @Nullable BasicBlock next /* true exit */, Set<BasicBlock> sideExits) {
+  private record Area(BasicBlock start, Set<BasicBlock> sample, @Nullable BasicBlock next /* true exit */,
+                      Set<BasicBlock> sideExits) {
   }
-  private record FinallyExit(BasicBlock source, BasicBlock succ, ExitType type) {}
+
+  private record FinallyExit(BasicBlock source, BasicBlock succ, ExitType type) {
+  }
 
   private @Nullable Record getFinallyInformation(StructClass cl, StructMethod mt, RootStatement root, CatchAllStatement fstat) {
     ExprProcessor proc = new ExprProcessor(this.methodDescriptor, this.varProcessor);
@@ -227,7 +231,7 @@ public class FinallyProcessor {
         blockStatement = node.block;
       } else if (node.getPredecessors(DirectEdgeType.REGULAR).size() == 1) {
         DirectNode source = node.getPredecessors(DirectEdgeType.REGULAR).get(0).getSource();
-        if (source.block == null){
+        if (source.block == null) {
           continue;
         }
         blockStatement = source.block;
@@ -260,7 +264,7 @@ public class FinallyProcessor {
       InstructionSequence seq = firstBasicBlock.getSeq();
 
       // Check if empty
-      if(switch (firstcode) {
+      if (switch (firstcode) {
         case OTHER -> isFirstLast && seq.length() == 1;
         case DROP -> seq.length() == 1;
         case STORE -> isFirstLast ? seq.length() == 3 : seq.length() == 1;
@@ -301,6 +305,7 @@ public class FinallyProcessor {
             if (i != node.exprents.size() - 1) {
               next = node.exprents.get(i + 1);
             } else if (node.getSuccessors(DirectEdgeType.REGULAR).size() == 1) {
+              // TODO: make a test case that uses this. I don't feel like later code considers this scenario correctly
               DirectNode nd = node.getSuccessors(DirectEdgeType.REGULAR).get(0).getDestination();
               if (!nd.exprents.isEmpty()) {
                 next = nd.exprents.get(0);
@@ -314,13 +319,13 @@ public class FinallyProcessor {
               assExpr.getLeft().equals(exExpr.getValue())) {
               // found normal exit
               yield ExitType.IMPLICIT_EXIT;
-            } else{
+            } else {
               // found illegal usage of exception var.
               yield null;
             }
           }
 
-          if (exprent instanceof ExitExprent){
+          if (exprent instanceof ExitExprent) {
             // We found a method exit
             yield ExitType.METHOD_EXIT;
           }
@@ -344,12 +349,12 @@ public class FinallyProcessor {
 
           for (VarVersionPair exprVar : exprent.getAllVariables()) {
             if (exprVar.equals(varPair)) {
-                // Illegal usage of <stack var> containing exception
-                yield null;
+              // Illegal usage of <stack var> containing exception
+              yield null;
             }
           }
 
-          if (exprent instanceof ExitExprent){
+          if (exprent instanceof ExitExprent) {
             // We found a method exit
             yield ExitType.METHOD_EXIT;
           }
@@ -556,7 +561,7 @@ public class FinallyProcessor {
     Set<BasicBlock> sideExits = null;
     for (BasicBlock start : startBlocks) {
 
-      Area arr = this.compareSubgraphsEx(graph, start, catchBlocks, first, finallytype, mapLast, skippedFirst);
+      @Nullable Area arr = this.compareSubgraphsEx(graph, start, catchBlocks, first, finallytype, mapLast, skippedFirst);
       if (arr == null) {
         return false;
       }
@@ -616,7 +621,7 @@ public class FinallyProcessor {
 
     Set<BasicBlock> setSample = new HashSet<>();
 
-    Map<String, FinallyExit> mapNext = new HashMap<>();
+    Map<String, FinallyExit> mapNext = new LinkedHashMap<>();
 
     stack.add(new BlockStackEntry(startCatch, startSample, new ArrayList<>()));
 
@@ -629,6 +634,10 @@ public class FinallyProcessor {
       boolean isFirstBlock = !skippedFirst && blockCatch == startCatch;
       @Nullable ExitType exitType = mapLast.get(blockCatch);  // null if not an exit
 
+      if (blockSample.getSuccs().size() != blockCatch.getSuccs().size()) {
+        return null;
+      }
+
       if (!this.compareBasicBlocksEx(
         graph,
         blockCatch,
@@ -637,10 +646,6 @@ public class FinallyProcessor {
         mapLast.get(blockCatch) == ExitType.IMPLICIT_EXIT,
         finallytype,
         entry.lstStoreVars)) {
-        return null;
-      }
-
-      if (blockSample.getSuccs().size() != blockCatch.getSuccs().size()) {
         return null;
       }
 
@@ -665,37 +670,39 @@ public class FinallyProcessor {
       // exception successors
       if (exitType != null && blockSample.getSeq().isEmpty()) {
         // do nothing, blockSample will be removed anyway
+        continue;
       } else if (blockCatch.getSuccExceptions().size() != blockSample.getSuccExceptions().size()) {
         return null;
-      } else {
-        for (int i = 0; i < blockCatch.getSuccExceptions().size(); i++) {
-          BasicBlock sucCatch = blockCatch.getSuccExceptions().get(i);
-          BasicBlock sucSample = blockSample.getSuccExceptions().get(i);
+      }
 
-          String excCatch = graph.getExceptionRange(sucCatch, blockCatch).getUniqueExceptionsString();
-          String excSample = graph.getExceptionRange(sucSample, blockSample).getUniqueExceptionsString();
+      for (int i = 0; i < blockCatch.getSuccExceptions().size(); i++) {
+        BasicBlock sucCatch = blockCatch.getSuccExceptions().get(i);
+        BasicBlock sucSample = blockSample.getSuccExceptions().get(i);
 
-          // FIXME: compare handlers if possible
-          if (!Objects.equals(excCatch, excSample)) {
-            return null;
-          }
-          if (catchBlocks.contains(sucCatch) && !setSample.contains(sucSample)) {
+        String excCatch = graph.getExceptionRange(sucCatch, blockCatch).getUniqueExceptionsString();
+        String excSample = graph.getExceptionRange(sucSample, blockSample).getUniqueExceptionsString();
 
-            List<int[]> lst = entry.lstStoreVars;
+        // FIXME: compare handlers if possible
+        if (!Objects.equals(excCatch, excSample)) {
+          return null;
+        }
 
-            if (!sucCatch.getSeq().isEmpty() && !sucSample.getSeq().isEmpty()) {
-              Instruction instrCatch = sucCatch.getSeq().getInstr(0);
-              Instruction instrSample = sucSample.getSeq().getInstr(0);
+        if (catchBlocks.contains(sucCatch) && !setSample.contains(sucSample)) {
+          List<int[]> lst = entry.lstStoreVars;
 
-              if (instrCatch.opcode == CodeConstants.opc_astore &&
-                instrSample.opcode == CodeConstants.opc_astore) {
-                lst = new ArrayList<>(lst);
-                lst.add(new int[]{instrCatch.operand(0), instrSample.operand(0)});
-              }
+          // Add variable mapping for catch vars?
+          if (!sucCatch.getSeq().isEmpty() && !sucSample.getSeq().isEmpty()) {
+            Instruction instrCatch = sucCatch.getSeq().getInstr(0);
+            Instruction instrSample = sucSample.getSeq().getInstr(0);
+
+            if (instrCatch.opcode == CodeConstants.opc_astore &&
+              instrSample.opcode == CodeConstants.opc_astore) {
+              lst = new ArrayList<>(lst);
+              lst.add(new int[]{instrCatch.operand(0), instrSample.operand(0)});
             }
-
-            stack.add(new BlockStackEntry(sucCatch, sucSample, lst));
           }
+
+          stack.add(new BlockStackEntry(sucCatch, sucSample, lst));
         }
       }
     }
@@ -793,36 +800,33 @@ public class FinallyProcessor {
     return next;
   }
 
-  private boolean compareBasicBlocksEx(ControlFlowGraph graph,
-                                       BasicBlock pattern,
-                                       BasicBlock sample,
-                                       boolean isFirstBlock, boolean isTrueLastBlock,
-                                       FinallyType finallytype,
-                                       List<int[]> lstStoreVars) {
+  private boolean compareBasicBlocksEx(
+    ControlFlowGraph graph,
+    BasicBlock pattern,
+    BasicBlock sample,
+    boolean isFirstBlock,
+    boolean isTrueLastBlock,
+    FinallyType finallytype,
+    List<int[]> lstStoreVars) {
+
     InstructionSequence seqPattern = pattern.getSeq();
     InstructionSequence seqSample = sample.getSeq();
-    List<Integer> instrOldOffsetsSample = sample.getInstrOldOffsets();
 
-    if (isFirstBlock || isTrueLastBlock) {
-      seqPattern = seqPattern.clone();
-
-      if (isFirstBlock) { // first
-        if (finallytype != FinallyType.OTHER) {
-          seqPattern.removeInstruction(0);
-        }
-      }
-
-      if (isTrueLastBlock) { // last
-        if (finallytype == FinallyType.OTHER || finallytype == FinallyType.STORE) {
-          seqPattern.removeLast();
-        }
-
-        if (finallytype == FinallyType.STORE) {
-          seqPattern.removeLast();
-        }
+    if (isFirstBlock) { // first
+      if (finallytype != FinallyType.OTHER) {
+        seqPattern = seqPattern.subSequence(1); // drop first instruction
       }
     }
 
+    if (isTrueLastBlock) { // last
+      switch (finallytype) {
+        case OTHER -> seqPattern = seqPattern.subSequence(0, -1);  // drop last
+        case STORE -> seqPattern = seqPattern.subSequence(0, -2);  // drop last 2 // TODO: this is not always correct
+      }
+    }
+
+    // Sample is allowed to be longer, in that case it is split into 2 basic blocks.
+    //  TODO: does this make sense for cases where the current block isn't an IMPLICIT_END (trueLastBlock)?
     if (seqPattern.length() > seqSample.length()) {
       return false;
     }
@@ -831,57 +835,60 @@ public class FinallyProcessor {
       Instruction instrPattern = seqPattern.getInstr(i);
       Instruction instrSample = seqSample.getInstr(i);
 
-      // compare instructions with respect to jumps
+      // compare instructions with respect to jumps and variables.
       if (!this.equalInstructions(instrPattern, instrSample, lstStoreVars)) {
         return false;
       }
     }
 
     if (seqPattern.length() < seqSample.length()) { // split in two blocks
-      InstructionSequence seq = new InstructionSequence();
-      LinkedList<Integer> oldOffsets = new LinkedList<>();
-      for (int i = seqSample.length() - 1; i >= seqPattern.length(); i--) {
-        seq.addInstruction(0, seqSample.getInstr(i));
-        oldOffsets.addFirst(sample.getOldOffset(i));
-        seqSample.removeInstruction(i);
-        if (i < instrOldOffsetsSample.size()) {
-          instrOldOffsetsSample.remove(i);
-        }
-      }
-
-      BasicBlock newblock = new BasicBlock(++graph.last_id);
-      newblock.setSeq(seq);
-      newblock.getInstrOldOffsets().addAll(oldOffsets);
-
-      List<BasicBlock> lstTemp = new ArrayList<>(sample.getSuccs());
-
-      // move successors
-      for (BasicBlock suc : lstTemp) {
-        sample.removeSuccessor(suc);
-        newblock.addSuccessor(suc);
-      }
-
-      sample.addSuccessor(newblock);
-
-      graph.getBlocks().addWithKey(newblock, newblock.id);
-
-      Set<BasicBlock> setFinallyExits = graph.getFinallyExits();
-      if (setFinallyExits.contains(sample)) {
-        setFinallyExits.remove(sample);
-        setFinallyExits.add(newblock);
-      }
-
-      // copy exception edges and extend protected ranges
-      for (int j = 0; j < sample.getSuccExceptions().size(); j++) {
-        BasicBlock hd = sample.getSuccExceptions().get(j);
-        newblock.addSuccessorException(hd);
-
-        ExceptionRangeCFG range = graph.getExceptionRange(hd, sample);
-        range.getProtectedRange().add(newblock);
-      }
+      splitBasicBlock(graph, sample, seqSample, seqPattern.length());
     }
 
     return true;
+  }
+
+  private static void splitBasicBlock(
+    ControlFlowGraph graph,
+    BasicBlock block,
+    InstructionSequence seqSample,
+    int splitIndex) {
+
+    InstructionSequence seq = seqSample.split(splitIndex);
+    List<Integer> oldOffsets = block.getInstrOldOffsets();
+    List<Integer> offsetSublist = oldOffsets.subList(Math.min(splitIndex, oldOffsets.size()), oldOffsets.size());
+
+    BasicBlock newBlock = new BasicBlock(++graph.last_id);
+    newBlock.setSeq(seq);
+    newBlock.getInstrOldOffsets().addAll(offsetSublist);
+    offsetSublist.clear(); // remove offsets from original block
+
+    List<BasicBlock> lstTemp = new ArrayList<>(block.getSuccs());
+
+    // move successors
+    for (BasicBlock suc : lstTemp) {
+      block.removeSuccessor(suc);
+      newBlock.addSuccessor(suc);
+    }
+
+    block.addSuccessor(newBlock);
+
+    graph.getBlocks().addWithKey(newBlock, newBlock.id);
+
+    Set<BasicBlock> setFinallyExits = graph.getFinallyExits();
+    if (setFinallyExits.contains(block)) {
+      setFinallyExits.remove(block);
+      setFinallyExits.add(newBlock);
+    }
+
+    // copy exception edges and extend protected ranges
+    for (int j = 0; j < block.getSuccExceptions().size(); j++) {
+      BasicBlock hd = block.getSuccExceptions().get(j);
+      newBlock.addSuccessorException(hd);
+
+      ExceptionRangeCFG range = graph.getExceptionRange(hd, block);
+      range.getProtectedRange().add(newBlock);
+    }
   }
 
   public boolean equalInstructions(Instruction first, Instruction second, List<int[]> lstStoreVars) {
@@ -891,45 +898,46 @@ public class FinallyProcessor {
       return false;
     }
 
-    if (first.group != CodeConstants.GROUP_JUMP && first.group != CodeConstants.GROUP_SWITCH) { // FIXME: switch comparison
-      // NOTE: seems like just checking group_switch works? Why does the above comment have a fix me?
+    if (first.group == CodeConstants.GROUP_JUMP || first.group == CodeConstants.GROUP_SWITCH) {
+      // FIXME: switch comparison
+      return true;
+    }
 
-      for (int i = 0; i < first.operandsCount(); i++) {
-        int firstOp = first.operand(i);
-        int secondOp = second.operand(i);
-        if (firstOp != secondOp) {
-          // a-load/store instructions
-          if (first.opcode == CodeConstants.opc_aload) {
-            for (int[] arr : lstStoreVars) {
-              if (arr[0] == firstOp && arr[1] == secondOp) {
-                return true;
-              }
+    for (int i = 0; i < first.operandsCount(); i++) {
+      int firstOp = first.operand(i);
+      int secondOp = second.operand(i);
+      if (firstOp != secondOp) {
+        // a-load/store instructions
+        if (first.opcode == CodeConstants.opc_aload) {
+          for (int[] arr : lstStoreVars) {
+            if (arr[0] == firstOp && arr[1] == secondOp) {
+              return true;
             }
-          } else if (first.opcode == CodeConstants.opc_astore) {
-            lstStoreVars.add(new int[]{firstOp, secondOp});
-            return true;
+          }
+        } else if (first.opcode == CodeConstants.opc_astore) {
+          lstStoreVars.add(new int[]{firstOp, secondOp});
+          return true;
+        }
+
+        boolean ok = false;
+        if (isOpcVar(first.opcode)) {
+          // Find rewritten variables
+          if (this.instrRewrites.containsKey(first)) {
+            firstOp = this.instrRewrites.get(first);
+          }
+          if (this.instrRewrites.containsKey(second)) {
+            secondOp = this.instrRewrites.get(second);
           }
 
-          boolean ok = false;
-          if (isOpcVar(first.opcode)) {
-            // Find rewritten variables
-            if (this.instrRewrites.containsKey(first)) {
-              firstOp = this.instrRewrites.get(first);
-            }
-            if (this.instrRewrites.containsKey(second)) {
-              secondOp = this.instrRewrites.get(second);
-            }
-
-            if (this.ssuversions.areVarsAnalogous(firstOp, secondOp)) {
-              ok = true;
-            }
-
-            // TODO: validate direct assignments
+          if (this.ssuversions.areVarsAnalogous(firstOp, secondOp)) {
+            ok = true;
           }
 
-          if (!ok) {
-            return false;
-          }
+          // TODO: validate direct assignments
+        }
+
+        if (!ok) {
+          return false;
         }
       }
     }

@@ -39,7 +39,7 @@ allprojects {
   }
 
   dependencies {
-    implementation 'org.jetbrains:annotations:24.0.0'
+    implementation 'org.jetbrains:annotations:26.1.0'
     testImplementation("org.junit.jupiter:junit-jupiter-api:${project.junit_bom}")
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${project.junit_bom}")

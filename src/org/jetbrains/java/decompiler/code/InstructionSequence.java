@@ -20,6 +20,10 @@ public class InstructionSequence implements Iterable<Instruction> {
     this.instructions = new ArrayList<>(instructions);
   }
 
+  private InstructionSequence(List<Instruction> instructions, boolean _alternateConstructor){
+    this.instructions = instructions;
+  }
+
   // *****************************************************************************
   // public methods
   // *****************************************************************************
@@ -69,6 +73,25 @@ public class InstructionSequence implements Iterable<Instruction> {
 
   public boolean isEmpty() {
     return this.instructions.isEmpty();
+  }
+
+  public InstructionSequence split(int i){
+    /// Remove all instructions starting at index i and put then in a new Sequence
+    List<Instruction> subInstruction = this.instructions.subList(i, this.instructions.size());
+    InstructionSequence seq = new InstructionSequence(subInstruction);  // will make a copy of the list
+    subInstruction.clear();  // will remove all of them from the instructions list.
+    return seq;
+  }
+
+  public InstructionSequence subSequence(int fromIndex) {
+    return subSequence(fromIndex, length());
+  }
+
+  public InstructionSequence subSequence(int fromIndex, int toIndex) {
+    /// Same semantics as `List.subList`, using negative indices will count from the end.
+    int realFromIndex = fromIndex >= 0 ? fromIndex: fromIndex + length();
+    int realToIndex = toIndex >= 0 ? toIndex: toIndex + length();
+    return new InstructionSequence(this.instructions.subList(realFromIndex, realToIndex), true);
   }
 
   public String toString() {
