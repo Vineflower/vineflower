@@ -72,6 +72,18 @@ public class TestArrayArg {
     overloaded3(null, "s");
   }
 
+  public static void test7() {
+    overloaded4(new String[]{"arg"});
+  }
+
+  public static void test7_() {
+    overloaded4("arg");
+  }
+
+  public static void test7b() {
+    overloaded4(7);
+  }
+
   private static void overloaded(Object o) {
     System.out.println("non-variadic");
   }
@@ -102,5 +114,17 @@ public class TestArrayArg {
 
   private static void overloaded3(String s, String s2) {
     System.out.println("non-array");
+  }
+
+  private static void overloaded4(String s) {
+    System.out.println("non-variadic");
+  }
+
+  private static void overloaded4(String... s) {
+    System.out.println("variadic");
+  }
+
+  private static void overloaded4(Integer... i) {
+    System.out.println("variadic-other-type");
   }
 }
