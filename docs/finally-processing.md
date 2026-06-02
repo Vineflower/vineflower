@@ -1,6 +1,6 @@
 # Finally processing
 
-This document aims to explain how finally's are detected and reconstructed.
+This document aims to explain how `finally` statements are detected and reconstructed.
 
 ## What is a `finally` (in Java)
 
@@ -19,7 +19,7 @@ Unless you have experience reading the Java spec, that might not have been a gre
 In short: A `try` statement will execute the first block it's given. If that block produces an error, it will look
 through its `catch` blocks to see if any of them are able to handle the error. If so, the first one that is applicable
 is selected and that block is executed. At the end of the execution of the code inside the `try` and (if applicable)
-`catch` block, execution is ALWAYS transferred to the finally block. This includes exiting "normally" meaning that
+`catch` block, execution is ALWAYS transferred to the `finally` block. This includes exiting "normally" meaning that
 execution has just reached the end of the block, and "abruptly" which means a (yet) uncaught `throw`, a `return`,
 a `break`, a `continue` or a `yield` statement have been executed, and it's target (in case of `break`, `continue` and
 `yield`) is outside the "try finally".
@@ -112,25 +112,25 @@ don't allow it.
 
 (This section assumes the Vineflower simplification listed above)
 
-Before Java 6, `finally`s where compiled using the `jsr` and `ret` opcodes. This allowed for the creation of
-mini-functions (subroutines) inside the larger function. At each point in the `try` block, right before an exit out of
-that block (`return`, `break`, ... or just normally exiting) the subroutine with the code of the `finally` block was
-called. Additionally, there is an exception handler present that catches all exceptions (VF: "catch-all") in the code
-for the `try` block which jumps to a piece of code that stores the exception in a variable, also jumps to the `finally`
-subroutine and then rethrows the caught exception.
+In the initial Java 1 implementations, `finally` blocks were compiled using the `jsr` and `ret` opcodes. This allowed
+for the creation of mini-functions (subroutines) inside the larger function. At each point in the `try` block, right
+before an exit out of that block (`return`, `break`, ... or just normally exiting) the subroutine with the code of the
+`finally` block was called. Additionally, there is an exception handler present that catches all exceptions (VF: "
+catch-all") in the code for the `try` block which jumps to a piece of code that stores the exception in a variable, also
+jumps to the `finally` subroutine and then rethrows the caught exception.
 
 However, even though there are restrictions on the subroutines (no recursing, each subroutine can have at most one `ret`
 instruction, and a nested subroutine call can no longer be returned from if an outer sub routine has already returned),
-it made validating and optimizing the bytecode non-trivial. As a result, starting in Java 6, and required for classes
-with classfile version 51.0 and above (Java 7), `jsr` and `ret` where no longer allowed and instead, each exit point and
-the catch-all will jump to their own copied version of the finally code.
+it made validating and optimizing the bytecode non-trivial. As a result, starting in Java 2-3, and required for classes
+with classfile version 51.0 and above (Java 7), `jsr` and `ret` were no longer used and instead, each exit point and
+the catch-all will jump to their own copied version of the `finally` block code.
 
 Handling `jsr` and `ret` instructions isn't only annoying for the Java Runtime, it's also annoying for Vineflower.
 As a result, one of the very first processing steps on the parsed Control Flow Graph is the inlining of jsr
 instructions. This means that we convert old Java 5 and before `finally`s into the version that we'd expect for Java 6+.
 Given that in a later step we will need to deduplicate these, this might seem like a weird action to take but abusing
-`jsr` and `ret` where really popular in obfuscators. This meant that assuming that these subroutines could always be
-converted into "try-finally"'s wasn't an option.
+`jsr` and `ret` was really popular in obfuscators. This meant that assuming that these subroutines can always be
+converted into "try-finally"'s isn't an option.
 
 ## Decompiling `finally`
 
@@ -142,7 +142,7 @@ The decompilation of `finally` happens currently in these 3 steps.
 
 Each of these 3 steps will give different results if that step fails.
 
-### Decompiling the catch block.
+### Decompiling the `catch` block.
 
 Each exception handler in the bytecode has an exception type it catches. However, there is also an option to not
 specify a type. In this case, ALL exception are caught. This ends up being equivalent to catching `Throwable` as all
@@ -194,8 +194,8 @@ decompile as a "catch Throwable" with a comment `"Could not inline inconsistent 
 
 ### Deduplication of finally handler
 
-The final step is to find all exit points of the try block and validate that they go to their own copy of the finally
-block.
+The final step is to find all exit points of the `try` block and validate that they go to their own copy of the
+`finally` block.
 
 All jumps out of the `try` block are identified, and one by one are compared with the `catch` block. For each so-called
 "sample", we start with comparing the start block (sample block) against the first block of the catch handler (pattern
@@ -209,7 +209,7 @@ The caveats:
 
 (1): In case of the very first block of the finally catch handler, an initial `pop` (discarding the exception) or
 `astore` (storing the exception) instruction will be skipped in the comparison. Additionally, for the "normal" exit
-out of the finally block, the `throw` (and previous `aload` in case of a `STORE` finally type) are also skipped.
+out of the `finally` block, the `throw` (and previous `aload` in case of a `STORE` finally type) are also skipped.
 
 (2): It is permitted for a sample block to contain more instruction than its corresponding pattern block. In this case,
 the remaining unmatched instructions will be split into a new basic block, taking over all the successors, copying the
@@ -219,17 +219,17 @@ exception handlers and becoming the sole successor of the original sample block
 variable indices between copies. The processor tries to keep a list of match ups but is actually too lenient. Jump
 targets in jump and switch blocks are ignored.
 
-If everything looks oke, then the info is bundled into an "Area" object. If all the jumps out of the try block have been
-validated, the Areas are deleted from the graph, and the exception handling instructions are removed from the finally
-catch handler so it can be used as a propper finally block instead.
+If everything looks okay, then the info is bundled into an `Area` object. If all the jumps out of the `try` block have
+been validated, the `Area`s are deleted from the graph, and the exception handling instructions are removed from the
+finally catch handler so it can be used as a proper `finally` block instead.
 
-If any of the jumps fails to validate, the catch block is still converted into a finally block, but a "semaphore"
-variable is introduced. It is set to true when the try block is entered, and set to false when it is exited. The code
-inside the finally block is then only executed if the value is set to true. effectively emulating a catch block with a
-finally block. All other "copies" (those that do and those that don't match) are left as is.
+If any of the jumps fails to validate, the `catch` block is still converted into a `finally` block, but a "semaphore"
+variable is introduced. It is set to true when the `try` block is entered, and set to false when it is exited. The code
+inside the `finally` block is then only executed if the value is set to true. effectively emulating a `catch` block with
+a `finally` block. All other "copies" (those that do and those that don't match) are left as is.
 
-### Multiple finally's
+### Multiple `finally`'s
 
-After a CatchAllStatement is processed, the result is stored (did the finally successfully match or not, if not is there
-a semaphore variable or not, and which variable is it). And the dom helper is run again. No attempt is made to keep
-working on the original tree.
+After a CatchAllStatement is processed, the result is stored (did the `finally` successfully match or not, if not is
+there a semaphore variable or not, and which variable is it). And the dom helper is run again. No attempt is made to
+keep working on the original tree.
