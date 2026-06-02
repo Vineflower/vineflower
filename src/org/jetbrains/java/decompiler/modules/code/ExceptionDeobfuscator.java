@@ -403,7 +403,7 @@ public final class ExceptionDeobfuscator {
 
     ValidationHelper.notNull(missed);
 
-    // inlining time;
+    // Cleanup is possible. Add blocks to exception range.
     Set<BasicBlock> handled = new HashSet<>();
     for(var entry : setEntries.entrySet()) {
       if (missed == entry.getKey()) {
