@@ -125,10 +125,10 @@ public class FinallyProcessor {
   }
 
   private enum FinallyType {
-    OTHER,  //
+    OTHER,  // Exception is kept in a stack var.
     DROP, // Drop the exception immediately after catching it, can't be rethrown
     STORE, // Store the exception immediately in a variable after catching it.
-    EMPTY, //
+    EMPTY, //  The finally is empty?
   }
 
   private enum ExitType {
