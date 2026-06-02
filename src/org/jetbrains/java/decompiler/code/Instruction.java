@@ -2,7 +2,6 @@
 package org.jetbrains.java.decompiler.code;
 
 import org.jetbrains.java.decompiler.util.TextUtil;
-import static org.jetbrains.java.decompiler.code.CodeConstants.*;
 
 public class Instruction implements CodeConstants {
   public static Instruction create(
@@ -78,6 +77,21 @@ public class Instruction implements CodeConstants {
            !(opcode >= opc_ireturn && opcode <= opc_return) &&
            opcode != opc_athrow &&
            opcode != opc_jsr && opcode != opc_tableswitch && opcode != opc_lookupswitch;
+  }
+
+  public boolean canNotThrow() {
+    // Ignoring VirtualMachineErrors, including link errors
+    return opcode <= opc_sipush ||
+      (opc_iload <= opcode && opcode <= opc_aload_3) ||
+      (opc_istore <= opcode && opcode <= opc_astore_3) ||
+      (opc_pop <= opcode && opcode <= opc_dmul) ||
+      (opcode == opc_fdiv) ||
+      (opcode == opc_ddiv) ||
+      (opcode == opc_frem) ||
+      (opcode == opc_drem) ||
+      (opc_ineg <= opcode && opcode <= opc_lookupswitch) ||
+      (opcode == opc_wide) ||
+      (opc_ifnull <= opcode && opcode <= opc_jsr_w);
   }
 
   @Override

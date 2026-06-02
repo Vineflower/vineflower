@@ -174,7 +174,7 @@ public class BasicBlock implements IGraphNode {
   }
 
   @Override
-  public Collection<? extends IGraphNode> getPredecessors() {
+  public Collection<? extends BasicBlock> getPredecessors() {
     List<BasicBlock> lst = new ArrayList<>(preds);
     lst.addAll(predExceptions);
     return lst;
