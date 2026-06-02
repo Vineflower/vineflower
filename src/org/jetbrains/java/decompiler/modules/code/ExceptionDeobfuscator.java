@@ -344,7 +344,7 @@ public final class ExceptionDeobfuscator {
 
           if (growExceptionRange(range, setEntries)) {
             splitted = true;
-            graph.addComment("$VF: Handled exception range with multiple entry points by growing it");
+            graph.addComment("$VF: Handled exception range with multiple entry points by expanding it");
             break;
           } else if (splitExceptionRange(range, setEntries.keySet(), graph, engine)) {
             splitted = true;
