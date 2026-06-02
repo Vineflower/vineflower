@@ -36,6 +36,7 @@ import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
+import org.jetbrains.java.decompiler.util.Pair;
 import org.jetbrains.java.decompiler.util.collections.ListStack;
 
 import java.util.*;
@@ -621,7 +622,7 @@ public class FinallyProcessor {
 
     Set<BasicBlock> setSample = new HashSet<>();
 
-    Map<String, FinallyExit> mapNext = new LinkedHashMap<>();
+    Map<Pair<BasicBlock, BasicBlock>, FinallyExit> mapNext = new LinkedHashMap<>();
 
     stack.add(new BlockStackEntry(startCatch, startSample, new ArrayList<>()));
 
@@ -662,7 +663,7 @@ public class FinallyProcessor {
           }
         } else {
           if (exitType == ExitType.EXPLICIT_EXIT || exitType == ExitType.IMPLICIT_EXIT) {
-            mapNext.put(blockSample.getId() + "#" + sucSample.getId(), new FinallyExit(blockSample, sucSample, exitType));
+            mapNext.put(Pair.of(blockSample, sucSample), new FinallyExit(blockSample, sucSample, exitType));
           }
         }
       }
