@@ -14,7 +14,7 @@ public class TestTryCatchNoIncrement {
       }
    }// 20
 
-   // $VF: Handled exception range with multiple entry points by growing it
+   // $VF: Handled exception range with multiple entry points by expanding it
    public final void skippedInc(List<String> items) {
       try {
          for (int i = 0; i < items.size(); i++) {// 24 25 29
