@@ -391,29 +391,27 @@ public abstract class SFormsConstructor {
 
   // TODO: these could instead be VarExprents / PatternExprents in the catch dnode
   private void setCatchMaps(Statement stat, DirectGraph dgraph, FlattenStatementsHelper flatthelper) {
+    if (stat instanceof CatchAllStatement catchAllStat) {
+      List<VarExprent> lstVars = catchAllStat.getVars();
+      for (int i = 1; i < stat.getStats().size(); i++) {
+        int varindex = lstVars.get(i - 1).getIndex();
+        SFormsFastMapDirect map = new SFormsFastMapDirect(this.factory);
 
-    SFormsFastMapDirect map;
+        this.initParameter(varindex, map, true);
 
-    switch (stat.type) {
-      case CATCH_ALL:
-      case TRY_CATCH:
+        this.extraVarVersions.put(flatthelper.getDirectNode(stat.getStats().get(i)).id, map);
 
-        List<VarExprent> lstVars;
-        if (stat instanceof CatchAllStatement) {
-          lstVars = ((CatchAllStatement) stat).getVars();
-        } else {
-          lstVars = ((CatchStatement) stat).getVars();
-        }
+      }
+    } else if (stat instanceof CatchStatement catchStat) {
+      ValidationHelper.validateCatchStatement(catchStat);
+      for (CatchStatement.CatchEntry entry : catchStat.getCatchEntries()) {
+        int varindex = entry.var().getIndex();
+        SFormsFastMapDirect map = new SFormsFastMapDirect(this.factory);
 
-        for (int i = 1; i < stat.getStats().size(); i++) {
-          int varindex = lstVars.get(i - 1).getIndex();
-          map = new SFormsFastMapDirect(this.factory);
+        this.initParameter(varindex, map, true);
 
-          this.initParameter(varindex, map, true);
-
-          this.extraVarVersions.put(flatthelper.getDirectNode(stat.getStats().get(i)).id, map);
-
-        }
+        this.extraVarVersions.put(flatthelper.getDirectNode(entry.stat()).id, map);
+      }
     }
 
     for (Statement st : stat.getStats()) {

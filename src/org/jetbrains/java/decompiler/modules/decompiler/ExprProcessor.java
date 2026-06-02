@@ -169,21 +169,19 @@ public class ExprProcessor implements CodeConstants {
 
   private static void collectCatchVars(Statement stat, FlattenStatementsHelper flatthelper, Map<String, VarExprent> map) {
 
-    List<VarExprent> lst = null;
 
-    if (stat instanceof CatchAllStatement) {
-      CatchAllStatement catchall = (CatchAllStatement)stat;
+    if (stat instanceof CatchAllStatement catchall) {
       if (!catchall.isFinally()) {
-        lst = catchall.getVars();
+        List<VarExprent> lst = catchall.getVars();
+        if (lst != null) {
+          for (int i = 1; i < stat.getStats().size(); i++) {
+            map.put(flatthelper.getDirectNode(stat.getStats().get(i)).id, lst.get(i - 1));
+          }
+        }
       }
-    }
-    else if (stat instanceof CatchStatement) {
-      lst = ((CatchStatement)stat).getVars();
-    }
-
-    if (lst != null) {
-      for (int i = 1; i < stat.getStats().size(); i++) {
-        map.put(flatthelper.getDirectNode(stat.getStats().get(i)).id, lst.get(i - 1));
+    } else if (stat instanceof CatchStatement catchStat) {
+      for (CatchStatement.CatchEntry entry : catchStat.getCatchEntries()) {
+        map.put(flatthelper.getDirectNode(entry.stat()).id, entry.var());
       }
     }
 

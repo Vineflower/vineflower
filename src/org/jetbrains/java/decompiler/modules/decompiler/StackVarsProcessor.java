@@ -1,6 +1,7 @@
 // Copyright 2000-2017 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler;
 
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
@@ -27,7 +28,6 @@ import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribu
 import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
-import org.jetbrains.java.decompiler.util.DotExporter;
 import org.jetbrains.java.decompiler.util.collections.FastSparseSetFactory.FastSparseSet;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.collections.SFormsFastMapDirect;
@@ -578,12 +578,10 @@ public class StackVarsProcessor {
         // Try to propagate the lvt from the assignment being deleted to the catch. This is required because catch vars use
         // synthetic variables, and won't get their lvt normally otherwise.
 
-        CatchStatement catchSt = enclosingCatch(stat);
-        if (catchSt != null) {
-          for (VarExprent var : catchSt.getVars()) {
-            if (var.getIndex() == rightVar.getIndex()) {
-              var.setLVT(left.getLVT());
-            }
+        CatchStatement.CatchEntry catchEntry = enclosingCatchEntry(stat);
+        if (catchEntry != null) {
+          if (catchEntry.var().getIndex() == rightVar.getIndex()) {
+            catchEntry.var().setLVT(left.getLVT());
           }
         }
       }
@@ -602,10 +600,14 @@ public class StackVarsProcessor {
     return res;
   }
 
-  private static CatchStatement enclosingCatch(Statement stat) {
+  private static @Nullable CatchStatement.CatchEntry enclosingCatchEntry(Statement stat) {
     while (stat.getParent() != null) {
       if (stat.getParent() instanceof CatchStatement st) {
-        return st;
+        for (CatchStatement.CatchEntry entry : st.getCatchEntries()) {
+          if (entry.stat() == stat){
+            return entry;
+          }
+        }
       }
 
       stat = stat.getParent();

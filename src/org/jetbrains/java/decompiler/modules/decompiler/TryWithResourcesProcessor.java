@@ -68,13 +68,12 @@ public final class TryWithResourcesProcessor {
         Statement stat = finallyStat.getParent();
         Statement stat2 = finallyStat.getFirst();
 
-        if (stat2 instanceof CatchStatement) {
-          CatchStatement child = (CatchStatement)stat2;
+        if (stat2 instanceof CatchStatement child) {
 
-          AssignmentExprent resourceDef = (AssignmentExprent)ass.copy();
+          AssignmentExprent resourceDef = ass.copy();
           if (ass.getRight().getExprType().equals(VarType.VARTYPE_NULL)) {
-            if (child.getFirst() != null) {
-              fixResourceAssignment(resourceDef, child.getFirst());
+            if (child.tryStat() != null) {
+              fixResourceAssignment(resourceDef, child.tryStat());
             }
           }
 
@@ -106,59 +105,51 @@ public final class TryWithResourcesProcessor {
   // It doesn't use finally blocks, and is just a try catch
   public static boolean makeTryWithResourceJ11(CatchStatement tryStatement) {
     // Doesn't have a catch block, probably already processed
-    if (tryStatement.getStats().size() < 2) {
+    if (tryStatement.getCatchEntries().isEmpty()) {
       return false;
     }
 
-    if (!tryStatement.getVars().get(0).getVarType().value.equals("java/lang/Throwable")) {
+    CatchStatement.CatchEntry entry = tryStatement.getCatchEntries().get(0);
+    if (!entry.var().getVarType().value.equals("java/lang/Throwable")) {
       return false;
     }
 
-    Statement inner = tryStatement.getStats().get(1); // Get catch block
+    Statement inner = entry.stat(); // Get catch block
 
     VarExprent closeable = null;
 
     boolean nullable = false;
 
-    if (inner instanceof SequenceStatement) {
-      // Replace dummy inner with real inner
-      inner = inner.getStats().get(0);
-
+    if (inner instanceof SequenceStatement seqStat) {
       // If the catch statement contains a simple try catch, then it's a nonnull resource
-      if (inner instanceof CatchStatement) {
-        if (inner.getStats().isEmpty()) {
+      if (seqStat.getFirst() instanceof CatchStatement innerTry) {
+        if (innerTry.getStats().isEmpty()) {  // FIXME: I think this wants to check if there is at least one catch?
           return false;
         }
 
-        CatchStatement innerTry = (CatchStatement)inner;
-        if (!innerTry.getVars().get(0).getVarType().value.equals("java/lang/Throwable")) {
+        CatchStatement.CatchEntry innerEntry = innerTry.getCatchEntries().get(0);
+        if (!innerEntry.var().getVarType().value.equals("java/lang/Throwable")) {
           return false;
         }
-
-        Statement inTry = inner.getStats().get(0);
 
         // Catch block contains a basic block inside which has the closeable invocation
-        if (inTry instanceof BasicBlockStatement && !inTry.getExprents().isEmpty()) {
+        if (innerTry.tryStat() instanceof BasicBlockStatement inTry &&
+          !inTry.getExprents().isEmpty()) {
           Exprent first = inTry.getExprents().get(0);
 
           if (isCloseable(first)) {
             closeable = (VarExprent) ((InvocationExprent)first).getInstance();
           }
         }
-      }
+      } else if (seqStat.getFirst() instanceof IfStatement ifStat) {
+        // Nullable resource, contains null checks
 
-      // Nullable resource, contains null checks
-      if (inner instanceof IfStatement) {
-        Exprent ifCase = ((IfStatement)inner).getHeadexprent().getCondition();
-
-        if (ifCase instanceof FunctionExprent) {
+        if (ifStat.getHeadexprent().getCondition() instanceof FunctionExprent ifCase) {
           // Will look like "if (!(!(var != null)))"
-          FunctionExprent func = unwrapNegations((FunctionExprent) ifCase);
-
-          Exprent check = func.getLstOperands().get(0);
+          FunctionExprent func = unwrapNegations(ifCase);
 
           // If it's not a var, end processing early
-          if (!(check instanceof VarExprent)) {
+          if (!(func.getLstOperands().get(0) instanceof VarExprent check)) {
             return false;
           }
 
@@ -166,26 +157,20 @@ public final class TryWithResourcesProcessor {
           if (func.getLstOperands().get(1).getExprType().equals(VarType.VARTYPE_NULL)) {
             // Ensured that the if stat is a null check
 
-            inner = ((IfStatement)inner).getIfstat();
-
-            if (inner == null) {
+            if (ifStat.getIfstat() == null) {
               return false;
             }
 
             // Process try catch inside of if statement
-            if (inner instanceof CatchStatement && !inner.getStats().isEmpty()) {
-              if (inner.getStats().isEmpty()) {
+            if (ifStat.getIfstat() instanceof CatchStatement innerTry &&
+              !innerTry.getStats().isEmpty()) { // FIXME: I think this wants to check if there is at least one catch?
+              CatchStatement.CatchEntry innerEntry = innerTry.getCatchEntries().get(0);
+              if (!innerEntry.var().getVarType().value.equals("java/lang/Throwable")) {
                 return false;
               }
 
-              CatchStatement innerTry = (CatchStatement)inner;
-              if (!innerTry.getVars().get(0).getVarType().value.equals("java/lang/Throwable")) {
-                return false;
-              }
 
-              Statement inTry = inner.getStats().get(0);
-
-              if (inTry instanceof BasicBlockStatement && !inTry.getExprents().isEmpty()) {
+              if (innerTry.tryStat() instanceof BasicBlockStatement inTry && !inTry.getExprents().isEmpty()) {
                 Exprent first = inTry.getExprents().get(0);
 
                 // Check for closable invocation
@@ -194,7 +179,7 @@ public final class TryWithResourcesProcessor {
                   nullable = true;
 
                   // Double check that the variables in the null check and the closeable match
-                  if (!closeable.getVarVersionPair().equals(((VarExprent)check).getVarVersionPair())) {
+                  if (!closeable.getVarVersionPair().equals(check.getVarVersionPair())) {
                     closeable = null;
                   }
                 }
@@ -249,14 +234,11 @@ public final class TryWithResourcesProcessor {
       // Add resource assignment to try
       tryStatement.getResources().add(0, assignment);
 
-      // Get catch block
-      Statement remove = tryStatement.getStats().get(1);
-
-      // Flatten references to statement
-      SequenceHelper.destroyAndFlattenStatement(remove);
+      // Flatten references to catch statement
+      SequenceHelper.destroyAndFlattenStatement(entry.stat());
 
       // Destroy catch block
-      tryStatement.getStats().remove(1);
+      tryStatement.removeCatchEntry(entry);
 
       // Check for synthetic variable in the case that the resource is just a variable or field
       if (assignment.getLeft() instanceof VarExprent declaration
@@ -464,50 +446,39 @@ public final class TryWithResourcesProcessor {
   }
 
   private static boolean removeRedundantThrow(BasicBlockStatement initBlock, CatchStatement catchStat) {
-    if (catchStat.getStats().size() > 1) {
-      boolean removed = false;
-      Statement temp = null;
-      int i = 1;
-      for (; i < catchStat.getStats().size(); ++i) {
-        temp = catchStat.getStats().get(i);
+    if (catchStat.getCatchEntries().isEmpty()) {
+      return false;
+    }
 
-        if (temp instanceof BasicBlockStatement && temp.getExprents() != null) {
-          if (temp.getExprents().size() >= 2 && catchStat.getVars().get(i - 1).getVarType().value.equals("java/lang/Throwable")) {
-            if (temp.getExprents().get(temp.getExprents().size() - 1) instanceof ExitExprent) {
-              ExitExprent exitExprent = (ExitExprent)temp.getExprents().get(temp.getExprents().size() - 1);
-              if (exitExprent.getExitType() == ExitExprent.Type.THROW && exitExprent.getValue().equals(catchStat.getVars().get(i - 1))) {
+    for (CatchStatement.CatchEntry entry : catchStat.getCatchEntries()) {
+      if (entry.stat() instanceof BasicBlockStatement stat &&
+        stat.getExprents() != null &&
+        stat.getExprents().size() >= 2 &&
+        entry.var().getVarType().value.equals("java/lang/Throwable") &&
+        stat.getExprents().get(stat.getExprents().size() - 1) instanceof ExitExprent exitExprent &&
+        exitExprent.getExitType() == ExitExprent.Type.THROW &&
+        exitExprent.getValue().equals(entry.var())) {
 
-                catchStat.getExctStrings().remove(i - 1);
-                catchStat.getVars().remove(i - 1);
-                catchStat.getStats().remove(i);
+        catchStat.removeCatchEntry(entry);
 
-                for (StatEdge edge : temp.getAllSuccessorEdges()) {
-                  edge.getSource().removeSuccessor(edge);
-                }
-
-                removed = true;
-                break;
-              }
-            }
-          }
+        for (StatEdge edge : stat.getAllSuccessorEdges()) {
+          edge.getSource().removeSuccessor(edge);
         }
-      }
 
-      if (removed && temp.getExprents().get(temp.getExprents().size() - 2) instanceof AssignmentExprent) {
-        AssignmentExprent assignmentExp = (AssignmentExprent)temp.getExprents().get(temp.getExprents().size() - 2);
-        if (assignmentExp.getLeft().getExprType().value.equals("java/lang/Throwable")) {
+        if (stat.getExprents().get(stat.getExprents().size() - 2) instanceof AssignmentExprent assignmentExp &&
+          assignmentExp.getLeft().getExprType().value.equals("java/lang/Throwable")) {
           for (Exprent exprent : initBlock.getExprents()) {
-            if (exprent instanceof AssignmentExprent) {
-              AssignmentExprent toRemove = (AssignmentExprent)exprent;
-              if (toRemove.getLeft().equals(assignmentExp.getLeft())) {
-                initBlock.getExprents().remove(toRemove);
-                return true;
-              }
+            if (exprent instanceof AssignmentExprent toRemove &&
+              toRemove.getLeft().equals(assignmentExp.getLeft())) {
+              initBlock.getExprents().remove(toRemove);
+              return true;
             }
           }
         }
+        return false;
       }
     }
+
     return false;
   }
 }

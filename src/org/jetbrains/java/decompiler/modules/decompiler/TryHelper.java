@@ -72,7 +72,7 @@ public class TryHelper {
     }
 
     // Get the statement inside of the current try
-    Statement inner = stat.getStats().get(0);
+    Statement inner = stat.tryStat();
 
     // If the inside is a sequence, check the first of the sequence, which can happen for J8 try with resources due to
     // finally return behavior. Don't do this if there are non-exit breaks coming out of the statement.

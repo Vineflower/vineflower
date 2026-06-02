@@ -1634,19 +1634,22 @@ public class VarDefinitionHelper {
     } else {
       if (stat instanceof CatchStatement catchStat) {
         // Resources and catch vars are only in context in certain statements
-        for (int i = 0; i < catchStat.getStats().size(); i++) {
-          Statement st = catchStat.getStats().get(i);
+        if(!catchStat.getResources().isEmpty()) {
+          // Process var definitions in resources
           Set<VarInMethod> stVars = new HashSet<>();
-          if (i == 0) {
-            // Process var definitions in resources
-            for (Exprent exp : catchStat.getResources()) {
-              iterateClashingExprent(st, mt, varDefinitions, exp, liveVarDefs, stVars, nameMap, seenMethods, new HashSet<>(), new HashSet<>());
-            }
-          } else {
-            // Process var definitions in catch
-            VarExprent exp = catchStat.getVars().get(i - 1);
-            iterateClashingExprent(st, mt, varDefinitions, exp, liveVarDefs, stVars, nameMap, seenMethods, new HashSet<>(), new HashSet<>());
+          for (Exprent exp : catchStat.getResources()) {
+            iterateClashingExprent(catchStat.tryStat(), mt, varDefinitions, exp, liveVarDefs, stVars, nameMap, seenMethods, new HashSet<>(), new HashSet<>());
           }
+          liveVarDefs.removeAll(stVars);
+          statementVars.put(catchStat.tryStat(), stVars);
+        }
+        for (CatchStatement.CatchEntry entry : catchStat.getCatchEntries()) {
+          // Process var definitions in catch
+          Statement st = entry.stat();
+          VarExprent exp = entry.var();
+
+          Set<VarInMethod> stVars = new HashSet<>();
+          iterateClashingExprent(st, mt, varDefinitions, exp, liveVarDefs, stVars, nameMap, seenMethods, new HashSet<>(), new HashSet<>());
           liveVarDefs.removeAll(stVars);
           statementVars.put(st, stVars);
         }
