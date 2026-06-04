@@ -99,6 +99,7 @@ public final class ExceptionDeobfuscator {
                       newseq.addInstruction(firstinstr.clone());
 
                       newblock.setSeq(newseq);
+                      newblock.getInstrOldOffsets().add(handler.getOldOffset(0));
                       graph.getBlocks().addWithKey(newblock, newblock.id);
 
 
@@ -129,6 +130,7 @@ public final class ExceptionDeobfuscator {
 
                       // remove the first pop in the handler
                       seq.removeInstruction(0);
+                      handler.getInstrOldOffsets().remove(0);
                     }
 
                     newblock.addSuccessorException(range_super.handler);
@@ -495,6 +497,7 @@ public final class ExceptionDeobfuscator {
           // Duplicate block now
           BasicBlock newBlock = new BasicBlock(++graph.last_id);
           newBlock.setSeq(handler.getSeq().clone());
+          newBlock.getInstrOldOffsets().addAll(handler.getInstrOldOffsets());
 
           graph.getBlocks().addWithKey(newBlock, newBlock.id);
 
