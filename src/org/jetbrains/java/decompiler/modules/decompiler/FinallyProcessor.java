@@ -1049,25 +1049,21 @@ public class FinallyProcessor {
     if (finallytype == FinallyType.EMPTY) { // empty finally handler
       for (int i = seq.length() - 1; i >= 0; i--) {
         seq.removeInstruction(i);
-        instrOldOffsets.remove(i);
       }
     } else {
       if ((blocktype & 1) > 0) { // first
         if (finallytype == FinallyType.STORE || finallytype == FinallyType.DROP) { // astore or pop
           seq.removeInstruction(0);
-          instrOldOffsets.remove(0);
         }
       }
 
       if ((blocktype & 2) > 0) { // last
         if (finallytype == FinallyType.STORE || finallytype == FinallyType.DROP) { // astore or pop
           seq.removeLast();
-          instrOldOffsets.remove(instrOldOffsets.size() - 1);
         }
 
         if (finallytype == FinallyType.STORE) { // astore
           seq.removeLast();
-          instrOldOffsets.remove(instrOldOffsets.size() - 1);
         }
       }
     }

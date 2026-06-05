@@ -284,7 +284,7 @@ public class TestLoopFinally {
    public void test10(File file, int i) {
       try {
          new Scanner(file);// 282
-      } catch (Exception var8) {
+      } catch (Exception var8) {// 283
       } finally {
          for (int k = 0; k < i; k++) {// 285
             System.out.println(k);// 286
@@ -842,6 +842,7 @@ class 'pkg/TestLoopFinally' {
 
    method 'test10 (Ljava/io/File;I)V' {
       4      285
+      20      286
       3a      288
       3b      288
       3c      288
@@ -967,6 +968,7 @@ Lines mapping:
 277 <-> 278
 278 <-> 279
 282 <-> 286
+283 <-> 287
 285 <-> 289
 286 <-> 290
 289 <-> 293
@@ -999,5 +1001,4 @@ Not mapped:
 254
 274
 275
-283
 288

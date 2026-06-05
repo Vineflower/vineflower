@@ -45,7 +45,7 @@ public class TestTryCatchNoIncrement {
             }
 
             item = (String)items.get(i);// 42
-         } catch (Throwable ex2) {
+         } catch (Throwable ex2) {// 49
             ex2.printStackTrace();
             break;
          }
@@ -199,6 +199,7 @@ class 'pkg/TestTryCatchNoIncrement' {
       39      55
       3a      55
       3b      55
+      42      47
       43      35
       44      35
       45      35
@@ -225,6 +226,7 @@ Lines mapping:
 41 <-> 56
 42 <-> 47
 44 <-> 53
+49 <-> 48
 50 <-> 36
 52 <-> 37
 Not mapped:
@@ -235,5 +237,4 @@ Not mapped:
 36
 45
 46
-49
 51
