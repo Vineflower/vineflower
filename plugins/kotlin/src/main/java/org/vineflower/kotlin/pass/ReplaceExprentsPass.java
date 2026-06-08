@@ -38,9 +38,7 @@ public class ReplaceExprentsPass implements Pass {
         vars.set(i, map);
       }
 
-      if (stat instanceof CatchAllStatement catchAll && catchAll.getMonitor() != null) {
-        catchAll.setMonitor(new KVarExprent(catchAll.getMonitor()));
-      } else if (stat instanceof CatchStatement catchStat) {
+      if (stat instanceof CatchStatement catchStat) {
         exprLists.add(catchStat.getResources());
       }
     } else if (stat instanceof DoStatement doStat) {

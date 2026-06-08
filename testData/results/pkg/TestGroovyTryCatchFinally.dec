@@ -17,57 +17,47 @@ public class TestGroovyTryCatchFinally implements GroovyObject {
       this.metaClass = var2;
    }
 
-   // $VF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.
+   // $VF: Could not inline inconsistent finally blocks
    public void test1(String x) {
       CallSite[] var2 = $getCallSiteArray();
       if (!__$stMC && !BytecodeInterface8.disabledStandardMetaClass()) {
-         boolean var36 = false /* VF: Semaphore variable */;
-
          try {
-            var36 = true;
-            var2[8].call(var2[9].callGetProperty(System.class), "sout1");// 20 21
-            var36 = false;
-         } catch (Exception e) {
             try {
-               var2[10].call(var2[11].callGetProperty(System.class), "sout2");// 23 24
-            } catch (Exception e2) {
-            } finally {
-               ;
+               var2[8].call(var2[9].callGetProperty(System.class), "sout1");// 20 21
+            } catch (Exception e) {
+               try {
+                  var2[10].call(var2[11].callGetProperty(System.class), "sout2");// 23 24
+               } catch (Exception e2) {
+               } finally {
+                  ;
+               }
             }
-
-            var36 = false;
-         } finally {
-            if (var36) {
-               var2[14].call(var2[15].callGetProperty(System.class), "finally");// 31
-            }
+         } catch (Throwable var46) {
+            var2[14].call(var2[15].callGetProperty(System.class), "finally");// 31
+            throw var46;// 32
          }
 
          var2[12].call(var2[13].callGetProperty(System.class), "finally");
       } else {
-         boolean var19 = false /* VF: Semaphore variable */;
-
          try {
-            var19 = true;
-            var2[0].call(var2[1].callGetProperty(System.class), "sout1");
-            var19 = false;
-         } catch (Exception e) {
             try {
-               var2[2].call(var2[3].callGetProperty(System.class), "sout2");
-            } catch (Exception e2) {// 25
-            } finally {
-               ;
+               var2[0].call(var2[1].callGetProperty(System.class), "sout1");
+            } catch (Exception e) {
+               try {
+                  var2[2].call(var2[3].callGetProperty(System.class), "sout2");
+               } catch (Exception e2) {// 25
+               } finally {
+                  ;
+               }
             }
-
-            var19 = false;
-         } finally {
-            if (var19) {
-               var2[6].call(var2[7].callGetProperty(System.class), "finally");
-            }
+         } catch (Throwable var50) {
+            var2[6].call(var2[7].callGetProperty(System.class), "finally");
+            throw var50;
          }
 
          var2[4].call(var2[5].callGetProperty(System.class), "finally");
       }
-   }// 32
+   }
 
    public int foo(int a) throws Exception {
       CallSite[] var2 = $getCallSiteArray();
@@ -176,43 +166,35 @@ public class TestGroovyTryCatchFinally implements GroovyObject {
       // try (29 -> 47): 60 null
    }
 
-   // $VF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.
+   // $VF: Could not inline inconsistent finally blocks
    public void testEmptyCatch(String msg) {
       CallSite[] var2 = $getCallSiteArray();
       if (!__$stMC && !BytecodeInterface8.disabledStandardMetaClass()) {
-         boolean var16 = false /* VF: Semaphore variable */;
-
          try {
-            var16 = true;
-            var2[36].call(var2[37].callGetProperty(System.class), msg);// 58 59
-            var16 = false;
-         } catch (RuntimeException ignored) {
-            var16 = false;
-         } finally {
-            if (var16) {
-               var2[40].call(var2[41].callGetProperty(System.class), "Bye");// 62
+            try {
+               var2[36].call(var2[37].callGetProperty(System.class), msg);// 58 59
+            } catch (RuntimeException ignored) {
             }
+         } catch (Throwable var16) {
+            var2[40].call(var2[41].callGetProperty(System.class), "Bye");// 62
+            throw var16;// 63
          }
 
          var2[38].call(var2[39].callGetProperty(System.class), "Bye");
       } else {
-         boolean var11 = false /* VF: Semaphore variable */;
-
          try {
-            var11 = true;
-            var2[30].call(var2[31].callGetProperty(System.class), msg);
-            var11 = false;
-         } catch (RuntimeException ignored) {// 60
-            var11 = false;
-         } finally {
-            if (var11) {
-               var2[34].call(var2[35].callGetProperty(System.class), "Bye");
+            try {
+               var2[30].call(var2[31].callGetProperty(System.class), msg);
+            } catch (RuntimeException ignored) {// 60
             }
+         } catch (Throwable var18) {
+            var2[34].call(var2[35].callGetProperty(System.class), "Bye");
+            throw var18;
          }
 
          var2[32].call(var2[33].callGetProperty(System.class), "Bye");
       }
-   }// 63
+   }
 
    @Generated
    @Internal
@@ -272,517 +254,529 @@ class 'pkg/TestGroovyTryCatchFinally' {
       e      22
       f      22
       10      22
-      14      50
-      15      50
-      16      50
-      17      50
-      18      50
-      19      50
-      1a      50
-      1b      50
-      1c      50
-      1d      50
-      1e      50
-      1f      50
-      20      50
-      21      50
-      22      50
-      23      50
-      24      50
-      25      50
-      26      50
-      27      50
-      28      50
-      29      50
-      2f      54
-      30      54
-      31      54
-      32      54
-      33      54
-      34      54
-      35      54
-      36      54
-      37      54
-      38      54
-      39      54
-      3a      54
-      3b      54
-      3c      54
-      3d      54
-      3e      54
-      3f      54
-      40      54
-      41      54
-      42      54
-      43      54
-      44      54
-      49      55
-      5b      67
-      5c      67
-      5d      67
-      5e      67
-      5f      67
-      60      67
-      61      67
-      62      67
-      63      67
-      64      67
-      65      67
-      66      67
-      67      67
-      68      67
-      69      67
-      6a      67
-      6b      67
-      6c      67
-      6d      67
-      6e      67
-      6f      67
-      70      67
-      77      63
-      78      63
-      79      63
-      7a      63
-      7b      63
-      7c      63
-      7d      63
-      7e      63
-      7f      63
-      80      63
-      81      63
-      82      63
-      83      63
-      84      63
-      85      63
-      86      63
-      87      63
-      88      63
-      89      63
-      8a      63
-      8b      63
-      8c      63
-      94      27
-      95      27
-      96      27
-      97      27
-      98      27
-      99      27
-      9a      27
-      9b      27
-      9c      27
-      9d      27
-      9e      27
-      9f      27
-      a0      27
-      a1      27
-      a2      27
-      a3      27
-      a4      27
-      a5      27
-      a6      27
-      a7      27
-      a8      27
-      a9      27
-      b0      31
-      b1      31
-      b2      31
-      b3      31
-      b4      31
-      b5      31
-      b6      31
-      b7      31
-      b8      31
-      b9      31
-      ba      31
-      bb      31
-      bc      31
-      bd      31
-      be      31
-      bf      31
-      c0      31
-      c1      31
-      c2      31
-      c3      31
-      c4      31
-      c5      31
-      ca      32
-      dc      44
-      dd      44
-      de      44
-      df      44
-      e0      44
-      e1      44
-      e2      44
-      e3      44
-      e4      44
-      e5      44
-      e6      44
-      e7      44
-      e8      44
-      e9      44
-      ea      44
-      eb      44
-      ec      44
-      ed      44
-      ee      44
-      ef      44
-      f0      44
-      f1      44
-      f8      40
-      f9      40
-      fa      40
-      fb      40
-      fc      40
-      fd      40
-      fe      40
-      ff      40
-      100      40
-      101      40
-      102      40
-      103      40
-      104      40
-      105      40
-      106      40
-      107      40
-      108      40
-      109      40
-      10a      40
-      10b      40
-      10c      40
-      10d      40
-      112      69
+      14      43
+      15      43
+      16      43
+      17      43
+      18      43
+      19      43
+      1a      43
+      1b      43
+      1c      43
+      1d      43
+      1e      43
+      1f      43
+      20      43
+      21      43
+      22      43
+      23      43
+      24      43
+      25      43
+      26      43
+      27      43
+      28      43
+      29      43
+      2f      46
+      30      46
+      31      46
+      32      46
+      33      46
+      34      46
+      35      46
+      36      46
+      37      46
+      38      46
+      39      46
+      3a      46
+      3b      46
+      3c      46
+      3d      46
+      3e      46
+      3f      46
+      40      46
+      41      46
+      42      46
+      43      46
+      44      46
+      49      47
+      5b      57
+      5c      57
+      5d      57
+      5e      57
+      5f      57
+      60      57
+      61      57
+      62      57
+      63      57
+      64      57
+      65      57
+      66      57
+      67      57
+      68      57
+      69      57
+      6a      57
+      6b      57
+      6c      57
+      6d      57
+      6e      57
+      6f      57
+      70      57
+      77      53
+      78      53
+      79      53
+      7a      53
+      7b      53
+      7c      53
+      7d      53
+      7e      53
+      7f      53
+      80      53
+      81      53
+      82      53
+      83      53
+      84      53
+      85      53
+      86      53
+      87      53
+      88      53
+      89      53
+      8a      53
+      8b      53
+      8c      53
+      8e      54
+      8f      54
+      90      54
+      94      25
+      95      25
+      96      25
+      97      25
+      98      25
+      99      25
+      9a      25
+      9b      25
+      9c      25
+      9d      25
+      9e      25
+      9f      25
+      a0      25
+      a1      25
+      a2      25
+      a3      25
+      a4      25
+      a5      25
+      a6      25
+      a7      25
+      a8      25
+      a9      25
+      b0      28
+      b1      28
+      b2      28
+      b3      28
+      b4      28
+      b5      28
+      b6      28
+      b7      28
+      b8      28
+      b9      28
+      ba      28
+      bb      28
+      bc      28
+      bd      28
+      be      28
+      bf      28
+      c0      28
+      c1      28
+      c2      28
+      c3      28
+      c4      28
+      c5      28
+      ca      29
+      dc      39
+      dd      39
+      de      39
+      df      39
+      e0      39
+      e1      39
+      e2      39
+      e3      39
+      e4      39
+      e5      39
+      e6      39
+      e7      39
+      e8      39
+      e9      39
+      ea      39
+      eb      39
+      ec      39
+      ed      39
+      ee      39
+      ef      39
+      f0      39
+      f1      39
+      f8      35
+      f9      35
+      fa      35
+      fb      35
+      fc      35
+      fd      35
+      fe      35
+      ff      35
+      100      35
+      101      35
+      102      35
+      103      35
+      104      35
+      105      35
+      106      35
+      107      35
+      108      35
+      109      35
+      10a      35
+      10b      35
+      10c      35
+      10d      35
+      10f      36
+      110      36
+      111      36
+      112      59
    }
 
    method 'foo (I)I' {
-      1      72
-      2      72
-      3      72
-      4      72
-      5      73
-      6      73
-      7      73
-      8      73
-      9      73
-      a      73
-      b      73
-      c      73
-      d      73
-      e      73
-      f      73
-      10      73
-      11      73
-      12      73
-      13      73
-      14      73
-      15      73
-      16      73
-      17      73
-      18      73
-      19      73
-      1a      73
-      1b      73
-      1c      73
-      20      81
-      21      81
-      22      81
-      23      81
-      24      81
-      2a      81
-      2b      81
-      2c      81
-      2d      82
-      2e      82
-      2f      82
-      30      82
-      31      82
-      32      82
-      33      82
-      34      82
-      35      82
-      36      82
-      37      82
-      38      82
-      39      82
-      3a      82
-      3b      82
-      3f      83
-      40      83
-      41      83
-      42      83
-      43      83
-      49      83
-      4a      83
-      4b      83
-      4c      84
-      4d      84
-      51      86
-      52      86
-      53      86
-      54      86
-      55      86
-      56      86
-      57      86
-      58      86
-      59      86
-      5a      86
-      5b      86
-      5c      86
-      5d      86
-      5e      86
-      5f      86
-      63      74
-      64      74
-      65      74
-      66      74
-      67      74
-      6d      74
-      6e      74
-      6f      74
-      70      75
-      71      75
-      72      75
-      73      75
-      74      75
-      75      75
-      76      75
-      77      75
-      78      75
-      79      75
-      7a      75
-      7b      75
-      7c      75
-      7d      75
-      7e      75
-      82      76
-      83      76
-      84      76
-      85      76
-      86      76
-      8c      76
-      8d      76
-      8e      76
-      8f      77
-      90      77
-      94      79
-      95      79
-      96      79
-      97      79
-      98      79
-      99      79
-      9a      79
-      9b      79
-      9c      79
-      9d      79
-      9e      79
-      9f      79
-      a0      79
-      a1      79
-      a2      79
+      1      62
+      2      62
+      3      62
+      4      62
+      5      63
+      6      63
+      7      63
+      8      63
+      9      63
+      a      63
+      b      63
+      c      63
+      d      63
+      e      63
+      f      63
+      10      63
+      11      63
+      12      63
+      13      63
+      14      63
+      15      63
+      16      63
+      17      63
+      18      63
+      19      63
+      1a      63
+      1b      63
+      1c      63
+      20      71
+      21      71
+      22      71
+      23      71
+      24      71
+      2a      71
+      2b      71
+      2c      71
+      2d      72
+      2e      72
+      2f      72
+      30      72
+      31      72
+      32      72
+      33      72
+      34      72
+      35      72
+      36      72
+      37      72
+      38      72
+      39      72
+      3a      72
+      3b      72
+      3f      73
+      40      73
+      41      73
+      42      73
+      43      73
+      49      73
+      4a      73
+      4b      73
+      4c      74
+      4d      74
+      51      76
+      52      76
+      53      76
+      54      76
+      55      76
+      56      76
+      57      76
+      58      76
+      59      76
+      5a      76
+      5b      76
+      5c      76
+      5d      76
+      5e      76
+      5f      76
+      63      64
+      64      64
+      65      64
+      66      64
+      67      64
+      6d      64
+      6e      64
+      6f      64
+      70      65
+      71      65
+      72      65
+      73      65
+      74      65
+      75      65
+      76      65
+      77      65
+      78      65
+      79      65
+      7a      65
+      7b      65
+      7c      65
+      7d      65
+      7e      65
+      82      66
+      83      66
+      84      66
+      85      66
+      86      66
+      8c      66
+      8d      66
+      8e      66
+      8f      67
+      90      67
+      94      69
+      95      69
+      96      69
+      97      69
+      98      69
+      99      69
+      9a      69
+      9b      69
+      9c      69
+      9d      69
+      9e      69
+      9f      69
+      a0      69
+      a1      69
+      a2      69
    }
 
    method 'testEmptyCatch (Ljava/lang/String;)V' {
-      1      180
-      2      180
-      3      180
-      4      180
-      5      181
-      6      181
-      7      181
-      8      181
-      9      181
-      a      181
-      b      181
-      c      181
-      d      181
-      e      181
-      f      181
-      10      181
-      14      202
-      15      202
-      16      202
-      17      202
-      18      202
-      19      202
-      1a      202
-      1b      202
-      1c      202
-      1d      202
-      1e      202
-      1f      202
-      20      202
-      21      202
-      22      202
-      23      202
-      24      202
-      25      202
-      26      202
-      27      202
-      28      202
-      2d      204
-      32      212
-      33      212
-      34      212
-      35      212
-      36      212
-      37      212
-      38      212
-      39      212
-      3a      212
-      3b      212
-      3c      212
-      3d      212
-      3e      212
-      3f      212
-      40      212
-      41      212
-      42      212
-      43      212
-      44      212
-      45      212
-      46      212
-      47      212
-      4e      208
-      4f      208
-      50      208
-      51      208
-      52      208
-      53      208
-      54      208
-      55      208
-      56      208
-      57      208
-      58      208
-      59      208
-      5a      208
-      5b      208
-      5c      208
-      5d      208
-      5e      208
-      5f      208
-      60      208
-      61      208
-      62      208
-      63      208
-      6b      186
-      6c      186
-      6d      186
-      6e      186
-      6f      186
-      70      186
-      71      186
-      72      186
-      73      186
-      74      186
-      75      186
-      76      186
-      77      186
-      78      186
-      79      186
-      7a      186
-      7b      186
-      7c      186
-      7d      186
-      7e      186
-      7f      186
-      84      188
-      8a      196
-      8b      196
-      8c      196
-      8d      196
-      8e      196
-      8f      196
-      90      196
-      91      196
-      92      196
-      93      196
-      94      196
-      95      196
-      96      196
-      97      196
-      98      196
-      99      196
-      9a      196
-      9b      196
-      9c      196
-      9d      196
-      9e      196
-      9f      196
-      a6      192
-      a7      192
-      a8      192
-      a9      192
-      aa      192
-      ab      192
-      ac      192
-      ad      192
-      ae      192
-      af      192
-      b0      192
-      b1      192
-      b2      192
-      b3      192
-      b4      192
-      b5      192
-      b6      192
-      b7      192
-      b8      192
-      b9      192
-      ba      192
-      bb      192
-      c0      214
+      1      170
+      2      170
+      3      170
+      4      170
+      5      171
+      6      171
+      7      171
+      8      171
+      9      171
+      a      171
+      b      171
+      c      171
+      d      171
+      e      171
+      f      171
+      10      171
+      14      186
+      15      186
+      16      186
+      17      186
+      18      186
+      19      186
+      1a      186
+      1b      186
+      1c      186
+      1d      186
+      1e      186
+      1f      186
+      20      186
+      21      186
+      22      186
+      23      186
+      24      186
+      25      186
+      26      186
+      27      186
+      28      186
+      2d      187
+      32      194
+      33      194
+      34      194
+      35      194
+      36      194
+      37      194
+      38      194
+      39      194
+      3a      194
+      3b      194
+      3c      194
+      3d      194
+      3e      194
+      3f      194
+      40      194
+      41      194
+      42      194
+      43      194
+      44      194
+      45      194
+      46      194
+      47      194
+      4e      190
+      4f      190
+      50      190
+      51      190
+      52      190
+      53      190
+      54      190
+      55      190
+      56      190
+      57      190
+      58      190
+      59      190
+      5a      190
+      5b      190
+      5c      190
+      5d      190
+      5e      190
+      5f      190
+      60      190
+      61      190
+      62      190
+      63      190
+      65      191
+      66      191
+      67      191
+      6b      174
+      6c      174
+      6d      174
+      6e      174
+      6f      174
+      70      174
+      71      174
+      72      174
+      73      174
+      74      174
+      75      174
+      76      174
+      77      174
+      78      174
+      79      174
+      7a      174
+      7b      174
+      7c      174
+      7d      174
+      7e      174
+      7f      174
+      84      175
+      8a      182
+      8b      182
+      8c      182
+      8d      182
+      8e      182
+      8f      182
+      90      182
+      91      182
+      92      182
+      93      182
+      94      182
+      95      182
+      96      182
+      97      182
+      98      182
+      99      182
+      9a      182
+      9b      182
+      9c      182
+      9d      182
+      9e      182
+      9f      182
+      a6      178
+      a7      178
+      a8      178
+      a9      178
+      aa      178
+      ab      178
+      ac      178
+      ad      178
+      ae      178
+      af      178
+      b0      178
+      b1      178
+      b2      178
+      b3      178
+      b4      178
+      b5      178
+      b6      178
+      b7      178
+      b8      178
+      b9      178
+      ba      178
+      bb      178
+      bd      179
+      be      179
+      bf      179
+      c0      196
    }
 
    method 'getMetaClass ()Lgroovy/lang/MetaClass;' {
-      0      220
-      1      220
-      2      220
-      3      220
-      5      220
-      6      220
-      7      220
-      8      221
-      a      224
-      c      224
-      d      224
-      e      224
-      f      224
-      10      224
-      11      224
-      12      225
-      13      225
-      14      225
-      15      225
-      16      225
+      0      202
+      1      202
+      2      202
+      3      202
+      5      202
+      6      202
+      7      202
+      8      203
+      a      206
+      c      206
+      d      206
+      e      206
+      f      206
+      10      206
+      11      206
+      12      207
+      13      207
+      14      207
+      15      207
+      16      207
    }
 
    method 'setMetaClass (Lgroovy/lang/MetaClass;)V' {
-      0      231
-      1      231
-      2      231
-      3      231
-      4      231
-      5      232
+      0      213
+      1      213
+      2      213
+      3      213
+      4      213
+      5      214
    }
 }
 
 Lines mapping:
-20 <-> 28
-21 <-> 28
-23 <-> 32
-24 <-> 32
-25 <-> 56
-31 <-> 41
-32 <-> 70
-36 <-> 75
-37 <-> 76
-38 <-> 77
-39 <-> 78
-42 <-> 80
-58 <-> 187
-59 <-> 187
-60 <-> 205
-62 <-> 193
-63 <-> 215
+20 <-> 26
+21 <-> 26
+23 <-> 29
+24 <-> 29
+25 <-> 48
+31 <-> 36
+32 <-> 37
+36 <-> 65
+37 <-> 66
+38 <-> 67
+39 <-> 68
+42 <-> 70
+58 <-> 175
+59 <-> 175
+60 <-> 188
+62 <-> 179
+63 <-> 180
 Not mapped:
 22
 29

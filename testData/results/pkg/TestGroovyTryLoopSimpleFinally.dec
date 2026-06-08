@@ -26,93 +26,63 @@ public class TestGroovyTryLoopSimpleFinally implements GroovyObject {
       this.metaClass = var2;
    }
 
-   // $VF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.
+   // $VF: Could not inline inconsistent finally blocks
    public void test(File file) {
       CallSite[] var2 = $getCallSiteArray();
 
-      while (true) {
-         boolean var8 = false /* VF: Semaphore variable */;
-
+      try {
          try {
-            var8 = true;
-            if (!this.field) {// 10 11
-               var8 = false;
-               break;
+            while (this.field) {// 10 11
+               Scanner scanner = (Scanner)ScriptBytecodeAdapter.castToType(var2[0].callConstructor(Scanner.class, file), Scanner.class);// 12
             }
-
-            Scanner scanner = (Scanner)ScriptBytecodeAdapter.castToType(var2[0].callConstructor(Scanner.class, file), Scanner.class);// 12
          } catch (FileNotFoundException e) {// 14
             var2[1].call(e);// 15
-            var8 = false;
-            break;
-         } finally {
-            if (var8) {
-               var2[4].call(var2[5].callGetProperty(System.class), "Finally");// 17
-            }
          }
+      } catch (Throwable var9) {
+         var2[4].call(var2[5].callGetProperty(System.class), "Finally");// 17
+         throw var9;// 18
       }
 
       var2[2].call(var2[3].callGetProperty(System.class), "Finally");
-   }// 18
+   }
 
-   // $VF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.
+   // $VF: Could not inline inconsistent finally blocks
    public void test2(int x, Path file) throws IOException {
       CallSite[] var3;
-      label171: {
-         label185: {
+      label167: {
+         label178: {
             var3 = $getCallSiteArray();
             if (BytecodeInterface8.isOrigInt() && BytecodeInterface8.isOrigZ() && !__$stMC && !BytecodeInterface8.disabledStandardMetaClass()) {
-               while (true) {
-                  boolean var13 = false /* VF: Semaphore variable */;
-
-                  try {
-                     var13 = true;
-                     if (x >= 0) {// 22 23
-                        Scanner scanner = (Scanner)ScriptBytecodeAdapter.castToType(var3[18].callConstructor(Scanner.class, file), Scanner.class);// 24
-                        if (x % 11 == 0) {// 26
-                           var3[19].call(var3[20].callGetProperty(System.class), "nice");// 27
-                           var13 = false;
-                           break label185;
-                        }
-
-                        x = DefaultTypeTransformation.intUnbox(var3[23].call(x, var3[24].call(scanner)));// 29 31
-                        continue;// 32
+               try {
+                  while (x >= 0) {// 22 23
+                     Scanner scanner = (Scanner)ScriptBytecodeAdapter.castToType(var3[18].callConstructor(Scanner.class, file), Scanner.class);// 24
+                     if (x % 11 == 0) {// 26
+                        var3[19].call(var3[20].callGetProperty(System.class), "nice");// 27
+                        break label178;
                      }
 
-                     var13 = false;
-                  } finally {
-                     if (var13) {
-                        var3[27].call(var3[28].callGetProperty(System.class), "Finally");// 34
-                     }
+                     x = DefaultTypeTransformation.intUnbox(var3[23].call(x, var3[24].call(scanner)));// 29 31
                   }
-
-                  var3[25].call(var3[26].callGetProperty(System.class), "Finally");
-                  break;// 35
+               } catch (Throwable var12) {
+                  var3[27].call(var3[28].callGetProperty(System.class), "Finally");// 34
+                  throw var12;// 35
                }
+
+               var3[25].call(var3[26].callGetProperty(System.class), "Finally");
             } else {
-               while (true) {
-                  boolean var10 = false /* VF: Semaphore variable */;
-
-                  try {
-                     var10 = true;
-                     if (x < 0) {
-                        var10 = false;
-                        break;
-                     }
-
+               try {
+                  while (x >= 0) {
                      Scanner scanner = (Scanner)ScriptBytecodeAdapter.castToType(var3[6].callConstructor(Scanner.class, file), Scanner.class);
                      if (DefaultTypeTransformation.intUnbox(var3[7].call(x, 11)) == 0) {
                         var3[8].call(var3[9].callGetProperty(System.class), "nice");
-                        var10 = false;
-                        break label171;
+                        break label167;
                      }
 
                      x = DefaultTypeTransformation.intUnbox(var3[12].call(x, var3[13].call(scanner)));
-                  } finally {
-                     if (var10) {
-                        var3[16].call(var3[17].callGetProperty(System.class), "Finally");
-                     }
                   }
+               } catch (Throwable var13) {
+                  var3[16].call(var3[17].callGetProperty(System.class), "Finally");
+                  throw var13;
                }
 
                var3[14].call(var3[15].callGetProperty(System.class), "Finally");
@@ -174,513 +144,511 @@ class 'pkg/TestGroovyTryLoopSimpleFinally' {
       2      30
       3      30
       4      30
-      5      37
-      6      37
-      7      37
-      8      37
-      9      37
-      a      37
-      b      37
-      c      42
-      d      42
-      e      42
-      f      42
-      10      42
-      11      42
-      12      42
-      13      42
-      14      42
-      15      42
-      16      42
-      17      42
-      18      42
-      19      42
-      1a      42
-      1b      42
-      1c      42
-      1d      42
-      1e      42
-      1f      42
-      20      42
-      29      43
-      2b      44
-      2c      44
-      2d      44
-      2e      44
-      2f      44
-      30      44
-      31      44
-      32      44
-      33      44
-      34      44
-      35      44
-      3b      54
-      3c      54
-      3d      54
-      3e      54
-      3f      54
-      40      54
-      41      54
-      42      54
-      43      54
-      44      54
-      45      54
-      46      54
-      47      54
-      48      54
-      49      54
-      4a      54
-      4b      54
-      4c      54
-      4d      54
-      4e      54
-      4f      54
-      50      54
-      57      49
-      58      49
-      59      49
-      5a      49
-      5b      49
-      5c      49
-      5d      49
-      5e      49
-      5f      49
-      60      49
-      61      49
-      62      49
-      63      49
-      64      49
-      65      49
-      66      49
-      67      49
-      68      49
-      69      49
-      6a      49
-      6b      49
-      6c      49
-      71      55
+      5      34
+      6      34
+      7      34
+      8      34
+      c      35
+      d      35
+      e      35
+      f      35
+      10      35
+      11      35
+      12      35
+      13      35
+      14      35
+      15      35
+      16      35
+      17      35
+      18      35
+      19      35
+      1a      35
+      1b      35
+      1c      35
+      1d      35
+      1e      35
+      1f      35
+      20      35
+      29      37
+      2b      38
+      2c      38
+      2d      38
+      2e      38
+      2f      38
+      30      38
+      31      38
+      32      38
+      33      38
+      34      38
+      35      38
+      3b      45
+      3c      45
+      3d      45
+      3e      45
+      3f      45
+      40      45
+      41      45
+      42      45
+      43      45
+      44      45
+      45      45
+      46      45
+      47      45
+      48      45
+      49      45
+      4a      45
+      4b      45
+      4c      45
+      4d      45
+      4e      45
+      4f      45
+      50      45
+      57      41
+      58      41
+      59      41
+      5a      41
+      5b      41
+      5c      41
+      5d      41
+      5e      41
+      5f      41
+      60      41
+      61      41
+      62      41
+      63      41
+      64      41
+      65      41
+      66      41
+      67      41
+      68      41
+      69      41
+      6a      41
+      6b      41
+      6c      41
+      6e      42
+      6f      42
+      70      42
+      71      46
    }
 
    method 'test2 (ILjava/nio/file/Path;)V' {
-      1      62
-      2      62
-      3      62
-      4      62
-      5      63
-      6      63
-      7      63
-      8      63
-      9      63
-      a      63
-      b      63
-      c      63
-      d      63
-      e      63
-      f      63
-      10      63
-      11      63
-      12      63
-      13      63
-      14      63
-      15      63
-      16      63
-      17      63
-      18      63
-      19      63
-      1a      63
-      1b      63
-      1c      63
-      20      97
-      21      97
-      22      97
-      23      97
-      24      97
-      2a      97
-      2b      97
-      2c      97
-      2d      102
-      2e      102
-      2f      102
-      30      102
-      31      102
-      32      102
-      33      102
-      34      102
-      35      102
-      36      102
-      37      102
-      38      102
-      39      102
-      3a      102
-      3b      102
-      3c      102
-      3d      102
-      3e      102
-      3f      102
-      40      102
-      41      102
-      42      102
-      46      103
-      47      103
-      48      103
-      49      103
-      4a      103
-      4b      103
-      4c      103
-      4d      103
-      4e      103
-      4f      103
-      50      103
-      51      103
-      52      103
-      53      103
-      54      103
-      55      103
-      56      103
-      57      103
-      58      103
-      59      103
-      5a      103
-      5b      103
-      5c      103
-      5d      103
-      5e      103
-      64      103
-      65      103
-      66      103
-      67      104
-      68      104
-      69      104
-      6a      104
-      6b      104
-      6c      104
-      6d      104
-      6e      104
-      6f      104
-      70      104
-      71      104
-      72      104
-      73      104
-      74      104
-      75      104
-      76      104
-      77      104
-      78      104
-      79      104
-      7a      104
-      7b      104
-      7c      104
-      7f      127
-      80      127
-      81      127
-      82      127
-      83      127
-      84      127
-      85      127
-      86      127
-      87      127
-      88      127
-      89      127
-      8a      127
-      8b      127
-      8c      127
-      8d      127
-      8e      127
-      8f      127
-      90      127
-      91      127
-      92      127
-      93      127
-      94      127
-      97      128
-      98      109
-      99      109
-      9a      109
-      9b      109
-      9c      109
-      9d      109
-      9e      109
-      9f      109
-      a0      109
-      a1      109
-      a2      109
-      a3      109
-      a4      109
-      a5      109
-      a6      109
-      a7      109
-      a8      109
-      a9      109
-      aa      109
-      ab      109
-      ac      109
-      ad      109
-      ae      109
-      af      109
-      b1      109
-      b2      109
-      b3      109
-      b4      109
-      bc      117
-      bd      117
-      be      117
-      bf      117
-      c0      117
-      c1      117
-      c2      117
-      c3      117
-      c4      117
-      c5      117
-      c6      117
-      c7      117
-      c8      117
-      c9      117
-      ca      117
-      cb      117
-      cc      117
-      cd      117
-      ce      117
-      cf      117
-      d0      117
-      d1      117
-      d8      112
-      d9      112
-      da      112
-      db      112
-      dc      112
-      dd      112
-      de      112
-      df      112
-      e0      112
-      e1      112
-      e2      112
-      e3      112
-      e4      112
-      e5      112
-      e6      112
-      e7      112
-      e8      112
-      e9      112
-      ea      112
-      eb      112
-      ec      112
-      ed      112
-      f5      69
-      f6      69
-      f7      69
-      f8      69
-      f9      69
-      ff      69
-      100      69
-      101      69
-      102      70
-      103      70
-      104      70
-      105      70
-      106      70
-      107      70
-      108      70
-      109      70
-      10a      70
-      10b      70
-      10c      70
-      10d      70
-      10e      70
-      10f      70
-      110      70
-      111      70
-      112      70
-      113      70
-      114      70
-      115      70
-      116      70
-      117      70
-      11b      71
-      11c      71
-      11d      71
-      11e      71
-      11f      71
-      120      71
-      121      71
-      122      71
-      128      71
-      129      71
-      12a      71
-      12b      72
-      12c      72
-      12d      72
-      12e      72
-      12f      72
-      130      72
-      131      72
-      132      72
-      133      72
-      134      72
-      135      72
-      136      72
-      137      72
-      138      72
-      139      72
-      13a      72
-      13b      72
-      13c      72
-      13d      72
-      13e      72
-      13f      72
-      140      72
-      143      123
-      144      123
-      145      123
-      146      123
-      147      123
-      148      123
-      149      123
-      14a      123
-      14b      123
-      14c      123
-      14d      123
-      14e      123
-      14f      123
-      150      123
-      151      123
-      152      123
-      153      123
-      154      123
-      155      123
-      156      123
-      157      123
-      158      123
-      15b      124
-      15c      77
-      15d      77
-      15e      77
-      15f      77
-      160      77
-      161      77
-      162      77
-      163      77
-      164      77
-      165      77
-      166      77
-      167      77
-      168      77
-      169      77
-      16a      77
-      16b      77
-      16c      77
-      16d      77
-      16e      77
-      16f      77
-      170      77
-      171      77
-      172      77
-      173      77
-      175      77
-      176      77
-      177      77
-      178      77
-      17a      78
-      180      88
-      181      88
-      182      88
-      183      88
-      184      88
-      185      88
-      186      88
-      187      88
-      188      88
-      189      88
-      18a      88
-      18b      88
-      18c      88
-      18d      88
-      18e      88
-      18f      88
-      190      88
-      191      88
-      192      88
-      193      88
-      194      88
-      195      88
-      197      89
-      19c      84
-      19d      84
-      19e      84
-      19f      84
-      1a0      84
-      1a1      84
-      1a2      84
-      1a3      84
-      1a4      84
-      1a5      84
-      1a6      84
-      1a7      84
-      1a8      84
-      1a9      84
-      1aa      84
-      1ab      84
-      1ac      84
-      1ad      84
-      1ae      84
-      1af      84
-      1b0      84
-      1b1      84
-      1b6      120
+      1      53
+      2      53
+      3      53
+      4      53
+      5      54
+      6      54
+      7      54
+      8      54
+      9      54
+      a      54
+      b      54
+      c      54
+      d      54
+      e      54
+      f      54
+      10      54
+      11      54
+      12      54
+      13      54
+      14      54
+      15      54
+      16      54
+      17      54
+      18      54
+      19      54
+      1a      54
+      1b      54
+      1c      54
+      20      73
+      21      73
+      22      73
+      23      73
+      24      73
+      2d      74
+      2e      74
+      2f      74
+      30      74
+      31      74
+      32      74
+      33      74
+      34      74
+      35      74
+      36      74
+      37      74
+      38      74
+      39      74
+      3a      74
+      3b      74
+      3c      74
+      3d      74
+      3e      74
+      3f      74
+      40      74
+      41      74
+      42      74
+      46      75
+      47      75
+      48      75
+      49      75
+      4a      75
+      4b      75
+      4c      75
+      4d      75
+      4e      75
+      4f      75
+      50      75
+      51      75
+      52      75
+      53      75
+      54      75
+      55      75
+      56      75
+      57      75
+      58      75
+      59      75
+      5a      75
+      5b      75
+      5c      75
+      5d      75
+      5e      75
+      64      75
+      65      75
+      66      75
+      67      76
+      68      76
+      69      76
+      6a      76
+      6b      76
+      6c      76
+      6d      76
+      6e      76
+      6f      76
+      70      76
+      71      76
+      72      76
+      73      76
+      74      76
+      75      76
+      76      76
+      77      76
+      78      76
+      79      76
+      7a      76
+      7b      76
+      7c      76
+      7f      97
+      80      97
+      81      97
+      82      97
+      83      97
+      84      97
+      85      97
+      86      97
+      87      97
+      88      97
+      89      97
+      8a      97
+      8b      97
+      8c      97
+      8d      97
+      8e      97
+      8f      97
+      90      97
+      91      97
+      92      97
+      93      97
+      94      97
+      97      98
+      98      80
+      99      80
+      9a      80
+      9b      80
+      9c      80
+      9d      80
+      9e      80
+      9f      80
+      a0      80
+      a1      80
+      a2      80
+      a3      80
+      a4      80
+      a5      80
+      a6      80
+      a7      80
+      a8      80
+      a9      80
+      aa      80
+      ab      80
+      ac      80
+      ad      80
+      ae      80
+      af      80
+      b1      80
+      b2      80
+      b3      80
+      b4      80
+      bc      87
+      bd      87
+      be      87
+      bf      87
+      c0      87
+      c1      87
+      c2      87
+      c3      87
+      c4      87
+      c5      87
+      c6      87
+      c7      87
+      c8      87
+      c9      87
+      ca      87
+      cb      87
+      cc      87
+      cd      87
+      ce      87
+      cf      87
+      d0      87
+      d1      87
+      d8      83
+      d9      83
+      da      83
+      db      83
+      dc      83
+      dd      83
+      de      83
+      df      83
+      e0      83
+      e1      83
+      e2      83
+      e3      83
+      e4      83
+      e5      83
+      e6      83
+      e7      83
+      e8      83
+      e9      83
+      ea      83
+      eb      83
+      ec      83
+      ed      83
+      ef      84
+      f0      84
+      f1      84
+      f5      56
+      f6      56
+      f7      56
+      f8      56
+      f9      56
+      102      57
+      103      57
+      104      57
+      105      57
+      106      57
+      107      57
+      108      57
+      109      57
+      10a      57
+      10b      57
+      10c      57
+      10d      57
+      10e      57
+      10f      57
+      110      57
+      111      57
+      112      57
+      113      57
+      114      57
+      115      57
+      116      57
+      117      57
+      11b      58
+      11c      58
+      11d      58
+      11e      58
+      11f      58
+      120      58
+      121      58
+      122      58
+      128      58
+      129      58
+      12a      58
+      12b      59
+      12c      59
+      12d      59
+      12e      59
+      12f      59
+      130      59
+      131      59
+      132      59
+      133      59
+      134      59
+      135      59
+      136      59
+      137      59
+      138      59
+      139      59
+      13a      59
+      13b      59
+      13c      59
+      13d      59
+      13e      59
+      13f      59
+      140      59
+      143      93
+      144      93
+      145      93
+      146      93
+      147      93
+      148      93
+      149      93
+      14a      93
+      14b      93
+      14c      93
+      14d      93
+      14e      93
+      14f      93
+      150      93
+      151      93
+      152      93
+      153      93
+      154      93
+      155      93
+      156      93
+      157      93
+      158      93
+      15b      94
+      15c      63
+      15d      63
+      15e      63
+      15f      63
+      160      63
+      161      63
+      162      63
+      163      63
+      164      63
+      165      63
+      166      63
+      167      63
+      168      63
+      169      63
+      16a      63
+      16b      63
+      16c      63
+      16d      63
+      16e      63
+      16f      63
+      170      63
+      171      63
+      172      63
+      173      63
+      175      63
+      176      63
+      177      63
+      178      63
+      180      70
+      181      70
+      182      70
+      183      70
+      184      70
+      185      70
+      186      70
+      187      70
+      188      70
+      189      70
+      18a      70
+      18b      70
+      18c      70
+      18d      70
+      18e      70
+      18f      70
+      190      70
+      191      70
+      192      70
+      193      70
+      194      70
+      195      70
+      19c      66
+      19d      66
+      19e      66
+      19f      66
+      1a0      66
+      1a1      66
+      1a2      66
+      1a3      66
+      1a4      66
+      1a5      66
+      1a6      66
+      1a7      66
+      1a8      66
+      1a9      66
+      1aa      66
+      1ab      66
+      1ac      66
+      1ad      66
+      1ae      66
+      1af      66
+      1b0      66
+      1b1      66
+      1b3      67
+      1b4      67
+      1b5      67
+      1b6      90
    }
 
    method 'getMetaClass ()Lgroovy/lang/MetaClass;' {
-      0      134
-      1      134
-      2      134
-      3      134
-      5      134
-      6      134
-      7      134
-      8      135
-      a      138
-      c      138
-      d      138
-      e      138
-      f      138
-      10      138
-      11      138
-      12      139
-      13      139
-      14      139
-      15      139
-      16      139
+      0      104
+      1      104
+      2      104
+      3      104
+      5      104
+      6      104
+      7      104
+      8      105
+      a      108
+      c      108
+      d      108
+      e      108
+      f      108
+      10      108
+      11      108
+      12      109
+      13      109
+      14      109
+      15      109
+      16      109
    }
 
    method 'setMetaClass (Lgroovy/lang/MetaClass;)V' {
-      0      145
-      1      145
-      2      145
-      3      145
-      4      145
-      5      146
+      0      115
+      1      115
+      2      115
+      3      115
+      4      115
+      5      116
    }
 }
 
 Lines mapping:
-10 <-> 38
-11 <-> 38
-12 <-> 43
-14 <-> 44
-15 <-> 45
-17 <-> 50
-18 <-> 56
-22 <-> 70
-23 <-> 70
-24 <-> 71
-26 <-> 72
-27 <-> 73
-29 <-> 78
-31 <-> 78
-32 <-> 79
-34 <-> 85
-35 <-> 90
+10 <-> 35
+11 <-> 35
+12 <-> 36
+14 <-> 38
+15 <-> 39
+17 <-> 42
+18 <-> 43
+22 <-> 57
+23 <-> 57
+24 <-> 58
+26 <-> 59
+27 <-> 60
+29 <-> 64
+31 <-> 64
+34 <-> 67
+35 <-> 68
 Not mapped:
 13
 16
 28
+32
 33

@@ -360,12 +360,6 @@ public class VarDefinitionHelper {
             currVars.add(dost.getConditionExprent());
           }
         }
-        else if (st instanceof CatchAllStatement) {
-          CatchAllStatement fin = (CatchAllStatement)st;
-          if (fin.isFinally() && fin.getMonitor() != null) {
-            currVars.add(fin.getMonitor());
-          }
-        }
       }
 
       currVars.addAll(stat.getStatExprents());

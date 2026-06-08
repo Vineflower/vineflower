@@ -239,25 +239,21 @@ public class TestGroovyTryReturn implements GroovyObject {
       // try (34 -> 36): 48 null
    }
 
-   // $VF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.
+   // $VF: Could not inline inconsistent finally blocks
    public boolean testFinally2(Supplier<Boolean> supplier) {
       CallSite[] var2 = $getCallSiteArray();
       boolean b = (boolean)0;// 38
-      boolean var7 = false /* VF: Semaphore variable */;
 
       try {
-         var7 = true;
          Object var4 = var2[20].call(supplier);// 39 40
-         var9 = DefaultTypeTransformation.booleanUnbox(var4);
-         var7 = false;
-      } finally {
-         if (var7) {
-            var2[23].call(var2[24].callGetProperty(System.class), "Finally");// 42
-         }
+         var8 = DefaultTypeTransformation.booleanUnbox(var4);
+      } catch (Throwable var7) {
+         var2[23].call(var2[24].callGetProperty(System.class), "Finally");// 42
+         throw var7;// 43
       }
 
       var2[21].call(var2[22].callGetProperty(System.class), "Finally");
-      return var9;// 45
+      return var8;// 45
    }
 
    public boolean testFinally3(boolean param1, boolean param2, int param3, Supplier<Boolean> param4) {
@@ -447,78 +443,68 @@ public class TestGroovyTryReturn implements GroovyObject {
       // try (121 -> 123): 154 null
    }
 
-   // $VF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.
+   // $VF: Could not inline inconsistent finally blocks
    public boolean testFinally4(Supplier<Boolean> supplier) {
       CallSite[] var2 = $getCallSiteArray();
       boolean b = false;// 65
-      boolean var7 = false /* VF: Semaphore variable */;
 
       try {
-         var7 = true;
          Object var4 = var2[39].call(supplier);// 66 67
          b = DefaultTypeTransformation.booleanUnbox(var4);
-         var7 = false;
-      } finally {
-         if (var7) {
-            var2[42].call(var2[43].callGetProperty(System.class), "Finally");// 69
-         }
+      } catch (Throwable var7) {
+         var2[42].call(var2[43].callGetProperty(System.class), "Finally");// 69
+         throw var7;// 70
       }
 
       var2[40].call(var2[41].callGetProperty(System.class), "Finally");
       return b;// 72
    }
 
-   // $VF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.
+   // $VF: Could not inline inconsistent finally blocks
    public boolean testFinally5(Supplier<Boolean> supplier) {
       CallSite[] var2 = $getCallSiteArray();
       boolean b = false;// 76
-      boolean var10 = false /* VF: Semaphore variable */;
 
       try {
-         var10 = true;
-         Object var4 = var2[44].call(supplier);// 77 78
-         b = DefaultTypeTransformation.booleanUnbox(var4);
-         var10 = false;
-      } catch (Exception e) {// 79
-         var2[45].call(var2[46].callGetProperty(System.class), "Catch");// 80
-         Object var6 = var2[47].call(supplier);// 81
-         b = DefaultTypeTransformation.booleanUnbox(var6);
-         var10 = false;
-      } finally {
-         if (var10) {
-            var2[50].call(var2[51].callGetProperty(System.class), "Finally");// 83
+         try {
+            Object var4 = var2[44].call(supplier);// 77 78
+            b = DefaultTypeTransformation.booleanUnbox(var4);
+         } catch (Exception e) {// 79
+            var2[45].call(var2[46].callGetProperty(System.class), "Catch");// 80
+            Object var6 = var2[47].call(supplier);// 81
+            b = DefaultTypeTransformation.booleanUnbox(var6);
          }
+      } catch (Throwable var11) {
+         var2[50].call(var2[51].callGetProperty(System.class), "Finally");// 83
+         throw var11;// 84
       }
 
       var2[48].call(var2[49].callGetProperty(System.class), "Finally");
       return b;// 86
    }
 
-   // $VF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.
+   // $VF: Could not inline inconsistent finally blocks
    public boolean testFinally6(boolean a, Supplier<Boolean> supplier) {
       CallSite[] var3 = $getCallSiteArray();
       boolean b = false;// 90
-      boolean var12 = false /* VF: Semaphore variable */;
 
       try {
-         var12 = true;
-         if (a) {// 91 92
-            boolean var5 = true;// 93
-            var3[52].call(var3[53].callGetProperty(System.class), "If");// 94
-         }
+         try {
+            if (a) {// 91 92
+               boolean var5 = true;// 93
+               var3[52].call(var3[53].callGetProperty(System.class), "If");// 94
+            }
 
-         Object var6 = var3[54].call(supplier);// 95 97
-         b = DefaultTypeTransformation.booleanUnbox(var6);
-         var12 = false;
-      } catch (Exception e) {// 98
-         var3[55].call(var3[56].callGetProperty(System.class), "Catch");// 99
-         Object var8 = var3[57].call(supplier);// 100
-         b = DefaultTypeTransformation.booleanUnbox(var8);
-         var12 = false;
-      } finally {
-         if (var12) {
-            var3[60].call(var3[61].callGetProperty(System.class), "Finally");// 102
+            Object var6 = var3[54].call(supplier);// 95 97
+            b = DefaultTypeTransformation.booleanUnbox(var6);
+         } catch (Exception e) {// 98
+            var3[55].call(var3[56].callGetProperty(System.class), "Catch");// 99
+            Object var8 = var3[57].call(supplier);// 100
+            b = DefaultTypeTransformation.booleanUnbox(var8);
          }
+      } catch (Throwable var13) {
+         var3[60].call(var3[61].callGetProperty(System.class), "Finally");// 102
+         throw var13;// 103
       }
 
       var3[58].call(var3[59].callGetProperty(System.class), "Finally");
@@ -1087,607 +1073,619 @@ class 'pkg/TestGroovyTryReturn' {
       5      244
       6      244
       7      244
-      a      249
-      b      249
-      c      249
-      d      249
-      e      249
-      f      249
-      10      249
-      11      249
-      12      249
-      13      249
-      14      249
-      15      249
-      16      250
-      17      250
-      18      250
-      19      250
-      1a      250
-      1b      250
-      22      258
-      23      258
-      24      258
-      25      258
-      26      258
-      27      258
-      28      258
-      29      258
-      2a      258
-      2b      258
-      2c      258
-      2d      258
-      2e      258
-      2f      258
-      30      258
-      31      258
-      32      258
-      33      258
-      34      258
-      35      258
-      36      258
-      37      258
-      3e      254
-      3f      254
-      40      254
-      41      254
-      42      254
-      43      254
-      44      254
-      45      254
-      46      254
-      47      254
-      48      254
-      49      254
-      4a      254
-      4b      254
-      4c      254
-      4d      254
-      4e      254
-      4f      254
-      50      254
-      51      254
-      52      254
-      53      254
-      58      259
-      59      259
+      a      247
+      b      247
+      c      247
+      d      247
+      e      247
+      f      247
+      10      247
+      11      247
+      12      247
+      13      247
+      14      247
+      15      247
+      16      248
+      17      248
+      18      248
+      19      248
+      1a      248
+      1b      248
+      22      254
+      23      254
+      24      254
+      25      254
+      26      254
+      27      254
+      28      254
+      29      254
+      2a      254
+      2b      254
+      2c      254
+      2d      254
+      2e      254
+      2f      254
+      30      254
+      31      254
+      32      254
+      33      254
+      34      254
+      35      254
+      36      254
+      37      254
+      3e      250
+      3f      250
+      40      250
+      41      250
+      42      250
+      43      250
+      44      250
+      45      250
+      46      250
+      47      250
+      48      250
+      49      250
+      4a      250
+      4b      250
+      4c      250
+      4d      250
+      4e      250
+      4f      250
+      50      250
+      51      250
+      52      250
+      53      250
+      55      251
+      56      251
+      57      251
+      58      255
+      59      255
    }
 
    method 'testFinally4 (Ljava/util/function/Supplier;)Z' {
-      1      451
-      2      451
-      3      451
-      4      451
-      5      452
-      6      452
-      9      457
-      a      457
-      b      457
-      c      457
-      d      457
-      e      457
-      f      457
-      10      457
-      11      457
-      12      457
-      13      457
-      14      457
-      15      458
-      16      458
-      17      458
-      18      458
-      19      458
-      1a      458
-      21      466
-      22      466
-      23      466
-      24      466
-      25      466
-      26      466
-      27      466
-      28      466
-      29      466
-      2a      466
-      2b      466
-      2c      466
-      2d      466
-      2e      466
-      2f      466
-      30      466
-      31      466
-      32      466
-      33      466
-      34      466
-      35      466
-      36      466
-      3d      462
-      3e      462
-      3f      462
-      40      462
-      41      462
-      42      462
-      43      462
-      44      462
-      45      462
-      46      462
-      47      462
-      48      462
-      49      462
-      4a      462
-      4b      462
-      4c      462
-      4d      462
-      4e      462
-      4f      462
-      50      462
-      51      462
-      52      462
-      57      467
-      58      467
+      1      447
+      2      447
+      3      447
+      4      447
+      5      448
+      6      448
+      9      451
+      a      451
+      b      451
+      c      451
+      d      451
+      e      451
+      f      451
+      10      451
+      11      451
+      12      451
+      13      451
+      14      451
+      15      452
+      16      452
+      17      452
+      18      452
+      19      452
+      1a      452
+      21      458
+      22      458
+      23      458
+      24      458
+      25      458
+      26      458
+      27      458
+      28      458
+      29      458
+      2a      458
+      2b      458
+      2c      458
+      2d      458
+      2e      458
+      2f      458
+      30      458
+      31      458
+      32      458
+      33      458
+      34      458
+      35      458
+      36      458
+      3d      454
+      3e      454
+      3f      454
+      40      454
+      41      454
+      42      454
+      43      454
+      44      454
+      45      454
+      46      454
+      47      454
+      48      454
+      49      454
+      4a      454
+      4b      454
+      4c      454
+      4d      454
+      4e      454
+      4f      454
+      50      454
+      51      454
+      52      454
+      54      455
+      55      455
+      56      455
+      57      459
+      58      459
    }
 
    method 'testFinally5 (Ljava/util/function/Supplier;)Z' {
-      1      472
-      2      472
-      3      472
-      4      472
-      5      473
-      6      473
-      9      478
-      a      478
-      b      478
-      c      478
-      d      478
-      e      478
-      f      478
-      10      478
-      11      478
-      12      478
-      13      478
-      14      478
-      15      479
-      16      479
-      17      479
-      18      479
-      19      479
-      1a      479
-      21      481
-      23      482
-      24      482
-      25      482
-      26      482
-      27      482
-      28      482
-      29      482
-      2a      482
-      2b      482
-      2c      482
-      2d      482
-      2e      482
-      2f      482
-      30      482
-      31      482
-      32      482
-      33      482
-      34      482
-      35      482
-      36      482
-      37      482
-      38      482
-      3a      483
-      3b      483
-      3c      483
-      3d      483
-      3e      483
-      3f      483
-      40      483
-      41      483
-      42      483
-      43      483
-      44      483
-      45      483
-      46      484
-      47      484
-      48      484
-      49      484
-      4a      484
-      4b      484
-      53      492
-      54      492
-      55      492
-      56      492
-      57      492
-      58      492
-      59      492
-      5a      492
-      5b      492
-      5c      492
-      5d      492
-      5e      492
-      5f      492
-      60      492
-      61      492
-      62      492
-      63      492
-      64      492
-      65      492
-      66      492
-      67      492
-      68      492
-      6f      488
-      70      488
-      71      488
-      72      488
-      73      488
-      74      488
-      75      488
-      76      488
-      77      488
-      78      488
-      79      488
-      7a      488
-      7b      488
-      7c      488
-      7d      488
-      7e      488
-      7f      488
-      80      488
-      81      488
-      82      488
-      83      488
-      84      488
-      89      493
-      8a      493
+      1      464
+      2      464
+      3      464
+      4      464
+      5      465
+      6      465
+      9      469
+      a      469
+      b      469
+      c      469
+      d      469
+      e      469
+      f      469
+      10      469
+      11      469
+      12      469
+      13      469
+      14      469
+      15      470
+      16      470
+      17      470
+      18      470
+      19      470
+      1a      470
+      21      471
+      23      472
+      24      472
+      25      472
+      26      472
+      27      472
+      28      472
+      29      472
+      2a      472
+      2b      472
+      2c      472
+      2d      472
+      2e      472
+      2f      472
+      30      472
+      31      472
+      32      472
+      33      472
+      34      472
+      35      472
+      36      472
+      37      472
+      38      472
+      3a      473
+      3b      473
+      3c      473
+      3d      473
+      3e      473
+      3f      473
+      40      473
+      41      473
+      42      473
+      43      473
+      44      473
+      45      473
+      46      474
+      47      474
+      48      474
+      49      474
+      4a      474
+      4b      474
+      53      481
+      54      481
+      55      481
+      56      481
+      57      481
+      58      481
+      59      481
+      5a      481
+      5b      481
+      5c      481
+      5d      481
+      5e      481
+      5f      481
+      60      481
+      61      481
+      62      481
+      63      481
+      64      481
+      65      481
+      66      481
+      67      481
+      68      481
+      6f      477
+      70      477
+      71      477
+      72      477
+      73      477
+      74      477
+      75      477
+      76      477
+      77      477
+      78      477
+      79      477
+      7a      477
+      7b      477
+      7c      477
+      7d      477
+      7e      477
+      7f      477
+      80      477
+      81      477
+      82      477
+      83      477
+      84      477
+      86      478
+      87      478
+      88      478
+      89      482
+      8a      482
    }
 
    method 'testFinally6 (ZLjava/util/function/Supplier;)Z' {
-      1      498
-      2      498
-      3      498
-      4      498
-      5      499
-      6      499
-      7      499
-      b      504
-      c      504
-      d      504
-      e      504
-      f      505
-      10      505
-      11      505
-      19      506
-      1a      506
-      1b      506
-      1c      506
-      1d      506
-      1e      506
-      1f      506
-      20      506
-      21      506
-      22      506
-      23      506
-      24      506
-      25      506
-      26      506
-      27      506
-      28      506
-      29      506
-      2a      506
-      2b      506
-      2c      506
-      2d      506
-      2e      506
-      30      509
-      31      509
-      32      509
-      33      509
-      34      509
-      35      509
-      36      509
-      37      509
-      38      509
-      39      509
-      3a      509
-      3b      509
-      3c      510
-      3d      510
-      3e      510
-      3f      510
-      40      510
-      41      510
-      42      510
-      49      512
-      4b      513
-      4c      513
-      4d      513
-      4e      513
-      4f      513
-      50      513
-      51      513
-      52      513
-      53      513
-      54      513
-      55      513
-      56      513
-      57      513
-      58      513
-      59      513
-      5a      513
-      5b      513
-      5c      513
-      5d      513
-      5e      513
-      5f      513
-      60      513
-      62      514
-      63      514
-      64      514
-      65      514
-      66      514
-      67      514
-      68      514
-      69      514
-      6a      514
-      6b      514
-      6c      514
-      6d      514
-      6e      515
-      6f      515
-      70      515
-      71      515
-      72      515
-      73      515
-      74      515
-      7c      523
-      7d      523
-      7e      523
-      7f      523
-      80      523
-      81      523
-      82      523
-      83      523
-      84      523
-      85      523
-      86      523
-      87      523
-      88      523
-      89      523
-      8a      523
-      8b      523
-      8c      523
-      8d      523
-      8e      523
-      8f      523
-      90      523
-      91      523
-      98      519
-      99      519
-      9a      519
-      9b      519
-      9c      519
-      9d      519
-      9e      519
-      9f      519
-      a0      519
-      a1      519
-      a2      519
-      a3      519
-      a4      519
-      a5      519
-      a6      519
-      a7      519
-      a8      519
-      a9      519
-      aa      519
-      ab      519
-      ac      519
-      ad      519
-      b2      524
-      b3      524
-      b4      524
+      1      487
+      2      487
+      3      487
+      4      487
+      5      488
+      6      488
+      7      488
+      b      492
+      c      492
+      d      492
+      e      492
+      f      493
+      10      493
+      11      493
+      19      494
+      1a      494
+      1b      494
+      1c      494
+      1d      494
+      1e      494
+      1f      494
+      20      494
+      21      494
+      22      494
+      23      494
+      24      494
+      25      494
+      26      494
+      27      494
+      28      494
+      29      494
+      2a      494
+      2b      494
+      2c      494
+      2d      494
+      2e      494
+      30      497
+      31      497
+      32      497
+      33      497
+      34      497
+      35      497
+      36      497
+      37      497
+      38      497
+      39      497
+      3a      497
+      3b      497
+      3c      498
+      3d      498
+      3e      498
+      3f      498
+      40      498
+      41      498
+      42      498
+      49      499
+      4b      500
+      4c      500
+      4d      500
+      4e      500
+      4f      500
+      50      500
+      51      500
+      52      500
+      53      500
+      54      500
+      55      500
+      56      500
+      57      500
+      58      500
+      59      500
+      5a      500
+      5b      500
+      5c      500
+      5d      500
+      5e      500
+      5f      500
+      60      500
+      62      501
+      63      501
+      64      501
+      65      501
+      66      501
+      67      501
+      68      501
+      69      501
+      6a      501
+      6b      501
+      6c      501
+      6d      501
+      6e      502
+      6f      502
+      70      502
+      71      502
+      72      502
+      73      502
+      74      502
+      7c      509
+      7d      509
+      7e      509
+      7f      509
+      80      509
+      81      509
+      82      509
+      83      509
+      84      509
+      85      509
+      86      509
+      87      509
+      88      509
+      89      509
+      8a      509
+      8b      509
+      8c      509
+      8d      509
+      8e      509
+      8f      509
+      90      509
+      91      509
+      98      505
+      99      505
+      9a      505
+      9b      505
+      9c      505
+      9d      505
+      9e      505
+      9f      505
+      a0      505
+      a1      505
+      a2      505
+      a3      505
+      a4      505
+      a5      505
+      a6      505
+      a7      505
+      a8      505
+      a9      505
+      aa      505
+      ab      505
+      ac      505
+      ad      505
+      af      506
+      b0      506
+      b1      506
+      b2      510
+      b3      510
+      b4      510
    }
 
    method 'testPostdomFailure ()V' {
-      1      690
-      2      690
-      3      690
-      4      690
-      5      691
-      6      691
-      9      692
-      a      692
-      b      692
-      c      692
-      d      692
-      e      692
-      f      692
-      10      692
-      11      692
-      12      692
-      13      692
-      14      692
-      15      692
-      16      692
-      17      692
-      18      692
-      19      692
-      1a      692
-      1b      692
-      1c      692
-      1d      692
-      1e      692
-      1f      692
-      20      692
-      22      694
-      23      694
-      24      694
-      25      694
-      26      694
-      27      694
-      28      694
-      29      694
-      2a      694
-      2b      694
-      2c      694
-      2d      694
-      2e      694
-      2f      694
-      30      694
-      31      694
-      32      694
-      33      694
-      34      694
-      35      694
-      36      694
-      37      694
-      38      694
-      3c      697
-      3d      697
-      3e      697
-      3f      697
-      40      697
-      41      697
-      42      697
-      43      697
-      44      697
-      45      697
-      46      697
-      47      697
-      48      697
-      49      697
-      4a      697
-      4b      697
-      4c      697
-      4d      697
-      4e      697
-      4f      697
-      50      697
-      51      697
-      52      697
-      53      697
-      58      698
-      59      699
-      5a      699
-      5b      699
-      5c      699
-      5d      699
-      5e      699
-      5f      699
-      60      699
-      61      699
-      62      699
-      63      699
-      64      699
-      65      699
-      66      699
-      67      699
-      68      699
-      69      699
-      6a      699
-      6b      699
-      6c      699
-      6d      699
-      6e      699
-      6f      699
-      70      699
-      c1      704
-      c2      704
-      c3      704
-      c4      704
-      c5      704
-      cf      707
+      1      676
+      2      676
+      3      676
+      4      676
+      5      677
+      6      677
+      9      678
+      a      678
+      b      678
+      c      678
+      d      678
+      e      678
+      f      678
+      10      678
+      11      678
+      12      678
+      13      678
+      14      678
+      15      678
+      16      678
+      17      678
+      18      678
+      19      678
+      1a      678
+      1b      678
+      1c      678
+      1d      678
+      1e      678
+      1f      678
+      20      678
+      22      680
+      23      680
+      24      680
+      25      680
+      26      680
+      27      680
+      28      680
+      29      680
+      2a      680
+      2b      680
+      2c      680
+      2d      680
+      2e      680
+      2f      680
+      30      680
+      31      680
+      32      680
+      33      680
+      34      680
+      35      680
+      36      680
+      37      680
+      38      680
+      3c      683
+      3d      683
+      3e      683
+      3f      683
+      40      683
+      41      683
+      42      683
+      43      683
+      44      683
+      45      683
+      46      683
+      47      683
+      48      683
+      49      683
+      4a      683
+      4b      683
+      4c      683
+      4d      683
+      4e      683
+      4f      683
+      50      683
+      51      683
+      52      683
+      53      683
+      58      684
+      59      685
+      5a      685
+      5b      685
+      5c      685
+      5d      685
+      5e      685
+      5f      685
+      60      685
+      61      685
+      62      685
+      63      685
+      64      685
+      65      685
+      66      685
+      67      685
+      68      685
+      69      685
+      6a      685
+      6b      685
+      6c      685
+      6d      685
+      6e      685
+      6f      685
+      70      685
+      c1      690
+      c2      690
+      c3      690
+      c4      690
+      c5      690
+      cf      693
    }
 
    method 'getMetaClass ()Lgroovy/lang/MetaClass;' {
-      0      1040
-      1      1040
-      2      1040
-      3      1040
-      5      1040
-      6      1040
-      7      1040
-      8      1041
-      a      1044
-      c      1044
-      d      1044
-      e      1044
-      f      1044
-      10      1044
-      11      1044
-      12      1045
-      13      1045
-      14      1045
-      15      1045
-      16      1045
+      0      1026
+      1      1026
+      2      1026
+      3      1026
+      5      1026
+      6      1026
+      7      1026
+      8      1027
+      a      1030
+      c      1030
+      d      1030
+      e      1030
+      f      1030
+      10      1030
+      11      1030
+      12      1031
+      13      1031
+      14      1031
+      15      1031
+      16      1031
    }
 
    method 'setMetaClass (Lgroovy/lang/MetaClass;)V' {
-      0      1051
-      1      1051
-      2      1051
-      3      1051
-      4      1051
-      5      1052
+      0      1037
+      1      1037
+      2      1037
+      3      1037
+      4      1037
+      5      1038
    }
 
    method '<clinit> ()V' {
-      0      1055
-      1      1055
-      2      1055
-      3      1056
+      0      1041
+      1      1041
+      2      1041
+      3      1042
    }
 }
 
 Lines mapping:
 38 <-> 245
-39 <-> 250
-40 <-> 250
-42 <-> 255
-45 <-> 260
-65 <-> 453
-66 <-> 458
-67 <-> 458
-69 <-> 463
-72 <-> 468
-76 <-> 474
-77 <-> 479
-78 <-> 479
-79 <-> 482
-80 <-> 483
-81 <-> 484
-83 <-> 489
-86 <-> 494
-90 <-> 500
-91 <-> 505
-92 <-> 505
-93 <-> 506
-94 <-> 507
-95 <-> 510
-97 <-> 510
-98 <-> 513
-99 <-> 514
-100 <-> 515
-102 <-> 520
-105 <-> 525
-154 <-> 692
-155 <-> 693
-157 <-> 695
-158 <-> 698
-159 <-> 698
-160 <-> 698
-161 <-> 699
-162 <-> 700
-168 <-> 705
-170 <-> 708
+39 <-> 248
+40 <-> 248
+42 <-> 251
+43 <-> 252
+45 <-> 256
+65 <-> 449
+66 <-> 452
+67 <-> 452
+69 <-> 455
+70 <-> 456
+72 <-> 460
+76 <-> 466
+77 <-> 470
+78 <-> 470
+79 <-> 472
+80 <-> 473
+81 <-> 474
+83 <-> 478
+84 <-> 479
+86 <-> 483
+90 <-> 489
+91 <-> 493
+92 <-> 493
+93 <-> 494
+94 <-> 495
+95 <-> 498
+97 <-> 498
+98 <-> 500
+99 <-> 501
+100 <-> 502
+102 <-> 506
+103 <-> 507
+105 <-> 511
+154 <-> 678
+155 <-> 679
+157 <-> 681
+158 <-> 684
+159 <-> 684
+160 <-> 684
+161 <-> 685
+162 <-> 686
+168 <-> 691
+170 <-> 694
 Not mapped:
 41
-43
 68
-70
 82
-84
 101
-103
 163
 164
 165

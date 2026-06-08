@@ -1,7 +1,6 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.stats;
 
-import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.modules.decompiler.DecHelper;
@@ -22,8 +21,6 @@ public class CatchAllStatement extends Statement {
   private Statement handler;
 
   private boolean isFinally;
-
-  private VarExprent monitor;
 
   private final List<VarExprent> vars = new ArrayList<>();
 
@@ -131,15 +128,7 @@ public class CatchAllStatement extends Statement {
     }
     buf.append(" {").appendLineSeparator();
 
-    if (monitor != null) {
-      buf.appendIndent(indent+1).append("if (").append(monitor.toJava(indent)).append(") {").appendLineSeparator();
-    }
-
-    buf.append(ExprProcessor.jmpWrapper(handler, indent + 1 + (monitor != null ? 1 : 0), true));
-
-    if (monitor != null) {
-      buf.appendIndent(indent + 1).append("}").appendLineSeparator();
-    }
+    buf.append(ExprProcessor.jmpWrapper(handler, indent + 1, true));
 
     buf.appendIndent(indent).append("}").appendLineSeparator();
 
@@ -162,12 +151,6 @@ public class CatchAllStatement extends Statement {
     CatchAllStatement cas = new CatchAllStatement();
 
     cas.isFinally = this.isFinally;
-
-    if (this.monitor != null) {
-      cas.monitor = new VarExprent(DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.VAR_COUNTER),
-                                   VarType.VARTYPE_INT,
-                                   DecompilerContext.getVarProcessor());
-    }
 
     if (!this.vars.isEmpty()) {
       cas.vars.add(new VarExprent(DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.VAR_COUNTER),
@@ -198,14 +181,6 @@ public class CatchAllStatement extends Statement {
 
   public void setFinally(boolean isFinally) {
     this.isFinally = isFinally;
-  }
-
-  public VarExprent getMonitor() {
-    return monitor;
-  }
-
-  public void setMonitor(VarExprent monitor) {
-    this.monitor = monitor;
   }
 
   public List<VarExprent> getVars() {
