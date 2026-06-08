@@ -141,7 +141,7 @@ public class TestTryFinallyMarkerExceptionsInvalid {
     System.out.println("Bye");
   }
 
-  public void testMultiImplicitExits(int i) {
+  public void testMultiImplicitExitsBad(int i) {
     try {
       System.out.println("Hello");
     } catch (CatchAllException e) {
@@ -170,6 +170,36 @@ public class TestTryFinallyMarkerExceptionsInvalid {
         System.out.println("Bye 3");
       }
     }
+  }
+
+
+  public void testMultiImplicitExitsGood(int i) {
+    try {
+      System.out.println("Hello");
+    } catch (CatchAllException e) {
+      System.out.println("Finally");
+      if (i > 0) {
+        System.out.println("Positive!");
+        throw e;
+      } else if (i == 0) {
+        System.out.println("ZERO");
+        throw e;
+      } else {
+        System.out.println("Negative!");
+        throw e;
+      }
+    }
+    {
+      System.out.println("Finally");
+      if (i > 0) {
+        System.out.println("Positive!");
+      } else if (i == 0) {
+        System.out.println("ZERO");
+      } else {
+        System.out.println("Negative!");
+      }
+    }
+    System.out.println("Bye");
   }
 
   public void testConfusion1(String a, String b) {

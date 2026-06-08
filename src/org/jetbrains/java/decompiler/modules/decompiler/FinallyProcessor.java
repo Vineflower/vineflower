@@ -582,15 +582,12 @@ public class FinallyProcessor {
     }
 
     // INFO: empty basic blocks may remain in the graph!
-    BasicBlock trueExit = null;
     for (Entry<BasicBlock, ExitType> entry : mapLast.entrySet()) {
       BasicBlock last = entry.getKey();
 
       if (entry.getValue() == ExitType.IMPLICIT_EXIT) {
         removeExceptionInstructionsEx(last, 2, finallytype);
         graph.getFinallyExits().add(last);
-        ValidationHelper.validateTrue(trueExit == null, "More than one true exit");
-        trueExit = last;
       }
     }
 
@@ -625,6 +622,8 @@ public class FinallyProcessor {
     Map<Pair<BasicBlock, BasicBlock>, FinallyExit> mapNext = new LinkedHashMap<>();
 
     stack.add(new BlockStackEntry(startCatch, startSample, new ArrayList<>()));
+
+    BasicBlock implicitNext = null;
 
     while (!stack.isEmpty()) {
 
@@ -662,8 +661,16 @@ public class FinallyProcessor {
             stack.add(new BlockStackEntry(sucCatch, sucSample, entry.lstStoreVars));
           }
         } else {
-          if (exitType == ExitType.EXPLICIT_EXIT || exitType == ExitType.IMPLICIT_EXIT) {
+          if (exitType == ExitType.EXPLICIT_EXIT) {
             mapNext.put(Pair.of(blockSample, sucSample), new FinallyExit(blockSample, sucSample, exitType));
+          } else if (exitType == ExitType.IMPLICIT_EXIT) {
+            mapNext.put(Pair.of(blockSample, sucSample), new FinallyExit(blockSample, sucSample, exitType));
+            if (implicitNext == null) {
+              implicitNext = sucSample;
+            } else if (implicitNext != sucSample){
+              // Exits don't match
+              return null;
+            }
           }
         }
       }
