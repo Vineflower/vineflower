@@ -166,227 +166,261 @@ public class TestTryFinallyMarkerExceptionsInvalid {
       System.out.println("Bye");// 141
    }// 142
 
-   public void testMultiImplicitExits(int i) {
+   // $VF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.
+   public void testMultiImplicitExitsBad(int i) {
+      boolean var4 = false /* VF: Semaphore variable */;
+
       try {
+         var4 = true;
          System.out.println("Hello");// 146
+         var4 = false;
       } finally {
-         System.out.println("Finally");// 148
-         if (i > 0) {// 149
-            System.out.println("Positive!");// 150
-         } else if (i == 0) {// 152
-            System.out.println("ZERO");// 153
-         } else {
-            System.out.println("Negative!");// 156
+         if (var4) {
+            System.out.println("Finally");// 148
+            if (i > 0) {// 149
+               System.out.println("Positive!");// 150
+            } else if (i == 0) {// 152
+               System.out.println("ZERO");// 153
+            } else {
+               System.out.println("Negative!");// 156
+            }
          }
       }
 
-      System.out.println("Bye 2");// 167
+      System.out.println("Finally");// 161
+      if (i > 0) {// 162
+         System.out.println("Positive!");// 163
+         System.out.println("Bye 1");// 164
+      } else if (i == 0) {// 165
+         System.out.println("ZERO");// 166
+         System.out.println("Bye 2");// 167
+      } else {
+         System.out.println("Negative!");// 169
+         System.out.println("Bye 3");// 170
+      }
    }// 173
+
+   public void testMultiImplicitExitsGood(int i) {
+      try {
+         System.out.println("Hello");// 178
+      } finally {
+         System.out.println("Finally");// 180
+         if (i > 0) {// 181
+            System.out.println("Positive!");// 182
+         } else if (i == 0) {// 184
+            System.out.println("ZERO");// 185
+         } else {
+            System.out.println("Negative!");// 188
+         }
+      }
+
+      System.out.println("Bye");// 202
+   }// 203
 
    public void testConfusion1(String a, String b) {
       try {
-         System.out.println("Hello");// 177
+         System.out.println("Hello");// 207
       } finally {
-         System.out.println("Finally");// 179
-         System.out.println(a);// 180
+         System.out.println("Finally");// 209
+         System.out.println(a);// 210
       }
 
-      System.out.println("Bye");// 187
-   }// 188
+      System.out.println("Bye");// 217
+   }// 218
 
    public void testConfusion2() {
       try {
-         System.out.println("Hello");// 193
+         System.out.println("Hello");// 223
       } finally {
-         System.out.println("Finally");// 195
-         String x = "X";// 196
-         String y = "Y";// 197
-         String z = "Z";// 198
-         x = x + z;// 199
-         y = y + x;// 200
-         z = z + y;// 201
-         System.out.println(z);// 202
+         System.out.println("Finally");// 225
+         String x = "X";// 226
+         String y = "Y";// 227
+         String z = "Z";// 228
+         x = x + z;// 229
+         y = y + x;// 230
+         z = z + y;// 231
+         System.out.println(z);// 232
       }
 
-      System.out.println("Bye");// 215
-   }// 216
+      System.out.println("Bye");// 245
+   }// 246
 
    public void testMismatchedSwitch(int i) {
       try {
-         System.out.println("Hello");// 221
+         System.out.println("Hello");// 251
       } finally {
-         System.out.println("Finally");// 223
-         switch (i) {// 224
+         System.out.println("Finally");// 253
+         switch (i) {// 254
             case 10:
-               System.out.println("10");// 226
+               System.out.println("10");// 256
             case 9:
-               System.out.println("9");// 228
+               System.out.println("9");// 258
             case 8:
-               System.out.println("8");// 230
+               System.out.println("8");// 260
             case 7:
-               System.out.println("7");// 232
+               System.out.println("7");// 262
             case 6:
-               System.out.println("6");// 234
+               System.out.println("6");// 264
             case 5:
-               System.out.println("5");// 236
+               System.out.println("5");// 266
             case 4:
-               System.out.println("4");// 238
+               System.out.println("4");// 268
             case 3:
-               System.out.println("3");// 240
+               System.out.println("3");// 270
             case 2:
-               System.out.println("2");// 242
+               System.out.println("2");// 272
             case 1:
-               System.out.println("1");// 244
+               System.out.println("1");// 274
             case 0:
-               System.out.println("Lift off!");// 246
+               System.out.println("Lift off!");// 276
          }
       }
 
-      System.out.println("Bye");// 277
-   }// 278
+      System.out.println("Bye");// 307
+   }// 308
 
    public void testMismatchedOutputExit(int a, int b) {
       label53:
-      while (a > 0) {// 282
-         System.out.println("A: " + a);// 283
-         a--;// 284
+      while (a > 0) {// 312
+         System.out.println("A: " + a);// 313
+         a--;// 314
 
-         for (; b > 0; System.out.println("Beep")) {// 286 310
-            a++;// 287
-            System.out.println("B: " + b);// 288
+         for (; b > 0; System.out.println("Beep")) {// 316 340
+            a++;// 317
+            System.out.println("B: " + b);// 318
 
             try {
-               b--;// 291
-               System.out.println("Hello");// 292
+               b--;// 321
+               System.out.println("Hello");// 322
             } finally {
-               System.out.println("Finally");// 294
-               if (a > b) {// 295
-                  a--;// 296
-                  continue label53;// 297
+               System.out.println("Finally");// 324
+               if (a > b) {// 325
+                  a--;// 326
+                  continue label53;// 327
                }
 
-               System.out.println("Boop");// 299
+               System.out.println("Boop");// 329
             }
          }
 
-         System.out.println("BLORB");// 312
+         System.out.println("BLORB");// 342
       }
 
-      System.out.println("Bye");// 314
-   }// 315
+      System.out.println("Bye");// 344
+   }// 345
 
    public void testMismatchedOutputExit3(int a, int b, int c) {
       label84:
-      while (a > 0) {// 320
-         System.out.println("A: " + a);// 321
-         a--;// 322
+      while (a > 0) {// 350
+         System.out.println("A: " + a);// 351
+         a--;// 352
 
          label82:
-         while (b > 0) {// 324
-            a++;// 325
-            System.out.println("B: " + b);// 326
+         while (b > 0) {// 354
+            a++;// 355
+            System.out.println("B: " + b);// 356
 
-            for (; c > 0; System.out.println("Lost")) {// 329 371
-               c -= b;// 330
+            for (; c > 0; System.out.println("Lost")) {// 359 401
+               c -= b;// 360
 
                try {
-                  b--;// 337
-                  System.out.println("Hello");// 338
-                  if (c < a) {// 339
+                  b--;// 367
+                  System.out.println("Hello");// 368
+                  if (c < a) {// 369
                      continue label82;
                   }
                } finally {
-                  System.out.println("Finally");// 343
-                  if (a > b) {// 344
-                     a--;// 345
-                     continue label84;// 346
+                  System.out.println("Finally");// 373
+                  if (a > b) {// 374
+                     a--;// 375
+                     continue label84;// 376
                   }
 
-                  System.out.println("Boop");// 348
+                  System.out.println("Boop");// 378
                }
             }
 
-            System.out.println("Beep");// 373
+            System.out.println("Beep");// 403
          }
 
-         System.out.println("BLORB");// 375
+         System.out.println("BLORB");// 405
       }
 
-      System.out.println("Bye");// 377
-   }// 378
+      System.out.println("Bye");// 407
+   }// 408
 
    public void testMismatchedOutputExitReturn(int a, int b) {
       label54:
-      while (a > 0) {// 383
-         System.out.println("A: " + a);// 384
-         a--;// 385
+      while (a > 0) {// 413
+         System.out.println("A: " + a);// 414
+         a--;// 415
 
-         for (; b > 0; System.out.println("Beep")) {// 387 411
-            a++;// 388
-            System.out.println("B: " + b);// 389
+         for (; b > 0; System.out.println("Beep")) {// 417 441
+            a++;// 418
+            System.out.println("B: " + b);// 419
 
             try {
-               b--;// 392
-               System.out.println("Hello");// 393
+               b--;// 422
+               System.out.println("Hello");// 423
             } finally {
-               System.out.println("Finally");// 395
-               if (a > b) {// 396
-                  a--;// 397
-                  continue label54;// 398
+               System.out.println("Finally");// 425
+               if (a > b) {// 426
+                  a--;// 427
+                  continue label54;// 428
                }
 
-               System.out.println("Boop");// 400
+               System.out.println("Boop");// 430
             }
          }
 
-         System.out.println("BLORB");// 413
+         System.out.println("BLORB");// 443
       }
 
-      System.out.println("Bye");// 415
-   }// 416
+      System.out.println("Bye");// 445
+   }// 446
 
    // $VF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.
    public void testMismatchedOutputExitReturnInner(int a, int b) {
-      while (a > 0) {// 420
-         System.out.println("A: " + a);// 421
-         a--;// 422
+      while (a > 0) {// 450
+         System.out.println("A: " + a);// 451
+         a--;// 452
 
-         while (b > 0) {// 424
-            a++;// 425
-            System.out.println("B: " + b);// 426
+         while (b > 0) {// 454
+            a++;// 455
+            System.out.println("B: " + b);// 456
             boolean var5 = false /* VF: Semaphore variable */;
 
             try {
                var5 = true;
-               b--;// 429
-               System.out.println("Hello");// 430
+               b--;// 459
+               System.out.println("Hello");// 460
                var5 = false;
             } finally {
                if (var5) {
-                  System.out.println("Finally");// 432
-                  if (a > b) {// 433
-                     a--;// 434
-                     return;// 435
+                  System.out.println("Finally");// 462
+                  if (a > b) {// 463
+                     a--;// 464
+                     return;// 465
                   }
 
-                  System.out.println("Boop");// 437
+                  System.out.println("Boop");// 467
                }
             }
 
-            System.out.println("Finally");// 441
-            if (a > b) {// 442
-               a--;// 443
+            System.out.println("Finally");// 471
+            if (a > b) {// 472
+               a--;// 473
             } else {
-               System.out.println("Boop");// 446
-               System.out.println("Beep");// 448
+               System.out.println("Boop");// 476
+               System.out.println("Beep");// 478
             }
          }
 
-         System.out.println("BLORB");// 450
+         System.out.println("BLORB");// 480
       }
 
-      System.out.println("Bye");// 452
-   }// 453
+      System.out.println("Bye");// 482
+   }// 483
 }
 
 class 'pkg/TestTryFinallyMarkerExceptionsInvalid' {
@@ -709,714 +743,728 @@ class 'pkg/TestTryFinallyMarkerExceptionsInvalid' {
       52      166
    }
 
-   method 'testMultiImplicitExits (I)V' {
-      0      170
-      1      170
-      2      170
-      3      170
-      4      170
-      5      170
-      6      170
-      7      170
-      c      172
-      d      172
-      e      172
-      f      172
-      10      172
-      11      172
-      12      172
-      13      172
-      14      173
-      15      173
-      16      173
-      17      173
-      18      174
-      19      174
-      1a      174
-      1b      174
-      1c      174
-      1d      174
-      1e      174
-      1f      174
-      22      175
-      23      175
-      24      175
-      25      175
-      26      176
-      27      176
-      28      176
-      29      176
-      2a      176
-      2b      176
-      2c      176
-      2d      176
-      30      178
-      31      178
-      32      178
-      33      178
-      34      178
-      35      178
-      36      178
-      37      178
-      65      182
-      66      182
-      67      182
-      68      182
-      69      182
-      6a      182
-      6b      182
-      6c      182
-      80      183
+   method 'testMultiImplicitExitsBad (I)V' {
+      0      174
+      1      174
+      2      174
+      3      174
+      4      174
+      5      174
+      6      174
+      7      174
+      c      178
+      d      178
+      e      178
+      f      178
+      10      178
+      11      178
+      12      178
+      13      178
+      14      179
+      15      179
+      16      179
+      17      179
+      18      180
+      19      180
+      1a      180
+      1b      180
+      1c      180
+      1d      180
+      1e      180
+      1f      180
+      22      181
+      23      181
+      24      181
+      25      181
+      26      182
+      27      182
+      28      182
+      29      182
+      2a      182
+      2b      182
+      2c      182
+      2d      182
+      30      184
+      31      184
+      32      184
+      33      184
+      34      184
+      35      184
+      36      184
+      37      184
+      3a      189
+      3b      189
+      3c      189
+      3d      189
+      3e      189
+      3f      189
+      40      189
+      41      189
+      42      190
+      43      190
+      44      190
+      45      190
+      46      191
+      47      191
+      48      191
+      49      191
+      4a      191
+      4b      191
+      4c      191
+      4d      191
+      4e      192
+      4f      192
+      50      192
+      51      192
+      52      192
+      53      192
+      54      192
+      55      192
+      59      193
+      5a      193
+      5b      193
+      5c      193
+      5d      194
+      5e      194
+      5f      194
+      60      194
+      61      194
+      62      194
+      63      194
+      64      194
+      65      195
+      66      195
+      67      195
+      68      195
+      69      195
+      6a      195
+      6b      195
+      6c      195
+      70      197
+      71      197
+      72      197
+      73      197
+      74      197
+      75      197
+      76      197
+      77      197
+      78      198
+      79      198
+      7a      198
+      7b      198
+      7c      198
+      7d      198
+      7e      198
+      7f      198
+      80      200
+   }
+
+   method 'testMultiImplicitExitsGood (I)V' {
+      0      204
+      1      204
+      2      204
+      3      204
+      4      204
+      5      204
+      6      204
+      7      204
+      c      206
+      d      206
+      e      206
+      f      206
+      10      206
+      11      206
+      12      206
+      13      206
+      14      207
+      15      207
+      16      207
+      17      207
+      18      208
+      19      208
+      1a      208
+      1b      208
+      1c      208
+      1d      208
+      1e      208
+      1f      208
+      22      209
+      23      209
+      24      209
+      25      209
+      26      210
+      27      210
+      28      210
+      29      210
+      2a      210
+      2b      210
+      2c      210
+      2d      210
+      30      212
+      31      212
+      32      212
+      33      212
+      34      212
+      35      212
+      36      212
+      37      212
+      68      216
+      69      216
+      6a      216
+      6b      216
+      6c      216
+      6d      216
+      6e      216
+      6f      216
+      70      217
    }
 
    method 'testConfusion1 (Ljava/lang/String;Ljava/lang/String;)V' {
-      0      187
-      1      187
-      2      187
-      3      187
-      4      187
-      5      187
-      6      187
-      7      187
-      c      189
-      d      189
-      e      189
-      f      189
-      10      189
-      11      189
-      12      189
-      13      189
-      14      190
-      15      190
-      16      190
-      17      190
-      18      190
-      19      190
-      1a      190
-      2c      193
-      2d      193
-      2e      193
-      2f      193
-      30      193
-      31      193
-      32      193
-      33      193
-      34      194
+      0      221
+      1      221
+      2      221
+      3      221
+      4      221
+      5      221
+      6      221
+      7      221
+      c      223
+      d      223
+      e      223
+      f      223
+      10      223
+      11      223
+      12      223
+      13      223
+      14      224
+      15      224
+      16      224
+      17      224
+      18      224
+      19      224
+      1a      224
+      2c      227
+      2d      227
+      2e      227
+      2f      227
+      30      227
+      31      227
+      32      227
+      33      227
+      34      228
    }
 
    method 'testConfusion2 ()V' {
-      0      198
-      1      198
-      2      198
-      3      198
-      4      198
-      5      198
-      6      198
-      7      198
-      d      200
-      e      200
-      f      200
-      10      200
-      11      200
-      12      200
-      13      200
-      14      200
-      15      201
-      16      201
-      17      201
-      18      202
-      19      202
-      1a      202
-      1b      203
-      1c      203
-      1d      203
-      25      204
-      29      204
-      2d      204
-      2e      204
-      2f      204
-      30      204
-      38      205
-      3c      205
-      40      205
-      41      205
-      42      205
-      43      205
-      4b      206
-      4f      206
-      53      206
-      54      206
-      55      206
-      56      206
-      57      207
-      58      207
-      59      207
-      5a      207
-      5b      207
-      5c      207
-      5d      207
-      b2      210
-      b3      210
-      b4      210
-      b5      210
-      b6      210
-      b7      210
-      b8      210
-      b9      210
-      ba      211
+      0      232
+      1      232
+      2      232
+      3      232
+      4      232
+      5      232
+      6      232
+      7      232
+      d      234
+      e      234
+      f      234
+      10      234
+      11      234
+      12      234
+      13      234
+      14      234
+      15      235
+      16      235
+      17      235
+      18      236
+      19      236
+      1a      236
+      1b      237
+      1c      237
+      1d      237
+      25      238
+      29      238
+      2d      238
+      2e      238
+      2f      238
+      30      238
+      38      239
+      3c      239
+      40      239
+      41      239
+      42      239
+      43      239
+      4b      240
+      4f      240
+      53      240
+      54      240
+      55      240
+      56      240
+      57      241
+      58      241
+      59      241
+      5a      241
+      5b      241
+      5c      241
+      5d      241
+      b2      244
+      b3      244
+      b4      244
+      b5      244
+      b6      244
+      b7      244
+      b8      244
+      b9      244
+      ba      245
    }
 
    method 'testMismatchedSwitch (I)V' {
-      0      215
-      1      215
-      2      215
-      3      215
-      4      215
-      5      215
-      6      215
-      7      215
-      c      217
-      d      217
-      e      217
-      f      217
-      10      217
-      11      217
-      12      217
-      13      217
-      14      218
-      15      218
-      16      218
-      17      218
-      18      218
-      19      218
-      1a      218
-      1b      218
-      1c      218
-      1d      218
-      1e      218
-      1f      218
-      20      218
-      21      218
-      22      218
-      23      218
-      24      218
-      25      218
-      26      218
-      27      218
-      28      218
-      29      218
-      2a      218
-      2b      218
-      2c      218
-      2d      218
-      2e      218
-      2f      218
-      30      218
-      31      218
-      32      218
-      33      218
-      34      218
-      35      218
-      36      218
-      37      218
-      38      218
-      39      218
-      3a      218
-      3b      218
-      3c      218
-      3d      218
-      3e      218
-      3f      218
-      40      218
-      41      218
-      42      218
-      43      218
-      44      218
-      45      218
-      46      218
-      47      218
-      48      218
-      49      218
-      4a      218
-      4b      218
-      4c      218
-      4d      218
-      4e      218
-      4f      218
-      50      220
-      51      220
-      52      220
-      53      220
-      54      220
-      55      220
-      56      220
-      57      220
-      58      222
-      59      222
-      5a      222
-      5b      222
-      5c      222
-      5d      222
-      5e      222
-      5f      222
-      60      224
-      61      224
-      62      224
-      63      224
-      64      224
-      65      224
-      66      224
-      67      224
-      68      226
-      69      226
-      6a      226
-      6b      226
-      6c      226
-      6d      226
-      6e      226
-      6f      226
-      70      228
-      71      228
-      72      228
-      73      228
-      74      228
-      75      228
-      76      228
-      77      228
-      78      230
-      79      230
-      7a      230
-      7b      230
-      7c      230
-      7d      230
-      7e      230
-      7f      230
-      80      232
-      81      232
-      82      232
-      83      232
-      84      232
-      85      232
-      86      232
-      87      232
-      88      234
-      89      234
-      8a      234
-      8b      234
-      8c      234
-      8d      234
-      8e      234
-      8f      234
-      90      236
-      91      236
-      92      236
-      93      236
-      94      236
-      95      236
-      96      236
-      97      236
-      98      238
-      99      238
-      9a      238
-      9b      238
-      9c      238
-      9d      238
-      9e      238
-      9f      238
-      a0      240
-      a1      240
-      a2      240
-      a3      240
-      a4      240
-      a5      240
-      a6      240
-      a7      240
-      144      244
-      145      244
-      146      244
-      147      244
-      148      244
-      149      244
-      14a      244
-      14b      244
-      14c      245
-   }
-
-   method 'testMismatchedOutputExit (II)V' {
       0      249
       1      249
       2      249
       3      249
-      4      250
-      5      250
-      6      250
-      e      250
-      f      250
-      13      250
-      17      250
-      18      250
-      19      250
-      1a      250
-      1b      250
-      1c      250
-      1d      251
-      1e      251
-      1f      251
-      20      253
-      21      253
-      22      253
-      23      253
-      24      254
-      25      254
-      26      254
-      27      255
-      28      255
-      29      255
-      31      255
-      32      255
-      36      255
-      3a      255
-      3b      255
-      3c      255
-      3d      255
-      3e      255
-      3f      255
-      40      258
-      41      258
-      42      258
-      43      259
-      44      259
-      45      259
-      46      259
-      47      259
-      48      259
-      49      259
-      4a      259
-      4f      261
-      50      261
-      51      261
-      52      261
-      53      261
-      54      261
-      55      261
-      56      261
-      57      262
-      58      262
-      59      262
-      5a      262
-      5b      262
-      5c      263
-      5d      263
-      5e      263
-      5f      264
-      62      267
-      63      267
-      64      267
-      65      267
-      66      267
-      67      267
-      68      267
-      69      267
-      87      253
-      88      253
-      89      253
-      8a      253
-      8b      253
-      8c      253
-      8d      253
-      8e      253
-      92      271
-      93      271
-      94      271
-      95      271
-      96      271
-      97      271
-      98      271
-      99      271
-      9d      274
-      9e      274
-      9f      274
+      4      249
+      5      249
+      6      249
+      7      249
+      c      251
+      d      251
+      e      251
+      f      251
+      10      251
+      11      251
+      12      251
+      13      251
+      14      252
+      15      252
+      16      252
+      17      252
+      18      252
+      19      252
+      1a      252
+      1b      252
+      1c      252
+      1d      252
+      1e      252
+      1f      252
+      20      252
+      21      252
+      22      252
+      23      252
+      24      252
+      25      252
+      26      252
+      27      252
+      28      252
+      29      252
+      2a      252
+      2b      252
+      2c      252
+      2d      252
+      2e      252
+      2f      252
+      30      252
+      31      252
+      32      252
+      33      252
+      34      252
+      35      252
+      36      252
+      37      252
+      38      252
+      39      252
+      3a      252
+      3b      252
+      3c      252
+      3d      252
+      3e      252
+      3f      252
+      40      252
+      41      252
+      42      252
+      43      252
+      44      252
+      45      252
+      46      252
+      47      252
+      48      252
+      49      252
+      4a      252
+      4b      252
+      4c      252
+      4d      252
+      4e      252
+      4f      252
+      50      254
+      51      254
+      52      254
+      53      254
+      54      254
+      55      254
+      56      254
+      57      254
+      58      256
+      59      256
+      5a      256
+      5b      256
+      5c      256
+      5d      256
+      5e      256
+      5f      256
+      60      258
+      61      258
+      62      258
+      63      258
+      64      258
+      65      258
+      66      258
+      67      258
+      68      260
+      69      260
+      6a      260
+      6b      260
+      6c      260
+      6d      260
+      6e      260
+      6f      260
+      70      262
+      71      262
+      72      262
+      73      262
+      74      262
+      75      262
+      76      262
+      77      262
+      78      264
+      79      264
+      7a      264
+      7b      264
+      7c      264
+      7d      264
+      7e      264
+      7f      264
+      80      266
+      81      266
+      82      266
+      83      266
+      84      266
+      85      266
+      86      266
+      87      266
+      88      268
+      89      268
+      8a      268
+      8b      268
+      8c      268
+      8d      268
+      8e      268
+      8f      268
+      90      270
+      91      270
+      92      270
+      93      270
+      94      270
+      95      270
+      96      270
+      97      270
+      98      272
+      99      272
+      9a      272
+      9b      272
+      9c      272
+      9d      272
+      9e      272
+      9f      272
       a0      274
       a1      274
       a2      274
       a3      274
       a4      274
-      a5      275
+      a5      274
+      a6      274
+      a7      274
+      144      278
+      145      278
+      146      278
+      147      278
+      148      278
+      149      278
+      14a      278
+      14b      278
+      14c      279
+   }
+
+   method 'testMismatchedOutputExit (II)V' {
+      0      283
+      1      283
+      2      283
+      3      283
+      4      284
+      5      284
+      6      284
+      e      284
+      f      284
+      13      284
+      17      284
+      18      284
+      19      284
+      1a      284
+      1b      284
+      1c      284
+      1d      285
+      1e      285
+      1f      285
+      20      287
+      21      287
+      22      287
+      23      287
+      24      288
+      25      288
+      26      288
+      27      289
+      28      289
+      29      289
+      31      289
+      32      289
+      36      289
+      3a      289
+      3b      289
+      3c      289
+      3d      289
+      3e      289
+      3f      289
+      40      292
+      41      292
+      42      292
+      43      293
+      44      293
+      45      293
+      46      293
+      47      293
+      48      293
+      49      293
+      4a      293
+      4f      295
+      50      295
+      51      295
+      52      295
+      53      295
+      54      295
+      55      295
+      56      295
+      57      296
+      58      296
+      59      296
+      5a      296
+      5b      296
+      5c      297
+      5d      297
+      5e      297
+      5f      298
+      62      301
+      63      301
+      64      301
+      65      301
+      66      301
+      67      301
+      68      301
+      69      301
+      87      287
+      88      287
+      89      287
+      8a      287
+      8b      287
+      8c      287
+      8d      287
+      8e      287
+      92      305
+      93      305
+      94      305
+      95      305
+      96      305
+      97      305
+      98      305
+      99      305
+      9d      308
+      9e      308
+      9f      308
+      a0      308
+      a1      308
+      a2      308
+      a3      308
+      a4      308
+      a5      309
    }
 
    method 'testMismatchedOutputExit3 (III)V' {
-      0      279
-      1      279
-      2      279
-      3      279
-      4      280
-      5      280
-      6      280
-      e      280
-      f      280
-      13      280
-      17      280
-      18      280
-      19      280
-      1a      280
-      1b      280
-      1c      280
-      1d      281
-      1e      281
-      1f      281
-      20      284
-      21      284
-      22      284
-      23      284
-      24      285
-      25      285
-      26      285
-      27      286
-      28      286
-      29      286
-      31      286
-      32      286
-      36      286
-      3a      286
-      3b      286
-      3c      286
-      3d      286
-      3e      286
-      3f      286
-      40      288
-      41      288
-      42      288
-      43      288
-      45      289
-      47      289
-      48      292
-      49      292
-      4a      292
-      4b      293
-      4c      293
-      4d      293
-      4e      293
-      4f      293
-      50      293
-      51      293
-      52      293
-      53      294
-      54      294
-      55      294
-      56      294
-      57      294
-      60      298
-      61      298
-      62      298
-      63      298
-      64      298
-      65      298
-      66      298
-      67      298
-      68      299
-      69      299
-      6a      299
-      6b      299
-      6c      299
-      6d      300
-      6e      300
-      6f      300
-      70      301
-      73      304
-      74      304
-      75      304
-      76      304
-      77      304
-      78      304
-      79      304
-      7a      304
-      ba      288
-      bb      288
-      bc      288
-      bd      288
-      be      288
-      bf      288
-      c0      288
-      c1      288
-      c5      308
-      c6      308
-      c7      308
-      c8      308
-      c9      308
-      ca      308
-      cb      308
-      cc      308
-      d0      311
-      d1      311
-      d2      311
-      d3      311
-      d4      311
-      d5      311
-      d6      311
-      d7      311
-      db      314
-      dc      314
-      dd      314
-      de      314
-      df      314
-      e0      314
-      e1      314
-      e2      314
-      e3      315
+      0      313
+      1      313
+      2      313
+      3      313
+      4      314
+      5      314
+      6      314
+      e      314
+      f      314
+      13      314
+      17      314
+      18      314
+      19      314
+      1a      314
+      1b      314
+      1c      314
+      1d      315
+      1e      315
+      1f      315
+      20      318
+      21      318
+      22      318
+      23      318
+      24      319
+      25      319
+      26      319
+      27      320
+      28      320
+      29      320
+      31      320
+      32      320
+      36      320
+      3a      320
+      3b      320
+      3c      320
+      3d      320
+      3e      320
+      3f      320
+      40      322
+      41      322
+      42      322
+      43      322
+      45      323
+      47      323
+      48      326
+      49      326
+      4a      326
+      4b      327
+      4c      327
+      4d      327
+      4e      327
+      4f      327
+      50      327
+      51      327
+      52      327
+      53      328
+      54      328
+      55      328
+      56      328
+      57      328
+      60      332
+      61      332
+      62      332
+      63      332
+      64      332
+      65      332
+      66      332
+      67      332
+      68      333
+      69      333
+      6a      333
+      6b      333
+      6c      333
+      6d      334
+      6e      334
+      6f      334
+      70      335
+      73      338
+      74      338
+      75      338
+      76      338
+      77      338
+      78      338
+      79      338
+      7a      338
+      ba      322
+      bb      322
+      bc      322
+      bd      322
+      be      322
+      bf      322
+      c0      322
+      c1      322
+      c5      342
+      c6      342
+      c7      342
+      c8      342
+      c9      342
+      ca      342
+      cb      342
+      cc      342
+      d0      345
+      d1      345
+      d2      345
+      d3      345
+      d4      345
+      d5      345
+      d6      345
+      d7      345
+      db      348
+      dc      348
+      dd      348
+      de      348
+      df      348
+      e0      348
+      e1      348
+      e2      348
+      e3      349
    }
 
    method 'testMismatchedOutputExitReturn (II)V' {
-      0      319
-      1      319
-      2      319
-      3      319
-      4      320
-      5      320
-      6      320
-      e      320
-      f      320
-      13      320
-      17      320
-      18      320
-      19      320
-      1a      320
-      1b      320
-      1c      320
-      1d      321
-      1e      321
-      1f      321
-      20      323
-      21      323
-      22      323
-      23      323
-      24      324
-      25      324
-      26      324
-      27      325
-      28      325
-      29      325
-      31      325
-      32      325
-      36      325
-      3a      325
-      3b      325
-      3c      325
-      3d      325
-      3e      325
-      3f      325
-      40      328
-      41      328
-      42      328
-      43      329
-      44      329
-      45      329
-      46      329
-      47      329
-      48      329
-      49      329
-      4a      329
-      4f      331
-      50      331
-      51      331
-      52      331
-      53      331
-      54      331
-      55      331
-      56      331
-      57      332
-      58      332
-      59      332
-      5a      332
-      5b      332
-      5c      333
-      5d      333
-      5e      333
-      5f      334
-      62      337
-      63      337
-      64      337
-      65      337
-      66      337
-      67      337
-      68      337
-      69      337
-      85      323
-      86      323
-      87      323
-      88      323
-      89      323
-      8a      323
-      8b      323
-      8c      323
-      90      341
-      91      341
-      92      341
-      93      341
-      94      341
-      95      341
-      96      341
-      97      341
-      9b      344
-      9c      344
-      9d      344
-      9e      344
-      9f      344
-      a0      344
-      a1      344
-      a2      344
-      a3      345
-   }
-
-   method 'testMismatchedOutputExitReturnInner (II)V' {
-      0      349
-      1      349
-      2      349
-      3      349
-      4      350
-      5      350
-      6      350
-      e      350
-      f      350
-      13      350
-      17      350
-      18      350
-      19      350
-      1a      350
-      1b      350
-      1c      350
-      1d      351
-      1e      351
-      1f      351
-      20      353
-      21      353
-      22      353
-      23      353
-      24      354
-      25      354
-      26      354
-      27      355
-      28      355
-      29      355
-      31      355
-      32      355
-      36      355
-      3a      355
-      3b      355
-      3c      355
-      3d      355
-      3e      355
-      3f      355
-      40      360
-      41      360
-      42      360
-      43      361
-      44      361
-      45      361
-      46      361
-      47      361
-      48      361
-      49      361
-      4a      361
+      0      353
+      1      353
+      2      353
+      3      353
+      4      354
+      5      354
+      6      354
+      e      354
+      f      354
+      13      354
+      17      354
+      18      354
+      19      354
+      1a      354
+      1b      354
+      1c      354
+      1d      355
+      1e      355
+      1f      355
+      20      357
+      21      357
+      22      357
+      23      357
+      24      358
+      25      358
+      26      358
+      27      359
+      28      359
+      29      359
+      31      359
+      32      359
+      36      359
+      3a      359
+      3b      359
+      3c      359
+      3d      359
+      3e      359
+      3f      359
+      40      362
+      41      362
+      42      362
+      43      363
+      44      363
+      45      363
+      46      363
+      47      363
+      48      363
+      49      363
+      4a      363
       4f      365
       50      365
       51      365
@@ -1434,63 +1482,165 @@ class 'pkg/TestTryFinallyMarkerExceptionsInvalid' {
       5d      367
       5e      367
       5f      368
-      60      371
-      61      371
       62      371
       63      371
       64      371
       65      371
       66      371
       67      371
-      6a      375
-      6b      375
-      6c      375
-      6d      375
-      6e      375
-      6f      375
-      70      375
-      71      375
-      72      376
-      73      376
-      74      376
-      75      376
-      76      376
-      77      377
-      78      377
-      79      377
-      7d      379
-      7e      379
-      7f      379
-      80      379
-      81      379
-      82      379
-      83      379
-      84      379
-      85      380
-      86      380
-      87      380
-      88      380
-      89      380
-      8a      380
-      8b      380
-      8c      380
-      90      384
-      91      384
-      92      384
-      93      384
-      94      384
-      95      384
-      96      384
-      97      384
-      9b      387
-      9c      387
-      9d      387
-      9e      387
-      9f      387
-      a0      387
-      a1      387
-      a2      387
-      a3      388
+      68      371
+      69      371
+      85      357
+      86      357
+      87      357
+      88      357
+      89      357
+      8a      357
+      8b      357
+      8c      357
+      90      375
+      91      375
+      92      375
+      93      375
+      94      375
+      95      375
+      96      375
+      97      375
+      9b      378
+      9c      378
+      9d      378
+      9e      378
+      9f      378
+      a0      378
+      a1      378
+      a2      378
+      a3      379
+   }
+
+   method 'testMismatchedOutputExitReturnInner (II)V' {
+      0      383
+      1      383
+      2      383
+      3      383
+      4      384
+      5      384
+      6      384
+      e      384
+      f      384
+      13      384
+      17      384
+      18      384
+      19      384
+      1a      384
+      1b      384
+      1c      384
+      1d      385
+      1e      385
+      1f      385
+      20      387
+      21      387
+      22      387
+      23      387
+      24      388
+      25      388
+      26      388
+      27      389
+      28      389
+      29      389
+      31      389
+      32      389
+      36      389
+      3a      389
+      3b      389
+      3c      389
+      3d      389
+      3e      389
+      3f      389
+      40      394
+      41      394
+      42      394
+      43      395
+      44      395
+      45      395
+      46      395
+      47      395
+      48      395
+      49      395
+      4a      395
+      4f      399
+      50      399
+      51      399
+      52      399
+      53      399
+      54      399
+      55      399
+      56      399
+      57      400
+      58      400
+      59      400
+      5a      400
+      5b      400
+      5c      401
+      5d      401
+      5e      401
+      5f      402
+      60      405
+      61      405
+      62      405
+      63      405
+      64      405
+      65      405
+      66      405
+      67      405
+      6a      409
+      6b      409
+      6c      409
+      6d      409
+      6e      409
+      6f      409
+      70      409
+      71      409
+      72      410
+      73      410
+      74      410
+      75      410
+      76      410
+      77      411
+      78      411
+      79      411
+      7d      413
+      7e      413
+      7f      413
+      80      413
+      81      413
+      82      413
+      83      413
+      84      413
+      85      414
+      86      414
+      87      414
+      88      414
+      89      414
+      8a      414
+      8b      414
+      8c      414
+      90      418
+      91      418
+      92      418
+      93      418
+      94      418
+      95      418
+      96      418
+      97      418
+      9b      421
+      9c      421
+      9d      421
+      9e      421
+      9f      421
+      a0      421
+      a1      421
+      a2      421
+      a3      422
    }
 }
 
@@ -1545,123 +1695,140 @@ Lines mapping:
 138 <-> 165
 141 <-> 166
 142 <-> 167
-146 <-> 171
-148 <-> 173
-149 <-> 174
-150 <-> 175
-152 <-> 176
-153 <-> 177
-156 <-> 179
-167 <-> 183
-173 <-> 184
-177 <-> 188
-179 <-> 190
-180 <-> 191
-187 <-> 194
-188 <-> 195
-193 <-> 199
-195 <-> 201
-196 <-> 202
-197 <-> 203
-198 <-> 204
-199 <-> 205
-200 <-> 206
-201 <-> 207
-202 <-> 208
-215 <-> 211
-216 <-> 212
-221 <-> 216
-223 <-> 218
-224 <-> 219
-226 <-> 221
-228 <-> 223
-230 <-> 225
-232 <-> 227
-234 <-> 229
-236 <-> 231
-238 <-> 233
-240 <-> 235
-242 <-> 237
-244 <-> 239
-246 <-> 241
-277 <-> 245
-278 <-> 246
-282 <-> 250
-283 <-> 251
-284 <-> 252
-286 <-> 254
-287 <-> 255
-288 <-> 256
-291 <-> 259
-292 <-> 260
-294 <-> 262
-295 <-> 263
-296 <-> 264
-297 <-> 265
-299 <-> 268
-310 <-> 254
-312 <-> 272
-314 <-> 275
-315 <-> 276
-320 <-> 280
-321 <-> 281
-322 <-> 282
-324 <-> 285
-325 <-> 286
-326 <-> 287
-329 <-> 289
-330 <-> 290
-337 <-> 293
-338 <-> 294
-339 <-> 295
-343 <-> 299
-344 <-> 300
-345 <-> 301
-346 <-> 302
-348 <-> 305
-371 <-> 289
-373 <-> 309
-375 <-> 312
-377 <-> 315
-378 <-> 316
-383 <-> 320
-384 <-> 321
-385 <-> 322
-387 <-> 324
-388 <-> 325
-389 <-> 326
-392 <-> 329
-393 <-> 330
-395 <-> 332
-396 <-> 333
-397 <-> 334
-398 <-> 335
-400 <-> 338
-411 <-> 324
-413 <-> 342
-415 <-> 345
-416 <-> 346
-420 <-> 350
-421 <-> 351
-422 <-> 352
-424 <-> 354
-425 <-> 355
-426 <-> 356
-429 <-> 361
-430 <-> 362
-432 <-> 366
-433 <-> 367
-434 <-> 368
-435 <-> 369
-437 <-> 372
-441 <-> 376
-442 <-> 377
-443 <-> 378
+146 <-> 175
+148 <-> 179
+149 <-> 180
+150 <-> 181
+152 <-> 182
+153 <-> 183
+156 <-> 185
+161 <-> 190
+162 <-> 191
+163 <-> 192
+164 <-> 193
+165 <-> 194
+166 <-> 195
+167 <-> 196
+169 <-> 198
+170 <-> 199
+173 <-> 201
+178 <-> 205
+180 <-> 207
+181 <-> 208
+182 <-> 209
+184 <-> 210
+185 <-> 211
+188 <-> 213
+202 <-> 217
+203 <-> 218
+207 <-> 222
+209 <-> 224
+210 <-> 225
+217 <-> 228
+218 <-> 229
+223 <-> 233
+225 <-> 235
+226 <-> 236
+227 <-> 237
+228 <-> 238
+229 <-> 239
+230 <-> 240
+231 <-> 241
+232 <-> 242
+245 <-> 245
+246 <-> 246
+251 <-> 250
+253 <-> 252
+254 <-> 253
+256 <-> 255
+258 <-> 257
+260 <-> 259
+262 <-> 261
+264 <-> 263
+266 <-> 265
+268 <-> 267
+270 <-> 269
+272 <-> 271
+274 <-> 273
+276 <-> 275
+307 <-> 279
+308 <-> 280
+312 <-> 284
+313 <-> 285
+314 <-> 286
+316 <-> 288
+317 <-> 289
+318 <-> 290
+321 <-> 293
+322 <-> 294
+324 <-> 296
+325 <-> 297
+326 <-> 298
+327 <-> 299
+329 <-> 302
+340 <-> 288
+342 <-> 306
+344 <-> 309
+345 <-> 310
+350 <-> 314
+351 <-> 315
+352 <-> 316
+354 <-> 319
+355 <-> 320
+356 <-> 321
+359 <-> 323
+360 <-> 324
+367 <-> 327
+368 <-> 328
+369 <-> 329
+373 <-> 333
+374 <-> 334
+375 <-> 335
+376 <-> 336
+378 <-> 339
+401 <-> 323
+403 <-> 343
+405 <-> 346
+407 <-> 349
+408 <-> 350
+413 <-> 354
+414 <-> 355
+415 <-> 356
+417 <-> 358
+418 <-> 359
+419 <-> 360
+422 <-> 363
+423 <-> 364
+425 <-> 366
+426 <-> 367
+427 <-> 368
+428 <-> 369
+430 <-> 372
+441 <-> 358
+443 <-> 376
+445 <-> 379
 446 <-> 380
-448 <-> 381
-450 <-> 385
-452 <-> 388
-453 <-> 389
+450 <-> 384
+451 <-> 385
+452 <-> 386
+454 <-> 388
+455 <-> 389
+456 <-> 390
+459 <-> 395
+460 <-> 396
+462 <-> 400
+463 <-> 401
+464 <-> 402
+465 <-> 403
+467 <-> 406
+471 <-> 410
+472 <-> 411
+473 <-> 412
+476 <-> 414
+478 <-> 415
+480 <-> 419
+482 <-> 422
+483 <-> 423
 Not mapped:
 9
 12
@@ -1685,79 +1852,82 @@ Not mapped:
 154
 157
 159
-161
-162
-163
-164
-165
-166
-169
-170
-178
-181
-182
-184
-185
+179
+183
+186
+189
+191
+193
 194
-203
-204
-206
-207
+195
+196
+197
+199
 208
-209
-210
 211
 212
-213
-222
-248
-249
-251
+214
+215
+224
+233
+234
+236
+237
+238
+239
+240
+241
+242
+243
 252
-254
-256
-258
-260
-262
-264
-266
-268
-270
-272
-274
-293
+278
+279
+281
+282
+284
+286
+288
+290
+292
+294
+296
+298
 300
-301
-303
+302
 304
-305
-306
-308
-340
-342
-349
-350
-352
-353
-354
-355
-357
-359
-362
-363
-364
-365
-367
-368
+323
+330
+331
+333
+334
+335
+336
+338
+370
+372
+379
+380
+382
+383
+384
+385
+387
+389
+392
+393
 394
-401
-402
-404
-405
-406
-407
-409
+395
+397
+398
+424
 431
-438
+432
+434
+435
+436
+437
 439
-444
+461
+468
+469
+474
