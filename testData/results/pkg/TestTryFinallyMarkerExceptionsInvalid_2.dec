@@ -41,7 +41,7 @@ public class TestTryFinallyMarkerExceptionsInvalid {
             System.out.println("Hello");// 44
             var5 = false;
             break label26;
-         } catch (NullPointerException npe) {
+         } catch (NullPointerException npe) {// 45
             var5 = false;
          } finally {
             if (var5) {
@@ -91,8 +91,8 @@ public class TestTryFinallyMarkerExceptionsInvalid {
          try {
             System.out.println("Hello");// 81
             break label26;
-         } catch (NullPointerException var5) {
-            npe = var5;// 82
+         } catch (NullPointerException var5) {// 82
+            npe = var5;
          } finally {
             System.out.println("Finally");// 86
          }
@@ -486,6 +486,7 @@ class 'pkg/TestTryFinallyMarkerExceptionsInvalid' {
       5      40
       6      40
       7      40
+      b      43
       c      51
       d      51
       e      51
@@ -530,7 +531,7 @@ class 'pkg/TestTryFinallyMarkerExceptionsInvalid' {
       5      91
       6      91
       7      91
-      b      94
+      b      93
       14      99
       15      99
       16      99
@@ -1508,13 +1509,14 @@ Lines mapping:
 36 <-> 31
 37 <-> 32
 44 <-> 41
+45 <-> 44
 46 <-> 52
 48 <-> 48
 52 <-> 55
 55 <-> 56
 56 <-> 57
 81 <-> 92
-82 <-> 95
+82 <-> 94
 84 <-> 100
 86 <-> 97
 93 <-> 103
@@ -1665,7 +1667,6 @@ Not mapped:
 12
 25
 31
-45
 47
 49
 50
