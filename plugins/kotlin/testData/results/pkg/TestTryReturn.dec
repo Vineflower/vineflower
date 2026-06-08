@@ -159,7 +159,7 @@ public class TestTryReturn {
             } catch (var10: Exception) {// 160
                System.out.println(3)// 161
             } finally {
-               continue;
+               continue;// 164
             }
          } finally {
             val var3: Byte = 28// 167
@@ -622,6 +622,7 @@ class 'pkg/TestTryReturn' {
       31      159
       32      159
       33      159
+      3c      161
       44      164
       45      164
       46      164
@@ -791,6 +792,7 @@ Lines mapping:
 159 <-> 158
 160 <-> 159
 161 <-> 160
+164 <-> 162
 167 <-> 165
 170 <-> 168
 175 <-> 172
@@ -851,7 +853,6 @@ Not mapped:
 157
 158
 162
-164
 173
 174
 185
