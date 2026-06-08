@@ -41,7 +41,7 @@ public class TestTryFinallyMarkerExceptionsInvalid {
             System.out.println("Hello");// 44
             var5 = false;
             break label26;
-         } catch (NullPointerException npe) {// 45
+         } catch (NullPointerException npe) {
             var5 = false;
          } finally {
             if (var5) {
@@ -91,8 +91,8 @@ public class TestTryFinallyMarkerExceptionsInvalid {
          try {
             System.out.println("Hello");// 81
             break label26;
-         } catch (NullPointerException var5) {// 82
-            npe = var5;
+         } catch (NullPointerException var5) {
+            npe = var5;// 82
          } finally {
             System.out.println("Finally");// 86
          }
@@ -180,7 +180,7 @@ public class TestTryFinallyMarkerExceptionsInvalid {
          }
       }
 
-      System.out.println("Bye 1");// 164
+      System.out.println("Bye 2");// 167
    }// 173
 
    public void testConfusion1(String a, String b) {
@@ -486,7 +486,6 @@ class 'pkg/TestTryFinallyMarkerExceptionsInvalid' {
       5      40
       6      40
       7      40
-      b      43
       c      51
       d      51
       e      51
@@ -531,7 +530,7 @@ class 'pkg/TestTryFinallyMarkerExceptionsInvalid' {
       5      91
       6      91
       7      91
-      b      93
+      b      94
       14      99
       15      99
       16      99
@@ -758,14 +757,14 @@ class 'pkg/TestTryFinallyMarkerExceptionsInvalid' {
       35      178
       36      178
       37      178
-      4e      182
-      4f      182
-      50      182
-      51      182
-      52      182
-      53      182
-      54      182
-      55      182
+      65      182
+      66      182
+      67      182
+      68      182
+      69      182
+      6a      182
+      6b      182
+      6c      182
       80      183
    }
 
@@ -1509,14 +1508,13 @@ Lines mapping:
 36 <-> 31
 37 <-> 32
 44 <-> 41
-45 <-> 44
 46 <-> 52
 48 <-> 48
 52 <-> 55
 55 <-> 56
 56 <-> 57
 81 <-> 92
-82 <-> 94
+82 <-> 95
 84 <-> 100
 86 <-> 97
 93 <-> 103
@@ -1552,7 +1550,7 @@ Lines mapping:
 152 <-> 176
 153 <-> 177
 156 <-> 179
-164 <-> 183
+167 <-> 183
 173 <-> 184
 177 <-> 188
 179 <-> 190
@@ -1667,6 +1665,7 @@ Not mapped:
 12
 25
 31
+45
 47
 49
 50
@@ -1688,9 +1687,9 @@ Not mapped:
 161
 162
 163
+164
 165
 166
-167
 169
 170
 178
