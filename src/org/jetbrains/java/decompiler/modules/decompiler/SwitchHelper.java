@@ -297,6 +297,13 @@ public final class SwitchHelper {
     return true;
   }
 
+  /**
+   * Unwraps a merged switch's case blocks by reconstructing the cases.
+   * The situation this is required for is when a merged switch
+   *   with `return xyz;` in the case block instead of an intermediate.
+   * @param switchInfo the switch info object
+   * @return true if unwrapped, false otherwise
+   */
   private static boolean unwrapMergedSwitchCases(StringSwitch switchInfo) {
     int processedCasesIdx = 0;
 
@@ -364,6 +371,10 @@ public final class SwitchHelper {
     return processedCasesIdx > 0;
   }
 
+  /**
+   * Merges duplicate case statements with the same case value into one case statement with multiple case values.
+   * @param switchInfo the switch info
+   */
   private static void mergeDuplicateCaseStats(StringSwitch switchInfo) {
     List<Statement> caseStats = switchInfo.first().getCaseStatements();
     for (int i = 0; i < caseStats.size(); i++) {
@@ -398,7 +409,7 @@ public final class SwitchHelper {
   }
 
   /**
-   * Attempts to find the synthetic stack variable that can exist to be used by string switches.
+   * Finds the synthetic stack variable that can exist to be used by string switches.
    * @param switchInfo the switch info to use
    * @return the result record if found, otherwise null.
    */
@@ -481,6 +492,13 @@ public final class SwitchHelper {
     }
   }
 
+  /**
+   * An example of a synthetic dup var looks like this (merged string-switch):
+   * <pre> {@code
+   * String var3 = str;
+   * switch(var3) {}
+   * } </pre>
+   */
   private record SyntheticDupVarResult(SwitchHeadExprent switchHead, List<Exprent> headExprs, int dupVarIdx,
     VarExprent tmpVar, Exprent realVar) {}
 
@@ -871,7 +889,7 @@ public final class SwitchHelper {
    * The first is a switch on the hashcode of the string with the case statement
    *   being the actual if equal to string literal check.
    * Hashcode collisions result in an else if chain.
-   * The body of the if block sets the switch variable for the following switch.
+   * The body of the if block sets the intermediate variable to an index for the following switch's cases.
    * <p>
    * The switch statement block has the case statements of the original switch
    *   and may also be inlined directly into the first switch's default block.
