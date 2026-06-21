@@ -1394,7 +1394,7 @@ public class InvocationExprent extends Exprent {
             return false;
           }
 
-          // If we have two types which are both Object, it's hard to tell what is compatibe.
+          // If we have two types which are both Object, it's hard to tell what is compatible.
           // We need to get the common type between the two. If there isn't, it means the type isn't compatible.
           if (leftType.type == CodeType.OBJECT && rightType.type == CodeType.OBJECT) {
             VarType commonType = VarType.meet(leftType, rightType);
