@@ -992,40 +992,21 @@ public final class SwitchHelper {
             // with the case string means that this is not a string-switch.
             return false;
           }
+          
+          // Non if-break switches only have 1 statement inside the if (an assignment or return)
+          List<Exprent> block = ifStat.getIfstat() != null ? ifStat.getIfstat().getExprents() : null;
+          if (block == null || block.size() != 1) {
+            return false;
+          }
 
-          // TODO: If break checks might not be needed here anymore?
-          boolean isIfBreak = ifStat.getIfstat() == null
-            && ifStat.getElsestat() == null
-            && ifStat.getIfEdge() != null
-            && ifStat.getElseEdge() == null
-            && ifStat.getBasichead().hasSuccessor(StatEdge.TYPE_REGULAR)
-            && ifStat.getBasichead().getSuccessorEdges(StatEdge.TYPE_BREAK).size() == 1;
+          // Single/merged string-switch always has a return statement
+          if (sw instanceof Merged && !isConstReturn(block.get(0))) {
+            return false;
+          }
 
-          if (!isIfBreak) {
-            // Non if-break switches only have 1 statement inside the if (an assignment or return)
-            List<Exprent> block = ifStat.getIfstat() != null ? ifStat.getIfstat().getExprents() : null;
-            if (block == null || block.size() != 1) {
-              return false;
-            }
-
-            // Single/merged string-switch always has a return statement
-            if (sw instanceof Merged && !isConstReturn(block.get(0))) {
-              return false;
-            }
-
-            // Split string-switch always has a variable assignment statement
-            if (!(sw instanceof Merged) && !(isConstAssignWithVar(block.get(0), intermediate))) {
-              return false;
-            }
-          } else {
-            // If the break isn't pointing to the default block
-            if (sw.first().getDefaultCase().isPresent()) {
-              StatEdge defaultBreak = sw.first().getDefaultCase().get().getAllSuccessorEdges().get(0);
-              if (ifStat.getIfEdge().getType() != StatEdge.TYPE_BREAK
-                || !ifStat.getIfEdge().getDestination().equals(defaultBreak.getDestination())) {
-                return false;
-              }
-            }
+          // Split string-switch always has a variable assignment statement
+          if (!(sw instanceof Merged) && !(isConstAssignWithVar(block.get(0), intermediate))) {
+            return false;
           }
 
           // All of our desired checks have passed, we know for sure that it's a valid string-switch. Yippee!
