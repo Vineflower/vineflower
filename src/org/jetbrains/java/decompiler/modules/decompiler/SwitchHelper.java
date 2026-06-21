@@ -1031,21 +1031,20 @@ public final class SwitchHelper {
             // with the case string means that this is not a string-switch.
             return false;
           }
-
+          
           // Non if-break switches only have 1 statement inside the if (an assignment or return)
-          List<Exprent> caseIfBlocks = ifStat.getIfstat() != null ? ifStat.getIfstat().getExprents() : null;
-          if (caseIfBlocks == null || caseIfBlocks.size() != 1) {
-            return false;
-          }
-          Exprent block = caseIfBlocks.get(0);
-
-          // If there is an intermediate var found but it's not being used how we expect.
-          if (intermediateVar != null && !isConstAssignWithVar(block, intermediateVar)) {
+          List<Exprent> block = ifStat.getIfstat() != null ? ifStat.getIfstat().getExprents() : null;
+          if (block == null || block.size() != 1) {
             return false;
           }
 
-          // Merged switches not using either a const return or const assign in the case block (not both as well!!)
-          if (sw instanceof Merged && isConstReturn(block) == isConstAssign(block)) {
+          // Single/merged string-switch always has a return statement
+          if (sw instanceof Merged && !isConstReturn(block.get(0))) {
+            return false;
+          }
+
+          // Split string-switch always has a variable assignment statement
+          if (!(sw instanceof Merged) && !(isConstAssignWithVar(block.get(0), intermediate))) {
             return false;
           }
 
