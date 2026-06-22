@@ -36,39 +36,15 @@ public class TestStringSwitchTypes {
       }
    }
 
-   public int testMerged(String s) {
-      switch (s) {// 41
-         case "1":
-            return 1;// 46
-         case "2":
-            return 2;// 48
-         default:
-            System.out.println("Test");// 43
-            return 0;// 51
-      }
-   }
-
    public int testSplitDup(String s) {
-      switch (s) {// 55
+      switch (s) {// 41
          case "a":
-            return 1;// 57
+            return 1;// 43
          case "b":
-            return 1;// 59
+            return 1;// 45
          default:
-            System.out.println("Test");// 61
-            return 0;// 62
-      }
-   }
-
-   public int testMergedDup(String s) {
-      switch (s) {// 67
-         case "a":
-            return 1;// 72
-         case "b":
-            return 1;// 74
-         default:
-            System.out.println("Test");// 69
-            return 0;// 77
+            System.out.println("Test");// 47
+            return 0;// 48
       }
    }
 }
@@ -199,7 +175,7 @@ class 'pkg/TestStringSwitchTypes' {
       44      34
    }
 
-   method 'testMerged (Ljava/lang/String;)I' {
+   method 'testSplitDup (Ljava/lang/String;)I' {
       0      39
       25      40
       26      40
@@ -231,116 +207,20 @@ class 'pkg/TestStringSwitchTypes' {
       55      39
       56      39
       57      39
-      58      45
-      59      45
-      5a      45
-      5b      45
+      58      41
+      59      41
+      5a      43
+      5b      43
       5c      45
       5d      45
       5e      45
       5f      45
-      63      41
-      64      41
-      65      43
-      66      43
-      67      46
-      68      46
-   }
-
-   method 'testSplitDup (Ljava/lang/String;)I' {
-      0      51
-      25      52
-      26      52
-      33      54
-      34      54
-      3e      51
-      3f      51
-      40      51
-      41      51
-      42      51
-      43      51
-      44      51
-      45      51
-      46      51
-      47      51
-      48      51
-      49      51
-      4a      51
-      4b      51
-      4c      51
-      4d      51
-      4e      51
-      4f      51
-      50      51
-      51      51
-      52      51
-      53      51
-      54      51
-      55      51
-      56      51
-      57      51
-      58      53
-      59      53
-      5a      55
-      5b      55
-      5c      57
-      5d      57
-      5e      57
-      5f      57
-      60      57
-      61      57
-      62      57
-      63      57
-      64      58
-      65      58
-   }
-
-   method 'testMergedDup (Ljava/lang/String;)I' {
-      0      63
-      25      64
-      26      64
-      33      66
-      34      66
-      3e      63
-      3f      63
-      40      63
-      41      63
-      42      63
-      43      63
-      44      63
-      45      63
-      46      63
-      47      63
-      48      63
-      49      63
-      4a      63
-      4b      63
-      4c      63
-      4d      63
-      4e      63
-      4f      63
-      50      63
-      51      63
-      52      63
-      53      63
-      54      63
-      55      63
-      56      63
-      57      63
-      58      69
-      59      69
-      5a      69
-      5b      69
-      5c      69
-      5d      69
-      5e      69
-      5f      69
-      63      65
-      64      65
-      65      67
-      66      67
-      67      70
-      68      70
+      60      45
+      61      45
+      62      45
+      63      45
+      64      46
+      65      46
    }
 }
 
@@ -363,20 +243,7 @@ Lines mapping:
 33 <-> 33
 37 <-> 35
 41 <-> 40
-43 <-> 46
-46 <-> 42
-48 <-> 44
-51 <-> 47
-55 <-> 52
-57 <-> 54
-59 <-> 56
-61 <-> 58
-62 <-> 59
-67 <-> 64
-69 <-> 70
-72 <-> 66
-74 <-> 68
-77 <-> 71
-Not mapped:
-44
-70
+43 <-> 42
+45 <-> 44
+47 <-> 46
+48 <-> 47

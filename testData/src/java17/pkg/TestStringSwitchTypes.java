@@ -37,20 +37,6 @@ public class TestStringSwitchTypes {
     return res;
   }
 
-  public int testMerged(String s) {
-    switch (s) {
-      default:
-        System.out.println("Test");
-        break;
-      case "1":
-        return 1;
-      case "2":
-        return 2;
-    }
-
-    return 0;
-  }
-
   public int testSplitDup(String s) {
     switch (s) {
       case "a":
@@ -61,19 +47,5 @@ public class TestStringSwitchTypes {
         System.out.println("Test");
         return 0;
     }
-  }
-
-  public int testMergedDup(String s) {
-    switch (s) {
-      default:
-        System.out.println("Test");
-        break;
-      case "a":
-        return 1;
-      case "b":
-        return 1;
-    }
-
-    return 0;
   }
 }
