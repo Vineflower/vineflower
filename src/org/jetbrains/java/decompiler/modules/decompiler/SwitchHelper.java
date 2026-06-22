@@ -540,7 +540,6 @@ public final class SwitchHelper {
 
   /**
    * Gets a case map for the given string switch.
-   *
    * @param switchInfo the switch info
    * @return the case map
    */
@@ -598,6 +597,12 @@ public final class SwitchHelper {
     return caseMap;
   }
 
+  /**
+   * Takes in a string-switch case map and gets the desired case values by searching the case if stat's head expr.
+   * @param switchInfo the switch info object
+   * @param caseMap the case map
+   * @return a case map with desired values if found, otherwise an empty map
+   */
   private static List<List<Exprent>> getStringSwitchRealCaseValues(StringSwitch switchInfo,
     HashMap<Integer, List<Exprent>> caseMap) {
     List<List<Exprent>> realCaseValues = new ArrayList<>();
