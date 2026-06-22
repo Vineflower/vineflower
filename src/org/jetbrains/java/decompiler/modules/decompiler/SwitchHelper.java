@@ -18,6 +18,7 @@ import org.jetbrains.java.decompiler.struct.gen.FieldDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.TypeFamily;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.Pair;
+import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -217,7 +218,6 @@ public final class SwitchHelper {
    * @return true if simplified successfully, false otherwise
    */
   private static boolean trySimplifyStringSwitch(SwitchStatement switchStat, Exprent switchHeadValue) {
-    // Get the type of switch by matching against each type
     StringSwitch switchInfo = StringSwitch.match(switchStat);
     if (switchInfo == null) {
       return false;
@@ -319,8 +319,8 @@ public final class SwitchHelper {
         continue;
       }
 
-      // If the only statement inside the if is a return
-      if (!(exprs.get(0) instanceof ExitExprent exitExpr) || !exitExpr.getExitType().equals(ExitExprent.Type.RETURN)) {
+      // If the only statement inside the if is a return or variable assignment (but not both or neither)
+      if (!isConstReturn(exprs.get(0)) == !isConstAssign(exprs.get(0))) {
         continue;
       }
 
@@ -528,6 +528,17 @@ public final class SwitchHelper {
   }
 
   /**
+   * Checks that the given exprent is a const assignment and that the assignment variable is a var exprent.
+   * @param expr exprent to check
+   * @return true if matched otherwise false
+   */
+  private static boolean isConstAssign(Exprent expr) {
+    return expr instanceof AssignmentExprent assignExpr
+      && assignExpr.getRight() instanceof ConstExprent
+      && assignExpr.getLeft() instanceof VarExprent;
+  }
+
+  /**
    * Gets a case map for the given string switch.
    *
    * @param switchInfo the switch info
@@ -588,7 +599,7 @@ public final class SwitchHelper {
   }
 
   private static List<List<Exprent>> getStringSwitchRealCaseValues(StringSwitch switchInfo,
-    HashMap<Integer, List<Exprent>> caseMap) {
+                                                                   HashMap<Integer, List<Exprent>> caseMap) {
     List<List<Exprent>> realCaseValues = new ArrayList<>();
 
     for (int i = 0; i < switchInfo.target().getCaseValues().size(); i++) {
@@ -933,22 +944,40 @@ public final class SwitchHelper {
         || !(sw.first().getCaseStatements().get(0) instanceof IfStatement)) {
         return false;
       }
+      Exprent firstHeadExpr = firstHeadValInvoc.getInstance();
 
-      // Get the intermediate variable used in all string-switch types other than merged.
-      VarExprent intermediate = null;
+      // Get the main String variable that is matched against in the switch head.
+      VarExprent switchVar;
+      if (firstHeadExpr instanceof VarExprent varExpr) {
+        switchVar = varExpr;
+      } else if (firstHeadExpr instanceof InvocationExprent invocExpr
+        && invocExpr.getInstance() instanceof VarExprent varExpr) {
+        switchVar = varExpr;
+      } else if (firstHeadExpr instanceof AssignmentExprent assignExpr
+        && assignExpr.getLeft() instanceof VarExprent varExpr) {
+        switchVar = varExpr;
+      } else {
+        return false;
+      }
+
+      // Used in all string-switch types except Merged.
+      // In non-merged types, the intermediate variable is set in the first switch
+      //   and matched against in the target/second switch head.
+      VarExprent intermediateVar = null;
       if (!(sw instanceof Merged)) {
         if (!(((SwitchHeadExprent) sw.target().getHeadexprent()).getValue() instanceof VarExprent varExpr)) {
           return false;
         }
-        intermediate = varExpr;
 
-        if (sw instanceof NullableSplit s && !s.expr().getLeft().equals(intermediate)) {
+        if (sw instanceof NullableSplit s && !s.expr().getLeft().equals(varExpr)) {
           // wrong assignment across `if`
           return false;
         }
+
+        intermediateVar = varExpr;
       }
 
-      // Get the synthetic duplicate variable sometimes used in the switch head exprent or the case if statements
+      // Sometimes used in the switch head exprent or the case if statements.
       SyntheticDupVarResult possibleDupVar = findSyntheticDupVar(sw);
 
       // Validate all the case statements in the switch to make sure it matches the type.
@@ -979,38 +1008,38 @@ public final class SwitchHelper {
             for (Exprent oper : condFunc.getLstOperands()) {
               if (!(oper instanceof InvocationExprent condInvoc)
                 || !condInvoc.getName().equals("equals")
-                || !condInvoc.getInstance().equals(firstHeadValInvoc.getInstance())
+                || !condInvoc.getInstance().equals(switchVar)
                 && (possibleDupVar != null && !condInvoc.getInstance().equals(possibleDupVar.tmpVar()))) {
                 return false;
               }
             }
           } else if (!(ifCond instanceof InvocationExprent condInvoc)
             || !condInvoc.getName().equals("equals")
-            || !condInvoc.getInstance().equals(firstHeadValInvoc.getInstance())
+            || !condInvoc.getInstance().equals(switchVar)
             && (possibleDupVar != null && !condInvoc.getInstance().equals(possibleDupVar.tmpVar()))) {
-            // The if statement not containing an equals on the switch head exprent/duplicate stack var
+            // The if statement not containing an equals on the switch head var/duplicate stack var
             // with the case string means that this is not a string-switch.
             return false;
           }
-          
+
           // Non if-break switches only have 1 statement inside the if (an assignment or return)
-          List<Exprent> block = ifStat.getIfstat() != null ? ifStat.getIfstat().getExprents() : null;
-          if (block == null || block.size() != 1) {
+          List<Exprent> caseIfBlocks = ifStat.getIfstat() != null ? ifStat.getIfstat().getExprents() : null;
+          if (caseIfBlocks == null || caseIfBlocks.size() != 1) {
+            return false;
+          }
+          Exprent block = caseIfBlocks.get(0);
+
+          // If there is an intermediate var found but it's not being used how we expect.
+          if (intermediateVar != null && !isConstAssignWithVar(block, intermediateVar)) {
             return false;
           }
 
-          // Single/merged string-switch always has a return statement
-          if (sw instanceof Merged && !isConstReturn(block.get(0))) {
+          // Merged switches not using either a const return or const assign in the case block (not both as well!!)
+          if (sw instanceof Merged && isConstReturn(block) == isConstAssign(block)) {
             return false;
           }
 
-          // Split string-switch always has a variable assignment statement
-          if (!(sw instanceof Merged) && !(isConstAssignWithVar(block.get(0), intermediate))) {
-            return false;
-          }
-
-          // All of our desired checks have passed, we know for sure that it's a valid string-switch. Yippee!
-          // Validate the else blocks if they exist as well because multiple hash collision use if-else chains.
+          // Check the else blocks if they exist as well because multiple hash collision use if-else chains.
           currStat = ifStat.getElsestat();
         }
       }
@@ -1026,8 +1055,23 @@ public final class SwitchHelper {
   record Split(SwitchStatement first, SwitchStatement target) implements StringSwitch {
     private static @Nullable StringSwitch match(SwitchStatement stat) {
       List<StatEdge> edges = stat.getSuccessorEdges(StatEdge.TYPE_REGULAR);
-      if (edges.size() != 1 || !(edges.get(0).getDestination() instanceof SwitchStatement found)) {
+      if (edges.size() != 1) {
         return null;
+      }
+
+      // If the second switch is buried in sequences, we need to go and find it!
+      Statement curr = edges.get(0).getDestination();
+      while (!(curr instanceof SwitchStatement found)) {
+        if (!(curr instanceof SequenceStatement)) {
+          return null;
+        }
+
+        VBStyleCollection<Statement, Integer> stats = curr.getStats();
+        if (stats.isEmpty()) {
+          return null;
+        }
+
+        curr = stats.get(0);
       }
 
       Split matched = new Split(stat, found);
