@@ -609,7 +609,7 @@ public final class SwitchHelper {
    * @return a case map with desired values if found, otherwise an empty map
    */
   private static List<List<Exprent>> getStringSwitchRealCaseValues(StringSwitch switchInfo,
-    HashMap<Integer, List<Exprent>> caseMap) {
+                                                                   HashMap<Integer, List<Exprent>> caseMap) {
     List<List<Exprent>> realCaseValues = new ArrayList<>();
 
     for (int i = 0; i < switchInfo.target().getCaseValues().size(); i++) {
@@ -1031,20 +1031,21 @@ public final class SwitchHelper {
             // with the case string means that this is not a string-switch.
             return false;
           }
-          
+
           // Non if-break switches only have 1 statement inside the if (an assignment or return)
-          List<Exprent> block = ifStat.getIfstat() != null ? ifStat.getIfstat().getExprents() : null;
-          if (block == null || block.size() != 1) {
+          List<Exprent> caseIfBlocks = ifStat.getIfstat() != null ? ifStat.getIfstat().getExprents() : null;
+          if (caseIfBlocks == null || caseIfBlocks.size() != 1) {
+            return false;
+          }
+          Exprent block = caseIfBlocks.get(0);
+
+          // If there is an intermediate var found but it's not being used how we expect.
+          if (intermediateVar != null && !isConstAssignWithVar(block, intermediateVar)) {
             return false;
           }
 
-          // Single/merged string-switch always has a return statement
-          if (sw instanceof Merged && !isConstReturn(block.get(0))) {
-            return false;
-          }
-
-          // Split string-switch always has a variable assignment statement
-          if (!(sw instanceof Merged) && !(isConstAssignWithVar(block.get(0), intermediate))) {
+          // Merged switches not using either a const return or const assign in the case block (not both as well!!)
+          if (sw instanceof Merged && isConstReturn(block) == isConstAssign(block)) {
             return false;
           }
 
