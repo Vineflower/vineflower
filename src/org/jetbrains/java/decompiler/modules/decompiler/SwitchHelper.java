@@ -545,7 +545,6 @@ public final class SwitchHelper {
    */
   private static HashMap<Integer, List<Exprent>> getStringSwitchCaseMap(StringSwitch switchInfo) {
     HashMap<Integer, List<Exprent>> caseMap = new HashMap<>();
-    HashMap<Integer, List<Exprent>> caseRetMap = new HashMap<>();
 
     for (int i = 0; i < switchInfo.first().getCaseStatements().size(); ++i) {
       Statement currStat = switchInfo.first().getCaseStatements().get(i);
@@ -572,14 +571,14 @@ public final class SwitchHelper {
           // Merged switches, however, may contain multiple case labels/strings sharing 1 intermediary.
           // This is commonly found where switches have explicit return values.
           if (ifEqFirstExpr instanceof AssignmentExprent assignExpr) {
-            int intermediate = ((ConstExprent) assignExpr.getRight()).getIntValue();
-            caseMap.computeIfAbsent(intermediate, ArrayList::new).add(realVal);
+            if (assignExpr.getRight() instanceof ConstExprent right) {
+              caseMap.computeIfAbsent(right.getIntValue(), ArrayList::new).add(realVal);
+            }
           } else if (ifEqFirstExpr instanceof ExitExprent) {
             List<Exprent> currCaseVal = switchInfo.first().getCaseValues().get(i);
             for (Exprent val : currCaseVal) {
               int hashCode = ((ConstExprent) val).getIntValue();
               caseMap.computeIfAbsent(hashCode, ArrayList::new).add(realVal);
-              caseRetMap.computeIfAbsent(hashCode, ArrayList::new).add(val);
             }
           }
         }
