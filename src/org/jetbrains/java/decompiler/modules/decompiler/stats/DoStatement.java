@@ -1,8 +1,10 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.stats;
 
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
+import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
@@ -22,9 +24,9 @@ public class DoStatement extends Statement {
 
   private Type looptype;
 
-  private final List<Exprent> initExprent = new ArrayList<>();
-  private final List<Exprent> conditionExprent = new ArrayList<>();
-  private final List<Exprent> incExprent = new ArrayList<>();
+  private final List<@Nullable Exprent> initExprent = new ArrayList<>();
+  private final List<@Nullable Exprent> conditionExprent = new ArrayList<>();
+  private final List<@Nullable Exprent> incExprent = new ArrayList<>();
 
   // *****************************************************************************
   // constructors
@@ -53,7 +55,7 @@ public class DoStatement extends Statement {
   // public methods
   // *****************************************************************************
 
-  public static Statement isHead(Statement head) {
+  public static @Nullable Statement isHead(Statement head) {
 
     if (head.getLastBasicType() == LastBasicType.GENERAL && !head.isMonitorEnter()) {
 
@@ -90,6 +92,8 @@ public class DoStatement extends Statement {
 
   @Override
   public TextBuffer toJava(int indent) {
+    ValidationHelper.notNull(first);
+
     TextBuffer buf = new TextBuffer();
 
     buf.append(ExprProcessor.listToJava(varDefinitions, indent));
@@ -99,55 +103,73 @@ public class DoStatement extends Statement {
     }
 
     switch (looptype) {
-      case INFINITE:
+      case INFINITE: {
         buf.appendIndent(indent).append("while (true) {").appendLineSeparator();
         buf.append(ExprProcessor.jmpWrapper(first, indent + 1, false));
         buf.appendIndent(indent).append("}").appendLineSeparator();
         break;
-      case DO_WHILE:
+      }
+      case DO_WHILE: {
+        Exprent condExpr = ValidationHelper.notNull(conditionExprent.get(0));
+
         buf.appendIndent(indent).append("do {").appendLineSeparator();
         buf.append(ExprProcessor.jmpWrapper(first, indent + 1, false));
         buf.appendIndent(indent).append("} while (");
         buf.pushNewlineGroup(indent, 1);
         buf.appendPossibleNewline();
-        buf.append(conditionExprent.get(0).toJava(indent));
+        buf.append(condExpr.toJava(indent));
         buf.appendPossibleNewline("", true);
         buf.popNewlineGroup();
         buf.append(");").appendLineSeparator();
         break;
-      case WHILE:
+      }
+      case WHILE: {
+        Exprent condExpr = ValidationHelper.notNull(conditionExprent.get(0));
+
         buf.appendIndent(indent).append("while (");
         buf.pushNewlineGroup(indent, 1);
         buf.appendPossibleNewline();
-        buf.append(conditionExprent.get(0).toJava(indent));
+        buf.append(condExpr.toJava(indent));
         buf.appendPossibleNewline("", true);
         buf.popNewlineGroup();
         buf.append(") {").appendLineSeparator();
         buf.append(ExprProcessor.jmpWrapper(first, indent + 1, false));
         buf.appendIndent(indent).append("}").appendLineSeparator();
         break;
-      case FOR:
+      }
+      case FOR: {
+        @Nullable Exprent initExpr = initExprent.get(0);
+        Exprent condExpr = ValidationHelper.notNull(conditionExprent.get(0));
+        Exprent incExpr = ValidationHelper.notNull(incExprent.get(0));
+
+
+
         buf.appendIndent(indent);
         buf.pushNewlineGroup(indent, 1);
         buf.append("for (");
-        if (initExprent.get(0) != null) {
-          buf.append(initExprent.get(0).toJava(indent));
+        if (initExpr != null) {
+          buf.append(initExpr.toJava(indent));
         }
         buf.append(";").appendPossibleNewline(" ")
-          .append(conditionExprent.get(0).toJava(indent)).append(";").appendPossibleNewline(" ")
-          .append(incExprent.get(0).toJava(indent))
+          .append(condExpr.toJava(indent)).append(";").appendPossibleNewline(" ")
+          .append(incExpr.toJava(indent))
           .appendPossibleNewline("", true);
         buf.popNewlineGroup();
         buf.append(") {").appendLineSeparator();
         buf.append(ExprProcessor.jmpWrapper(first, indent + 1, false));
         buf.appendIndent(indent).append("}").appendLineSeparator();
         break;
-      case FOR_EACH:
-        buf.appendIndent(indent).append("for (").append(initExprent.get(0).toJava(indent));
-        incExprent.get(0).getInferredExprType(null); //TODO: Find a better then null? For now just calls it to clear casts if needed
-        buf.append(" : ").append(incExprent.get(0).toJava(indent)).append(") {").appendLineSeparator();
+      }
+      case FOR_EACH: {
+        Exprent initExpr = ValidationHelper.notNull(initExprent.get(0));
+        Exprent incExpr = ValidationHelper.notNull(incExprent.get(0));
+
+        buf.appendIndent(indent).append("for (").append(initExpr.toJava(indent));
+        incExpr.getInferredExprType(null); //TODO: Find a better then null? For now just calls it to clear casts if needed
+        buf.append(" : ").append(incExpr.toJava(indent)).append(") {").appendLineSeparator();
         buf.append(ExprProcessor.jmpWrapper(first, indent + 1, true));
         buf.appendIndent(indent).append("}").appendLineSeparator();
+      }
     }
 
     return buf;
@@ -163,19 +185,19 @@ public class DoStatement extends Statement {
           lst.add(getInitExprent());
         }
       case WHILE:
-        lst.add(getConditionExprent());
+        lst.add(ValidationHelper.notNull(getConditionExprent()));
         break;
       case FOR_EACH:
-        lst.add(getInitExprent());
-        lst.add(getIncExprent());
+        lst.add(ValidationHelper.notNull(getInitExprent()));
+        lst.add(ValidationHelper.notNull(getIncExprent()));
     }
 
     switch (looptype) {
       case DO_WHILE:
-        lst.add(getConditionExprent());
+        lst.add(ValidationHelper.notNull(getConditionExprent()));
         break;
       case FOR:
-        lst.add(getIncExprent());
+        lst.add(ValidationHelper.notNull(getIncExprent()));
     }
 
     return lst;
@@ -195,12 +217,12 @@ public class DoStatement extends Statement {
   }
 
   @Override
-  public List<VarExprent> getImplicitlyDefinedVars() {
+  public @Nullable List<VarExprent> getImplicitlyDefinedVars() {
     List<VarExprent> vars = new ArrayList<>();
 
 
     if (looptype == Type.FOR_EACH) {
-      getPatterns(getIncExprent(), vars);
+      getPatterns(ValidationHelper.notNull(getIncExprent()), vars);
       return vars;
     }
 
@@ -241,19 +263,19 @@ public class DoStatement extends Statement {
   // getter and setter methods
   // *****************************************************************************
 
-  public List<Exprent> getInitExprentList() {
+  public List<@Nullable Exprent> getInitExprentList() {
     return initExprent;
   }
 
-  public List<Exprent> getConditionExprentList() {
+  public List<@Nullable Exprent> getConditionExprentList() {
     return conditionExprent;
   }
 
-  public List<Exprent> getIncExprentList() {
+  public List<@Nullable Exprent> getIncExprentList() {
     return incExprent;
   }
 
-  public Exprent getConditionExprent() {
+  public @Nullable Exprent getConditionExprent() {
     return conditionExprent.get(0);
   }
 
@@ -261,7 +283,7 @@ public class DoStatement extends Statement {
     this.conditionExprent.set(0, conditionExprent);
   }
 
-  public Exprent getIncExprent() {
+  public @Nullable Exprent getIncExprent() {
     return incExprent.get(0);
   }
 
@@ -269,7 +291,7 @@ public class DoStatement extends Statement {
     this.incExprent.set(0, incExprent);
   }
 
-  public Exprent getInitExprent() {
+  public @Nullable Exprent getInitExprent() {
     return initExprent.get(0);
   }
 
@@ -281,7 +303,7 @@ public class DoStatement extends Statement {
     return looptype;
   }
 
-  public void setLooptype(Type looptype) {
-    this.looptype = looptype;
+  public void setLooptype(Type loopType) {
+    this.looptype = loopType;
   }
 }

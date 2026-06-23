@@ -1,5 +1,7 @@
 package org.jetbrains.java.decompiler.modules.decompiler;
 
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.ExitExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
@@ -419,10 +421,12 @@ public final class ValidationHelper {
     }
   }
 
-  public static void notNull(Object o) {
+  @Contract(value = "null -> fail; !null -> param1", pure = true)
+  public static <T> @NotNull T notNull(T o) {
     if (o == null) {
       throw new NullPointerException("Null not expected here");
     }
+    return o;
   }
 
   public static void validateExitExprent(ExitExprent exit) {

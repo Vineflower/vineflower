@@ -1,6 +1,7 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.stats;
 
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.modules.decompiler.DecHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
@@ -57,7 +58,7 @@ public class SequenceStatement extends Statement {
   // public methods
   // *****************************************************************************
 
-  public static Statement isHead2Block(Statement head) {
+  public static @Nullable Statement isHead2Block(Statement head) {
 
     if (head.getLastBasicType() != LastBasicType.GENERAL) {
       return null;
