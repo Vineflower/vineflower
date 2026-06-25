@@ -329,19 +329,9 @@ public final class SwitchHelper {
       // Remove all case data for this case as we create new values/edges/stats later.
       switchInfo.first().removeCase(processedCasesIdx);
 
-      // Remove normal edge between case and default block if it exists
-      if (currIf.hasSuccessor(StatEdge.TYPE_REGULAR)) {
-        currIf.getSuccessorEdges(StatEdge.TYPE_REGULAR).get(0).remove();
-      }
-
       // Process the if and optionally the if-else/else chain if it exists too
       while (currIf != null) {
         IfStatement elseStat = (IfStatement) currIf.getElsestat();
-
-        // Remove break that connects from the if to the block after the switch if it exists
-        if (currIf.hasSuccessor(StatEdge.TYPE_BREAK)) {
-          currIf.getSuccessorEdges(StatEdge.TYPE_BREAK).get(0).remove();
-        }
 
         // Sometimes there will be a break edge outside of the if stat's block.
         // It will break out of the if stat, when we want it to break outside of the switch instead.
