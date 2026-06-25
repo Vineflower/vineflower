@@ -336,7 +336,13 @@ public final class SwitchHelper {
         // Sometimes there will be a break edge outside of the if stat's block.
         // It will break out of the if stat, when we want it to break outside of the switch instead.
         if (currIf.getIfstat().hasSuccessor(StatEdge.TYPE_BREAK)) {
-          currIf.getIfstat().getSuccessorEdges(StatEdge.TYPE_BREAK).get(0).changeClosure(switchInfo.first());
+          StatEdge edge = currIf.getIfstat().getSuccessorEdges(StatEdge.TYPE_BREAK).get(0);
+          edge.changeClosure(switchInfo.first());
+
+          // Repurpose the edge because it's cheaper instead of creating a new edge.
+          // This edge should always be explicit and not-labeled!
+          edge.explicit = true;
+          edge.labeled = false;
         }
 
         // Disconnect any blocks connected to this if basichead (such as if stat, else stat, etc.)
