@@ -605,7 +605,7 @@ public final class SwitchHelper {
    * @return a case map with desired values if found, otherwise an empty map
    */
   private static List<List<Exprent>> getStringSwitchRealCaseValues(StringSwitch switchInfo,
-                                                                   HashMap<Integer, List<Exprent>> caseMap) {
+    HashMap<Integer, List<Exprent>> caseMap) {
     List<List<Exprent>> realCaseValues = new ArrayList<>();
 
     for (int i = 0; i < switchInfo.target().getCaseValues().size(); i++) {
