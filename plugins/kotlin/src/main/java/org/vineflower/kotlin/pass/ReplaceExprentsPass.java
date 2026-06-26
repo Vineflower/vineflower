@@ -30,7 +30,7 @@ public class ReplaceExprentsPass implements Pass {
 
     if (stat instanceof CatchAllStatement || stat instanceof CatchStatement) {
       // Special handling for catch declarations
-      List<VarExprent> vars = stat instanceof CatchAllStatement ? ((CatchAllStatement)stat).getVars() : ((CatchStatement)stat).getVars();
+      List<VarExprent> vars = stat instanceof CatchAllStatement catchStat ? catchStat.getVars() : ((CatchStatement)stat).getVars();
       for (int i = 0; i < vars.size(); i++) {
         VarExprent expr = vars.get(i);
         KVarExprent map = new KVarExprent(expr);

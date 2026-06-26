@@ -38,8 +38,8 @@ public class MergeHelper {
       }
     }
 
-    if (stat instanceof DoStatement) {
-      res |= enhanceLoop((DoStatement)stat);
+    if (stat instanceof DoStatement doStat) {
+      res |= enhanceLoop(doStat);
     }
 
     return res;
@@ -79,8 +79,7 @@ public class MergeHelper {
       last = last.getStats().getLast();
     }
 
-    if (last instanceof IfStatement) {
-      IfStatement lastif = (IfStatement)last;
+    if (last instanceof IfStatement lastif) {
       if (lastif.iftype == IfStatement.IFTYPE_IF && lastif.getIfstat() == null) {
         StatEdge ifedge = lastif.getIfEdge();
         StatEdge elseedge = lastif.getFirstSuccessor();
@@ -174,8 +173,7 @@ public class MergeHelper {
     }
 
     // found an if statement
-    if (first instanceof IfStatement) {
-      IfStatement firstif = (IfStatement)first;
+    if (first instanceof IfStatement firstif) {
 
       if (firstif.getFirst().getExprents().isEmpty()) {
 
@@ -448,11 +446,11 @@ public class MergeHelper {
       }
 
       for (Exprent e : lastExp.getAllExprents(true, true)) {
-        if (!(e instanceof VarExprent)) {
+        if (!(e instanceof VarExprent var)) {
           continue;
         }
 
-        if (!isVarUsedBefore((VarExprent) e, stat)) {
+        if (!isVarUsedBefore(var, stat)) {
           return;
         }
       }
@@ -501,14 +499,10 @@ public class MergeHelper {
 
   private static Set<VarExprent> getFinalVariables(Exprent exp, Set<VarExprent> variables) {
     for (Exprent e : exp.getAllExprents(true, true)) {
-      if (e instanceof AssignmentExprent) {
-        AssignmentExprent assignment = (AssignmentExprent) e;
-        if (assignment.getLeft() instanceof VarExprent) {
-          VarExprent varExprent = (VarExprent) assignment.getLeft();
-          if (varExprent.isEffectivelyFinal()) {
-            variables.add(varExprent);
-          }
-        }
+      if (e instanceof AssignmentExprent assignment &&
+        assignment.getLeft() instanceof VarExprent varExprent &&
+        varExprent.isEffectivelyFinal()) {
+        variables.add(varExprent);
       }
     }
     return variables;
@@ -556,8 +550,7 @@ public class MergeHelper {
       stat.getParent().getStats().removeWithKey(stat.id);
 
       // Vineflower note: Parent isn't always a sequence statement! It can be an if statement, need to check for that case! [TestLoopFinally]
-      if (stat.getParent() instanceof IfStatement) {
-        IfStatement parent = (IfStatement)stat.getParent();
+      if (stat.getParent() instanceof IfStatement parent) {
 
         // Replace owning stats
         if (parent.getIfstat() == stat) {
@@ -650,7 +643,7 @@ public class MergeHelper {
         }
 
         AssignmentExprent ass = firstDoExprent;
-        if ((!isNextCall(ass.getRight()) && !isNextUnboxing(ass.getRight())) || !(ass.getLeft() instanceof VarExprent)) {
+        if ((!isNextCall(ass.getRight()) && !isNextUnboxing(ass.getRight())) || !(ass.getLeft() instanceof VarExprent var)) {
           return false;
         }
 
@@ -673,8 +666,7 @@ public class MergeHelper {
 
         // Casted foreach
         Exprent right = initExprents[0].getRight();
-        if (right instanceof FunctionExprent) {
-          FunctionExprent fRight = (FunctionExprent) right;
+        if (right instanceof FunctionExprent fRight) {
           if (fRight.getFuncType() == FunctionType.CAST) {
             right = fRight.getLstOperands().get(0);
           }
@@ -716,63 +708,56 @@ public class MergeHelper {
         preData.getExprents().remove(initExprents[0]);
         firstData.getExprents().remove(firstDoExprent);
 
-        if (initExprents[1] != null && initExprents[1].getLeft() instanceof VarExprent &&
-            holder.getInstance() instanceof VarExprent) {
-          VarExprent copy = (VarExprent)initExprents[1].getLeft();
-          VarExprent inc = (VarExprent)holder.getInstance();
-          if (copy.getIndex() == inc.getIndex() && copy.getVersion() == inc.getVersion() &&
-              !inc.isVarReferenced(stat.getTopParent(), copy) && !isNextCall(initExprents[1].getRight())) {
-            preData.getExprents().remove(initExprents[1]);
-            initExprents[1].getBytecodeRange(initExprents[1].getRight().bytecode);
-            stat.getIncExprent().getBytecodeRange(initExprents[1].getRight().bytecode);
-            stat.setIncExprent(initExprents[1].getRight());
-          }
+        if (initExprents[1] != null &&
+          initExprents[1].getLeft() instanceof VarExprent copy &&
+          holder.getInstance() instanceof VarExprent inc &&
+          copy.getIndex() == inc.getIndex() &&
+          copy.getVersion() == inc.getVersion() &&
+          !inc.isVarReferenced(stat.getTopParent(), copy) &&
+          !isNextCall(initExprents[1].getRight())) {
+          preData.getExprents().remove(initExprents[1]);
+          initExprents[1].getBytecodeRange(initExprents[1].getRight().bytecode);
+          stat.getIncExprent().getBytecodeRange(initExprents[1].getRight().bytecode);
+          stat.setIncExprent(initExprents[1].getRight());
         }
 
         // Type of assignment- store in var for type calculation
         CheckTypesResult typeRes = ass.checkExprTypeBounds();
         if (typeRes != null && !typeRes.getLowerBounds().isEmpty()) {
           VarType boundType = typeRes.getLowerBounds().get(0).type;
-          VarExprent var = (VarExprent) ass.getLeft();
           var.setBoundType(boundType);
         }
 
         return true;
       } else if (initExprents[1] != null) {
-        if (!(firstDoExprent.getRight() instanceof ArrayExprent) || !(firstDoExprent.getLeft() instanceof VarExprent)) {
+        if (!(firstDoExprent.getRight() instanceof ArrayExprent arr) || !(firstDoExprent.getLeft() instanceof VarExprent var)) {
           return false;
         }
 
-        if (!(lastExprent instanceof FunctionExprent)) {
+        if (!(lastExprent instanceof FunctionExprent funcInc)) {
           return false;
         }
 
         if (!(initExprents[0].getRight() instanceof ConstExprent) ||
-            !(initExprents[1].getRight() instanceof FunctionExprent) ||
+            !(initExprents[1].getRight() instanceof FunctionExprent funcRight) ||
             !(stat.getConditionExprent() instanceof FunctionExprent)) {
           return false;
         }
 
         //FunctionExprent funcCond  = (FunctionExprent)drillNots(stat.getConditionExprent()); //TODO: Verify this is counter < copy.length
-        FunctionExprent funcRight = (FunctionExprent)initExprents[1].getRight();
-        FunctionExprent funcInc   = (FunctionExprent)lastExprent;
-        ArrayExprent    arr       = (ArrayExprent)firstDoExprent.getRight();
         FunctionType incType = funcInc.getFuncType();
 
         if (funcRight.getFuncType() != FunctionType.ARRAY_LENGTH ||
             (incType != FunctionType.PPI && incType != FunctionType.IPP) ||
-            !(arr.getIndex() instanceof VarExprent) ||
-            !(arr.getArray() instanceof VarExprent)) {
+            !(arr.getIndex() instanceof VarExprent index) ||
+            !(arr.getArray() instanceof VarExprent array)) {
             return false;
         }
 
-        VarExprent index = (VarExprent)arr.getIndex();
-        VarExprent array = (VarExprent)arr.getArray();
         Exprent countExpr = funcInc.getLstOperands().get(0);
 
         // Foreach over multi dimensional array initializers can cause this to not be a var exprent
-        if (countExpr instanceof VarExprent) {
-          VarExprent counter = (VarExprent) countExpr;
+        if (countExpr instanceof VarExprent counter) {
 
           if (counter.getIndex() != index.getIndex() ||
             counter.getVersion() != index.getVersion()) {
@@ -811,8 +796,9 @@ public class MergeHelper {
 
         // Check for the variable that the for each loop creates to store the array
         // If it exists then and nothing else uses the variable then remove the assignment
-        if (initExprents[2] != null && initExprents[2].getLeft() instanceof VarExprent && stat.getIncExprent() instanceof VarExprent forArray) {
-          VarExprent copy = (VarExprent)initExprents[2].getLeft();
+        if (initExprents[2] != null &&
+          initExprents[2].getLeft() instanceof VarExprent copy &&
+          stat.getIncExprent() instanceof VarExprent forArray) {
 
           if (copy.getIndex() == array.getIndex() && copy.getVersion() == array.getVersion() && !copy.isVarReferenced(stat.getParent(), forArray)) {
             preData.getExprents().remove(initExprents[2]);
@@ -826,7 +812,6 @@ public class MergeHelper {
         CheckTypesResult typeRes = firstDoExprent.checkExprTypeBounds();
         if (typeRes != null && !typeRes.getLowerBounds().isEmpty()) {
           VarType boundType = typeRes.getLowerBounds().get(0).type;
-          VarExprent var = (VarExprent) firstDoExprent.getLeft();
           var.setBoundType(boundType);
         }
 
@@ -936,8 +921,7 @@ public class MergeHelper {
 
   protected static Exprent drillNots(Exprent exp) {
     while (true) {
-      if (exp instanceof FunctionExprent) {
-        FunctionExprent fun = (FunctionExprent)exp;
+      if (exp instanceof FunctionExprent fun) {
         if (fun.getFuncType() == FunctionType.BOOL_NOT) {
           exp = fun.getLstOperands().get(0);
         }
@@ -970,11 +954,8 @@ public class MergeHelper {
   }
 
   protected static Exprent getUncast(Exprent exp) {
-    if (exp instanceof FunctionExprent) {
-      FunctionExprent func = (FunctionExprent)exp;
-      if (func.getFuncType() == FunctionType.CAST) {
-        return getUncast(func.getLstOperands().get(0));
-      }
+    if (exp instanceof FunctionExprent func && func.getFuncType() == FunctionType.CAST) {
+      return getUncast(func.getLstOperands().get(0));
     }
     return exp;
   }
@@ -1025,10 +1006,10 @@ public class MergeHelper {
 
   protected static boolean isNextUnboxing(Exprent exprent) {
     Exprent exp = getUncast(exprent);
-    if (!(exp instanceof InvocationExprent))
-      return false;
-    InvocationExprent inv = (InvocationExprent)exp;
-    return inv.isUnboxingCall() && isNextCall(inv.getInstance());
+    if (exp instanceof InvocationExprent inv) {
+      return inv.isUnboxingCall() && isNextCall(inv.getInstance());
+    }
+    return false;
   }
 
   public static boolean makeDoWhileLoops(RootStatement root) {
@@ -1047,14 +1028,11 @@ public class MergeHelper {
       ret |= makeDoWhileRec(st);
     }
 
-    if (stat instanceof DoStatement) {
-      DoStatement dostat = (DoStatement)stat;
-      if (dostat.getLooptype() == DoStatement.Type.INFINITE) {
-        matchDoWhile(dostat);
-        if (dostat.getLooptype() != DoStatement.Type.INFINITE) {
-          ret = true;
-          ValidationHelper.validateStatement(stat.getTopParent());
-        }
+    if (stat instanceof DoStatement dostat && dostat.getLooptype() == DoStatement.Type.INFINITE) {
+      matchDoWhile(dostat);
+      if (dostat.getLooptype() != DoStatement.Type.INFINITE) {
+        ret = true;
+        ValidationHelper.validateStatement(stat.getTopParent());
       }
     }
 
@@ -1113,12 +1091,8 @@ public class MergeHelper {
   private static boolean condenseInfiniteLoopsWithReturnRec(Statement stat) {
     boolean res = false;
 
-    if (stat instanceof DoStatement) {
-      DoStatement loop = (DoStatement)stat;
-
-      if (loop.getLooptype() == DoStatement.Type.INFINITE) {
-        res = condenseLoop(loop);
-      }
+    if (stat instanceof DoStatement loop && loop.getLooptype() == DoStatement.Type.INFINITE) {
+      res = condenseLoop(loop);
     }
 
     for (Statement st : new ArrayList<>(stat.getStats())) {
@@ -1129,9 +1103,8 @@ public class MergeHelper {
   }
 
   private static boolean condenseLoop(DoStatement stat) {
-    if (stat.getFirst() instanceof SequenceStatement && stat.getSuccessorEdges(StatEdge.TYPE_REGULAR).isEmpty()) {
-      Statement first = stat.getFirst();
-      int extractStart = extractableFromLoop((SequenceStatement) first, stat);
+    if (stat.getFirst() instanceof SequenceStatement first && stat.getSuccessorEdges(StatEdge.TYPE_REGULAR).isEmpty()) {
+      int extractStart = extractableFromLoop(first, stat);
 
       if (first.getStats().size() >= 1 && extractStart > 0) {
         Statement firstBody = first.getStats().get(0);
@@ -1139,7 +1112,10 @@ public class MergeHelper {
         Statement preExtract = first.getStats().get(extractStart - 1);
         List<Statement> extract = new ArrayList<>(first.getStats().subList(extractStart, first.getStats().size()));
 
-        if (firstBody instanceof IfStatement && ((IfStatement)firstBody).iftype == IfStatement.IFTYPE_IF && firstBody.getBasichead().getExprents().isEmpty()) {
+        if (firstBody instanceof IfStatement ifStat &&
+          ifStat.iftype == IfStatement.IFTYPE_IF &&
+          firstBody.getBasichead().getExprents().isEmpty()) {
+
           List<StatEdge> breaks = lastBody.getSuccessorEdges(StatEdge.TYPE_BREAK);
 
           if (!breaks.isEmpty()) {
@@ -1208,10 +1184,10 @@ public class MergeHelper {
               stat.addSuccessor(new StatEdge(StatEdge.TYPE_REGULAR, stat, next));
 
               // Replace first statement from sequence to if statement body
-              Statement ifstat = ((IfStatement) firstBody).getIfstat();
+              Statement ifstat = ifStat.getIfstat();
               first.replaceWith(ifstat);
               // Remove if edge
-              ((IfStatement) firstBody).getIfEdge().getDestination().removeSuccessor(((IfStatement) firstBody).getIfEdge());
+              ifStat.getIfEdge().getDestination().removeSuccessor(ifStat.getIfEdge());
 
               stat.setFirst(ifstat);
 
@@ -1221,7 +1197,7 @@ public class MergeHelper {
               stat.setLooptype(DoStatement.Type.WHILE);
 
               // No negation needed
-              stat.setConditionExprent(((IfStatement)firstBody).getHeadexprent().getCondition());
+              stat.setConditionExprent(ifStat.getHeadexprent().getCondition());
 
               stat.getFirst().setAllParent();
 

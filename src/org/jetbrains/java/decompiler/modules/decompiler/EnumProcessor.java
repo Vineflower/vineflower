@@ -35,14 +35,11 @@ public final class EnumProcessor {
       }
       else if (CodeConstants.INIT_NAME.equals(name)) {
         Statement firstData = Statements.findFirstData(method.root);
-        if (firstData != null && !firstData.getExprents().isEmpty()) {
-          Exprent exprent = firstData.getExprents().get(0);
-          if (exprent instanceof InvocationExprent) {
-            InvocationExprent invExpr = (InvocationExprent)exprent;
-            if (Statements.isInvocationInitConstructor(invExpr, method, wrapper, false)) {
-              firstData.getExprents().remove(0);
-            }
-          }
+        if (firstData != null &&
+          !firstData.getExprents().isEmpty() &&
+          firstData.getExprents().get(0) instanceof InvocationExprent invExpr &&
+          Statements.isInvocationInitConstructor(invExpr, method, wrapper, false)) {
+          firstData.getExprents().remove(0);
         }
       }
     }

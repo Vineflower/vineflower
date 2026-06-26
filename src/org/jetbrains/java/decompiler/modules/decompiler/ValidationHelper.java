@@ -423,11 +423,8 @@ public final class ValidationHelper {
         if (node.exprents != null) {
           for (Exprent exprent : node.exprents) {
             for (Exprent sub : exprent.getAllExprents(true, true)) {
-              if (sub instanceof VarExprent) {
-                VarExprent var = (VarExprent) sub;
-                if (!predicate.test(var)) {
-                  throw new IllegalStateException(message + ": " + var.getIndex() + "_" + var.getVersion() + " " + var.getVarType());
-                }
+              if (sub instanceof VarExprent var && !predicate.test(var)) {
+                throw new IllegalStateException(message + ": " + var.getIndex() + "_" + var.getVersion() + " " + var.getVarType());
               }
             }
           }
@@ -509,13 +506,10 @@ public final class ValidationHelper {
   private static boolean isSuccessor(Statement source, StatEdge edge) {
     if (source.getAllSuccessorEdges().contains(edge)) return true;
 
-    if (source.getParent() instanceof IfStatement) {
-      IfStatement ifstat = (IfStatement) source.getParent();
-      if (ifstat.getFirst() == source) {
-        if (edge == ifstat.getIfEdge() || edge == ifstat.getElseEdge()) {
-          return true;
-        }
-      }
+    if (source.getParent() instanceof IfStatement ifstat &&
+      ifstat.getFirst() == source &&
+      (edge == ifstat.getIfEdge() || edge == ifstat.getElseEdge())) {
+      return true;
     }
 
     return false;

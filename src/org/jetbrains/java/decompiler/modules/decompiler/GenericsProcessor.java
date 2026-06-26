@@ -36,8 +36,8 @@ public final class GenericsProcessor {
       res |= qualifyChain(expr);
     }
 
-    if (exp instanceof InvocationExprent) {
-      res |= qualifyChain((InvocationExprent) exp);
+    if (exp instanceof InvocationExprent invocation) {
+      res |= qualifyChain(invocation);
     }
 
     return res;
@@ -60,9 +60,9 @@ public final class GenericsProcessor {
     InvocationExprent last = chain.get(chain.size() - 1);
     boolean foundLambda = false;
     for (Exprent parameter : last.getLstParameters()) {
-      if (parameter instanceof NewExprent && ((NewExprent) parameter).isLambda()) {
-        if (((NewExprent) parameter).isMethodReference()) {
-          if (!((NewExprent) parameter).doesClassHaveMethodsNamedSame()) {
+      if (parameter instanceof NewExprent newExpr && newExpr.isLambda()) {
+        if (newExpr.isMethodReference()) {
+          if (!newExpr.doesClassHaveMethodsNamedSame()) {
             continue;
           }
         }

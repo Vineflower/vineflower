@@ -537,7 +537,7 @@ public class SimplifyExprentsHelper {
           econst = func.getLstOperands().get(0);
         }
 
-        if (econst instanceof ConstExprent && ((ConstExprent) econst).hasValueOne()) {
+        if (econst instanceof ConstExprent constExpr && constExpr.hasValueOne()) {
           Exprent left = as.getLeft();
 
           if (!(left instanceof VarExprent) && left.equals(econd)) {

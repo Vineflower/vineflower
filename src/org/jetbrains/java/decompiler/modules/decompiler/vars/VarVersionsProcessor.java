@@ -124,8 +124,7 @@ public class VarVersionsProcessor {
       lst.add(exprent);
 
       for (Exprent expr : lst) {
-        if (expr instanceof VarExprent) {
-          VarExprent var = (VarExprent)expr;
+        if (expr instanceof VarExprent var) {
           Integer version = versions.get(new VarVersionPair(var));
           if (version != null) {
             var.setVersion(version);
@@ -273,18 +272,17 @@ public class VarVersionsProcessor {
       lst.add(exprent);
 
       for (Exprent expr : lst) {
-        if (expr instanceof VarExprent) {
-          VarExprent newVar = (VarExprent)expr;
+        if (expr instanceof VarExprent newVar) {
           Integer newVarIndex = mapVarPaar.get(new VarVersionPair(newVar));
           if (newVarIndex != null) {
             newVar.setIndex(newVarIndex);
             newVar.setVersion(0);
           }
         }
-        else if (expr instanceof ConstExprent) {
+        else if (expr instanceof ConstExprent constExpr) {
           VarType maxType = mapExprentMaxTypes.get(new VarVersionPair(expr.id, -1));
           if (maxType != null) {
-            ((ConstExprent)expr).setConstType(maxType);
+            constExpr.setConstType(maxType);
           }
         }
       }

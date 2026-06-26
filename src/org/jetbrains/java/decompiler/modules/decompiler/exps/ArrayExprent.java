@@ -92,11 +92,9 @@ public class ArrayExprent extends Exprent {
   }
 
   private boolean canSkipParenEnclose(Exprent instance) {
-    if (!(instance instanceof NewExprent)) {
+    if (!(instance instanceof NewExprent newExpr)) {
       return false;
     }
-
-    NewExprent newExpr = (NewExprent) instance;
 
     return newExpr.isDirectArrayInit() || !newExpr.getLstArrayElements().isEmpty();
   }
@@ -114,9 +112,8 @@ public class ArrayExprent extends Exprent {
   @Override
   public boolean equals(Object o) {
     if (o == this) return true;
-    if (!(o instanceof ArrayExprent)) return false;
+    if (!(o instanceof ArrayExprent arr)) return false;
 
-    ArrayExprent arr = (ArrayExprent)o;
     return InterpreterUtil.equalObjects(array, arr.getArray()) &&
            InterpreterUtil.equalObjects(index, arr.getIndex());
   }

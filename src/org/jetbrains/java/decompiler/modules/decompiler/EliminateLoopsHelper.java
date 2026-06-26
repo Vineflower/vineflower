@@ -39,11 +39,7 @@ public class EliminateLoopsHelper {
       }
     }
 
-    if (stat instanceof DoStatement && isLoopRedundant((DoStatement)stat)) {
-      return true;
-    }
-
-    return false;
+    return stat instanceof DoStatement doStat && isLoopRedundant(doStat);
   }
 
   private static boolean isLoopRedundant(DoStatement loop) {

@@ -37,9 +37,9 @@ public final class SequenceHelper {
       // unfold blocks
       for (int i = 0; i < lst.size(); i++) {
         Statement st = lst.get(i);
-        if (st instanceof SequenceStatement) {
+        if (st instanceof SequenceStatement seq) {
 
-          removeEmptyStatements((SequenceStatement)st);
+          removeEmptyStatements(seq);
 
           if (i == lst.size() - 1 || isSequenceDisbandable(st, lst.get(i + 1))) {
 
@@ -115,9 +115,9 @@ public final class SequenceHelper {
     }
 
     // sequence consisting of one statement -> disband
-    if (stat instanceof SequenceStatement) {
+    if (stat instanceof SequenceStatement seq) {
 
-      removeEmptyStatements((SequenceStatement)stat);
+      removeEmptyStatements(seq);
 
       if (stat.getStats().size() == 1) {
 

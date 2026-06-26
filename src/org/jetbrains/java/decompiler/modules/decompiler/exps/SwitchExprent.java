@@ -93,7 +93,7 @@ public class SwitchExprent extends Exprent {
           buf.appendField(field.getName(), false, field.getClassname(), field.getName(), field.getDescriptor());
         } else if (value instanceof FieldExprent field) {
           buf.append(field.toJava(indent, false));
-        } else if (value instanceof FunctionExprent && ((FunctionExprent) value).getFuncType() == FunctionExprent.FunctionType.INSTANCEOF) {
+        } else if (value instanceof FunctionExprent func && func.getFuncType() == FunctionExprent.FunctionType.INSTANCEOF) {
           // Pattern matching variables
 
           Pattern pattern = (Pattern) value.getAllExprents().get(2);
@@ -116,7 +116,7 @@ public class SwitchExprent extends Exprent {
       if (hasDefault) {
         if (!hasEdge) {
           // Don't write 'default -> {}'
-          if (stat instanceof BasicBlockStatement && isEmptyDefault(((BasicBlockStatement)stat), backing)) {
+          if (stat instanceof BasicBlockStatement basicBlockStat && isEmptyDefault(basicBlockStat, backing)) {
             continue;
           }
 
@@ -143,16 +143,15 @@ public class SwitchExprent extends Exprent {
       if (simple) {
         Exprent exprent = stat.getExprents().get(0);
 
-        if (exprent instanceof YieldExprent) {
-          Exprent content = ((YieldExprent) exprent).getContent();
+        if (exprent instanceof YieldExprent yieldExpr) {
+          Exprent content = yieldExpr.getContent();
 
-          if (content instanceof ConstExprent && !Objects.equals(content.getExprType(), VarType.VARTYPE_NULL)) {
-            ((ConstExprent)content).setConstType(this.type);
+          if (content instanceof ConstExprent constExpr && !Objects.equals(content.getExprType(), VarType.VARTYPE_NULL)) {
+            constExpr.setConstType(this.type);
           }
 
           buf.append(content.toJava(indent + 1).append(";"));
-        } else if (exprent instanceof ExitExprent) {
-          ExitExprent exit = (ExitExprent) exprent;
+        } else if (exprent instanceof ExitExprent exit) {
 
           if (exit.getExitType() == ExitExprent.Type.THROW) {
             buf.append(exit.toJava(indent + 1).append(";"));
@@ -196,8 +195,8 @@ public class SwitchExprent extends Exprent {
     for (List<Exprent> caseValue : backing.getCaseValues()) {
       for (Exprent exprent : caseValue) {
         // only enums
-        if (exprent instanceof FieldExprent && ((FieldExprent) exprent).isStatic()) {
-          enumValuesSeen.add((FieldExprent) exprent);
+        if (exprent instanceof FieldExprent field && field.isStatic()) {
+          enumValuesSeen.add(field);
         }
       }
     }
@@ -215,10 +214,10 @@ public class SwitchExprent extends Exprent {
     List<Exprent> targetExprs = target.getExprents();
     if (targetExprs != null && targetExprs.size() == 1) {
       Exprent targetExpr = targetExprs.get(0);
-      return targetExpr instanceof ExitExprent
-        && ((ExitExprent) targetExpr).getExitType() == ExitExprent.Type.THROW
-        && (((ExitExprent) targetExpr).getValue().getExprType().value.equals("java/lang/IncompatibleClassChangeError")
-            || ((ExitExprent) targetExpr).getValue().getExprType().value.equals("java/lang/MatchException"));
+      return targetExpr instanceof ExitExprent exit
+        && exit.getExitType() == ExitExprent.Type.THROW
+        && (exit.getValue().getExprType().value.equals("java/lang/IncompatibleClassChangeError")
+            || exit.getValue().getExprType().value.equals("java/lang/MatchException"));
     }
     return false;
   }

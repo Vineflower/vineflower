@@ -179,11 +179,10 @@ public class FieldExprent extends Exprent {
     else {
       String super_qualifier = null;
 
-      if (instance instanceof VarExprent) {
-        VarExprent instVar = (VarExprent)instance;
+      if (instance instanceof VarExprent instVar) {
         VarVersionPair pair = new VarVersionPair(instVar);
 
-        MethodWrapper currentMethod = (MethodWrapper)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
+        MethodWrapper currentMethod = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
 
         if (currentMethod != null) { // FIXME: remove
           String this_classname = currentMethod.varproc.getThisVars().get(pair);
@@ -253,9 +252,8 @@ public class FieldExprent extends Exprent {
   @Override
   public boolean equals(Object o) {
     if (o == this) return true;
-    if (!(o instanceof FieldExprent)) return false;
+    if (!(o instanceof FieldExprent ft)) return false;
 
-    FieldExprent ft = (FieldExprent)o;
     return InterpreterUtil.equalObjects(name, ft.getName()) &&
            InterpreterUtil.equalObjects(classname, ft.getClassname()) &&
            isStatic == ft.isStatic() &&

@@ -156,7 +156,7 @@ public class SwitchStatement extends Statement {
             buf.appendField(field.getName(), false, field.getClassname(), field.getName(), field.getDescriptor());
           } else if (value instanceof FieldExprent field) {
             buf.append(field.toJava(indent, false));
-          } else if (value instanceof FunctionExprent && ((FunctionExprent) value).getFuncType() == FunctionType.INSTANCEOF) {
+          } else if (value instanceof FunctionExprent func && func.getFuncType() == FunctionType.INSTANCEOF) {
             // Pattern matching variables
 
             Pattern pattern = (Pattern) value.getAllExprents().get(2);

@@ -31,8 +31,8 @@ public final class Statements {
   }
 
   public static boolean isInvocationInitConstructor(InvocationExprent inv, MethodWrapper method, ClassWrapper wrapper, boolean withThis) {
-    if (inv.getFunctype() == InvocationExprent.Type.INIT && inv.getInstance() instanceof VarExprent) {
-      VarExprent instVar = (VarExprent)inv.getInstance();
+    if (inv.getFunctype() == InvocationExprent.Type.INIT &&
+      inv.getInstance() instanceof VarExprent instVar) {
       VarVersionPair varPair = new VarVersionPair(instVar);
       String className = method.varproc.getThisVars().get(varPair);
       if (className != null) { // any this instance. TODO: Restrict to current class?

@@ -131,9 +131,8 @@ public class ExitExprent extends Exprent {
   @Override
   public boolean equals(Object o) {
     if (o == this) return true;
-    if (!(o instanceof ExitExprent)) return false;
+    if (!(o instanceof ExitExprent et)) return false;
 
-    ExitExprent et = (ExitExprent)o;
     return exitType == et.getExitType() &&
            InterpreterUtil.equalObjects(value, et.getValue());
   }

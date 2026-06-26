@@ -66,8 +66,7 @@ public final class ConcatenationHelper {
     VarType cltype = null;
 
     // first quick test
-    if (expr instanceof InvocationExprent) {
-      InvocationExprent iex = (InvocationExprent)expr;
+    if (expr instanceof InvocationExprent iex) {
       if ("toString".equals(iex.getName())) {
         if (builderClass.equals(iex.getClassname())) {
           cltype = builderType;
@@ -300,25 +299,24 @@ public final class ConcatenationHelper {
 
   private static Exprent removeStringValueOf(Exprent exprent) {
 
-    if (exprent instanceof InvocationExprent) {
-      InvocationExprent iex = (InvocationExprent)exprent;
-      if ("valueOf".equals(iex.getName()) && stringClass.equals(iex.getClassname())) {
-        MethodDescriptor md = iex.getDescriptor();
-        if (md.params.length == 1) {
-          VarType param = md.params[0];
-          switch (param.type) {
-            case OBJECT:
-              if (!param.equals(VarType.VARTYPE_OBJECT)) {
-                break;
-              }
-            case BOOLEAN:
-            case CHAR:
-            case DOUBLE:
-            case FLOAT:
-            case INT:
-            case LONG:
-              return iex.getLstParameters().get(0);
-          }
+    if (exprent instanceof InvocationExprent iex &&
+      "valueOf".equals(iex.getName()) &&
+      stringClass.equals(iex.getClassname())) {
+      MethodDescriptor md = iex.getDescriptor();
+      if (md.params.length == 1) {
+        VarType param = md.params[0];
+        switch (param.type) {
+          case OBJECT:
+            if (!param.equals(VarType.VARTYPE_OBJECT)) {
+              break;
+            }
+          case BOOLEAN:
+          case CHAR:
+          case DOUBLE:
+          case FLOAT:
+          case INT:
+          case LONG:
+            return iex.getLstParameters().get(0);
         }
       }
     }

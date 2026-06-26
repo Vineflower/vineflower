@@ -98,14 +98,13 @@ public class DefaultArgsMap {
           continue;
         }
 
-        Exprent check = bitmask.getLstOperands().get(0);
-        Exprent mask = bitmask.getLstOperands().get(1);
 
-        if (!(check instanceof VarExprent var) || !(mask instanceof ConstExprent)) {
+        if (!(bitmask.getLstOperands().get(0) instanceof VarExprent var) ||
+          !(bitmask.getLstOperands().get(1) instanceof ConstExprent mask)) {
           continue;
         }
 
-        int maskValue = ((ConstExprent) mask).getIntValue();
+        int maskValue = mask.getIntValue();
         int maskIndex = (var.getIndex() - startOfBitmasks) * 32;
         for (int i = 0; i < 32; i++) {
           if ((maskValue & (1 << i)) != 0) {

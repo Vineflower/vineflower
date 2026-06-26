@@ -50,8 +50,7 @@ public final class SecondaryFunctionsHelper {
   public static boolean identifySecondaryFunctions(Statement stat, VarProcessor varProc, IdentifySecondaryOptions options) {
     if (stat.getExprents() == null) {
       // if(){;}else{...} -> if(!){...}
-      if (stat instanceof IfStatement) {
-        IfStatement ifelsestat = (IfStatement) stat;
+      if (stat instanceof IfStatement ifelsestat) {
         Statement ifstat = ifelsestat.getIfstat();
 
         if (ifelsestat.iftype == IfStatement.IFTYPE_IFELSE && ifstat.getExprents() != null &&
@@ -163,8 +162,7 @@ public final class SecondaryFunctionsHelper {
   }
 
   private static Exprent identifySecondaryFunctions(Statement stat, Exprent exprent, boolean statement_level, VarProcessor varProc, IdentifySecondaryOptions options) {
-    if (exprent instanceof FunctionExprent) {
-      FunctionExprent fexpr = (FunctionExprent) exprent;
+    if (exprent instanceof FunctionExprent fexpr) {
 
       switch (fexpr.getFuncType()) {
         case BOOL_NOT:
@@ -190,9 +188,7 @@ public final class SecondaryFunctionsHelper {
             expr1 = fexpr.getLstOperands().get(1);
           }
 
-          if (expr1 instanceof FunctionExprent && expr2 instanceof ConstExprent) {
-            FunctionExprent funcexpr = (FunctionExprent) expr1;
-            ConstExprent cexpr = (ConstExprent) expr2;
+          if (expr1 instanceof FunctionExprent funcexpr && expr2 instanceof ConstExprent cexpr) {
 
             FunctionType functype = funcexpr.getFuncType();
             if (functype == FunctionType.LCMP || functype == FunctionType.FCMPG ||
@@ -275,9 +271,8 @@ public final class SecondaryFunctionsHelper {
               Exprent operand = lstOperands.get(i);
               VarType operandtype = operand.getExprType();
 
-              if (operand instanceof ConstExprent &&
+              if (operand instanceof ConstExprent cexpr &&
                 operandtype.type != CodeType.BOOLEAN) {
-                ConstExprent cexpr = (ConstExprent) operand;
                 long val;
                 if (operandtype.type == CodeType.LONG) {
                   val = (Long) cexpr.getValue();
@@ -298,8 +293,7 @@ public final class SecondaryFunctionsHelper {
             if (lstOperands.get(0).getExprType().type == CodeType.BOOLEAN &&
               lstOperands.get(1).getExprType().type == CodeType.BOOLEAN) {
               for (int i = 0; i < 2; i++) {
-                if (lstOperands.get(i) instanceof ConstExprent) {
-                  ConstExprent cexpr = (ConstExprent) lstOperands.get(i);
+                if (lstOperands.get(i) instanceof ConstExprent cexpr) {
                   int val = (Integer) cexpr.getValue();
 
                   if ((fexpr.getFuncType() == FunctionType.EQ && val == 1) ||
@@ -315,8 +309,8 @@ public final class SecondaryFunctionsHelper {
             }
             break;
           case BOOL_NOT:
-            if (lstOperands.get(0) instanceof ConstExprent) {
-              int val = ((ConstExprent) lstOperands.get(0)).getIntValue();
+            if (lstOperands.get(0) instanceof ConstExprent constExpr) {
+              int val = constExpr.getIntValue();
               if (val == 0) {
                 return new ConstExprent(VarType.VARTYPE_BOOLEAN, 1, fexpr.bytecode);
               } else {
@@ -329,24 +323,20 @@ public final class SecondaryFunctionsHelper {
             Exprent expr1 = lstOperands.get(1);
             Exprent expr2 = lstOperands.get(2);
 
-            if (expr1 instanceof ConstExprent && expr2 instanceof ConstExprent) {
-              ConstExprent cexpr1 = (ConstExprent) expr1;
-              ConstExprent cexpr2 = (ConstExprent) expr2;
+            if (expr1 instanceof ConstExprent cexpr1 &&
+              expr2 instanceof ConstExprent cexpr2 &&
+              cexpr1.getExprType().type == CodeType.BOOLEAN &&
+              cexpr2.getExprType().type == CodeType.BOOLEAN) {
 
-              if (cexpr1.getExprType().type == CodeType.BOOLEAN &&
-                cexpr2.getExprType().type == CodeType.BOOLEAN) {
-
-                if (cexpr1.getIntValue() == 0 && cexpr2.getIntValue() != 0) {
-                  return new FunctionExprent(FunctionType.BOOL_NOT, lstOperands.get(0), fexpr.bytecode);
-                } else if (cexpr1.getIntValue() != 0 && cexpr2.getIntValue() == 0) {
-                  return lstOperands.get(0);
-                }
+              if (cexpr1.getIntValue() == 0 && cexpr2.getIntValue() != 0) {
+                return new FunctionExprent(FunctionType.BOOL_NOT, lstOperands.get(0), fexpr.bytecode);
+              } else if (cexpr1.getIntValue() != 0 && cexpr2.getIntValue() == 0) {
+                return lstOperands.get(0);
               }
             }
 
             if (DecompilerContext.getOption(IFernflowerPreferences.TERNARY_CONSTANT_SIMPLIFICATION) || options.forceTernarySimplification) {
-              if (expr1 instanceof ConstExprent && expr1.getExprType().type == CodeType.BOOLEAN) {
-                ConstExprent cexpr1 = (ConstExprent) expr1;
+              if (expr1 instanceof ConstExprent cexpr1 && expr1.getExprType().type == CodeType.BOOLEAN) {
                 boolean val = cexpr1.getIntValue() != 0;
 
                 if (val) {
@@ -357,8 +347,7 @@ public final class SecondaryFunctionsHelper {
                   FunctionExprent fnot = new FunctionExprent(FunctionType.BOOL_NOT, lstOperands.get(0), fexpr.bytecode);
                   return new FunctionExprent(FunctionType.BOOLEAN_AND, Arrays.asList(fnot, lstOperands.get(2)), fexpr.bytecode);
                 }
-              } else if (expr2 instanceof ConstExprent && expr2.getExprType().type == CodeType.BOOLEAN) {
-                ConstExprent cexpr2 = (ConstExprent) expr2;
+              } else if (expr2 instanceof ConstExprent cexpr2 && expr2.getExprType().type == CodeType.BOOLEAN) {
                 boolean val = cexpr2.getIntValue() != 0;
 
                 if (val) {
@@ -405,8 +394,7 @@ public final class SecondaryFunctionsHelper {
           case I2B:
           case I2C:
           case I2S:
-            if (lstOperands.get(0) instanceof FunctionExprent) {
-              FunctionExprent innerFunction = (FunctionExprent) lstOperands.get(0);
+            if (lstOperands.get(0) instanceof FunctionExprent innerFunction) {
               VarType castType = innerFunction.getFuncType().castType;
               if (castType == VarType.VARTYPE_INT) {
                 // longs, floats and doubles are converted to ints before being converted to bytes, shorts or chars
@@ -439,14 +427,15 @@ public final class SecondaryFunctionsHelper {
           case SUB:
           case MUL:
           case DIV:
-            Exprent left = lstOperands.get(0);
-            boolean leftImplicitCast = left instanceof FunctionExprent && ((FunctionExprent) left).getSimpleCastType() != null && !((FunctionExprent) left).doesCast();
-            Exprent right = lstOperands.get(1);
-            boolean rightImplicitCast = right instanceof FunctionExprent && ((FunctionExprent) right).getSimpleCastType() != null && !((FunctionExprent) right).doesCast();
-
-            if (leftImplicitCast && rightImplicitCast && right.getExprType() == left.getExprType()) {
+            if (lstOperands.get(0) instanceof FunctionExprent left &&
+              left.getSimpleCastType() != null &&
+              !left.doesCast() &&
+              lstOperands.get(1) instanceof FunctionExprent right &&
+              right.getSimpleCastType() != null &&
+              !right.doesCast() &&
+              right.getExprType() == left.getExprType()) {
               // Only a single cast is needed explicitly
-              ((FunctionExprent) left).setNeedsCast(true);
+              left.setNeedsCast(true);
             }
             break;
           case SHL:
@@ -467,53 +456,49 @@ public final class SecondaryFunctionsHelper {
         Exprent right = asexpr.getRight();
         Exprent left = asexpr.getLeft();
 
-        if (right instanceof FunctionExprent) {
-          FunctionExprent func = (FunctionExprent) right;
-          if (isSimple(left, null)) {
+        if (right instanceof FunctionExprent func && isSimple(left, null)) {
+          VarType midlayer = null;
+          if (func.getFuncType().castType != null) {
+            right = func.getLstOperands().get(0);
+            midlayer = func.getSimpleCastType();
+            if (right instanceof FunctionExprent inner) {
+              func = inner;
+            } else {
+              return ret;
+            }
+          }
 
-            VarType midlayer = null;
-            if (func.getFuncType().castType != null) {
-              right = func.getLstOperands().get(0);
-              midlayer = func.getSimpleCastType();
-              if (right instanceof FunctionExprent) {
-                func = (FunctionExprent) right;
-              } else {
-                return ret;
+          List<Exprent> lstFuncOperands = func.getLstOperands();
+
+          Exprent cond = null;
+
+          switch (func.getFuncType()) {
+            case ADD:
+            case AND:
+            case OR:
+            case XOR:
+              // FIXME: only do this if the cond is pure
+              if (left.equals(lstFuncOperands.get(1))) {
+                cond = lstFuncOperands.get(0);
+                break;
               }
-            }
+            case SUB:
+            case MUL:
+            case DIV:
+            case REM:
+            case SHL:
+            case SHR:
+            case USHR:
+              if (left.equals(lstFuncOperands.get(0))) {
+                cond = lstFuncOperands.get(1);
+              }
+          }
 
-            List<Exprent> lstFuncOperands = func.getLstOperands();
-
-            Exprent cond = null;
-
-            switch (func.getFuncType()) {
-              case ADD:
-              case AND:
-              case OR:
-              case XOR:
-                // FIXME: only do this if the cond is pure
-                if (left.equals(lstFuncOperands.get(1))) {
-                  cond = lstFuncOperands.get(0);
-                  break;
-                }
-              case SUB:
-              case MUL:
-              case DIV:
-              case REM:
-              case SHL:
-              case SHR:
-              case USHR:
-                if (left.equals(lstFuncOperands.get(0))) {
-                  cond = lstFuncOperands.get(1);
-                }
-            }
-
-            if (cond != null && (midlayer == null || midlayer.equals(cond.getExprType())) && isSimple(left, cond)) {
-              asexpr.setRight(cond);
-              asexpr.setCondType(func.getFuncType());
-              // changed
-              ret = exprent;
-            }
+          if (cond != null && (midlayer == null || midlayer.equals(cond.getExprType())) && isSimple(left, cond)) {
+            asexpr.setRight(cond);
+            asexpr.setCondType(func.getFuncType());
+            // changed
+            ret = exprent;
           }
         }
         break;
@@ -583,71 +568,64 @@ public final class SecondaryFunctionsHelper {
 
   public static Exprent propagateBoolNot(Exprent exprent) {
 
-    if (exprent instanceof FunctionExprent) {
-      FunctionExprent fexpr = (FunctionExprent) exprent;
+    if (exprent instanceof FunctionExprent fexpr &&
+      fexpr.getFuncType() == FunctionType.BOOL_NOT &&
+      fexpr.getLstOperands().get(0) instanceof FunctionExprent fparam) {
 
-      if (fexpr.getFuncType() == FunctionType.BOOL_NOT) {
+      FunctionType ftype = fparam.getFuncType();
+      // Can't change any patterns, except for nested '!' which we can peek through
+      if (hasPattern(fparam) && ftype != FunctionType.BOOL_NOT) {
+        return null;
+      }
+      boolean canSimplify = false;
+      switch (ftype) {
+        case BOOL_NOT:
+          Exprent newexpr = fparam.getLstOperands().get(0);
+          Exprent retexpr = propagateBoolNot(newexpr);
+          return retexpr == null ? newexpr : retexpr;
+        case TERNARY:
+          // Wrap branches
+          FunctionExprent fex1 = new FunctionExprent(FunctionType.BOOL_NOT, fparam.getLstOperands().get(1), null);
+          FunctionExprent fex2 = new FunctionExprent(FunctionType.BOOL_NOT, fparam.getLstOperands().get(2), null);
 
-        Exprent param = fexpr.getLstOperands().get(0);
+          // Propagate both branches
+          Exprent ex1 = propagateBoolNot(fex1);
+          Exprent ex2 = propagateBoolNot(fex2);
 
-        if (param instanceof FunctionExprent fparam) {
+          // Set both branches to new version if it was created, or old if it wasn't
+          fparam.getLstOperands().set(1, ex1 == null ? fex1 : ex1);
+          fparam.getLstOperands().set(2, ex2 == null ? fex2 : ex2);
 
-          FunctionType ftype = fparam.getFuncType();
-          // Can't change any patterns, except for nested '!' which we can peek through
-          if (hasPattern(fparam) && ftype != FunctionType.BOOL_NOT) {
-            return null;
+          return fparam;
+        case BOOLEAN_AND:
+        case BOOLEAN_OR:
+          List<Exprent> operands = fparam.getLstOperands();
+          for (int i = 0; i < operands.size(); i++) {
+            Exprent newparam = new FunctionExprent(FunctionType.BOOL_NOT, operands.get(i), operands.get(i).bytecode);
+
+            Exprent retparam = propagateBoolNot(newparam);
+            operands.set(i, retparam == null ? newparam : retparam);
           }
-          boolean canSimplify = false;
-          switch (ftype) {
-            case BOOL_NOT:
-              Exprent newexpr = fparam.getLstOperands().get(0);
-              Exprent retexpr = propagateBoolNot(newexpr);
-              return retexpr == null ? newexpr : retexpr;
-            case TERNARY:
-              // Wrap branches
-              FunctionExprent fex1 = new FunctionExprent(FunctionType.BOOL_NOT, fparam.getLstOperands().get(1), null);
-              FunctionExprent fex2 = new FunctionExprent(FunctionType.BOOL_NOT, fparam.getLstOperands().get(2), null);
-
-              // Propagate both branches
-              Exprent ex1 = propagateBoolNot(fex1);
-              Exprent ex2 = propagateBoolNot(fex2);
-
-              // Set both branches to new version if it was created, or old if it wasn't
-              fparam.getLstOperands().set(1, ex1 == null ? fex1 : ex1);
-              fparam.getLstOperands().set(2, ex2 == null ? fex2 : ex2);
-
-              return fparam;
-            case BOOLEAN_AND:
-            case BOOLEAN_OR:
-              List<Exprent> operands = fparam.getLstOperands();
-              for (int i = 0; i < operands.size(); i++) {
-                Exprent newparam = new FunctionExprent(FunctionType.BOOL_NOT, operands.get(i), operands.get(i).bytecode);
-
-                Exprent retparam = propagateBoolNot(newparam);
-                operands.set(i, retparam == null ? newparam : retparam);
-              }
-            case EQ:
-            case NE:
-              canSimplify = true;
-            case LT:
-            case GE:
-            case GT:
-            case LE:
-              if (!canSimplify) {
-                operands = fparam.getLstOperands();
-                VarType left = operands.get(0).getExprType();
-                VarType right = operands.get(1).getExprType();
-                VarType commonSupertype = VarType.join(left, right);
-                if (commonSupertype != null) {
-                  canSimplify = commonSupertype.type != CodeType.FLOAT && commonSupertype.type != CodeType.DOUBLE;
-                }
-              }
-              if (canSimplify) {
-                fparam.setFuncType(funcsnot.get(ftype));
-                return fparam;
-              }
+        case EQ:
+        case NE:
+          canSimplify = true;
+        case LT:
+        case GE:
+        case GT:
+        case LE:
+          if (!canSimplify) {
+            operands = fparam.getLstOperands();
+            VarType left = operands.get(0).getExprType();
+            VarType right = operands.get(1).getExprType();
+            VarType commonSupertype = VarType.join(left, right);
+            if (commonSupertype != null) {
+              canSimplify = commonSupertype.type != CodeType.FLOAT && commonSupertype.type != CodeType.DOUBLE;
+            }
           }
-        }
+          if (canSimplify) {
+            fparam.setFuncType(funcsnot.get(ftype));
+            return fparam;
+          }
       }
     }
 
@@ -672,8 +650,7 @@ public final class SecondaryFunctionsHelper {
     List<Exprent> exprents = new ArrayList<>(stat.getExprents() == null ? stat.getStatExprents() : stat.getExprents());
 
     for (Exprent exprent : exprents) {
-      if (exprent instanceof AssignmentExprent) {
-        AssignmentExprent assignment = (AssignmentExprent) exprent;
+      if (exprent instanceof AssignmentExprent assignment) {
 
         List<Exprent> params = exprent.getAllExprents();
 
@@ -682,16 +659,13 @@ public final class SecondaryFunctionsHelper {
         Exprent rhs = params.get(1);
 
         // We only want expressions that are standard assignments where the left hand side is a variable and the right hand side is a function.
-        if (assignment.getCondType() == null && lhs instanceof VarExprent && rhs instanceof FunctionExprent) {
-          VarExprent lhsVar = (VarExprent) lhs;
-          FunctionExprent rhsFunc = (FunctionExprent) rhs;
+        if (assignment.getCondType() == null && lhs instanceof VarExprent lhsVar && rhs instanceof FunctionExprent rhsFunc) {
 
           List<Exprent> funcParams = rhsFunc.getAllExprents();
 
           // Make sure that the function is a mathematical or bit shift function
-          if (rhsFunc.getFuncType().isArithmeticBinaryOperation() && funcParams.get(0) instanceof VarExprent) {
+          if (rhsFunc.getFuncType().isArithmeticBinaryOperation() && funcParams.get(0) instanceof VarExprent lhsVarFunc) {
             // Get the left hand side of the function
-            VarExprent lhsVarFunc = (VarExprent) funcParams.get(0);
 
             // Check if the left hand side of the assignment and the left hand side of the function are the same variable
             // TODO: maybe we should be checking for var version equality too?

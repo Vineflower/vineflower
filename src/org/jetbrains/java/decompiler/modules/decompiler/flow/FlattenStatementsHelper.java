@@ -156,14 +156,13 @@ public class FlattenStatementsHelper {
         DirectNode node = this.createDirectNode(stat, DirectNodeType.TRY);
         this.addDestination(stat, node);
 
-        boolean isFinally = stat instanceof CatchAllStatement && ((CatchAllStatement) stat).isFinally();
+        boolean isFinally = stat instanceof CatchAllStatement catchAllStat && catchAllStat.isFinally();
 
         VBStyleCollection<Statement, Integer> stats = stat.getStats();
 
         int endCatchIndex = isFinally ? stats.size() - 1 : stats.size();
 
-        if (stat instanceof CatchStatement) {
-          CatchStatement catchStat = (CatchStatement) stat;
+        if (stat instanceof CatchStatement catchStat) {
           List<Exprent> resources = catchStat.getResources();
           if (!resources.isEmpty()) {
             node.exprents = resources;
