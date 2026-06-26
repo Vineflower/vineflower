@@ -61,8 +61,8 @@ public final class LabelHelper {
             List<Statement> lst = new ArrayList<>();
             if (parent instanceof SequenceStatement) {
               lst.addAll(parent.getStats());
-            } else if (parent instanceof SwitchStatement) {
-              lst.addAll(((SwitchStatement)parent).getCaseStatements());
+            } else if (parent instanceof SwitchStatement switchStat) {
+              lst.addAll(switchStat.getCaseStatements());
             }
 
             // TODO: Used to be 0, is 1 valid? Doesn't make sense for a break to target the front of a sequence!
@@ -175,26 +175,24 @@ public final class LabelHelper {
   //
   // As that is much cleaner and easier to see that the labeled sequence is only relevant to the contents of the if statement
   private static void liftSequenceLabel(Statement stat) {
-    if (stat.getParent() != null && stat.getParent() instanceof IfStatement) { // Only if statements considered for now
-      IfStatement ifStat = (IfStatement)stat.getParent();
+    // Only if statements considered for now
+    if (stat.getParent() != null &&
+      stat.getParent() instanceof IfStatement ifStat &&
+      ifStat.getIfstat() == stat &&
+      stat instanceof SequenceStatement) {
+      Set<StatEdge> edges = new HashSet<>();
 
-      if (ifStat.getIfstat() == stat) {
-        if (stat instanceof SequenceStatement) {
-          Set<StatEdge> edges = new HashSet<>();
+      // Store all edges that have a direct path from the if statement to it's destination
+      for (StatEdge edge : stat.getLabelEdges()) {
+        if (MergeHelper.isDirectPath(ifStat, edge.getDestination())) {
+          edges.add(edge);
+        }
+      }
 
-          // Store all edges that have a direct path from the if statement to it's destination
-          for (StatEdge edge : stat.getLabelEdges()) {
-            if (MergeHelper.isDirectPath(ifStat, edge.getDestination())) {
-              edges.add(edge);
-            }
-          }
-
-          // If the edges that we found are the same as the labeled edges of the sequence, then we can move the labels
-          if (edges.size() == stat.getLabelEdges().size()) {
-            for (StatEdge edge : new HashSet<>(stat.getLabelEdges())) {
-              ifStat.addLabeledEdge(edge);
-            }
-          }
+      // If the edges that we found are the same as the labeled edges of the sequence, then we can move the labels
+      if (edges.size() == stat.getLabelEdges().size()) {
+        for (StatEdge edge : new HashSet<>(stat.getLabelEdges())) {
+          ifStat.addLabeledEdge(edge);
         }
       }
     }
@@ -367,13 +365,13 @@ public final class LabelHelper {
     }
 
     // no next for a do statement
-    if (stat instanceof DoStatement && ((DoStatement)stat).getLooptype() == DoStatement.Type.INFINITE) {
+    if (stat instanceof DoStatement doStat && doStat.getLooptype() == DoStatement.Type.INFINITE) {
       next = null;
     }
 
     // FIXME: Horrible and bad!! This is in the wrong place and shouldn't be using label edges!!
     // Make sure that yield edges are not explicit or labeled, to prevent exit condensation
-    if (stat instanceof SwitchStatement && ((SwitchStatement)stat).isPhantom()) {
+    if (stat instanceof SwitchStatement && stat.isPhantom()) {
       for (StatEdge edge : stat.getLabelEdges()) {
         edge.explicit = false;
         edge.labeled = false;
@@ -464,8 +462,7 @@ public final class LabelHelper {
 
   public static boolean hideDefaultSwitchEdges(Statement stat) {
     boolean res = false;
-    if (stat instanceof SwitchStatement) {
-      SwitchStatement swst = (SwitchStatement)stat;
+    if (stat instanceof SwitchStatement swst) {
 
       int last = swst.getCaseStatements().size() - 1;
       if (last >= 0) { // empty switch possible

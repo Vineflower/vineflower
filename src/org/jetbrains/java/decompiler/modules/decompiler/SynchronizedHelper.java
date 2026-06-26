@@ -18,32 +18,22 @@ public final class SynchronizedHelper {
       res |= cleanSynchronizedVar(st);
     }
 
-    if (stat instanceof SynchronizedStatement) {
-      SynchronizedStatement sync = (SynchronizedStatement)stat;
+    if (stat instanceof SynchronizedStatement sync && sync.getHeadexprentList().get(0) instanceof MonitorExprent mon) {
 
-      if (sync.getHeadexprentList().get(0) instanceof MonitorExprent) {
-        MonitorExprent mon = (MonitorExprent)sync.getHeadexprentList().get(0);
+      for (Exprent e : sync.getFirst().getExprents()) {
+        if (e instanceof AssignmentExprent ass && ass.getLeft() instanceof VarExprent var) {
 
-        for (Exprent e : sync.getFirst().getExprents()) {
-          if (e instanceof AssignmentExprent) {
-            AssignmentExprent ass = (AssignmentExprent)e;
-
-            if (ass.getLeft() instanceof VarExprent) {
-              VarExprent var = (VarExprent)ass.getLeft();
-
-              // Check for synthetic variable assignment
-              if (var.equals(mon.getValue()) && !var.isVarReferenced(stat.getParent(), (VarExprent) mon.getValue())) {
-                sync.getFirst().getExprents().remove(e);
-                mon.addBytecodeOffsets(mon.getValue().bytecode);
-                mon.replaceExprent(mon.getValue(), ass.getRight());
-                res = true;
-                break;
-              } else if (ass.getRight().equals(mon.getValue()) && !var.isVarReferenced(stat.getParent())) {
-                sync.getFirst().getExprents().remove(e);
-                res = true;
-                break;
-              }
-            }
+          // Check for synthetic variable assignment
+          if (var.equals(mon.getValue()) && !var.isVarReferenced(stat.getParent(), (VarExprent) mon.getValue())) {
+            sync.getFirst().getExprents().remove(e);
+            mon.addBytecodeOffsets(mon.getValue().bytecode);
+            mon.replaceExprent(mon.getValue(), ass.getRight());
+            res = true;
+            break;
+          } else if (ass.getRight().equals(mon.getValue()) && !var.isVarReferenced(stat.getParent())) {
+            sync.getFirst().getExprents().remove(e);
+            res = true;
+            break;
           }
         }
       }
@@ -58,11 +48,12 @@ public final class SynchronizedHelper {
       res |= insertSink(root, varProcessor, st);
     }
 
-    if (stat instanceof SynchronizedStatement) {
-      MonitorExprent mon = (MonitorExprent) ((SynchronizedStatement)stat).getHeadexprent();
-      Exprent value = mon.getValue();
+    if (stat instanceof SynchronizedStatement syncStat) {
+      MonitorExprent mon = (MonitorExprent) syncStat.getHeadexprent();
 
-      if (value instanceof ConstExprent && ((ConstExprent)value).getConstType() != VarType.VARTYPE_STRING && !(((ConstExprent)value).getConstType() instanceof GenericType)) {
+      if (mon.getValue() instanceof ConstExprent value &&
+        value.getConstType() != VarType.VARTYPE_STRING &&
+        !(value.getConstType() instanceof GenericType)) {
         // Somehow created a const monitor, add assignment of object to ensure that it functions
         int var = DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.VAR_COUNTER);
 
@@ -74,9 +65,8 @@ public final class SynchronizedHelper {
         mon.replaceExprent(value, assign);
         assign.addBytecodeOffsets(value.bytecode);
         root.addComment("$VF: Added assignment to ensure synchronized validity");
-      } else if (value instanceof InvocationExprent) {
+      } else if (mon.getValue() instanceof InvocationExprent inv) {
         // Force boxing for monitor
-        InvocationExprent inv = (InvocationExprent)value;
 
         if (inv.isBoxingCall()) {
           inv.markUsingBoxingResult();

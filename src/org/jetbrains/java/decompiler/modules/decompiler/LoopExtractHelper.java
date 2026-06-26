@@ -52,8 +52,8 @@ public final class LoopExtractHelper {
       }
     }
 
-    if (stat instanceof DoStatement) {
-      if (extractLoop((DoStatement)stat)) {
+    if (stat instanceof DoStatement doStat) {
+      if (extractLoop(doStat)) {
         ValidationHelper.validateStatement(stat.getTopParent());
         return 2;
       }
@@ -101,8 +101,7 @@ public final class LoopExtractHelper {
       last = last.getStats().getLast();
     }
 
-    if (last instanceof IfStatement) {
-      IfStatement lastif = (IfStatement)last;
+    if (last instanceof IfStatement lastif) {
       if (lastif.iftype == IfStatement.IFTYPE_IF && lastif.getIfstat() != null) {
         Statement ifstat = lastif.getIfstat();
         if (lastif.getAllSuccessorEdges().isEmpty()) {
@@ -121,7 +120,7 @@ public final class LoopExtractHelper {
               while (first instanceof SequenceStatement) {
                 first = first.getFirst();
               }
-              if (first instanceof DoStatement && ((DoStatement)first).getLooptype() == DoStatement.Type.INFINITE) {
+              if (first instanceof DoStatement doStat && doStat.getLooptype() == DoStatement.Type.INFINITE) {
                 return false;
               }
 
@@ -150,8 +149,7 @@ public final class LoopExtractHelper {
     }
 
     // found an if statement
-    if (first instanceof IfStatement) {
-      IfStatement firstif = (IfStatement)first;
+    if (first instanceof IfStatement firstif) {
 
       if (firstif.getFirst().getExprents().isEmpty()) {
 

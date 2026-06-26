@@ -135,23 +135,20 @@ public final class ClassReference14Processor {
           mt.hasModifier(CodeConstants.ACC_STATIC)) {
 
         RootStatement root = method.root;
-        if (root != null && root.getFirst() instanceof CatchStatement) {
-          CatchStatement cst = (CatchStatement)root.getFirst();
-          if (cst.getStats().size() == 2 && cst.getFirst() instanceof BasicBlockStatement &&
-              cst.getStats().get(1) instanceof BasicBlockStatement &&
-              cst.getVars().get(0).getVarType().equals(new VarType(CodeType.OBJECT, 0, "java/lang/ClassNotFoundException"))) {
+        if (root != null &&
+          root.getFirst() instanceof CatchStatement cst &&
+          cst.getStats().size() == 2 &&
+          cst.getFirst() instanceof BasicBlockStatement body &&
+          cst.getStats().get(1) instanceof BasicBlockStatement handler &&
+          cst.getVars().get(0).getVarType().equals(
+            new VarType(CodeType.OBJECT, 0, "java/lang/ClassNotFoundException")) &&
+          body.getExprents().size() == 1 &&
+          handler.getExprents().size() == 1 &&
+          BODY_EXPR.equals(body.getExprents().get(0)) &&
+          HANDLER_EXPR.equals(handler.getExprents().get(0))) {
 
-            BasicBlockStatement body = (BasicBlockStatement)cst.getFirst();
-            BasicBlockStatement handler = (BasicBlockStatement)cst.getStats().get(1);
-
-            if (body.getExprents().size() == 1 && handler.getExprents().size() == 1) {
-              if (BODY_EXPR.equals(body.getExprents().get(0)) &&
-                  HANDLER_EXPR.equals(handler.getExprents().get(0))) {
-                map.put(wrapper, method);
-                break;
-              }
-            }
-          }
+          map.put(wrapper, method);
+          break;
         }
       }
     }
@@ -189,48 +186,34 @@ public final class ClassReference14Processor {
   }
 
   private static String isClass14Invocation(Exprent exprent, ClassWrapper wrapper, MethodWrapper meth) {
-    if (exprent instanceof FunctionExprent) {
-      FunctionExprent fexpr = (FunctionExprent)exprent;
-      if (fexpr.getFuncType() == FunctionType.TERNARY) {
-        if (fexpr.getLstOperands().get(0) instanceof FunctionExprent) {
-          FunctionExprent headexpr = (FunctionExprent)fexpr.getLstOperands().get(0);
-          if (headexpr.getFuncType() == FunctionType.EQ) {
-            if (headexpr.getLstOperands().get(0) instanceof FieldExprent &&
-                headexpr.getLstOperands().get(1) instanceof ConstExprent &&
-                ((ConstExprent)headexpr.getLstOperands().get(1)).getConstType().equals(VarType.VARTYPE_NULL)) {
+    if (exprent instanceof FunctionExprent fexpr &&
+      fexpr.getFuncType() == FunctionType.TERNARY &&
+      fexpr.getLstOperands().get(0) instanceof FunctionExprent headexpr &&
+      headexpr.getFuncType() == FunctionType.EQ &&
+      headexpr.getLstOperands().get(0) instanceof FieldExprent field &&
+      headexpr.getLstOperands().get(1) instanceof ConstExprent constExpr &&
+      constExpr.getConstType().equals(VarType.VARTYPE_NULL)) {
 
-              FieldExprent field = (FieldExprent)headexpr.getLstOperands().get(0);
-              ClassNode fieldnode = DecompilerContext.getClassProcessor().getMapRootClasses().get(field.getClassname());
+      ClassNode fieldnode = DecompilerContext.getClassProcessor().getMapRootClasses().get(field.getClassname());
 
-              if (fieldnode != null && fieldnode.classStruct.qualifiedName.equals(wrapper.getClassStruct().qualifiedName)) { // source class
-                StructField fd =
-                  wrapper.getClassStruct().getField(field.getName(), field.getDescriptor().descriptorString);  // FIXME: can be null! why??
+      if (fieldnode != null && fieldnode.classStruct.qualifiedName.equals(wrapper.getClassStruct().qualifiedName)) { // source class
+        StructField fd =
+          wrapper.getClassStruct().getField(field.getName(), field.getDescriptor().descriptorString);  // FIXME: can be null! why??
 
-                if (fd != null && fd.hasModifier(CodeConstants.ACC_STATIC) &&
-                    (fd.isSynthetic() || DecompilerContext.getOption(IFernflowerPreferences.SYNTHETIC_NOT_SET))) {
+        if (fd != null &&
+          fd.hasModifier(CodeConstants.ACC_STATIC) &&
+          (fd.isSynthetic() || DecompilerContext.getOption(IFernflowerPreferences.SYNTHETIC_NOT_SET)) &&
+          fexpr.getLstOperands().get(1) instanceof AssignmentExprent asexpr &&
+          fexpr.getLstOperands().get(2).equals(field) &&
+          asexpr.getLeft().equals(field) &&
+          asexpr.getRight() instanceof InvocationExprent invexpr && invexpr.getClassname().equals(wrapper.getClassStruct().qualifiedName) &&
+          invexpr.getName().equals(meth.methodStruct.getName()) &&
+          invexpr.getStringDescriptor().equals(meth.methodStruct.getDescriptor()) &&
+          invexpr.getLstParameters().get(0) instanceof ConstExprent innerConstExpr) {
 
-                  if (fexpr.getLstOperands().get(1) instanceof AssignmentExprent && fexpr.getLstOperands().get(2).equals(field)) {
-                    AssignmentExprent asexpr = (AssignmentExprent)fexpr.getLstOperands().get(1);
-
-                    if (asexpr.getLeft().equals(field) && asexpr.getRight() instanceof InvocationExprent) {
-                      InvocationExprent invexpr = (InvocationExprent)asexpr.getRight();
-
-                      if (invexpr.getClassname().equals(wrapper.getClassStruct().qualifiedName) &&
-                          invexpr.getName().equals(meth.methodStruct.getName()) &&
-                          invexpr.getStringDescriptor().equals(meth.methodStruct.getDescriptor())) {
-
-                        if (invexpr.getLstParameters().get(0) instanceof ConstExprent) {
-                          wrapper.getHiddenMembers()
-                            .add(InterpreterUtil.makeUniqueKey(fd.getName(), fd.getDescriptor()));  // hide synthetic field
-                          return ((ConstExprent)invexpr.getLstParameters().get(0)).getValue().toString();
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
+          wrapper.getHiddenMembers()
+            .add(InterpreterUtil.makeUniqueKey(fd.getName(), fd.getDescriptor()));  // hide synthetic field
+          return innerConstExpr.getValue().toString();
         }
       }
     }

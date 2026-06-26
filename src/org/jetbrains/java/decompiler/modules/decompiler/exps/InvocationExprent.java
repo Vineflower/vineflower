@@ -219,20 +219,18 @@ public class InvocationExprent extends Exprent {
     StructClass mthCls = DecompilerContext.getStructContext().getClass(classname);
 
     // In the case of `(Long)call() & 100L)`, the boxing call must exist.
-    if (isUnboxingCall() && upperBound != null) {
-      if (instance instanceof FunctionExprent) {
-        FunctionExprent func = (FunctionExprent)instance;
-        if (func.getFuncType() == FunctionType.CAST) {
-          VarType inferred = func.getLstOperands().get(0).getInferredExprType(upperBound);
+    if (isUnboxingCall() &&
+      upperBound != null &&
+      instance instanceof FunctionExprent func &&
+      func.getFuncType() == FunctionType.CAST) {
+      VarType inferred = func.getLstOperands().get(0).getInferredExprType(upperBound);
 
-          // In the case of `long l = (Long)call()` where `call()` is a generic, we can remove the cast.
-          // Don't keep the cast in that case.
-          VarType unboxed = VarType.UNBOXING_TYPES.get(inferred);
-          if (unboxed == null || !unboxed.equals(upperBound)) {
-            if (inferred.typeFamily == TypeFamily.OBJECT || inferred.isGeneric()) {
-              boxing.keepCast = true;
-            }
-          }
+      // In the case of `long l = (Long)call()` where `call()` is a generic, we can remove the cast.
+      // Don't keep the cast in that case.
+      VarType unboxed = VarType.UNBOXING_TYPES.get(inferred);
+      if (unboxed == null || !unboxed.equals(upperBound)) {
+        if (inferred.typeFamily == TypeFamily.OBJECT || inferred.isGeneric()) {
+          boxing.keepCast = true;
         }
       }
     }
@@ -335,8 +333,8 @@ public class InvocationExprent extends Exprent {
 
           VarType instUB = mthCls.getSignature() != null ? mthCls.getSignature().genericType.remap(upperBoundsMap) : upperBound;
           // don't want the casted type
-          if (instance instanceof FunctionExprent && ((FunctionExprent)instance).getFuncType() == FunctionType.CAST) {
-            instType = ((FunctionExprent)instance).getLstOperands().get(0).getInferredExprType(instUB);
+          if (instance instanceof FunctionExprent func && func.getFuncType() == FunctionType.CAST) {
+            instType = func.getLstOperands().get(0).getInferredExprType(instUB);
           }
           else {
             instType = instance.getInferredExprType(instUB);
@@ -499,8 +497,8 @@ public class InvocationExprent extends Exprent {
                 VarType paramUB = paramType.remap(hierarchyMap).remap(combined);
 
                 VarType argtype;
-                if (parameter instanceof FunctionExprent && ((FunctionExprent)parameter).getFuncType() == FunctionType.CAST) {
-                  argtype = ((FunctionExprent)parameter).getLstOperands().get(0).getInferredExprType(paramUB);
+                if (parameter instanceof FunctionExprent func && func.getFuncType() == FunctionType.CAST) {
+                  argtype = func.getLstOperands().get(0).getInferredExprType(paramUB);
                 }
                 else {
                   argtype = parameter.getInferredExprType(paramUB);
@@ -722,8 +720,7 @@ public class InvocationExprent extends Exprent {
     }
     else {
 
-      if (instance instanceof VarExprent) {
-        VarExprent instVar = (VarExprent)instance;
+      if (instance instanceof VarExprent instVar) {
         VarVersionPair varPair = new VarVersionPair(instVar);
 
         VarProcessor varProc = instVar.getProcessor();
@@ -778,25 +775,24 @@ public class InvocationExprent extends Exprent {
           if (isUnboxingCall() && !boxing.forceUnboxing) {
             // we don't print the unboxing call - no need to bother with the instance wrapping / casting
             buf.addBytecodeMapping(bytecode);
-            if (instance instanceof FunctionExprent) {
-              FunctionExprent func = (FunctionExprent)instance;
-              if (func.getFuncType() == FunctionType.CAST && func.getLstOperands().get(1) instanceof ConstExprent && !boxing.keepCast) {
-                ConstExprent constexpr = (ConstExprent)func.getLstOperands().get(1);
-                boolean skipCast = false;
+            if (instance instanceof FunctionExprent func &&
+              func.getFuncType() == FunctionType.CAST &&
+              func.getLstOperands().get(1) instanceof ConstExprent constexpr &&
+              !boxing.keepCast) {
+              boolean skipCast = false;
 
-                Exprent firstParam = func.getLstOperands().get(0);
-                if (firstParam instanceof VarExprent || firstParam instanceof FieldExprent) {
-                  VarType inferred = firstParam.getInferredExprType(leftType);
-                  skipCast = (inferred.type != CodeType.OBJECT && inferred.type != CodeType.GENVAR) ||
-                    DecompilerContext.getStructContext().instanceOf(inferred.value, this.classname);
-                } else if (this.classname.equals(constexpr.getConstType().value)) {
-                  skipCast = true;
-                }
+              Exprent firstParam = func.getLstOperands().get(0);
+              if (firstParam instanceof VarExprent || firstParam instanceof FieldExprent) {
+                VarType inferred = firstParam.getInferredExprType(leftType);
+                skipCast = (inferred.type != CodeType.OBJECT && inferred.type != CodeType.GENVAR) ||
+                  DecompilerContext.getStructContext().instanceOf(inferred.value, this.classname);
+              } else if (this.classname.equals(constexpr.getConstType().value)) {
+                skipCast = true;
+              }
 
-                if (skipCast) {
-                  buf.append(firstParam.toJava(indent));
-                  return buf;
-                }
+              if (skipCast) {
+                buf.append(firstParam.toJava(indent));
+                return buf;
               }
             }
 
@@ -935,11 +931,9 @@ public class InvocationExprent extends Exprent {
   }
 
   private boolean canSkipParenEnclose(Exprent instance) {
-    if (!(instance instanceof NewExprent)) {
+    if (!(instance instanceof NewExprent newExpr)) {
       return false;
     }
-
-    NewExprent newExpr = (NewExprent) instance;
 
     if (!newExpr.isAnonymous() && !newExpr.isLambda() && !newExpr.isMethodReference()) {
       return this.functype == Type.GENERAL;
@@ -949,8 +943,7 @@ public class InvocationExprent extends Exprent {
   }
 
   private static void appendBootstrapArgument(TextBuffer buf, PooledConstant arg) {
-    if (arg instanceof PrimitiveConstant) {
-      PrimitiveConstant prim = ((PrimitiveConstant) arg);
+    if (arg instanceof PrimitiveConstant prim) {
       Object value = prim.value;
       String stringValue = String.valueOf(value);
       if (prim.type == CodeConstants.CONSTANT_Class) {
@@ -1003,8 +996,7 @@ public class InvocationExprent extends Exprent {
     VarType[] types = Arrays.copyOf(descriptor.params, descriptor.params.length);
     for (int i = start; i < parameters.size(); i++) {
       Exprent par = parameters.get(i);
-      if (par instanceof InvocationExprent) {
-          InvocationExprent inv = (InvocationExprent)par;
+      if (par instanceof InvocationExprent inv) {
         // "unbox" invocation parameters, e.g. 'byteSet.add((byte)123)' or 'new ShortContainer((short)813)'
         //However, we must make sure we don't accidentally make the call ambiguous.
         //An example being List<Integer>, remove(Integer.valueOf(1)) and remove(1) are different functions
@@ -1757,9 +1749,8 @@ public class InvocationExprent extends Exprent {
   @Override
   public boolean equals(Object o) {
     if (o == this) return true;
-    if (!(o instanceof InvocationExprent)) return false;
+    if (!(o instanceof InvocationExprent it)) return false;
 
-    InvocationExprent it = (InvocationExprent)o;
     return InterpreterUtil.equalObjects(name, it.getName()) &&
            InterpreterUtil.equalObjects(classname, it.getClassname()) &&
            isStatic == it.isStatic() &&

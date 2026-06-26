@@ -980,8 +980,8 @@ public abstract class Statement implements IMatchable {
 
   //TODO: Cleanup/cache?
   public void getOffset(BitSet values) {
-    if (this instanceof DummyExitStatement && ((DummyExitStatement)this).bytecode != null)
-      values.or(((DummyExitStatement)this).bytecode);
+    if (this instanceof DummyExitStatement dummyStat && dummyStat.bytecode != null)
+      values.or(dummyStat.bytecode);
     if (this.getExprents() != null) {
       for (Exprent e : this.getExprents()) {
         e.getBytecodeRange(values);

@@ -70,8 +70,8 @@ public final class IfHelper {
       boolean stsingle = (lst.size() == 1);
 
       for (Statement stat : lst) {
-        if (stat instanceof IfStatement) {
-          IfNode rtnode = IfNode.build((IfStatement) stat, stsingle);
+        if (stat instanceof IfStatement ifStat) {
+          IfNode rtnode = IfNode.build(ifStat, stsingle);
 
           if (collapseIfIf(rtnode)) {
             res = true;
@@ -106,7 +106,7 @@ public final class IfHelper {
             }
           }
 
-          if (reorderIf((IfStatement) stat)) {
+          if (reorderIf(ifStat)) {
             res = true;
             ValidationHelper.validateStatement(stat.getTopParent());
             setReorderedIfs.add(stat.id);
@@ -548,8 +548,7 @@ public final class IfHelper {
   private static boolean ifElseChainDenesting(IfNode rtnode) {
     if (rtnode.innerType == EdgeType.DIRECT && rtnode.successorType != EdgeType.ELSE) {
       IfStatement outerIf = (IfStatement) rtnode.value;
-      if (outerIf.getParent() instanceof SequenceStatement) {
-        SequenceStatement parent = (SequenceStatement) outerIf.getParent();
+      if (outerIf.getParent() instanceof SequenceStatement parent) {
         Statement nestedStat = rtnode.innerNode.value;
 
         // check that statements Y and Z (see above) jump to end

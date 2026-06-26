@@ -34,8 +34,8 @@ public class CollapseStringConcatPass implements Pass {
     List<Exprent> exprs = List.of();
     if (stat instanceof BasicBlockStatement) {
       exprs = stat.getExprents();
-    } else if (stat instanceof IfStatement) {
-      exprs = ((IfStatement)stat).getHeadexprentList();
+    } else if (stat instanceof IfStatement ifStat) {
+      exprs = ifStat.getHeadexprentList();
     }
 
     for (Exprent ex : exprs) {

@@ -39,8 +39,8 @@ public final class SwitchPatternMatchProcessor {
       ValidationHelper.validateStatement((RootStatement) root);
     }
 
-    if (stat instanceof SwitchStatement) {
-      ret |= processStatement((SwitchStatement) stat, root);
+    if (stat instanceof SwitchStatement switchStat) {
+      ret |= processStatement(switchStat, root);
       ValidationHelper.validateStatement((RootStatement) root);
     }
 
@@ -71,8 +71,7 @@ public final class SwitchPatternMatchProcessor {
     boolean isEnumSwitch = value.getName().equals("enumSwitch");
     boolean nullCase = false;
     List<Pair<Statement, Exprent>> references = new ArrayList<>();
-    if (origParams.get(1) instanceof VarExprent) {
-      VarExprent var = (VarExprent) origParams.get(1);
+    if (origParams.get(1) instanceof VarExprent var) {
       SwitchHelper.findExprents(root, Exprent.class, var::isVarReferenced, false, (st, expr) -> references.add(Pair.of(st, expr)));
       // If we have one reference...
       if (references.size() == 1) {
@@ -92,8 +91,7 @@ public final class SwitchPatternMatchProcessor {
       // remove the initial assignment to 0
       boolean canEliminate = true;
       Pair<Statement, Exprent> initialUse = references.get(0);
-      if (initialUse.b instanceof AssignmentExprent && ((AssignmentExprent) initialUse.b).getRight() instanceof ConstExprent) {
-        ConstExprent constExprent = (ConstExprent) ((AssignmentExprent) initialUse.b).getRight();
+      if (initialUse.b instanceof AssignmentExprent ass && ass.getRight() instanceof ConstExprent constExprent) {
         if (constExprent.getConstType().typeFamily == TypeFamily.INTEGER && constExprent.getIntValue() == 0) {
           references.remove(0);
         } else {
@@ -138,8 +136,8 @@ public final class SwitchPatternMatchProcessor {
         }
         stat.getCaseGuards().set(i, guards.get(allCases));
       }
-      if (caseExpr instanceof ConstExprent) {
-        int caseValue = ((ConstExprent) caseExpr).getIntValue();
+      if (caseExpr instanceof ConstExprent constExpr) {
+        int caseValue = constExpr.getIntValue();
 
         // -1 always means null
         if (caseValue == -1) {
@@ -185,48 +183,41 @@ public final class SwitchPatternMatchProcessor {
 
         // make instanceof from assignment
         BasicBlockStatement caseStatBlock = caseStat.getBasichead();
-        if (caseStatBlock.getExprents().size() >= 1) {
-          Exprent expr = caseStatBlock.getExprents().get(0);
-          if (expr instanceof AssignmentExprent) {
-            AssignmentExprent assign = (AssignmentExprent) expr;
+        if (!caseStatBlock.getExprents().isEmpty() &&
+          caseStatBlock.getExprents().get(0) instanceof AssignmentExprent assign &&
+          assign.getLeft() instanceof VarExprent var &&
+          isPatternMatchingCastAssignment(head, assign)) {
 
-            if (assign.getLeft() instanceof VarExprent) {
-              VarExprent var = (VarExprent) assign.getLeft();
-
-              if (isPatternMatchingCastAssignment(head, assign)) {
-                List<Exprent> operands = new ArrayList<>();
-                if (assign.getRight() instanceof VarExprent check) {
-                  if (caseExpr instanceof ConstExprent constExpr
-                      && value.getBootstrapArguments().get(constExpr.getIntValue() == -1 ? value.getBootstrapArguments().size() - 1 : constExpr.getIntValue()) instanceof PrimitiveConstant primitive
-                      && primitive.type == CodeConstants.CONSTANT_Class) {
-                    operands.add(check); // checking var
-                    operands.add(new ConstExprent(VarType.VARTYPE_CLASS, primitive.value, null));
-                    operands.add(var); // pattern match var
-                    if (allCases.contains(null)) {
-                      stat.setDefaultEdge(null);
-                      int index = allCases.indexOf(null);
-                      allCases.remove(index);
-                      stat.getCaseEdges().get(i).remove(index);
-                    }
-                  }
-                } else if (assign.getRight() instanceof FunctionExprent cast) {
-                  operands.add(cast.getLstOperands().get(0)); // checking var
-                  operands.add(cast.getLstOperands().get(1)); // type
-                  operands.add(var); // pattern match var
-                }
-
-                if (!operands.isEmpty()) {
-                  FunctionExprent func = new FunctionExprent(FunctionExprent.FunctionType.INSTANCEOF, operands, null);
-
-                  caseStatBlock.getExprents().remove(0);
-
-                  // TODO: ssau representation
-                  // any shared nulls will be at the end, and patterns & defaults can't be shared,
-                  // so its safe to overwrite whatever's here
-                  allCases.set(0, func);
-                }
+          List<Exprent> operands = new ArrayList<>();
+          if (assign.getRight() instanceof VarExprent check) {
+            if (caseExpr instanceof ConstExprent constExpr
+              && value.getBootstrapArguments().get(constExpr.getIntValue() == -1 ? value.getBootstrapArguments().size() - 1 : constExpr.getIntValue()) instanceof PrimitiveConstant primitive
+              && primitive.type == CodeConstants.CONSTANT_Class) {
+              operands.add(check); // checking var
+              operands.add(new ConstExprent(VarType.VARTYPE_CLASS, primitive.value, null));
+              operands.add(var); // pattern match var
+              if (allCases.contains(null)) {
+                stat.setDefaultEdge(null);
+                int index = allCases.indexOf(null);
+                allCases.remove(index);
+                stat.getCaseEdges().get(i).remove(index);
               }
             }
+          } else if (assign.getRight() instanceof FunctionExprent cast) {
+            operands.add(cast.getLstOperands().get(0)); // checking var
+            operands.add(cast.getLstOperands().get(1)); // type
+            operands.add(var); // pattern match var
+          }
+
+          if (!operands.isEmpty()) {
+            FunctionExprent func = new FunctionExprent(FunctionType.INSTANCEOF, operands, null);
+
+            caseStatBlock.getExprents().remove(0);
+
+            // TODO: ssau representation
+            // any shared nulls will be at the end, and patterns & defaults can't be shared,
+            // so its safe to overwrite whatever's here
+            allCases.set(0, func);
           }
         }
       }
@@ -262,8 +253,7 @@ public final class SwitchPatternMatchProcessor {
         }
       }
       // either an integer, String, or Class
-      if (bsa instanceof PrimitiveConstant) {
-        PrimitiveConstant p = (PrimitiveConstant) bsa;
+      if (bsa instanceof PrimitiveConstant p) {
         Exprent newValue = null;
         switch (p.type) {
           case CodeConstants.CONSTANT_Integer:
@@ -302,9 +292,9 @@ public final class SwitchPatternMatchProcessor {
           Exprent nvx = newValue;
           // make sure we replace the right constant, null can be shared with anything
           stat.getCaseValues().get(replaceIndex).replaceAll(u ->
-            u instanceof ConstExprent
+            u instanceof ConstExprent constExpr
             && u.getExprType().typeFamily == TypeFamily.INTEGER
-            && ((ConstExprent) u).getIntValue() == ix
+            && constExpr.getIntValue() == ix
               ? nvx : u);
         }
       }
@@ -436,15 +426,14 @@ public final class SwitchPatternMatchProcessor {
       // the assignment should be alone in a basic block, contained in an `if`, contained in a sequence, within the `switch`
       if (assignStat instanceof BasicBlockStatement
           && assignStat.getExprents().size() == 1
-          && parent instanceof IfStatement
-          && ((IfStatement) parent).iftype == IfStatement.IFTYPE_IF
-          && ((IfStatement) parent).getIfstat() != null
+          && parent instanceof IfStatement guardIf
+          && guardIf.iftype == IfStatement.IFTYPE_IF
+          && guardIf.getIfstat() != null
           && parent.getParent() instanceof SequenceStatement
           && parent.getParent().getParent() == stat) {
         StatEdge continueEdge = assignStat.getSuccessorEdges(StatEdge.TYPE_CONTINUE).get(0);
         Statement next = continueEdge.getDestination();
         if (next == stat.getParent()) {
-          IfStatement guardIf = (IfStatement) parent;
           // the condition of the `if` is the guard condition (usually inverted)
           Exprent guardExprent = guardIf.getHeadexprent().getCondition();
           // find which case branch we're in (to assign the guard to)
@@ -564,9 +553,7 @@ public final class SwitchPatternMatchProcessor {
   private static boolean isSwitchPatternMatch(SwitchHeadExprent head) {
     Exprent value = head.getValue();
 
-    if (value instanceof InvocationExprent) {
-      InvocationExprent invoc = (InvocationExprent) value;
-
+    if (value instanceof InvocationExprent invoc) {
       // TODO: test for SwitchBootstraps properly
       return invoc.getInvocationType() == InvocationExprent.InvocationType.DYNAMIC
              && (invoc.getName().equals("typeSwitch") || invoc.getName().equals("enumSwitch"));
@@ -581,9 +568,7 @@ public final class SwitchPatternMatchProcessor {
 
   private static boolean isPatternMatchingCastAssignment(final SwitchHeadExprent switchHead, final AssignmentExprent assignment) {
     if (assignment.getRight() instanceof VarExprent switchHeadRef) {
-      if (switchHead.containsVar(switchHeadRef.getVarVersionPair())) {
-        return true;
-      }
+      return switchHead.containsVar(switchHeadRef.getVarVersionPair());
     } else if (assignment.getRight() instanceof final FunctionExprent functionExprent) {
       if (functionExprent.getFuncType() != FunctionType.CAST) return false;
 
@@ -593,8 +578,7 @@ public final class SwitchPatternMatchProcessor {
       if (lstOperands.size() < 2) return false;
       if (!(lstOperands.get(0) instanceof final VarExprent switchHeadRef)) return false;
       if (!(lstOperands.get(1) instanceof final ConstExprent castTypeRef)) return false;
-      if (!switchHead.containsVar(switchHeadRef.getVarVersionPair())) return false; // Not the switch head var ref
-      return true;
+      return switchHead.containsVar(switchHeadRef.getVarVersionPair()); // Not the switch head var ref
     }
     return false;
   }

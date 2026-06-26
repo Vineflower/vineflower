@@ -112,8 +112,8 @@ public class DotExporter {
     findAllStats(stats, stat);
 
     DummyExitStatement exit = null;
-    if (stat instanceof RootStatement) {
-      exit = ((RootStatement)stat).getDummyExit();
+    if (stat instanceof RootStatement root) {
+      exit = root.getDummyExit();
       stats.add(exit);
     }
 
@@ -122,8 +122,7 @@ public class DotExporter {
     Set<StatEdge> extraDataSeen = new HashSet<>();
 
     for (Statement st : stats) {
-      if (st instanceof IfStatement) {
-        IfStatement ifs = (IfStatement) st;
+      if (st instanceof IfStatement ifs) {
 
         if (ifs.getIfEdge() != null) {
           extraData.put(ifs.getIfEdge(), "If Edge of " + ifs.id);
@@ -258,8 +257,7 @@ public class DotExporter {
           foundFirst = true;
         }
 
-        if (st instanceof IfStatement) {
-          IfStatement ifs = (IfStatement) st;
+        if (st instanceof IfStatement ifs) {
           if (s == ifs.getIfstat()) {
             label = "If stat";
             foundIf = true;
@@ -470,8 +468,7 @@ public class DotExporter {
         list.add(stat);
       }
 
-      if (stat instanceof IfStatement) {
-        IfStatement ifs = (IfStatement) stat;
+      if (stat instanceof IfStatement ifs) {
 
         if (ifs.getIfstat() != null && !list.contains(ifs.getIfstat())) {
           list.add(ifs.getIfstat());

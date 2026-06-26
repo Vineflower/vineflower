@@ -55,8 +55,8 @@ public class SwitchHeadExprent extends Exprent {
       for (Exprent expr : lst) {
         if (expr != null) {
           // TODO: refactor to PatternExprent
-          VarType caseType = expr instanceof FunctionExprent && ((FunctionExprent) expr).getLstOperands().size() == 3
-            ? ((FunctionExprent) expr).getLstOperands().get(1).getExprType()
+          VarType caseType = expr instanceof FunctionExprent func && func.getLstOperands().size() == 3
+            ? func.getLstOperands().get(1).getExprType()
             : expr.getExprType();
           if (!caseType.equals(valType)) {
             if (valType == null) {
@@ -107,11 +107,10 @@ public class SwitchHeadExprent extends Exprent {
       return true;
     }
 
-    if (!(o instanceof SwitchHeadExprent)) {
+    if (!(o instanceof SwitchHeadExprent sw)) {
       return false;
     }
 
-    SwitchHeadExprent sw = (SwitchHeadExprent)o;
     return InterpreterUtil.equalObjects(value, sw.getValue());
   }
 

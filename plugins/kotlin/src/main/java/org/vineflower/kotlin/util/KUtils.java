@@ -29,24 +29,24 @@ public class KUtils {
       return ex;
     }
 
-    if (ex instanceof FunctionExprent) {
-      return new KFunctionExprent((FunctionExprent) ex);
-    } else if (ex instanceof VarExprent) {
-      return new KVarExprent((VarExprent) ex);
-    } else if (ex instanceof InvocationExprent) {
-      return new KInvocationExprent((InvocationExprent) ex);
-    } else if (ex instanceof ConstExprent) {
-      return new KConstExprent((ConstExprent) ex);
-    } else if (ex instanceof FieldExprent) {
-      return new KFieldExprent((FieldExprent) ex);
-    } else if (ex instanceof AnnotationExprent) {
-      return new KAnnotationExprent((AnnotationExprent) ex);
-    } else if (ex instanceof SwitchHeadExprent) {
-      return new KSwitchHeadExprent((SwitchHeadExprent) ex);
-    } else if (ex instanceof NewExprent) {
-      return new KNewExprent((NewExprent) ex);
-    } else if (ex instanceof ExitExprent) {
-      return new KExitExprent((ExitExprent) ex);
+    if (ex instanceof FunctionExprent func) {
+      return new KFunctionExprent(func);
+    } else if (ex instanceof VarExprent var) {
+      return new KVarExprent(var);
+    } else if (ex instanceof InvocationExprent invocation) {
+      return new KInvocationExprent(invocation);
+    } else if (ex instanceof ConstExprent constExpr) {
+      return new KConstExprent(constExpr);
+    } else if (ex instanceof FieldExprent field) {
+      return new KFieldExprent(field);
+    } else if (ex instanceof AnnotationExprent annotation) {
+      return new KAnnotationExprent(annotation);
+    } else if (ex instanceof SwitchHeadExprent switchHead) {
+      return new KSwitchHeadExprent(switchHead);
+    } else if (ex instanceof NewExprent newExpr) {
+      return new KNewExprent(newExpr);
+    } else if (ex instanceof ExitExprent exit) {
+      return new KExitExprent(exit);
     }
 
     return null;
