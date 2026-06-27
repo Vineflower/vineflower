@@ -26,8 +26,8 @@ import java.util.function.Predicate;
 public final class SwitchHelper {
   public static boolean simplifySwitches(Statement stat, StructMethod mt, RootStatement root) {
     boolean ret = false;
-    if (stat instanceof SwitchStatement) {
-      ret = simplify((SwitchStatement)stat, mt, root);
+    if (stat instanceof SwitchStatement switchStat) {
+      ret = simplify(switchStat, mt, root);
     }
 
     for (int i = 0; i < stat.getStats().size(); i++) {
@@ -69,9 +69,8 @@ public final class SwitchHelper {
 
               wrapper.getOrBuildGraph().iterateExprents(exprent -> {
                 if (exprent instanceof AssignmentExprent assignment) {
-                  Exprent left = assignment.getLeft();
-                  if (left instanceof ArrayExprent) {
-                    Exprent assignmentArray = ((ArrayExprent) left).getArray();
+                  if (assignment.getLeft() instanceof ArrayExprent left) {
+                    Exprent assignmentArray = left.getArray();
                     // If the assignment target is a field, we have the assignment we want.
                     boolean targetsField = assignmentArray.equals(arrayField);
 
@@ -88,8 +87,8 @@ public final class SwitchHelper {
                       }
                     }
 
-                    if (targetsField && ((ArrayExprent) left).getIndex() instanceof InvocationExprent) {
-                      mapping.put(assignment.getRight(), ((InvocationExprent) ((ArrayExprent) left).getIndex()).getInstance());
+                    if (targetsField && left.getIndex() instanceof InvocationExprent invocation) {
+                      mapping.put(assignment.getRight(), invocation.getInstance());
                     }
                   } else if (fieldAssignments.contains(exprent)) {
                     fieldAssignmentEncountered[0] = true;
@@ -750,15 +749,12 @@ public final class SwitchHelper {
           isSyntheticClass = (classNode.getWrapper().getClassStruct().getAccessFlags() & CodeConstants.ACC_SYNTHETIC) == CodeConstants.ACC_SYNTHETIC;
         }
 
-        if (isSyntheticClass) {
-          return true; //TODO: Find a way to check the structure of the initializer?
-          //Exprent init = classNode.getWrapper().getStaticFieldInitializers().getWithKey(InterpreterUtil.makeUniqueKey(field.getName(), field.getDescriptor().descriptorString));
-          //Above is null because we haven't preocess the class yet?
-        }
+        //Exprent init = classNode.getWrapper().getStaticFieldInitializers().getWithKey(InterpreterUtil.makeUniqueKey(field.getName(), field.getDescriptor().descriptorString));
+        //Above is null because we haven't preocess the class yet?
+        return isSyntheticClass; //TODO: Find a way to check the structure of the initializer?
       } else if (tmp instanceof InvocationExprent inv) {
-        if (inv.getName().startsWith("$SWITCH_TABLE$")) { // More nonstandard behavior. Seems like eclipse compiler stuff: https://bugs.eclipse.org/bugs/show_bug.cgi?id=544521 TODO: needs tests!
-          return true;
-        }
+        // More nonstandard behavior. Seems like eclipse compiler stuff: https://bugs.eclipse.org/bugs/show_bug.cgi?id=544521 TODO: needs tests!
+        return inv.getName().startsWith("$SWITCH_TABLE$");
       }
     }
     return false;

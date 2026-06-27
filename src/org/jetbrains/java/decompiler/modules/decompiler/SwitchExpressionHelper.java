@@ -28,8 +28,8 @@ public final class SwitchExpressionHelper {
       ret |= processSwitchExpressionsRec(st);
     }
 
-    if (stat instanceof SwitchStatement) {
-      ret |= processStatement((SwitchStatement) stat);
+    if (stat instanceof SwitchStatement switchStat) {
+      ret |= processStatement(switchStat);
     }
 
     return ret;
@@ -44,11 +44,10 @@ public final class SwitchExpressionHelper {
     // So we need to figure out which variable, if any, this switch statement is an expression of and make it generate.
 
     Exprent condition = ((SwitchHeadExprent) stat.getHeadexprent()).getValue();
-    if (condition instanceof InvocationExprent) {
-      InvocationExprent invoc = (InvocationExprent) condition;
-      if (invoc.getName().equals("hashCode") && invoc.getClassname().equals("java/lang/String")) {
-        return false; // We don't want to make switch expressions yet as switch processing hasn't happened
-      }
+    if (condition instanceof InvocationExprent invoc &&
+      invoc.getName().equals("hashCode") &&
+      invoc.getClassname().equals("java/lang/String")) {
+      return false; // We don't want to make switch expressions yet as switch processing hasn't happened
     }
 
     // analyze all case statements with breaks to find the var we want. if it's found in all statements with breaks, and no other var is also found, we can make switch expressions
@@ -225,13 +224,12 @@ public final class SwitchExpressionHelper {
       if (firstExprents != null && !firstExprents.isEmpty()) {
         int i = 0;
         for (Iterator<Exprent> iterator = firstExprents.iterator(); iterator.hasNext(); ) {
-          Exprent ex = iterator.next();
-          if (ex instanceof AssignmentExprent && ((AssignmentExprent) ex).getLeft() instanceof VarExprent) {
-            if (((VarExprent) ((AssignmentExprent) ex).getLeft()).isStack()) {
-              exprents.add(i, ex);
-              i++;
-              iterator.remove();
-            }
+          if (iterator.next() instanceof AssignmentExprent ex &&
+            ex.getLeft() instanceof VarExprent varExpr &&
+            varExpr.isStack()) {
+            exprents.add(i, ex);
+            i++;
+            iterator.remove();
           }
         }
       }
@@ -246,15 +244,11 @@ public final class SwitchExpressionHelper {
     if (stat.getExprents() != null) {
       for (Exprent e : stat.getExprents()) {
         // Check for "var10000 = <value>" within the exprents
-        if (e instanceof AssignmentExprent) {
-          AssignmentExprent assign = ((AssignmentExprent) e);
-
-          if (assign.getLeft() instanceof VarExprent) {
-            if (((VarExprent) assign.getLeft()).getIndex() == var.var) {
-              // Make yield with the right side of the assignment
-              replacements.put(assign, new YieldExprent(assign.getRight(), assign.getExprType()));
-            }
-          }
+        if (e instanceof AssignmentExprent assign &&
+          assign.getLeft() instanceof VarExprent varExpr &&
+          varExpr.getIndex() == var.var) {
+          // Make yield with the right side of the assignment
+          replacements.put(assign, new YieldExprent(assign.getRight(), assign.getExprType()));
         }
       }
     }
@@ -311,8 +305,7 @@ public final class SwitchExpressionHelper {
       List<Exprent> exprents = breakJump.getExprents();
 
       if (exprents != null && !exprents.isEmpty()) {
-        if (exprents.size() > 0 && exprents.get(exprents.size() - 1) instanceof ExitExprent) {
-          ExitExprent exit = (ExitExprent) exprents.get(exprents.size() - 1);
+        if (exprents.size() > 0 && exprents.get(exprents.size() - 1) instanceof ExitExprent exit) {
 
           // Last exprent throws instead of storing a value
           if (exit.getExitType() == ExitExprent.Type.THROW) {

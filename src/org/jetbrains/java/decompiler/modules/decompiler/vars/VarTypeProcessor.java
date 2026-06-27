@@ -233,14 +233,12 @@ public class VarTypeProcessor {
       ValidationHelper.assertTrue(newMinType != null, "Trying to raise the minimum type of disjoint variables!");
 
       lowerBounds.put(pair, newMinType);
-      if (exprent instanceof ConstExprent) {
-        ((ConstExprent) exprent).setConstType(newMinType);
+      if (exprent instanceof ConstExprent constExpr) {
+        constExpr.setConstType(newMinType);
       }
 
-      if (currentMinType != null && (newMinType.typeFamily.isGreater(currentMinType.typeFamily) || newMinType.higherInLatticeThan(currentMinType))) {
-        // Made some progress; raised the lower bound of a variable. Restart the analysis with this information.
-        return false;
-      }
+      // Made some progress; raised the lower bound of a variable. Restart the analysis with this information.
+      return currentMinType == null || (!newMinType.typeFamily.isGreater(currentMinType.typeFamily) && !newMinType.higherInLatticeThan(currentMinType));
     } else {  // max
       VarType currentMaxType = upperBounds.get(pair);
       VarType newMaxType;

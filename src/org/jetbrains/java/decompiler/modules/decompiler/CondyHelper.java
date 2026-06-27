@@ -132,7 +132,7 @@ public class CondyHelper {
   private static Exprent toCondyExprent(LinkConstant fieldType) {
     Exprent fieldTypeConst;
     // TODO: is this correct in non-trivial cases?
-    StructClass cl = (StructClass) DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS);
+    StructClass cl = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS);
     // same as in ExprProcessor, use bootstrap attribute from current file to link the constant to bootstrap method
     StructBootstrapMethodsAttribute bootstrap = cl.getAttribute(StructGeneralAttribute.ATTRIBUTE_BOOTSTRAP_METHODS);
     LinkConstant bootstrapMethod = null;
@@ -144,8 +144,8 @@ public class CondyHelper {
     InvocationExprent arg = new InvocationExprent(CodeConstants.opc_ldc, fieldType, bootstrapMethod, constArgs, null, null);
     // simplify nested condys, for e.g. fieldVarHandle(...int.class)
     fieldTypeConst = simplifyCondy(arg);
-    if (fieldTypeConst instanceof ConstExprent) {
-      ((ConstExprent) fieldTypeConst).setWasCondy(false); // comment is redundant for nested condys
+    if (fieldTypeConst instanceof ConstExprent constExpr) {
+      constExpr.setWasCondy(false); // comment is redundant for nested condys
     }
     return fieldTypeConst;
   }

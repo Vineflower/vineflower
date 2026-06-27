@@ -51,8 +51,8 @@ public class TryHelper {
   private static boolean mergeTrys(Statement root) {
     boolean ret = false;
 
-    if (root instanceof CatchStatement) {
-      if (mergeTry((CatchStatement) root)) {
+    if (root instanceof CatchStatement catchStat) {
+      if (mergeTry(catchStat)) {
         ret = true;
       }
     }
@@ -85,9 +85,9 @@ public class TryHelper {
     }
 
     // Check if the inner statement is a try statement
-    if (inner instanceof CatchStatement) {
+    if (inner instanceof CatchStatement catchStat) {
       // Filter on try with resources statements
-      List<Exprent> resources = ((CatchStatement) inner).getResources();
+      List<Exprent> resources = catchStat.getResources();
       if (!resources.isEmpty()) {
         // One try inside of the catch
 

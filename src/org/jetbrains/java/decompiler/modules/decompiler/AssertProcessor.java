@@ -267,14 +267,12 @@ public final class AssertProcessor {
 
     Exprent expr = stat.getExprents().get(0);
 
-    if (expr instanceof ExitExprent) {
-      ExitExprent exexpr = (ExitExprent)expr;
-      if (exexpr.getExitType() == ExitExprent.Type.THROW && exexpr.getValue() instanceof NewExprent) {
-        NewExprent nexpr = (NewExprent)exexpr.getValue();
-        if (CLASS_ASSERTION_ERROR.equals(nexpr.getNewType()) && nexpr.getConstructor() != null) {
-          return nexpr.getConstructor();
-        }
-      }
+    if (expr instanceof ExitExprent exexpr &&
+      exexpr.getExitType() == ExitExprent.Type.THROW &&
+      exexpr.getValue() instanceof NewExprent nexpr &&
+      CLASS_ASSERTION_ERROR.equals(nexpr.getNewType()) &&
+      nexpr.getConstructor() != null) {
+      return nexpr.getConstructor();
     }
 
     return null;
@@ -341,11 +339,11 @@ public final class AssertProcessor {
         // Switch expression assert
 
         Statement parent = parentSkippingSequences(stat);
-        if (parent instanceof IfStatement) {
+        if (parent instanceof IfStatement ifStat) {
           // No head exprents, inline
           if (stat.getBasichead().getExprents().isEmpty()) {
 
-            if (isAssertionField(((IfStatement) parent).getHeadexprent().getCondition(), classname, key)) {
+            if (isAssertionField(ifStat.getHeadexprent().getCondition(), classname, key)) {
               // Bool not will be propagated out
               AssertResult res = new AssertResult(fexpr, true);
               res.replaceParent = true;

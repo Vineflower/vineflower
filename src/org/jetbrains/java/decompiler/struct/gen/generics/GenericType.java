@@ -395,11 +395,10 @@ public class GenericType extends VarType {
       return false;
     }
 
-    if (!(o instanceof GenericType)) {
+    if (!(o instanceof GenericType gt)) {
       return parent == null && arguments.isEmpty() && wildcard == WILDCARD_NO && o.equals(this);
     }
 
-    GenericType gt = (GenericType)o;
     if (type != gt.type || arrayDim != gt.arrayDim || wildcard != gt.wildcard || !InterpreterUtil.equalObjects(value, gt.value)) {
       return false;
     }

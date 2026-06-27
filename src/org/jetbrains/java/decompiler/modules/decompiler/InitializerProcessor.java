@@ -67,15 +67,13 @@ public final class InitializerProcessor {
         for (Exprent exprent : lstExprents) {
           int action = 0;
 
-          if (exprent instanceof AssignmentExprent) {
-            AssignmentExprent assignExpr = (AssignmentExprent)exprent;
-            if (assignExpr.getLeft() instanceof FieldExprent && assignExpr.getRight() instanceof VarExprent) {
-              FieldExprent fExpr = (FieldExprent)assignExpr.getLeft();
-              if (fExpr.getClassname().equals(wrapper.getClassStruct().qualifiedName)) {
-                StructField structField = wrapper.getClassStruct().getField(fExpr.getName(), fExpr.getDescriptor().descriptorString);
-                if (structField != null && structField.hasModifier(CodeConstants.ACC_FINAL)) {
-                  action = 1;
-                }
+          if (exprent instanceof AssignmentExprent assignExpr) {
+            if (assignExpr.getLeft() instanceof FieldExprent fExpr &&
+              assignExpr.getRight() instanceof VarExprent &&
+              fExpr.getClassname().equals(wrapper.getClassStruct().qualifiedName)) {
+              StructField structField = wrapper.getClassStruct().getField(fExpr.getName(), fExpr.getDescriptor().descriptorString);
+              if (structField != null && structField.hasModifier(CodeConstants.ACC_FINAL)) {
+                action = 1;
               }
             }
           }
@@ -104,32 +102,29 @@ public final class InitializerProcessor {
           return;
         }
 
-        Exprent exprent = firstData.getExprents().get(0);
-        if (exprent instanceof InvocationExprent) {
-          InvocationExprent invExpr = (InvocationExprent)exprent;
-          if (Statements.isInvocationInitConstructor(invExpr, method, wrapper, false)) {
-            List<VarVersionPair> mask = ExprUtil.getSyntheticParametersMask(invExpr.getClassname(), invExpr.getStringDescriptor(), invExpr.getLstParameters().size());
-            boolean hideSuper = true;
+        if (firstData.getExprents().get(0) instanceof InvocationExprent invExpr &&
+          Statements.isInvocationInitConstructor(invExpr, method, wrapper, false)) {
+          List<VarVersionPair> mask = ExprUtil.getSyntheticParametersMask(invExpr.getClassname(), invExpr.getStringDescriptor(), invExpr.getLstParameters().size());
+          boolean hideSuper = true;
 
-            //searching for non-synthetic params
-            for (int i = 0; i < invExpr.getDescriptor().params.length; ++i) {
-              if (mask != null && mask.get(i) != null) {
-                continue;
-              }
-              VarType type = invExpr.getDescriptor().params[i];
-              if (type.type == CodeType.OBJECT) {
-                ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(type.value);
-                if (node != null && (node.type == ClassNode.Type.ANONYMOUS || (node.access & CodeConstants.ACC_SYNTHETIC) != 0)) {
-                  break; // Should be last
-                }
-              }
-              hideSuper = false; // found non-synthetic param so we keep the call
-              break;
+          //searching for non-synthetic params
+          for (int i = 0; i < invExpr.getDescriptor().params.length; ++i) {
+            if (mask != null && mask.get(i) != null) {
+              continue;
             }
+            VarType type = invExpr.getDescriptor().params[i];
+            if (type.type == CodeType.OBJECT) {
+              ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(type.value);
+              if (node != null && (node.type == ClassNode.Type.ANONYMOUS || (node.access & CodeConstants.ACC_SYNTHETIC) != 0)) {
+                break; // Should be last
+              }
+            }
+            hideSuper = false; // found non-synthetic param so we keep the call
+            break;
+          }
 
-            if (hideSuper) {
-              firstData.getExprents().remove(0);
-            }
+          if (hideSuper) {
+            firstData.getExprents().remove(0);
           }
         }
       }
@@ -175,22 +170,19 @@ public final class InitializerProcessor {
       List<String> multiAssign = new ArrayList<>();
 
       for (Exprent exprent : firstData.getExprents()) {
-        if (exprent instanceof AssignmentExprent) {
-          AssignmentExprent assignExpr = (AssignmentExprent) exprent;
-          if (assignExpr.getLeft() instanceof FieldExprent) {
-            FieldExprent fExpr = (FieldExprent) assignExpr.getLeft();
+        if (exprent instanceof AssignmentExprent assignExpr &&
+          assignExpr.getLeft() instanceof FieldExprent fExpr) {
 
-            // If the field has been seen already, add it to the list of multi-assigned fields
-            String name = fExpr.getName();
-            if (seen.contains(name)) {
-              if (!multiAssign.contains(name)) {
-                // If this hasn't been seen, add to list of multi assigned variables
-                multiAssign.add(name);
-              }
-            } else {
-              // If it hasn't been seen, store it for later to check
-              seen.add(name);
+          // If the field has been seen already, add it to the list of multi-assigned fields
+          String name = fExpr.getName();
+          if (seen.contains(name)) {
+            if (!multiAssign.contains(name)) {
+              // If this hasn't been seen, add to list of multi assigned variables
+              multiAssign.add(name);
             }
+          } else {
+            // If it hasn't been seen, store it for later to check
+            seen.add(name);
           }
         }
       }
@@ -201,10 +193,8 @@ public final class InitializerProcessor {
       while (itr.hasNext()) {
         Exprent exprent = itr.next();
 
-        if (exprent instanceof AssignmentExprent) {
-          AssignmentExprent assignExpr = (AssignmentExprent)exprent;
-          if (assignExpr.getLeft() instanceof FieldExprent) {
-            FieldExprent fExpr = (FieldExprent)assignExpr.getLeft();
+        if (exprent instanceof AssignmentExprent assignExpr) {
+          if (assignExpr.getLeft() instanceof FieldExprent fExpr) {
             if (fExpr.isStatic() && fExpr.getClassname().equals(cl.qualifiedName) &&
                 cl.hasField(fExpr.getName(), fExpr.getDescriptor().descriptorString)) {
 
@@ -218,8 +208,7 @@ public final class InitializerProcessor {
                     whitelist.add(keyField);
                     itr.remove();
                   } else { //inlineInitializers
-                    if (assignExpr.getRight() instanceof NewExprent){
-                      NewExprent newExprent = (NewExprent) assignExpr.getRight();
+                    if (assignExpr.getRight() instanceof NewExprent newExprent){
                       if (newExprent.getConstructor() == null) {
                         continue;
                       }
@@ -324,30 +313,26 @@ public final class InitializerProcessor {
 
         boolean found = false;
 
-        if (exprent instanceof AssignmentExprent) {
-          AssignmentExprent assignExpr = (AssignmentExprent)exprent;
-          if (assignExpr.getLeft() instanceof FieldExprent) {
-            FieldExprent fExpr = (FieldExprent)assignExpr.getLeft();
-            if (!fExpr.isStatic() && fExpr.getClassname().equals(cl.qualifiedName) &&
-                cl.hasField(fExpr.getName(), fExpr.getDescriptor().descriptorString)) { // check for the physical existence of the field. Could be defined in a superclass.
+        if (exprent instanceof AssignmentExprent assignExpr &&
+          assignExpr.getLeft() instanceof FieldExprent fExpr &&
+          !fExpr.isStatic() &&
+          fExpr.getClassname().equals(cl.qualifiedName) &&
+          cl.hasField(fExpr.getName(), fExpr.getDescriptor().descriptorString)) { // check for the physical existence of the field. Could be defined in a superclass.
 
-              String fieldKey = InterpreterUtil.makeUniqueKey(fExpr.getName(), fExpr.getDescriptor().descriptorString);
-              int fidx = cl.getFields().getIndexByKey(fieldKey);
-              if (prev_fidx <= fidx && isExprentIndependent(fExpr, assignExpr.getRight(), lstMethodWrappers.get(i), cl, whitelist, new ArrayList<>() /* TODO */, new ArrayList<>(),  fidx, false)) {
-                prev_fidx = fidx;
-                if (fieldWithDescr == null) {
-                  fieldWithDescr = fieldKey;
-                  value = assignExpr.getRight();
-                }
-                else {
-                  if (!fieldWithDescr.equals(fieldKey) ||
-                      !value.equals(assignExpr.getRight())) {
-                    return;
-                  }
-                }
-                found = true;
+          String fieldKey = InterpreterUtil.makeUniqueKey(fExpr.getName(), fExpr.getDescriptor().descriptorString);
+          int fidx = cl.getFields().getIndexByKey(fieldKey);
+          if (prev_fidx <= fidx && isExprentIndependent(fExpr, assignExpr.getRight(), lstMethodWrappers.get(i), cl, whitelist, new ArrayList<>() /* TODO */, new ArrayList<>(), fidx, false)) {
+            prev_fidx = fidx;
+            if (fieldWithDescr == null) {
+              fieldWithDescr = fieldKey;
+              value = assignExpr.getRight();
+            } else {
+              if (!fieldWithDescr.equals(fieldKey) ||
+                !value.equals(assignExpr.getRight())) {
+                return;
               }
             }
+            found = true;
           }
         }
 
@@ -381,9 +366,7 @@ public final class InitializerProcessor {
         temp = ((FunctionExprent) temp).getLstOperands().get(0);
       }
 
-      if (temp instanceof FunctionExprent) {
-        FunctionExprent func = (FunctionExprent) temp;
-
+      if (temp instanceof FunctionExprent func) {
         // Force unwrap boxing in function
         func.unwrapBox();
 

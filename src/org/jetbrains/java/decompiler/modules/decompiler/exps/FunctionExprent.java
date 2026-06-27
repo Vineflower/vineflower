@@ -29,7 +29,7 @@ import java.util.*;
 public class FunctionExprent extends Exprent {
 
   private static final CodeType[] TYPE_PRIMITIVES = {CodeType.DOUBLE, CodeType.FLOAT, CodeType.LONG};
-  private static final VarType[] TYPES = {VarType.VARTYPE_DOUBLE, VarType.VARTYPE_FLOAT, VarType.VARTYPE_LONG};;
+  private static final VarType[] TYPES = {VarType.VARTYPE_DOUBLE, VarType.VARTYPE_FLOAT, VarType.VARTYPE_LONG};
 
   public enum FunctionType implements Typed {
     ADD(2, "+", 3, null),
@@ -314,12 +314,9 @@ public class FunctionExprent extends Exprent {
   }
 
   private static boolean areGenericTypesSame(VarType right, VarType upperBound) {
-    if (!(right instanceof GenericType && upperBound instanceof GenericType)) {
+    if (!(right instanceof GenericType rightGeneric && upperBound instanceof GenericType upperBoundGeneric)) {
       return true; // Prevent this from accidentally always casting
     }
-
-    GenericType rightGeneric = (GenericType)right;
-    GenericType upperBoundGeneric = (GenericType)upperBound;
 
     // Different argument counts, can't be the same!
     if (rightGeneric.getArguments().size() != upperBoundGeneric.getArguments().size()) {
@@ -447,8 +444,8 @@ public class FunctionExprent extends Exprent {
             result.addExprLowerBound(param1, VarType.VARTYPE_BYTECHAR);
           }
           else { // both are booleans
-            boolean param1_false_boolean = (param1 instanceof ConstExprent && !((ConstExprent)param1).hasBooleanValue());
-            boolean param2_false_boolean = (param2 instanceof ConstExprent && !((ConstExprent)param2).hasBooleanValue());
+            boolean param1_false_boolean = (param1 instanceof ConstExprent const1 && !const1.hasBooleanValue());
+            boolean param2_false_boolean = (param2 instanceof ConstExprent const2 && !const2.hasBooleanValue());
 
             if (param1_false_boolean || param2_false_boolean) {
               result.addExprLowerBound(param1, VarType.VARTYPE_BYTECHAR);
@@ -512,9 +509,8 @@ public class FunctionExprent extends Exprent {
   @Override
   public boolean equals(Object o) {
     if (o == this) return true;
-    if (!(o instanceof FunctionExprent)) return false;
+    if (!(o instanceof FunctionExprent fe)) return false;
 
-    FunctionExprent fe = (FunctionExprent)o;
     return funcType == fe.getFuncType() &&
            InterpreterUtil.equalLists(lstOperands, fe.getLstOperands()); // TODO: order of operands insignificant
   }
@@ -548,10 +544,10 @@ public class FunctionExprent extends Exprent {
       if (this.funcType.isArithmeticBinaryOperation()) {
         // Checks to see if the right expression is a constant and then adjust the type from char to int if the left is an int.
         // Failing that, check the left hand side and then do the same.
-        if (right instanceof ConstExprent) {
-          ((ConstExprent) right).adjustConstType(left.getExprType());
-        } else if (left instanceof ConstExprent) {
-          ((ConstExprent) left).adjustConstType(right.getExprType());
+        if (right instanceof ConstExprent rightConst) {
+          rightConst.adjustConstType(left.getExprType());
+        } else if (left instanceof ConstExprent leftConst) {
+          leftConst.adjustConstType(right.getExprType());
         }
       }
 
@@ -701,11 +697,8 @@ public class FunctionExprent extends Exprent {
       // Long   | FD    | I
       // Float  | D     | IL
       // Double |       | ILF
-      if (lstOperands.get(0) instanceof InvocationExprent) {
-        InvocationExprent inv = (InvocationExprent)lstOperands.get(0);
-        if (inv.isUnboxingCall()) {
-          inv.forceUnboxing(true);
-        }
+      if (lstOperands.get(0) instanceof InvocationExprent inv && inv.isUnboxingCall()) {
+        inv.forceUnboxing(true);
       }
 
       if (!needsCast) {
@@ -780,8 +773,7 @@ public class FunctionExprent extends Exprent {
     }
 
     if (newlineGroup && !parentheses && myprec == exprprec) {
-      if (expr instanceof FunctionExprent) {
-        FunctionExprent funcExpr = (FunctionExprent) expr;
+      if (expr instanceof FunctionExprent funcExpr) {
         if (funcExpr.getFuncType() == FunctionType.CAST && !funcExpr.doesCast()) {
           Exprent subExpr = funcExpr.getLstOperands().get(0);
           if (subExpr instanceof FunctionExprent) {

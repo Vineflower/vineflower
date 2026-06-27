@@ -39,8 +39,8 @@ public final class IfPatternMatchProcessor {
       }
     }
 
-    if (statement instanceof IfStatement) {
-      res |= handleIf((IfStatement) statement, root);
+    if (statement instanceof IfStatement ifStat) {
+      res |= handleIf(ifStat, root);
     }
 
     return res;
@@ -90,13 +90,11 @@ public final class IfPatternMatchProcessor {
   }
 
   private static boolean checkBranch(Exprent exprent, IfStatement statement, Statement branch, RootStatement root) {
-    if (!(exprent instanceof FunctionExprent) || branch.getAllPredecessorEdges().size() != 1) {
+    if (!(exprent instanceof FunctionExprent iof) || branch.getAllPredecessorEdges().size() != 1) {
       // We can only inline into 'instanceof', and only if the target branch doesn't have multiple predecessors
       // TODO: make checking for multiple predecessors less expensive
       return false;
     }
-
-    FunctionExprent iof = (FunctionExprent) exprent;
 
     // Check for instanceof and isn't a pattern match yet
     if (iof.getFuncType() != FunctionType.INSTANCEOF || iof.getLstOperands().size() != 2) {
@@ -150,7 +148,7 @@ public final class IfPatternMatchProcessor {
         if (last instanceof AssignmentExprent assign && source instanceof VarExprent checked) {
           Exprent stored = assign.getLeft();
           Exprent method = assign.getRight();
-          if ((!(method instanceof FunctionExprent) || ((FunctionExprent) method).getFuncType() != FunctionType.CAST)
+          if ((!(method instanceof FunctionExprent func) || func.getFuncType() != FunctionType.CAST)
             && checked.equals(stored) && !checked.isVarReferenced(root, (VarExprent) stored)) {
             iof.getLstOperands().set(0, assign.getRight());
             before.getExprents().remove(before.getExprents().size() - 1);
@@ -238,12 +236,11 @@ public final class IfPatternMatchProcessor {
           for (Exprent exprent : stat.getExprents()) {
 
             // Check for assignment exprents
-            if (exprent instanceof AssignmentExprent) {
-              AssignmentExprent assignment = (AssignmentExprent) exprent;
+            if (exprent instanceof AssignmentExprent assignment) {
 
-              // If the left type of the assignment is a variable, store it's var info
-              if (assignment.getLeft() instanceof VarExprent) {
-                vvs.add(((VarExprent) assignment.getLeft()).getVarVersionPair());
+              // If the left type of the assignment is a variable, store its var info
+              if (assignment.getLeft() instanceof VarExprent varExp) {
+                vvs.add(varExp.getVarVersionPair());
               }
             }
           }

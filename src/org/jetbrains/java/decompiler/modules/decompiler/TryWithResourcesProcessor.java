@@ -30,11 +30,11 @@ public final class TryWithResourcesProcessor {
     }
 
     Statement toCheck = finallyStat.getHandler().getFirst();
-    if (!(toCheck instanceof IfStatement) || ((IfStatement)toCheck).getIfstat() == null || !(((IfStatement)toCheck).getIfstat() instanceof IfStatement)) {
+    if (!(toCheck instanceof IfStatement ifStat) || ifStat.getIfstat() == null || !(ifStat.getIfstat() instanceof IfStatement)) {
       return false;
     }
 
-    toCheck = ((IfStatement)toCheck).getIfstat();
+    toCheck = ifStat.getIfstat();
 
     if (((IfStatement)toCheck).getElsestat() == null) {
       return false;
@@ -68,8 +68,7 @@ public final class TryWithResourcesProcessor {
         Statement stat = finallyStat.getParent();
         Statement stat2 = finallyStat.getFirst();
 
-        if (stat2 instanceof CatchStatement) {
-          CatchStatement child = (CatchStatement)stat2;
+        if (stat2 instanceof CatchStatement child) {
 
           AssignmentExprent resourceDef = (AssignmentExprent)ass.copy();
           if (ass.getRight().getExprType().equals(VarType.VARTYPE_NULL)) {
@@ -125,12 +124,11 @@ public final class TryWithResourcesProcessor {
       inner = inner.getStats().get(0);
 
       // If the catch statement contains a simple try catch, then it's a nonnull resource
-      if (inner instanceof CatchStatement) {
+      if (inner instanceof CatchStatement innerTry) {
         if (inner.getStats().isEmpty()) {
           return false;
         }
 
-        CatchStatement innerTry = (CatchStatement)inner;
         if (!innerTry.getVars().get(0).getVarType().value.equals("java/lang/Throwable")) {
           return false;
         }
@@ -148,55 +146,51 @@ public final class TryWithResourcesProcessor {
       }
 
       // Nullable resource, contains null checks
-      if (inner instanceof IfStatement) {
-        Exprent ifCase = ((IfStatement)inner).getHeadexprent().getCondition();
+      if (inner instanceof IfStatement ifStat &&
+        ifStat.getHeadexprent().getCondition() instanceof FunctionExprent ifCase) {
+        // Will look like "if (!(!(var != null)))"
+        FunctionExprent func = unwrapNegations(ifCase);
 
-        if (ifCase instanceof FunctionExprent) {
-          // Will look like "if (!(!(var != null)))"
-          FunctionExprent func = unwrapNegations((FunctionExprent) ifCase);
+        Exprent check = func.getLstOperands().get(0);
 
-          Exprent check = func.getLstOperands().get(0);
+        // If it's not a var, end processing early
+        if (!(check instanceof VarExprent)) {
+          return false;
+        }
 
-          // If it's not a var, end processing early
-          if (!(check instanceof VarExprent)) {
+        // Make sure it's checking against null
+        if (func.getLstOperands().get(1).getExprType().equals(VarType.VARTYPE_NULL)) {
+          // Ensured that the if stat is a null check
+
+          inner = ifStat.getIfstat();
+
+          if (inner == null) {
             return false;
           }
 
-          // Make sure it's checking against null
-          if (func.getLstOperands().get(1).getExprType().equals(VarType.VARTYPE_NULL)) {
-            // Ensured that the if stat is a null check
-
-            inner = ((IfStatement)inner).getIfstat();
-
-            if (inner == null) {
+          // Process try catch inside of if statement
+          if (inner instanceof CatchStatement innerTry && !inner.getStats().isEmpty()) {
+            if (inner.getStats().isEmpty()) {
               return false;
             }
 
-            // Process try catch inside of if statement
-            if (inner instanceof CatchStatement && !inner.getStats().isEmpty()) {
-              if (inner.getStats().isEmpty()) {
-                return false;
-              }
+            if (!innerTry.getVars().get(0).getVarType().value.equals("java/lang/Throwable")) {
+              return false;
+            }
 
-              CatchStatement innerTry = (CatchStatement)inner;
-              if (!innerTry.getVars().get(0).getVarType().value.equals("java/lang/Throwable")) {
-                return false;
-              }
+            Statement inTry = inner.getStats().get(0);
 
-              Statement inTry = inner.getStats().get(0);
+            if (inTry instanceof BasicBlockStatement && !inTry.getExprents().isEmpty()) {
+              Exprent first = inTry.getExprents().get(0);
 
-              if (inTry instanceof BasicBlockStatement && !inTry.getExprents().isEmpty()) {
-                Exprent first = inTry.getExprents().get(0);
+              // Check for closable invocation
+              if (isCloseable(first)) {
+                closeable = (VarExprent) ((InvocationExprent) first).getInstance();
+                nullable = true;
 
-                // Check for closable invocation
-                if (isCloseable(first)) {
-                  closeable = (VarExprent) ((InvocationExprent)first).getInstance();
-                  nullable = true;
-
-                  // Double check that the variables in the null check and the closeable match
-                  if (!closeable.getVarVersionPair().equals(((VarExprent)check).getVarVersionPair())) {
-                    closeable = null;
-                  }
+                // Double check that the variables in the null check and the closeable match
+                if (!closeable.getVarVersionPair().equals(((VarExprent) check).getVarVersionPair())) {
+                  closeable = null;
                 }
               }
             }
@@ -304,36 +298,26 @@ public final class TryWithResourcesProcessor {
   private static boolean isValid(Statement stat, VarExprent closeable, boolean nullable) {
     if (nullable) {
       // Check for if statement that contains a null check and a close()
-      if (stat instanceof IfStatement) {
-        IfStatement ifStat = (IfStatement) stat;
-        Exprent condition = ifStat.getHeadexprent().getCondition();
-
-        if (condition instanceof FunctionExprent) {
+      if (stat instanceof IfStatement ifStat) {
+        if (ifStat.getHeadexprent().getCondition() instanceof FunctionExprent condition)  {
           // This can sometimes be double inverted negative conditions too, handle that case
-          FunctionExprent func = unwrapNegations((FunctionExprent) condition);
+          FunctionExprent func = unwrapNegations(condition);
 
           // Ensure the exprent is the one we want to remove
-          if (func.getFuncType() == FunctionType.NE && func.getLstOperands().get(0) instanceof VarExprent && func.getLstOperands().get(1).getExprType().equals(VarType.VARTYPE_NULL)) {
-            if (func.getLstOperands().get(0) instanceof VarExprent && ((VarExprent) func.getLstOperands().get(0)).getVarVersionPair().equals(closeable.getVarVersionPair())) {
-              return true;
-            }
-          }
+          return func.getFuncType() == FunctionType.NE &&
+            func.getLstOperands().get(0) instanceof VarExprent left &&
+            func.getLstOperands().get(1).getExprType().equals(VarType.VARTYPE_NULL) &&
+            left.getVarVersionPair().equals(closeable.getVarVersionPair());
         }
       }
     } else {
-      if (stat instanceof BasicBlockStatement) {
-        if (stat.getExprents() != null && !stat.getExprents().isEmpty()) {
-          Exprent exprent = stat.getExprents().get(0);
+      if (stat instanceof BasicBlockStatement &&
+        stat.getExprents() != null &&
+        !stat.getExprents().isEmpty() &&
+        stat.getExprents().get(0) instanceof InvocationExprent invoke) {
 
-          if (exprent instanceof InvocationExprent) {
-            Exprent inst = ((InvocationExprent) exprent).getInstance();
-
-            // Ensure the var exprent we want to remove is the right one
-            if (inst instanceof VarExprent && inst.equals(closeable) && isCloseable(exprent)) {
-              return true;
-            }
-          }
-        }
+        // Ensure the var exprent we want to remove is the right one
+        return invoke.getInstance() instanceof VarExprent inst && inst.equals(closeable) && isCloseable(invoke);
       }
     }
 
@@ -421,14 +405,12 @@ public final class TryWithResourcesProcessor {
 
   private static AssignmentExprent findResourceDef(VarExprent var, Statement prevStatement) {
     for (Exprent exp : prevStatement.getExprents()) {
-      if (exp instanceof AssignmentExprent) {
-        AssignmentExprent ass = (AssignmentExprent)exp;
-        if (ass.getLeft() instanceof VarExprent) { // cannot use equals as var's varType may be unknown and not match
-          VarExprent left = (VarExprent)ass.getLeft();
-          if (left.getVarVersionPair().equals(var.getVarVersionPair())) {
-            return ass;
-          }
-        }
+
+      if (exp instanceof AssignmentExprent ass &&
+        // cannot use equals on VarExprent as var's varType may be unknown and not match
+        ass.getLeft() instanceof VarExprent left &&
+        left.getVarVersionPair().equals(var.getVarVersionPair())) {
+        return ass;
       }
     }
 
@@ -436,13 +418,12 @@ public final class TryWithResourcesProcessor {
   }
 
   private static boolean isCloseable(Exprent exp) {
-    if (exp instanceof InvocationExprent) {
-      InvocationExprent invocExp = (InvocationExprent)exp;
-      if (invocExp.getName().equals("close") && invocExp.getStringDescriptor().equals("()V")) {
-        if (invocExp.getInstance() != null && invocExp.getInstance() instanceof VarExprent) {
-          return DecompilerContext.getStructContext().instanceOf(invocExp.getClassname(), "java/lang/AutoCloseable");
-        }
-      }
+    if (exp instanceof InvocationExprent invocExp &&
+      invocExp.getName().equals("close") &&
+      invocExp.getStringDescriptor().equals("()V") &&
+      invocExp.getInstance() != null &&
+      invocExp.getInstance() instanceof VarExprent) {
+      return DecompilerContext.getStructContext().instanceOf(invocExp.getClassname(), "java/lang/AutoCloseable");
     }
 
     return false;
@@ -451,13 +432,12 @@ public final class TryWithResourcesProcessor {
   private static void fixResourceAssignment(AssignmentExprent ass, Statement statement) {
     if (statement.getExprents() != null) {
       for (Exprent exp : statement.getExprents()) {
-        if (exp instanceof AssignmentExprent) {
-          AssignmentExprent toRemove = (AssignmentExprent)exp;
-          if (ass.getLeft().equals(toRemove.getLeft()) && !toRemove.getRight().getExprType().equals(VarType.VARTYPE_NULL)) {
-            ass.setRight(toRemove.getRight());
-            statement.getExprents().remove(toRemove);
-            break;
-          }
+        if (exp instanceof AssignmentExprent toRemove &&
+          ass.getLeft().equals(toRemove.getLeft()) &&
+          !toRemove.getRight().getExprType().equals(VarType.VARTYPE_NULL)) {
+          ass.setRight(toRemove.getRight());
+          statement.getExprents().remove(toRemove);
+          break;
         }
       }
     }
@@ -471,39 +451,34 @@ public final class TryWithResourcesProcessor {
       for (; i < catchStat.getStats().size(); ++i) {
         temp = catchStat.getStats().get(i);
 
-        if (temp instanceof BasicBlockStatement && temp.getExprents() != null) {
-          if (temp.getExprents().size() >= 2 && catchStat.getVars().get(i - 1).getVarType().value.equals("java/lang/Throwable")) {
-            if (temp.getExprents().get(temp.getExprents().size() - 1) instanceof ExitExprent) {
-              ExitExprent exitExprent = (ExitExprent)temp.getExprents().get(temp.getExprents().size() - 1);
-              if (exitExprent.getExitType() == ExitExprent.Type.THROW && exitExprent.getValue().equals(catchStat.getVars().get(i - 1))) {
+        if (temp instanceof BasicBlockStatement &&
+          temp.getExprents() != null &&
+          temp.getExprents().size() >= 2 &&
+          catchStat.getVars().get(i - 1).getVarType().value.equals("java/lang/Throwable") &&
+          temp.getExprents().get(temp.getExprents().size() - 1) instanceof ExitExprent exitExprent &&
+          exitExprent.getExitType() == ExitExprent.Type.THROW &&
+          exitExprent.getValue().equals(catchStat.getVars().get(i - 1))) {
 
-                catchStat.getExctStrings().remove(i - 1);
-                catchStat.getVars().remove(i - 1);
-                catchStat.getStats().remove(i);
+          catchStat.getExctStrings().remove(i - 1);
+          catchStat.getVars().remove(i - 1);
+          catchStat.getStats().remove(i);
 
-                for (StatEdge edge : temp.getAllSuccessorEdges()) {
-                  edge.getSource().removeSuccessor(edge);
-                }
-
-                removed = true;
-                break;
-              }
-            }
+          for (StatEdge edge : temp.getAllSuccessorEdges()) {
+            edge.getSource().removeSuccessor(edge);
           }
+
+          removed = true;
+          break;
         }
       }
 
-      if (removed && temp.getExprents().get(temp.getExprents().size() - 2) instanceof AssignmentExprent) {
-        AssignmentExprent assignmentExp = (AssignmentExprent)temp.getExprents().get(temp.getExprents().size() - 2);
-        if (assignmentExp.getLeft().getExprType().value.equals("java/lang/Throwable")) {
-          for (Exprent exprent : initBlock.getExprents()) {
-            if (exprent instanceof AssignmentExprent) {
-              AssignmentExprent toRemove = (AssignmentExprent)exprent;
-              if (toRemove.getLeft().equals(assignmentExp.getLeft())) {
-                initBlock.getExprents().remove(toRemove);
-                return true;
-              }
-            }
+      if (removed &&
+        temp.getExprents().get(temp.getExprents().size() - 2) instanceof AssignmentExprent assignmentExp &&
+        assignmentExp.getLeft().getExprType().value.equals("java/lang/Throwable")) {
+        for (Exprent exprent : initBlock.getExprents()) {
+          if (exprent instanceof AssignmentExprent toRemove && toRemove.getLeft().equals(assignmentExp.getLeft())) {
+            initBlock.getExprents().remove(toRemove);
+            return true;
           }
         }
       }

@@ -17,20 +17,20 @@ public class ReplaceStatsPass implements Pass {
     for (int i = 0; i < stat.getStats().size(); i++) {
       Statement st = stat.getStats().get(i);
       res |= replace(st);
-      if (st instanceof SequenceStatement) {
-        st.replaceWith(new KSequenceStatement((SequenceStatement) st));
+      if (st instanceof SequenceStatement seqStat) {
+        st.replaceWith(new KSequenceStatement(seqStat));
         res = true;
-      } else if (st instanceof DoStatement) {
-        st.replaceWith(new KDoStatement((DoStatement) st));
+      } else if (st instanceof DoStatement doStat) {
+        st.replaceWith(new KDoStatement(doStat));
         res = true;
-      } else if (st instanceof SwitchStatement) {
-        st.replaceWith(new KSwitchStatement((SwitchStatement) st));
+      } else if (st instanceof SwitchStatement switchStat) {
+        st.replaceWith(new KSwitchStatement(switchStat));
         res = true;
-      } else if (st instanceof IfStatement) {
-        st.replaceWith(new KIfStatement((IfStatement) st));
+      } else if (st instanceof IfStatement ifStat) {
+        st.replaceWith(new KIfStatement(ifStat));
         res = true;
-      } else if (st instanceof CatchStatement) {
-        st.replaceWith(new KCatchStatement((CatchStatement) st));
+      } else if (st instanceof CatchStatement catchStat) {
+        st.replaceWith(new KCatchStatement(catchStat));
         res = true;
       }
     }

@@ -431,7 +431,7 @@ public final class ExitHelper {
 
           // If any of the return expression has constants, adjust them to the return type of the method
           for (Exprent exprent : exitExprents) {
-            if (exprent instanceof ConstExprent) {
+            if (exprent instanceof ConstExprent constExpr) {
               ((ConstExprent) exprent).adjustConstType(desc.ret);
               res = true;
             }

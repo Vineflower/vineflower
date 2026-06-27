@@ -150,9 +150,7 @@ public final class DomHelper implements GraphParser {
           }
         }
 
-        if (!domsSuccs.contains(stat)) {
-          domsSuccs.add(stat);
-        }
+        domsSuccs.add(stat);
 
         if (!InterpreterUtil.equalObjects(domsSuccs, doms)) {
 
@@ -231,8 +229,8 @@ public final class DomHelper implements GraphParser {
       res |= removeSynchronizedHandler(st);
     }
 
-    if (stat instanceof SynchronizedStatement) {
-      ((SynchronizedStatement) stat).removeExc();
+    if (stat instanceof SynchronizedStatement syncStat) {
+      syncStat.removeExc();
       res = true;
     }
 
@@ -757,10 +755,10 @@ public final class DomHelper implements GraphParser {
 
           // If the statement we created contains the first statement of the general statement as it's first, we know that we've completed iteration to the point where every statment in the subgraph has been explored at least once, due to how the post order is created.
           // More iteration still happens to discover higher level structures (such as the case where basicblock -> if -> loop)
-          if (stat instanceof GeneralStatement && !((GeneralStatement) stat).isPlaceholder() && result.getFirst() == stat.getFirst() &&
+          if (stat instanceof GeneralStatement general && !general.isPlaceholder() && result.getFirst() == stat.getFirst() &&
               stat.getStats().size() == result.getStats().size()) {
             // mark general statement
-            ((GeneralStatement) stat).setPlaceholder(true);
+            general.setPlaceholder(true);
           }
 
           stat.collapseNodesToStatement(result);

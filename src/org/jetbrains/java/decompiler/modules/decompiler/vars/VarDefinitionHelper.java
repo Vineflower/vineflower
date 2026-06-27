@@ -116,7 +116,7 @@ public class VarDefinitionHelper {
     }
 
     if (thisvar) {
-      StructClass current_class = (StructClass)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS);
+      StructClass current_class = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS);
 
       varproc.getThisVars().put(new VarVersionPair(0, 0), current_class.qualifiedName);
       varproc.setVarName(new VarVersionPair(0, 0), "this");
@@ -167,8 +167,7 @@ public class VarDefinitionHelper {
       varproc.setVarName(new VarVersionPair(index, 0), vc.getFreeName(index));
 
       // special case for
-      if (stat instanceof DoStatement) {
-        DoStatement dstat = (DoStatement)stat;
+      if (stat instanceof DoStatement dstat) {
         if (dstat.getLooptype() == DoStatement.Type.FOR) {
 
           if (dstat.getInitExprent() != null && setDefinition(dstat.getInitExprent(), index)) {
@@ -185,12 +184,9 @@ public class VarDefinitionHelper {
           }
         }
         else if (dstat.getLooptype() == DoStatement.Type.FOR_EACH) {
-          if (dstat.getInitExprent() != null && dstat.getInitExprent() instanceof VarExprent) {
-            VarExprent var = (VarExprent)dstat.getInitExprent();
-            if (var.getIndex() == index) {
-              var.setDefinition(true);
-              continue;
-            }
+          if (dstat.getInitExprent() != null && dstat.getInitExprent() instanceof VarExprent var && var.getIndex() == index) {
+            var.setDefinition(true);
+            continue;
           }
         }
       }
@@ -218,7 +214,7 @@ public class VarDefinitionHelper {
         else {
           boolean foundvar = false;
           for (Exprent exp : expr.getAllExprents(true)) {
-            if (exp instanceof VarExprent && ((VarExprent)exp).getIndex() == index) {
+            if (exp instanceof VarExprent var && var.getIndex() == index) {
               foundvar = true;
               break;
             }
@@ -289,11 +285,10 @@ public class VarDefinitionHelper {
       }
     }
 
-    if (!(exp instanceof VarExprent)) {
+    if (!(exp instanceof VarExprent var)) {
       return null;
     }
 
-    VarExprent var = (VarExprent)exp;
     return var.getIndex() == index ? var.getLVT() : null;
   }
 
@@ -352,16 +347,14 @@ public class VarDefinitionHelper {
       for (Statement st : stat.getStats()) {
         childVars.addAll(initStatement(st));
 
-        if (st instanceof DoStatement) {
-          DoStatement dost = (DoStatement)st;
+        if (st instanceof DoStatement dost) {
           if (dost.getLooptype() != DoStatement.Type.FOR &&
             dost.getLooptype() != DoStatement.Type.FOR_EACH &&
             dost.getLooptype() != DoStatement.Type.INFINITE) {
             currVars.add(dost.getConditionExprent());
           }
         }
-        else if (st instanceof CatchAllStatement) {
-          CatchAllStatement fin = (CatchAllStatement)st;
+        else if (st instanceof CatchAllStatement fin) {
           if (fin.isFinally() && fin.getMonitor() != null) {
             currVars.add(fin.getMonitor());
           }
@@ -416,8 +409,8 @@ public class VarDefinitionHelper {
     }
 
     for (Exprent exprent : listTemp) {
-      if (exprent instanceof VarExprent) {
-        res.add((VarExprent)exprent);
+      if (exprent instanceof VarExprent var) {
+        res.add(var);
       }
     }
 
@@ -425,15 +418,11 @@ public class VarDefinitionHelper {
   }
 
   private boolean setDefinition(Exprent expr, int index) {
-    if (expr instanceof AssignmentExprent) {
-      Exprent left = ((AssignmentExprent)expr).getLeft();
-      if (left instanceof VarExprent) {
-        VarExprent var = (VarExprent)left;
-        if (var.getIndex() == index) {
-          var.setDefinition(true);
-          return true;
-        }
-      }
+    if (expr instanceof AssignmentExprent ass &&
+      ass.getLeft() instanceof VarExprent var &&
+      var.getIndex() == index) {
+      var.setDefinition(true);
+      return true;
     }
     return false;
   }
@@ -459,14 +448,13 @@ public class VarDefinitionHelper {
             case EXIT:
               Exprent instance = null;
               String target = null;
-              if (exp instanceof InvocationExprent) {
-                instance = ((InvocationExprent)exp).getInstance();
-                target = ((InvocationExprent)exp).getClassname();
-              } else if (exp instanceof FieldExprent) {
-                instance = ((FieldExprent)exp).getInstance();
-                target = ((FieldExprent)exp).getClassname();
-              } else if (exp instanceof ExitExprent) {
-                ExitExprent exit = (ExitExprent)exp;
+              if (exp instanceof InvocationExprent invocation) {
+                instance = invocation.getInstance();
+                target = invocation.getClassname();
+              } else if (exp instanceof FieldExprent field) {
+                instance = field.getInstance();
+                target = field.getClassname();
+              } else if (exp instanceof ExitExprent exit) {
                 if (exit.getExitType() == ExitExprent.Type.RETURN) {
                   instance = exit.getValue();
                   target = exit.getRetType().value;
@@ -479,8 +467,8 @@ public class VarDefinitionHelper {
               if ("java/lang/Object".equals(target))
                   continue; //This is dirty, but if we don't then too many things become object...
 
-              if (instance != null && instance instanceof VarExprent) {
-                VarVersionPair key = ((VarExprent)instance).getVarVersionPair();
+              if (instance instanceof VarExprent var) {
+                VarVersionPair key = var.getVarVersionPair();
                 VarType newType = new VarType(CodeType.OBJECT, 0, target);
                 VarType oldMin = mapExprentMinTypes.get(key);
                 VarType oldMax = mapExprentMaxTypes.get(key);
@@ -518,23 +506,18 @@ public class VarDefinitionHelper {
     }
   }
 
-  static class VarID {
-    final VarExprent var;
-
-    VarID(VarExprent var) {
-      this.var = var;
-    }
+  record VarID(VarExprent var) {
 
     @Override
-    public int hashCode() {
-      return System.identityHashCode(var);
-    }
+      public int hashCode() {
+        return System.identityHashCode(var);
+      }
 
-    @Override
-    public boolean equals(Object obj) {
-      return obj instanceof VarID varID && var == varID.var;
+      @Override
+      public boolean equals(Object obj) {
+        return obj instanceof VarID varID && var == varID.var;
+      }
     }
-  }
 
   private Map<VarID, Set<VarID>> getVarExprentSources() {
     // Do an ssau analysis to find the sources of variables
@@ -687,8 +670,7 @@ public class VarDefinitionHelper {
     if (stat.getVarDefinitions().size() > 0) {
       for (int x = 0; x < stat.getVarDefinitions().size(); x++) {
         Exprent exp = stat.getVarDefinitions().get(x);
-        if (exp instanceof VarExprent) {
-          VarExprent var = (VarExprent)exp;
+        if (exp instanceof VarExprent var) {
           Integer index = varproc.getVarOriginalIndex(var.getIndex());
           if (index != null) {
             if (this_vars.containsKey(index)) {
@@ -719,8 +701,7 @@ public class VarDefinitionHelper {
       List<Object> objs = getSequentialObjects(stat);
       for (int i = 0; i < objs.size(); i++) {
         Object obj = objs.get(i);
-        if (obj instanceof Statement) {
-          Statement st = (Statement)obj;
+        if (obj instanceof Statement st) {
 
           //Map<VarVersionPair, VarVersionPair> denylist_n = new HashMap<VarVersionPair, VarVersionPair>();
           Map<Integer, VarVersionPair> leaked_n = new HashMap<Integer, VarVersionPair>();
@@ -745,8 +726,7 @@ public class VarDefinitionHelper {
           */
 
           if (!leaked_n.isEmpty()) {
-            if (stat instanceof IfStatement) {
-              IfStatement ifst = (IfStatement)stat;
+            if (stat instanceof IfStatement ifst) {
               if (obj == ifst.getIfstat() || obj == ifst.getElsestat()) {
                 leaked_n.clear(); // Force no leaking at the end of if blocks
                 // We may need to do this for Switches as well.. But havent run into that issue yet...
@@ -799,31 +779,25 @@ public class VarDefinitionHelper {
             // TODO: this only checks for totally disjoint types, there are instances where merging is incorrect with primitives
 
             boolean ok = true;
-            if (DecompilerContext.getOption(IFernflowerPreferences.VERIFY_VARIABLE_MERGES)) {
-              if (exp instanceof AssignmentExprent) {
-                AssignmentExprent assign = (AssignmentExprent) exp;
-                if (assign.getLeft() instanceof VarExprent) {
-                  VarExprent var = (VarExprent) assign.getLeft();
+            if (DecompilerContext.getOption(IFernflowerPreferences.VERIFY_VARIABLE_MERGES) &&
+              exp instanceof AssignmentExprent assign &&
+              assign.getLeft() instanceof VarExprent var &&
+              var.getIndex() == ret.getKey().var) {
+              // Matched:
+              //   var<ret.key.idx> = ...
 
-                  if (var.getIndex() == ret.getKey().var) {
-                    // Matched:
-                    //   var<ret.key.idx> = ...
+              if (assign.getRight().containsVar(ret.getValue())) {
+                // What we're remapping to is used in the rhs!
+                // We need to iterate down the scope tree to make sure the old var isn't used anywhere else.
 
-                    if (assign.getRight().containsVar(ret.getValue())) {
-                      // What we're remapping to is used in the rhs!
-                      // We need to iterate down the scope tree to make sure the old var isn't used anywhere else.
-
-                      if (isVarReadRemote(identifyParent(stat), ret.getKey(), false, stat)) {
-                        // The var is used elsewhere, we can't remap it
-                        ok = false;
-                      }
-                    } else {
-                      if (isVarReadRemote(identifyParent(stat), ret.getKey(), true, stat)) {
-                        // The var is used elsewhere, we can't remap it
-                        ok = false;
-                      }
-                    }
-                  }
+                if (isVarReadRemote(identifyParent(stat), ret.getKey(), false, stat)) {
+                  // The var is used elsewhere, we can't remap it
+                  ok = false;
+                }
+              } else {
+                if (isVarReadRemote(identifyParent(stat), ret.getKey(), true, stat)) {
+                  // The var is used elsewhere, we can't remap it
+                  ok = false;
                 }
               }
             }
@@ -867,26 +841,17 @@ public class VarDefinitionHelper {
       if (checkAssign) {
         for (Exprent ex : stat.getExprents()) {
           for (Exprent e : ex.getAllExprents(true, true)) {
-            if (e instanceof AssignmentExprent) {
-              AssignmentExprent assign = (AssignmentExprent)e;
-              if (assign.getLeft() instanceof VarExprent) {
-                VarExprent var2 = (VarExprent)assign.getLeft();
-                if (var2.getIndex() == var.var) {
-                  return true;
-                }
-              }
+            if (e instanceof AssignmentExprent assign &&
+              assign.getLeft() instanceof VarExprent var2 &&
+              var2.getIndex() == var.var) {
+              return true;
             }
 
-            if (e instanceof FunctionExprent) {
-              FunctionExprent func = (FunctionExprent)e;
-              if (func.getFuncType().isPPMM()) {
-                if (func.getLstOperands().get(0) instanceof VarExprent) {
-                  VarExprent var2 = (VarExprent)func.getLstOperands().get(0);
-                  if (var2.getIndex() == var.var) {
-                    return true;
-                  }
-                }
-              }
+            if (e instanceof FunctionExprent func &&
+              func.getFuncType().isPPMM() &&
+              func.getLstOperands().get(0) instanceof VarExprent var2 &&
+              var2.getIndex() == var.var) {
+              return true;
             }
           }
         }
@@ -906,16 +871,14 @@ public class VarDefinitionHelper {
   private VPPEntry processExprent(Exprent exp, Map<Integer, VarVersionPair> this_vars, Map<Integer, VarVersionPair> leaked, Map<VarVersionPair, VarVersionPair> denylist) {
     VarExprent var = null;
 
-    if (exp instanceof AssignmentExprent) {
-      AssignmentExprent ass = (AssignmentExprent)exp;
-      if (!(ass.getLeft() instanceof VarExprent)) {
+    if (exp instanceof AssignmentExprent ass) {
+      if (!(ass.getLeft() instanceof VarExprent varExpr)) {
         return null;
       }
 
-      var = (VarExprent)ass.getLeft();
-    }
-    else if (exp instanceof VarExprent) {
-      var = (VarExprent)exp;
+      var = varExpr;
+    } else if (exp instanceof VarExprent varExprent) {
+      var = varExprent;
     }
 
     if (var == null) {
@@ -980,8 +943,7 @@ public class VarDefinitionHelper {
       Iterator<Exprent> itr = stat.getVarDefinitions().iterator();
       while (itr.hasNext()) {
         Exprent exp = itr.next();
-        if (exp instanceof VarExprent) {
-          VarExprent var = (VarExprent)exp;
+        if (exp instanceof VarExprent var) {
           if (from.equals(var.getVarVersionPair())) {
             itr.remove();
           }
@@ -1011,15 +973,13 @@ public class VarDefinitionHelper {
     boolean remapped = false;
 
     for (Exprent expr : lst) {
-      if (expr instanceof AssignmentExprent) {
-        AssignmentExprent ass = (AssignmentExprent)expr;
-        if (ass.getLeft() instanceof VarExprent && ass.getRight() instanceof ConstExprent) {
+      if (expr instanceof AssignmentExprent ass) {
+        if (ass.getLeft() instanceof VarExprent && ass.getRight() instanceof ConstExprent right) {
           VarVersionPair left = new VarVersionPair((VarExprent)ass.getLeft());
           if (!left.equals(from) && !left.equals(to)) {
             continue;
           }
 
-          ConstExprent right = (ConstExprent)ass.getRight();
           if (right.getConstType() == VarType.VARTYPE_NULL) {
             continue;
           }
@@ -1038,8 +998,7 @@ public class VarDefinitionHelper {
           }
         }
       }
-      else if (expr instanceof VarExprent) {
-        VarExprent var = (VarExprent)expr;
+      else if (expr instanceof VarExprent var) {
         VarVersionPair old = new VarVersionPair(var);
         if (!old.equals(from)) {
           continue;
@@ -1164,20 +1123,17 @@ public class VarDefinitionHelper {
 
     // Stuff the parent context into enclosed child methods
     StatementIterator.iterate(root, (exprent) -> {
-      if (exprent instanceof NewExprent) {
-        NewExprent _new = (NewExprent)exprent;
-        if (_new.isAnonymous()) { //TODO: Check for Lambda here?
-          ClassNode child = DecompilerContext.getClassProcessor().getMapRootClasses().get(_new.getNewType().value);
-          if (child != null) {
-            if (_new.isLambda()) {
-              if (child.lambdaInformation.is_method_reference) {
-                //methods.add(child.getWrapper().getClassStruct().getMethod(child.lambdaInformation.content_method_key));
-              } else {
-                methods.add(child.classStruct.getMethod(child.lambdaInformation.content_method_name, child.lambdaInformation.content_method_descriptor));
-              }
+      if (exprent instanceof NewExprent _new && _new.isAnonymous()) { //TODO: Check for Lambda here?
+        ClassNode child = DecompilerContext.getClassProcessor().getMapRootClasses().get(_new.getNewType().value);
+        if (child != null) {
+          if (_new.isLambda()) {
+            if (child.lambdaInformation.is_method_reference) {
+              //methods.add(child.getWrapper().getClassStruct().getMethod(child.lambdaInformation.content_method_key));
             } else {
-              methods.addAll(child.classStruct.getMethods());
+              methods.add(child.classStruct.getMethod(child.lambdaInformation.content_method_name, child.lambdaInformation.content_method_descriptor));
             }
+          } else {
+            methods.addAll(child.classStruct.getMethods());
           }
         }
       }
@@ -1254,8 +1210,7 @@ public class VarDefinitionHelper {
     lst.add(exp);
 
     for (Exprent exprent : lst) {
-      if (exprent instanceof VarExprent) {
-        VarExprent var = (VarExprent)exprent;
+      if (exprent instanceof VarExprent var) {
         VarVersionPair ver = new VarVersionPair(var);
         if (var.isDefinition()) {
           types.put(ver, new VarInfo(var.getLVT(), var.getVarType()));
@@ -1306,8 +1261,7 @@ public class VarDefinitionHelper {
     lst.add(exprent);
 
     for (Exprent expr : lst) {
-      if (expr instanceof VarExprent) {
-        VarExprent var = (VarExprent)expr;
+      if (expr instanceof VarExprent var) {
         LocalVariable lvt = types.get(new VarVersionPair(var));
         if (lvt != null) {
           var.setLVT(lvt);
@@ -1320,7 +1274,7 @@ public class VarDefinitionHelper {
 
   //Helper classes because Java is dumb and doesn't have a Pair<K,V> class
   private static class SimpleEntry<K, V> implements Entry<K, V> {
-    private K key;
+    private final K key;
     private V value;
     public SimpleEntry(K key, V value) {
       this.key = key;
@@ -1342,9 +1296,9 @@ public class VarDefinitionHelper {
   }
 
   private static class VarInfo {
-    private LocalVariable lvt;
-    private String cast;
-    private VarType type;
+    private final LocalVariable lvt;
+    private final String cast;
+    private final VarType type;
 
     private VarInfo(LocalVariable lvt, VarType type) {
       if (lvt != null && lvt.getSignature() != null)
@@ -1408,32 +1362,32 @@ public class VarDefinitionHelper {
     List<Exprent> lst = exp.getAllExprents(true, true);
 
     for (Exprent ex : lst) {
-      if (ex instanceof VarExprent) {
-        VarExprent var = (VarExprent)ex;
-        if (var.getIndex() == target.var && var.getVersion() == target.version) {
-          boolean allowed = false;
+      if (ex instanceof VarExprent var &&
+        var.getIndex() == target.var &&
+        var.getVersion() == target.version) {
+        boolean allowed = false;
 
-          if (assign != null) {
-            if (var == assign.getLeft()) {
-              allowed = true;
-            }
+        if (assign != null) {
+          if (var == assign.getLeft()) {
+            allowed = true;
           }
+        }
 
-          if (func != null) {
-            if (var == func.getLstOperands().get(0)) {
-              allowed = true;
-            }
+        if (func != null) {
+          if (var == func.getLstOperands().get(0)) {
+            allowed = true;
           }
+        }
 
-          for (VarExprent allow : allowlist) {
-            if (var == allow) {
-              allowed = true;
-            }
+        for (VarExprent allow : allowlist) {
+          if (var == allow) {
+            allowed = true;
+            break;
           }
+        }
 
-          if (!allowed) {
-            return true;
-          }
+        if (!allowed) {
+          return true;
         }
       }
     }
@@ -1461,8 +1415,7 @@ public class VarDefinitionHelper {
       }
     }
 
-    if (stat instanceof DoStatement) {
-      DoStatement dostat = (DoStatement)stat;
+    if (stat instanceof DoStatement dostat) {
       if (dostat.getInitExprentList() != null) {
         setNonFinal(dostat.getInitExprent(), unInitialized);
       }
@@ -1470,8 +1423,7 @@ public class VarDefinitionHelper {
         setNonFinal(dostat.getIncExprent(), unInitialized);
       }
     }
-    else if (stat instanceof IfStatement) {
-      IfStatement ifstat = (IfStatement)stat;
+    else if (stat instanceof IfStatement ifstat) {
       if (ifstat.getIfstat() != null && ifstat.getElsestat() != null) {
         setNonFinal(ifstat.getFirst(), unInitialized);
         setNonFinal(ifstat.getIfstat(), new HashSet<>(unInitialized));
@@ -1492,17 +1444,15 @@ public class VarDefinitionHelper {
       return;
     }
 
-    if (exp instanceof AssignmentExprent) {
-      AssignmentExprent assign = (AssignmentExprent)exp;
-      if (assign.getLeft() instanceof VarExprent) {
-        var = (VarExprent)assign.getLeft();
+    if (exp instanceof AssignmentExprent assign) {
+      if (assign.getLeft() instanceof VarExprent varExpr) {
+        var = varExpr;
       }
     }
-    else if (exp instanceof FunctionExprent) {
-      FunctionExprent func = (FunctionExprent)exp;
+    else if (exp instanceof FunctionExprent func) {
       if (func.getFuncType().isPPMM()) {
-        if (func.getLstOperands().get(0) instanceof VarExprent) {
-          var = (VarExprent)func.getLstOperands().get(0);
+        if (func.getLstOperands().get(0) instanceof VarExprent varExpr) {
+          var = varExpr;
         }
       }
     }
@@ -1516,33 +1466,13 @@ public class VarDefinitionHelper {
     }
   }
 
-  private static class VarInMethod {
-    private final VarVersionPair pair;
-    private final StructMethod mt;
-
-    private VarInMethod(VarVersionPair pair, StructMethod mt) {
-      this.pair = pair;
-      this.mt = mt;
-    }
+  private record VarInMethod(VarVersionPair pair, StructMethod mt) {
 
     @Override
-    public boolean equals(Object o) {
-      if (this == o) return true;
-      if (o == null || getClass() != o.getClass()) return false;
-      VarInMethod that = (VarInMethod) o;
-      return Objects.equals(pair, that.pair) && Objects.equals(mt, that.mt);
+      public String toString() {
+        return mt.getName() + "->" + pair;
+      }
     }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(pair, mt);
-    }
-
-    @Override
-    public String toString() {
-      return mt.getName() + "->" + pair;
-    }
-  }
 
   // =========== Iterative Variable Renaming ===========
   // This is the variable renamer, in charge of remapping variables in the case of clashing with other variables with the same name.
@@ -1718,8 +1648,7 @@ public class VarDefinitionHelper {
     varDefinitions.put(stat, curVarDefs);
 
     boolean iterate = true;
-    if (stat instanceof SwitchStatement) {
-      SwitchStatement switchStat = (SwitchStatement)stat;
+    if (stat instanceof SwitchStatement switchStat) {
       // Phantom switch statements don't need variable remapping as switch expressions have isolated branches
 
       if (switchStat.isPhantom()) {
@@ -1795,8 +1724,7 @@ public class VarDefinitionHelper {
   private void iterateClashingExprent(Statement stat, StructMethod mt, Map<Statement, Set<VarInMethod>> varDefinitions, Exprent exprent,
                                       Set<VarInMethod> liveVarDefs, Set<VarInMethod> curVarDefs, Map<VarInMethod, String> nameMap, Set<String> seenMethods, Set<VarInMethod> whenTrue, Set<VarInMethod> whenFalse) {
     boolean iterate = true;
-    if (exprent instanceof NewExprent) {
-      NewExprent newExprent = (NewExprent) exprent;
+    if (exprent instanceof NewExprent newExprent) {
       // Check if this is a lambda with a body
       if (newExprent.isLambda() && !newExprent.isMethodReference()) {
         ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(newExprent.getNewType().value);
@@ -1910,75 +1838,70 @@ public class VarDefinitionHelper {
       }
     }
 
-    if (exprent instanceof VarExprent) {
-      VarExprent var = (VarExprent) exprent;
+    if (exprent instanceof VarExprent var && var.isDefinition()) {
+      VarInMethod def = new VarInMethod(var.getVarVersionPair(), mt);
+      curVarDefs.add(def);
+      liveVarDefs.add(def);
 
-      if (var.isDefinition()) {
-        VarInMethod def = new VarInMethod(var.getVarVersionPair(), mt);
-        curVarDefs.add(def);
-        liveVarDefs.add(def);
+      // Only process vars that have lvt as the default var<index>_<version> names can never conflict
+      if (var.getLVT() != null || this.varproc.getVarName(var.getVarVersionPair()) != null) {
+        String name = var.getLVT() == null ? this.varproc.getVarName(var.getVarVersionPair()) : var.getLVT().getName();
 
-        // Only process vars that have lvt as the default var<index>_<version> names can never conflict
-        if (var.getLVT() != null || this.varproc.getVarName(var.getVarVersionPair()) != null) {
-          String name = var.getLVT() == null ? this.varproc.getVarName(var.getVarVersionPair()) : var.getLVT().getName();
+        String originalName = name;
+        name = rename(nameMap, name, liveVarDefs);
 
-          String originalName = name;
-          name = rename(nameMap, name, liveVarDefs);
+        boolean scopedSwitch = false;
+        if (!originalName.equals(name)) {
+          // Try to scope switch statements if possible as it's a less destructive operation when considering local variable names
+          Statement parent = directParent(stat);
+          if (parent instanceof SwitchStatement switchStat) {
+            Set<VarInMethod> sameVarName = new HashSet<>();
 
-          boolean scopedSwitch = false;
-          if (!originalName.equals(name)) {
-            // Try to scope switch statements if possible as it's a less destructive operation when considering local variable names
-            Statement parent = directParent(stat);
-            if (parent instanceof SwitchStatement) {
-              Set<VarInMethod> sameVarName = new HashSet<>();
-
-              // Find vars with the same name
-              for (Entry<VarInMethod, String> entry : nameMap.entrySet()) {
-                if (entry.getValue().equals(originalName)) {
-                  sameVarName.add(entry.getKey());
-                }
+            // Find vars with the same name
+            for (Entry<VarInMethod, String> entry : nameMap.entrySet()) {
+              if (entry.getValue().equals(originalName)) {
+                sameVarName.add(entry.getKey());
               }
+            }
 
-              SwitchStatement switchStat = (SwitchStatement)parent;
-              // Iterate through all cases
-              for (Statement st : switchStat.getCaseStatements()) {
-                Set<VarInMethod> caseVarDefs = varDefinitions.get(st);
+            // Iterate through all cases
+            for (Statement st : switchStat.getCaseStatements()) {
+              Set<VarInMethod> caseVarDefs = varDefinitions.get(st);
 
-                // Check if the case branch has var defs
-                if (caseVarDefs != null) {
-                  for (VarInMethod pair : sameVarName) {
-                    // Try to find var defs
-                    if (caseVarDefs.contains(pair)) {
-                      switchStat.scopeCaseStatement(st);
-                      // Try to find the case statement that the current statement belongs to
-                      Statement foundCase = findCaseOwning(stat, switchStat);
+              // Check if the case branch has var defs
+              if (caseVarDefs != null) {
+                for (VarInMethod pair : sameVarName) {
+                  // Try to find var defs
+                  if (caseVarDefs.contains(pair)) {
+                    switchStat.scopeCaseStatement(st);
+                    // Try to find the case statement that the current statement belongs to
+                    Statement foundCase = findCaseOwning(stat, switchStat);
 
-                      // If found, scope the current statement
-                      if (foundCase != null) {
-                        switchStat.scopeCaseStatement(foundCase);
-                      }
-
-                      // scoped switch, don't remap
-                      scopedSwitch = true;
+                    // If found, scope the current statement
+                    if (foundCase != null) {
+                      switchStat.scopeCaseStatement(foundCase);
                     }
+
+                    // scoped switch, don't remap
+                    scopedSwitch = true;
                   }
                 }
               }
             }
-
-            if (!scopedSwitch) {
-              // Remapped name
-              this.clashingNames.put(var.getVarVersionPair(), name);
-            }
           }
 
-          // Record the changed name if we didn't scope switch
-          String value = scopedSwitch ? originalName : name;
-          if (value == null) {
-            ValidationHelper.validateTrue(false, "Variable name is null");
-          } else {
-            nameMap.put(new VarInMethod(var.getVarVersionPair(), mt), value);
+          if (!scopedSwitch) {
+            // Remapped name
+            this.clashingNames.put(var.getVarVersionPair(), name);
           }
+        }
+
+        // Record the changed name if we didn't scope switch
+        String value = scopedSwitch ? originalName : name;
+        if (value == null) {
+          ValidationHelper.validateTrue(false, "Variable name is null");
+        } else {
+          nameMap.put(new VarInMethod(var.getVarVersionPair(), mt), value);
         }
       }
     }

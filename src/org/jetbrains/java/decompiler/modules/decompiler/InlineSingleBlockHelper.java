@@ -36,9 +36,8 @@ public final class InlineSingleBlockHelper {
       res |= inlineSingleBlocksRec(st);
     }
 
-    if (stat instanceof SequenceStatement) {
+    if (stat instanceof SequenceStatement seq) {
 
-      SequenceStatement seq = (SequenceStatement)stat;
       for (int i = 1; i < seq.getStats().size(); i++) {
         if (isInlineable(seq, i)) {
           inlineBlock(seq, i);
@@ -66,9 +65,8 @@ public final class InlineSingleBlockHelper {
       lst.add(0, seq.getStats().remove(i));
     }
 
-    if (parent instanceof IfStatement && ((IfStatement)parent).iftype == IfStatement.IFTYPE_IF &&
+    if (parent instanceof IfStatement ifparent && ifparent.iftype == IfStatement.IFTYPE_IF &&
         source == parent.getFirst()) {
-      IfStatement ifparent = (IfStatement)parent;
 
       SequenceStatement block = new SequenceStatement(lst);
       block.setAllParent();
@@ -102,8 +100,8 @@ public final class InlineSingleBlockHelper {
       }
 
 
-      if (parent instanceof SwitchStatement) {
-        ((SwitchStatement)parent).sortEdgesAndNodes();
+      if (parent instanceof SwitchStatement switchStat) {
+        switchStat.sortEdgesAndNodes();
       }
 
       source.addSuccessor(new StatEdge(StatEdge.TYPE_REGULAR, source, first));
@@ -161,8 +159,7 @@ public final class InlineSingleBlockHelper {
           }
         }
 
-        if (edge.getSource().getParent() instanceof SwitchStatement) {
-          SwitchStatement swst = (SwitchStatement) edge.getSource().getParent();
+        if (edge.getSource().getParent() instanceof SwitchStatement swst) {
 
           // Can't inline into an empty switch statement!
           if (swst.getCaseStatements().isEmpty()) {
@@ -172,13 +169,10 @@ public final class InlineSingleBlockHelper {
 
         boolean noPreSuccessors = !pre.hasAnySuccessor();
 
-        if (noPreSuccessors) {
-          // No successors so we can't inline (as we don't know where to go!) [TestInlineNoSuccessor]
-          return false;
-        }
+        // No successors so we can't inline (as we don't know where to go!) [TestInlineNoSuccessor]
+        return !noPreSuccessors;
 
         // Has at least 1 successor so we can inline
-        return true;
       }
       // FIXME: count labels properly
     }

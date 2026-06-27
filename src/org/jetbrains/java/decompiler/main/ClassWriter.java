@@ -69,7 +69,7 @@ public class ClassWriter implements StatementWriter {
     return !(expr instanceof SwitchHeadExprent ||
       expr instanceof MonitorExprent ||
       expr instanceof IfExprent ||
-      (expr instanceof VarExprent && ((VarExprent)expr).isClassDef()));
+      (expr instanceof VarExprent varExpr && varExpr.isClassDef()));
   }
 
   private static boolean invokeProcessors(TextBuffer buffer, ClassNode node) {
@@ -182,7 +182,7 @@ public class ClassWriter implements StatementWriter {
 
     boolean lambdaToAnonymous = DecompilerContext.getOption(IFernflowerPreferences.LAMBDA_TO_ANONYMOUS_CLASS);
 
-    ClassNode outerNode = (ClassNode)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
+    ClassNode outerNode = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
     DecompilerContext.setProperty(DecompilerContext.CURRENT_CLASS_NODE, node);
 
     try {
@@ -196,7 +196,9 @@ public class ClassWriter implements StatementWriter {
           method_object.getInferredExprType(new VarType(CodeType.OBJECT, 0, node.lambdaInformation.content_class_name));
           TextBuffer instance = method_object.toJava(indent);
           // If the instance is casted, then we need to wrap it
-          if (method_object instanceof FunctionExprent && ((FunctionExprent)method_object).getFuncType() == FunctionType.CAST && ((FunctionExprent)method_object).doesCast()) {
+          if (method_object instanceof FunctionExprent func &&
+            func.getFuncType() == FunctionType.CAST &&
+            func.doesCast()) {
             buffer.append('(').append(instance).append(')');
           }
           else {
@@ -231,29 +233,24 @@ public class ClassWriter implements StatementWriter {
               .append(" */ ");
           }
           // Array constructor lambda
-          if (md_lambda.params.length == 1 && md_lambda.params[0].equals(VarType.VARTYPE_INT) && md_lambda.ret.arrayDim > 0) {
-            if (root.getFirst() instanceof BasicBlockStatement && root.getFirst().getExprents().size() == 1) {
-              Exprent exp = root.getFirst().getExprents().get(0);
-              if (exp instanceof ExitExprent) {
-                ExitExprent exit = (ExitExprent) exp;
-                Exprent returnValue = exit.getValue();
-                if (returnValue instanceof NewExprent) {
-                  NewExprent newExp = (NewExprent) returnValue;
-                  if (newExp.getNewType().arrayDim > 0 && !newExp.isDirectArrayInit() && newExp.getLstArrayElements().isEmpty() && newExp.getLstDims().size() > 0) {
-                    Exprent size = newExp.getLstDims().get(newExp.getLstDims().size() - 1);
-                    if (size instanceof VarExprent) {
-                      VarExprent sizeVar = (VarExprent) size;
-                      if (sizeVar.getIndex() == (node.lambdaInformation.is_content_method_static ? 0 : 1)) {
-                        VarType returnType = md_lambda.ret;
-                        buffer.appendCastTypeName(returnType);
-                        buffer.append("::new");
-                        written = true;
-                      }
-                    }
-                  }
-                }
-              }
-            }
+          if (md_lambda.params.length == 1 &&
+            md_lambda.params[0].equals(VarType.VARTYPE_INT) &&
+            md_lambda.ret.arrayDim > 0 &&
+            root.getFirst() instanceof BasicBlockStatement &&
+            root.getFirst().getExprents().size() == 1 &&
+            root.getFirst().getExprents().get(0) instanceof ExitExprent exit &&
+            exit.getValue() instanceof NewExprent newExp &&
+            newExp.getNewType().arrayDim > 0 &&
+            !newExp.isDirectArrayInit() &&
+            newExp.getLstArrayElements().isEmpty() &&
+            newExp.getLstDims().size() > 0 &&
+            newExp.getLstDims().get(newExp.getLstDims().size() - 1) instanceof VarExprent sizeVar &&
+            sizeVar.getIndex() == (node.lambdaInformation.is_content_method_static ? 0 : 1)) {
+
+            VarType returnType = md_lambda.ret;
+            buffer.appendCastTypeName(returnType);
+            buffer.append("::new");
+            written = true;
           }
           if (!written) {
             boolean lambdaParametersNeedParentheses = md_lambda.params.length != 1;
@@ -300,16 +297,16 @@ public class ClassWriter implements StatementWriter {
               Statement firstStat = root.getFirst();
               if (firstStat instanceof BasicBlockStatement && firstStat.getExprents() != null && firstStat.getExprents().size() == 1) {
                 Exprent firstExpr = firstStat.getExprents().get(0);
-                boolean isVarDefinition = firstExpr instanceof AssignmentExprent &&
-                  ((AssignmentExprent)firstExpr).getLeft() instanceof VarExprent &&
-                  ((VarExprent)((AssignmentExprent)firstExpr).getLeft()).isDefinition();
+                boolean isVarDefinition = firstExpr instanceof AssignmentExprent ass &&
+                  ass.getLeft() instanceof VarExprent var &&
+                  var.isDefinition();
   
-                boolean isThrow = firstExpr instanceof ExitExprent &&
-                  ((ExitExprent)firstExpr).getExitType() == ExitExprent.Type.THROW;
+                boolean isThrow = firstExpr instanceof ExitExprent exit &&
+                  exit.getExitType() == ExitExprent.Type.THROW;
   
                 if (!isVarDefinition && !isThrow) {
                   simpleLambda = true;
-                  MethodWrapper outerWrapper = (MethodWrapper)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
+                  MethodWrapper outerWrapper = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
                   DecompilerContext.setProperty(DecompilerContext.CURRENT_METHOD_WRAPPER, methodWrapper);
                   try {
                     TextBuffer codeBuffer = firstExpr.toJava(indent);
@@ -371,7 +368,7 @@ public class ClassWriter implements StatementWriter {
   }
 
   public void writeClass(ClassNode node, TextBuffer buffer, int indent) {
-    ClassNode outerNode = (ClassNode)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
+    ClassNode outerNode = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
     DecompilerContext.setProperty(DecompilerContext.CURRENT_CLASS_NODE, node);
 
     try {
@@ -920,8 +917,7 @@ public class ClassWriter implements StatementWriter {
     }
 
     if (initializer != null) {
-      if (isEnum && initializer instanceof NewExprent) {
-        NewExprent expr = (NewExprent)initializer;
+      if (isEnum && initializer instanceof NewExprent expr) {
         expr.setEnumConst(true);
         buffer.append(expr.toJava(indent));
       }
@@ -958,7 +954,7 @@ public class ClassWriter implements StatementWriter {
                                          boolean codeOnly) {
     MethodWrapper methodWrapper = classWrapper.getMethodWrapper(mt.getName(), mt.getDescriptor());
 
-    MethodWrapper outerWrapper = (MethodWrapper)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
+    MethodWrapper outerWrapper = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
     DecompilerContext.setProperty(DecompilerContext.CURRENT_METHOD_WRAPPER, methodWrapper);
 
     try {
@@ -1073,7 +1069,7 @@ public class ClassWriter implements StatementWriter {
 
     boolean hideMethod = false;
 
-    MethodWrapper outerWrapper = (MethodWrapper)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
+    MethodWrapper outerWrapper = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
     DecompilerContext.setProperty(DecompilerContext.CURRENT_METHOD_WRAPPER, methodWrapper);
 
     try {
@@ -1564,7 +1560,7 @@ public class ClassWriter implements StatementWriter {
   }
 
   private static void collectBytecode(MethodWrapper wrapper, List<String> lines) throws IOException {
-    ClassNode classNode = (ClassNode)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
+    ClassNode classNode = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
     StructMethod method = wrapper.methodStruct;
     FullInstructionSequence instructions = method.getInstructionSequence();
     if (instructions == null) {
@@ -1667,8 +1663,7 @@ public class ClassWriter implements StatementWriter {
       sb.append("<null constant>");
       return;
     }
-    if (constant instanceof PrimitiveConstant) {
-      PrimitiveConstant prim = ((PrimitiveConstant) constant);
+    if (constant instanceof PrimitiveConstant prim) {
       Object value = prim.value;
       String stringValue = String.valueOf(value);
       if (prim.type == CodeConstants.CONSTANT_Class) {
@@ -1678,8 +1673,7 @@ public class ClassWriter implements StatementWriter {
       } else {
         sb.append(stringValue);
       }
-    } else if (constant instanceof LinkConstant) {
-      LinkConstant linkConstant = (LinkConstant) constant;
+    } else if (constant instanceof LinkConstant linkConstant) {
       sb.append(linkConstant.classname).append('.').append(linkConstant.elementname).append(' ').append(linkConstant.descriptor);
     }
   }
