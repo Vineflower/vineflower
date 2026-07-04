@@ -863,6 +863,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_25, "/TestCompactSourceFileOtherMembers");
     register(JAVA_25, "/TestCompactSourceFileOtherMembersStatic");
     register(JAVA_8_NODEBUG, "TestByteArrayMerge");
+    register(JAVA_8_NODEBUG, "TestByteVarIntMerge");
     register(JAVA_8, "TestFloatDupStoreTernary");
   }
 

@@ -3,7 +3,7 @@ package pkg;
 public class TestSwitchExpressionAssignmentOrder {
    public int test1(int i1) {
       int v = 5;// 5
-      byte var3;
+      int var3;
 
       return v + (var3 = this.test1(i1)) + switch (var3) {// 6
          case 0 -> 1;// 7
@@ -42,7 +42,7 @@ public class TestSwitchExpressionAssignmentOrder {
 
    public int test4(int i1) {
       int v = 5;// 36
-      byte var4;
+      int var4;
       int o = var4;
 
       return (var4 = i1 + v) + var4 + switch (v = v + var4) {// 37

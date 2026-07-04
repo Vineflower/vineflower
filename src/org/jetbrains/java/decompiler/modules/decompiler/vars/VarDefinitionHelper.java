@@ -1041,6 +1041,15 @@ public class VarDefinitionHelper {
       else if (expr instanceof VarExprent) {
         VarExprent var = (VarExprent)expr;
         VarVersionPair old = new VarVersionPair(var);
+        if (old.equals(to) && var.isDefinition()) {
+          // Refresh the merge target's declared type when its declaration is stored inline,
+          // so it matches the widened type of the merged writes (Vineflower#578).
+          VarType merged = getMergedType(from, to);
+          if (merged != null) {
+            var.setVarType(merged);
+          }
+          continue;
+        }
         if (!old.equals(from)) {
           continue;
         }
