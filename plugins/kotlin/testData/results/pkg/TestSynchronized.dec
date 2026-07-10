@@ -5,7 +5,7 @@ public class TestSynchronized {
       synchronized (this) {// 5
          System.out.println("Hello")// 6
       }
-   }
+   }// 8
 }
 
 class 'pkg/TestSynchronized' {
@@ -21,13 +21,13 @@ class 'pkg/TestSynchronized' {
       d      5
       e      5
       f      5
-      17      7
+      1f      7
    }
 }
 
 Lines mapping:
 5 <-> 5
 6 <-> 6
+8 <-> 8
 Not mapped:
 7
-8

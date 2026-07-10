@@ -143,7 +143,7 @@ public final class IfHelper {
           Statement ifinner = ifbranch.innerNode.value;
 
           // Don't move $assertionsDisabled into the right hand side of if statements, which could create incorrect code.
-          if (ifchild.getFirst().getExprents().isEmpty() && !ifchild.hasPPMM() && !hasAssertField(ifchild.getHeadexprent())) {
+          if (ifchild.getFirst().getExprents().isEmpty() && !hasAssertField(ifchild.getHeadexprent())) {
 
             ifparent.getIfEdge().remove();
             ifchild.getFirstSuccessor().remove();

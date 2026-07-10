@@ -1,0 +1,645 @@
+package pkg;
+
+import groovy.lang.GroovyObject;
+import groovy.lang.MetaClass;
+import groovy.transform.Generated;
+import groovy.transform.Internal;
+import java.beans.Transient;
+import org.codehaus.groovy.runtime.BytecodeInterface8;
+import org.codehaus.groovy.runtime.callsite.CallSite;
+import org.codehaus.groovy.runtime.typehandling.DefaultTypeTransformation;
+
+public class TestGroovyFinallyBlockVariableUse implements GroovyObject {
+   @Generated
+   public TestGroovyFinallyBlockVariableUse() {
+      CallSite[] var1 = $getCallSiteArray();
+      super();
+      MetaClass var2 = this.$getStaticMetaClass();
+      this.metaClass = var2;
+   }
+
+   public int test(String param1, int param2, int param3) {
+      // $VF: Couldn't be decompiled
+      // Bytecode:
+      // 000: nop
+      // 001: invokestatic pkg/TestGroovyFinallyBlockVariableUse.$getCallSiteArray ()[Lorg/codehaus/groovy/runtime/callsite/CallSite;
+      // 004: astore 4
+      // 006: aload 4
+      // 008: ldc 0
+      // 00a: aaload
+      // 00b: aload 4
+      // 00d: ldc 1
+      // 00f: aaload
+      // 010: ldc java/lang/System
+      // 012: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.callGetProperty (Ljava/lang/Object;)Ljava/lang/Object; 2
+      // 017: ldc "a"
+      // 019: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.call (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; 3
+      // 01e: pop
+      // 01f: aload 4
+      // 021: ldc 2
+      // 023: aaload
+      // 024: aload 4
+      // 026: ldc 3
+      // 028: aaload
+      // 029: ldc java/lang/System
+      // 02b: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.callGetProperty (Ljava/lang/Object;)Ljava/lang/Object; 2
+      // 030: ldc "b"
+      // 032: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.call (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; 3
+      // 037: pop
+      // 038: aload 4
+      // 03a: ldc 4
+      // 03c: aaload
+      // 03d: aload 4
+      // 03f: ldc 5
+      // 041: aaload
+      // 042: ldc java/lang/Integer
+      // 044: aload 1
+      // 045: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.call (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; 3
+      // 04a: iload 3
+      // 04b: invokestatic java/lang/Integer.valueOf (I)Ljava/lang/Integer;
+      // 04e: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.call (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; 3
+      // 053: astore 5
+      // 055: aload 5
+      // 057: invokestatic org/codehaus/groovy/runtime/typehandling/DefaultTypeTransformation.intUnbox (Ljava/lang/Object;)I
+      // 05a: istore 2
+      // 05b: aload 5
+      // 05d: pop
+      // 05e: iload 2
+      // 05f: istore 6
+      // 061: nop
+      // 062: nop
+      // 063: invokestatic org/codehaus/groovy/runtime/BytecodeInterface8.isOrigInt ()Z
+      // 066: ifeq 07e
+      // 069: invokestatic org/codehaus/groovy/runtime/BytecodeInterface8.isOrigZ ()Z
+      // 06c: ifeq 07e
+      // 06f: getstatic pkg/TestGroovyFinallyBlockVariableUse.__$stMC Z
+      // 072: ifne 07e
+      // 075: invokestatic org/codehaus/groovy/runtime/BytecodeInterface8.disabledStandardMetaClass ()Z
+      // 078: ifne 07e
+      // 07b: goto 0d3
+      // 07e: aload 4
+      // 080: ldc 6
+      // 082: aaload
+      // 083: iload 2
+      // 084: invokestatic java/lang/Integer.valueOf (I)Ljava/lang/Integer;
+      // 087: iload 3
+      // 088: invokestatic java/lang/Integer.valueOf (I)Ljava/lang/Integer;
+      // 08b: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.call (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; 3
+      // 090: invokestatic org/codehaus/groovy/runtime/typehandling/DefaultTypeTransformation.intUnbox (Ljava/lang/Object;)I
+      // 093: istore 7
+      // 095: iload 7
+      // 097: pop
+      // 098: iload 7
+      // 09a: bipush 0
+      // 09b: if_icmple 0a2
+      // 09e: bipush 1
+      // 09f: goto 0a3
+      // 0a2: bipush 0
+      // 0a3: ifeq 0d0
+      // 0a6: aload 4
+      // 0a8: ldc 7
+      // 0aa: aaload
+      // 0ab: aload 0
+      // 0ac: bipush 4
+      // 0ad: anewarray 4
+      // 0b0: dup
+      // 0b1: bipush 0
+      // 0b2: iload 7
+      // 0b4: invokestatic java/lang/Integer.valueOf (I)Ljava/lang/Integer;
+      // 0b7: aastore
+      // 0b8: dup
+      // 0b9: bipush 1
+      // 0ba: aload 1
+      // 0bb: aastore
+      // 0bc: dup
+      // 0bd: bipush 2
+      // 0be: iload 2
+      // 0bf: invokestatic java/lang/Integer.valueOf (I)Ljava/lang/Integer;
+      // 0c2: aastore
+      // 0c3: dup
+      // 0c4: bipush 3
+      // 0c5: iload 3
+      // 0c6: invokestatic java/lang/Integer.valueOf (I)Ljava/lang/Integer;
+      // 0c9: aastore
+      // 0ca: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.callCurrent (Lgroovy/lang/GroovyObject;Ljava/lang/Object;)Ljava/lang/Object; 3
+      // 0cf: pop
+      // 0d0: goto 10e
+      // 0d3: iload 2
+      // 0d4: iload 3
+      // 0d5: isub
+      // 0d6: istore 8
+      // 0d8: iload 8
+      // 0da: pop
+      // 0db: iload 8
+      // 0dd: bipush 0
+      // 0de: if_icmple 0e5
+      // 0e1: bipush 1
+      // 0e2: goto 0e6
+      // 0e5: bipush 0
+      // 0e6: ifeq 10e
+      // 0e9: aload 0
+      // 0eb: bipush 4
+      // 0ec: anewarray 4
+      // 0ef: dup
+      // 0f0: bipush 0
+      // 0f1: iload 8
+      // 0f3: invokestatic java/lang/Integer.valueOf (I)Ljava/lang/Integer;
+      // 0f6: aastore
+      // 0f7: dup
+      // 0f8: bipush 1
+      // 0f9: aload 1
+      // 0fa: aastore
+      // 0fb: dup
+      // 0fc: bipush 2
+      // 0fd: iload 2
+      // 0fe: invokestatic java/lang/Integer.valueOf (I)Ljava/lang/Integer;
+      // 101: aastore
+      // 102: dup
+      // 103: bipush 3
+      // 104: iload 3
+      // 105: invokestatic java/lang/Integer.valueOf (I)Ljava/lang/Integer;
+      // 108: aastore
+      // 109: invokespecial pkg/TestGroovyFinallyBlockVariableUse.accept ([Ljava/lang/Object;)V
+      // 10c: aconst_null
+      // 10d: pop
+      // 10e: nop
+      // 10f: iload 6
+      // 111: ireturn
+      // 112: nop
+      // 113: nop
+      // 114: athrow
+      // 115: astore 9
+      // 117: iload 3
+      // 118: istore 10
+      // 11a: iload 10
+      // 11c: istore 2
+      // 11d: iload 10
+      // 11f: pop
+      // 120: aload 9
+      // 122: checkcast java/lang/Throwable
+      // 125: athrow
+      // 126: athrow
+      // 127: nop
+      // 128: nop
+      // 129: athrow
+      // 12a: nop
+      // 12b: nop
+      // 12c: athrow
+      // 12d: astore 11
+      // 12f: aload 11
+      // 131: athrow
+      // 132: nop
+      // 133: nop
+      // 134: athrow
+      // 135: nop
+      // 136: nop
+      // 137: nop
+      // 138: nop
+      // 139: nop
+      // 13a: athrow
+      // 13b: nop
+      // 13c: nop
+      // 13d: nop
+      // 13e: nop
+      // 13f: nop
+      // 140: athrow
+      // 141: nop
+      // 142: nop
+      // 143: nop
+      // 144: nop
+      // 145: nop
+      // 146: athrow
+      // 147: nop
+      // 148: nop
+      // 149: nop
+      // 14a: nop
+      // 14b: nop
+      // 14c: athrow
+      // 14d: nop
+      // 14e: nop
+      // 14f: athrow
+      // 150: nop
+      // 151: nop
+      // 152: nop
+      // 153: nop
+      // 154: nop
+      // 155: nop
+      // 156: nop
+      // 157: nop
+      // 158: nop
+      // 159: nop
+      // 15a: nop
+      // 15b: nop
+      // 15c: nop
+      // 15d: nop
+      // 15e: nop
+      // 15f: nop
+      // 160: nop
+      // 161: nop
+      // 162: nop
+      // 163: nop
+      // 164: nop
+      // 165: nop
+      // 166: athrow
+      // 167: nop
+      // 168: nop
+      // 169: athrow
+      // 16a: nop
+      // 16b: nop
+      // 16c: nop
+      // 16d: nop
+      // 16e: nop
+      // 16f: athrow
+      // 170: nop
+      // 171: nop
+      // 172: nop
+      // 173: athrow
+      // 174: athrow
+      // 175: nop
+      // 176: nop
+      // 177: athrow
+      // 178: nop
+      // 179: nop
+      // 17a: nop
+      // 17b: nop
+      // 17c: nop
+      // 17d: nop
+      // 17e: nop
+      // 17f: nop
+      // 180: nop
+      // 181: nop
+      // 182: nop
+      // 183: nop
+      // 184: nop
+      // 185: nop
+      // 186: nop
+      // 187: nop
+      // 188: nop
+      // 189: nop
+      // 18a: nop
+      // 18b: nop
+      // 18c: nop
+      // 18d: nop
+      // 18e: nop
+      // 18f: nop
+      // 190: nop
+      // 191: nop
+      // 192: nop
+      // 193: nop
+      // 194: nop
+      // 195: nop
+      // 196: nop
+      // 197: nop
+      // 198: nop
+      // 199: nop
+      // 19a: nop
+      // 19b: nop
+      // 19c: nop
+      // 19d: nop
+      // 19e: nop
+      // 19f: nop
+      // 1a0: nop
+      // 1a1: athrow
+      // 1a2: nop
+      // 1a3: nop
+      // 1a4: athrow
+      // 1a5: nop
+      // 1a6: nop
+      // 1a7: nop
+      // 1a8: nop
+      // 1a9: athrow
+      // 1aa: nop
+      // 1ab: nop
+      // 1ac: athrow
+      // 1ad: nop
+      // 1ae: nop
+      // 1af: nop
+      // 1b0: nop
+      // 1b1: nop
+      // 1b2: athrow
+      // 1b3: nop
+      // 1b4: nop
+      // 1b5: nop
+      // 1b6: athrow
+      // 1b7: athrow
+      // 1b8: nop
+      // 1b9: nop
+      // 1ba: athrow
+      // 1bb: nop
+      // 1bc: nop
+      // 1bd: nop
+      // 1be: nop
+      // 1bf: nop
+      // 1c0: nop
+      // 1c1: nop
+      // 1c2: nop
+      // 1c3: nop
+      // 1c4: nop
+      // 1c5: nop
+      // 1c6: nop
+      // 1c7: nop
+      // 1c8: nop
+      // 1c9: nop
+      // 1ca: nop
+      // 1cb: nop
+      // 1cc: nop
+      // 1cd: nop
+      // 1ce: nop
+      // 1cf: nop
+      // 1d0: nop
+      // 1d1: nop
+      // 1d2: nop
+      // 1d3: nop
+      // 1d4: nop
+      // 1d5: nop
+      // 1d6: nop
+      // 1d7: nop
+      // 1d8: nop
+      // 1d9: nop
+      // 1da: nop
+      // 1db: nop
+      // 1dc: nop
+      // 1dd: nop
+      // 1de: nop
+      // 1df: athrow
+      // 1e0: nop
+      // 1e1: nop
+      // 1e2: athrow
+      // 1e3: astore 14
+      // 1e5: invokestatic org/codehaus/groovy/runtime/BytecodeInterface8.isOrigInt ()Z
+      // 1e8: ifeq 200
+      // 1eb: invokestatic org/codehaus/groovy/runtime/BytecodeInterface8.isOrigZ ()Z
+      // 1ee: ifeq 200
+      // 1f1: getstatic pkg/TestGroovyFinallyBlockVariableUse.__$stMC Z
+      // 1f4: ifne 200
+      // 1f7: invokestatic org/codehaus/groovy/runtime/BytecodeInterface8.disabledStandardMetaClass ()Z
+      // 1fa: ifne 200
+      // 1fd: goto 255
+      // 200: aload 4
+      // 202: ldc 10
+      // 204: aaload
+      // 205: iload 2
+      // 206: invokestatic java/lang/Integer.valueOf (I)Ljava/lang/Integer;
+      // 209: iload 3
+      // 20a: invokestatic java/lang/Integer.valueOf (I)Ljava/lang/Integer;
+      // 20d: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.call (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; 3
+      // 212: invokestatic org/codehaus/groovy/runtime/typehandling/DefaultTypeTransformation.intUnbox (Ljava/lang/Object;)I
+      // 215: istore 15
+      // 217: iload 15
+      // 219: pop
+      // 21a: iload 15
+      // 21c: bipush 0
+      // 21d: if_icmple 224
+      // 220: bipush 1
+      // 221: goto 225
+      // 224: bipush 0
+      // 225: ifeq 252
+      // 228: aload 4
+      // 22a: ldc 11
+      // 22c: aaload
+      // 22d: aload 0
+      // 22e: bipush 4
+      // 22f: anewarray 4
+      // 232: dup
+      // 233: bipush 0
+      // 234: iload 15
+      // 236: invokestatic java/lang/Integer.valueOf (I)Ljava/lang/Integer;
+      // 239: aastore
+      // 23a: dup
+      // 23b: bipush 1
+      // 23c: aload 1
+      // 23d: aastore
+      // 23e: dup
+      // 23f: bipush 2
+      // 240: iload 2
+      // 241: invokestatic java/lang/Integer.valueOf (I)Ljava/lang/Integer;
+      // 244: aastore
+      // 245: dup
+      // 246: bipush 3
+      // 247: iload 3
+      // 248: invokestatic java/lang/Integer.valueOf (I)Ljava/lang/Integer;
+      // 24b: aastore
+      // 24c: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.callCurrent (Lgroovy/lang/GroovyObject;Ljava/lang/Object;)Ljava/lang/Object; 3
+      // 251: pop
+      // 252: goto 290
+      // 255: iload 2
+      // 256: iload 3
+      // 257: isub
+      // 258: istore 16
+      // 25a: iload 16
+      // 25c: pop
+      // 25d: iload 16
+      // 25f: bipush 0
+      // 260: if_icmple 267
+      // 263: bipush 1
+      // 264: goto 268
+      // 267: bipush 0
+      // 268: ifeq 290
+      // 26b: aload 0
+      // 26d: bipush 4
+      // 26e: anewarray 4
+      // 271: dup
+      // 272: bipush 0
+      // 273: iload 16
+      // 275: invokestatic java/lang/Integer.valueOf (I)Ljava/lang/Integer;
+      // 278: aastore
+      // 279: dup
+      // 27a: bipush 1
+      // 27b: aload 1
+      // 27c: aastore
+      // 27d: dup
+      // 27e: bipush 2
+      // 27f: iload 2
+      // 280: invokestatic java/lang/Integer.valueOf (I)Ljava/lang/Integer;
+      // 283: aastore
+      // 284: dup
+      // 285: bipush 3
+      // 286: iload 3
+      // 287: invokestatic java/lang/Integer.valueOf (I)Ljava/lang/Integer;
+      // 28a: aastore
+      // 28b: invokespecial pkg/TestGroovyFinallyBlockVariableUse.accept ([Ljava/lang/Object;)V
+      // 28e: aconst_null
+      // 28f: pop
+      // 290: aload 14
+      // 292: athrow
+      // 293: nop
+      // 294: nop
+      // 295: athrow
+      // try (25 -> 46): 147 java/lang/NumberFormatException
+      // try (142 -> 144): 147 java/lang/NumberFormatException
+      // try (25 -> 46): 164 null
+      // try (142 -> 144): 164 null
+      // try (147 -> 157): 164 null
+      // try (14 -> 47): 344 null
+      // try (142 -> 144): 344 null
+      // try (147 -> 157): 344 null
+      // try (164 -> 167): 344 null
+   }
+
+   private boolean condition(int i) {
+      CallSite[] var2 = $getCallSiteArray();
+      if (BytecodeInterface8.isOrigInt() && BytecodeInterface8.isOrigZ() && !__$stMC && !BytecodeInterface8.disabledStandardMetaClass()) {
+         int var4 = i--;// 27
+         return var4 > 0;
+      } else {
+         int var3 = i;
+         i = DefaultTypeTransformation.intUnbox(var2[12].call(i));
+         return var3 > 0;
+      }
+   }
+
+   private void accept(Object... args) {
+      CallSite[] var2 = $getCallSiteArray();
+   }// 32
+
+   @Generated
+   @Internal
+   @Transient
+   public MetaClass getMetaClass() {
+      if (this.metaClass != null) {
+         return this.metaClass;
+      }
+
+      this.metaClass = this.$getStaticMetaClass();
+      return this.metaClass;
+   }
+
+   @Generated
+   @Internal
+   public void setMetaClass(MetaClass var1) {
+      this.metaClass = var1;
+   }
+}
+
+class 'pkg/TestGroovyFinallyBlockVariableUse' {
+   method '<init> ()V' {
+      1      14
+      2      14
+      3      14
+      4      14
+      6      15
+      7      15
+      8      15
+      9      16
+      a      16
+      b      16
+      c      16
+      d      16
+      e      17
+      f      17
+      11      17
+      12      17
+      13      17
+      16      18
+   }
+
+   method 'condition (I)Z' {
+      1      479
+      2      479
+      3      479
+      4      479
+      5      480
+      6      480
+      7      480
+      8      480
+      9      480
+      a      480
+      b      480
+      c      480
+      d      480
+      e      480
+      f      480
+      10      480
+      11      480
+      12      480
+      13      480
+      14      480
+      15      480
+      16      480
+      17      480
+      18      480
+      19      480
+      1a      480
+      1b      480
+      1c      480
+      20      484
+      22      484
+      23      485
+      24      485
+      25      485
+      26      485
+      28      485
+      29      485
+      2a      485
+      2b      485
+      2c      485
+      2d      485
+      2e      485
+      2f      485
+      31      485
+      32      485
+      33      485
+      34      485
+      36      486
+      37      486
+      38      486
+      39      486
+      3a      486
+      40      486
+      44      481
+      46      481
+      47      481
+      49      481
+      4d      482
+      4e      482
+      4f      482
+      50      482
+      51      482
+      52      482
+      58      482
+   }
+
+   method 'accept ([Ljava/lang/Object;)V' {
+      1      491
+      2      491
+      3      491
+      4      491
+      5      492
+   }
+
+   method 'getMetaClass ()Lgroovy/lang/MetaClass;' {
+      0      498
+      1      498
+      2      498
+      3      498
+      5      498
+      6      498
+      7      498
+      8      499
+      a      502
+      c      502
+      d      502
+      e      502
+      f      502
+      10      502
+      11      502
+      12      503
+      13      503
+      14      503
+      15      503
+      16      503
+   }
+
+   method 'setMetaClass (Lgroovy/lang/MetaClass;)V' {
+      0      509
+      1      509
+      2      509
+      3      509
+      4      509
+      5      510
+   }
+}
+
+Lines mapping:
+27 <-> 482
+32 <-> 493

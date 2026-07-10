@@ -52,7 +52,7 @@ public class TestNullableOperator {
       } else {
          throw Exception()
       }
-   }
+   }// 30
 
    public fun test6(x: Int?): Int {
       if (x != null) {// 33
@@ -68,7 +68,7 @@ public class TestNullableOperator {
       if (x != null) {// 41
          System.out.println(x)// 43
       }
-   }
+   }// 44
 }
 
 class 'pkg/TestNullableOperator' {
@@ -116,8 +116,8 @@ class 'pkg/TestNullableOperator' {
       5      36
       6      36
       7      36
-      8      36
       13      38
+      14      36
    }
 
    method 'test4 (Ljava/lang/Exception;)V' {
@@ -139,8 +139,8 @@ class 'pkg/TestNullableOperator' {
       5      50
       6      50
       7      50
-      8      54
       13      52
+      14      54
    }
 
    method 'test6 (Ljava/lang/Integer;)I' {
@@ -151,16 +151,18 @@ class 'pkg/TestNullableOperator' {
       5      58
       6      58
       7      58
-      8      58
       c      62
       d      62
-      e      59
+      e      58
       f      59
       10      59
+      11      59
       12      59
       13      59
       14      59
+      15      59
       16      60
+      17      60
    }
 
    method 'test6_1 (Ljava/lang/Integer;)V' {
@@ -172,12 +174,14 @@ class 'pkg/TestNullableOperator' {
       6      68
       7      68
       c      70
-      d      68
       e      68
       f      68
+      10      68
       11      68
       12      68
       13      68
+      14      68
+      15      70
    }
 }
 
@@ -190,11 +194,10 @@ Lines mapping:
 25 <-> 44
 26 <-> 47
 29 <-> 50
+30 <-> 55
 33 <-> 58
 35 <-> 60
 37 <-> 61
 41 <-> 68
 43 <-> 69
-Not mapped:
-30
-44
+44 <-> 71

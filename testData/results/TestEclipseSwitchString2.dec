@@ -1,0 +1,274 @@
+package pkg;
+
+public class TestEclipseSwitchString2 {
+   String field = "";// 5
+
+   public String testInvokeStatic() {
+      String var1 = "a";// 18
+      String var2;
+      switch ((var2 = TestEclipseSwitchString2.Inner.get()).hashCode()) {// 19
+         case 49:
+            if (var2.equals("1")) {
+               var1 = "b";// 21
+            }
+            break;
+         case 50:
+            if (var2.equals("2")) {
+               var1 = "c";// 24
+            }
+            break;
+         case 51:
+            if (var2.equals("3")) {
+               var1 = "d";// 27
+            }
+      }
+
+      return var1;// 31
+   }
+
+   public String testInvokeVirtual() {
+      String var1 = "a";// 35
+      String var2;
+      switch ((var2 = new TestEclipseSwitchString2.Inner().getVirtual()).hashCode()) {// 36
+         case 49:
+            if (var2.equals("1")) {
+               var1 = "b";// 38
+            }
+            break;
+         case 50:
+            if (var2.equals("2")) {
+               var1 = "c";// 41
+            }
+            break;
+         case 51:
+            if (var2.equals("3")) {
+               var1 = "d";// 44
+            }
+      }
+
+      return var1;// 48
+   }
+
+   public static class Inner {
+      public static String get() {
+         return "";// 9
+      }
+
+      public String getVirtual() {
+         return "";// 13
+      }
+   }
+}
+
+class 'pkg/TestEclipseSwitchString2' {
+   method '<init> ()V' {
+      5      3
+      6      3
+   }
+
+   method 'testInvokeStatic ()Ljava/lang/String;' {
+      0      6
+      1      6
+      2      6
+      3      8
+      4      8
+      5      8
+      7      8
+      8      8
+      9      8
+      a      8
+      b      8
+      c      8
+      d      8
+      e      8
+      f      8
+      10      8
+      11      8
+      12      8
+      13      8
+      14      8
+      15      8
+      16      8
+      17      8
+      18      8
+      19      8
+      1a      8
+      1b      8
+      1c      8
+      1d      8
+      1e      8
+      1f      8
+      20      8
+      21      8
+      22      8
+      23      8
+      24      8
+      25      8
+      26      8
+      27      8
+      28      8
+      29      8
+      2a      8
+      2b      8
+      2c      10
+      2d      10
+      2e      10
+      2f      10
+      30      10
+      31      10
+      32      10
+      33      10
+      34      10
+      38      15
+      39      15
+      3a      15
+      3b      15
+      3c      15
+      3d      15
+      3e      15
+      3f      15
+      40      15
+      44      20
+      45      20
+      46      20
+      47      20
+      48      20
+      49      20
+      4a      20
+      4b      20
+      4c      20
+      50      11
+      51      11
+      52      11
+      56      16
+      57      16
+      58      16
+      5c      21
+      5d      21
+      5e      21
+      5f      25
+      60      25
+   }
+
+   method 'testInvokeVirtual ()Ljava/lang/String;' {
+      0      29
+      1      29
+      2      29
+      a      31
+      b      31
+      c      31
+      e      31
+      f      31
+      10      31
+      11      31
+      12      31
+      13      31
+      14      31
+      15      31
+      16      31
+      17      31
+      18      31
+      19      31
+      1a      31
+      1b      31
+      1c      31
+      1d      31
+      1e      31
+      1f      31
+      20      31
+      21      31
+      22      31
+      23      31
+      24      31
+      25      31
+      26      31
+      27      31
+      28      31
+      29      31
+      2a      31
+      2b      31
+      2c      31
+      2d      31
+      2e      31
+      2f      31
+      30      31
+      31      31
+      32      31
+      33      31
+      34      33
+      35      33
+      36      33
+      37      33
+      38      33
+      39      33
+      3a      33
+      3b      33
+      3c      33
+      40      38
+      41      38
+      42      38
+      43      38
+      44      38
+      45      38
+      46      38
+      47      38
+      48      38
+      4c      43
+      4d      43
+      4e      43
+      4f      43
+      50      43
+      51      43
+      52      43
+      53      43
+      54      43
+      58      34
+      59      34
+      5a      34
+      5e      39
+      5f      39
+      60      39
+      64      44
+      65      44
+      66      44
+      67      48
+      68      48
+   }
+}
+
+class 'pkg/TestEclipseSwitchString2$Inner' {
+   method 'get ()Ljava/lang/String;' {
+      0      53
+      1      53
+      2      53
+   }
+
+   method 'getVirtual ()Ljava/lang/String;' {
+      0      57
+      1      57
+      2      57
+   }
+}
+
+Lines mapping:
+5 <-> 4
+9 <-> 54
+13 <-> 58
+18 <-> 7
+19 <-> 9
+21 <-> 12
+24 <-> 17
+27 <-> 22
+31 <-> 26
+35 <-> 30
+36 <-> 32
+38 <-> 35
+41 <-> 40
+44 <-> 45
+48 <-> 49
+Not mapped:
+4
+22
+25
+39
+42

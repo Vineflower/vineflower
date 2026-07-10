@@ -578,7 +578,7 @@ public class SwitchStatement extends Statement {
 
   private void addCaseInternal(int index, List<@Nullable Exprent> values, Statement stat) {
     // Basichead is always the first stat
-    this.getStats().add(1 + index, stat);
+    this.getStats().addWithKeyAndIndex(1 + index, stat, stat.id);
     this.getCaseStatements().add(index, stat);
     this.getCaseValues().add(index, values);
 

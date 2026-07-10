@@ -30,13 +30,13 @@ public class KFunctionExprent extends FunctionExprent implements KExprent {
     STR_TEMPLATE
   }
 
-  public KFunctionExprent(KFunctionType funcType, List<Exprent> operands, BitSet bytecodeOffsets) {
+  public KFunctionExprent(KFunctionType funcType, List<Exprent> operands, BytecodeRange bytecodeOffsets) {
     this(FunctionType.OTHER, operands, bytecodeOffsets);
 
     this.kType = funcType;
   }
 
-  public KFunctionExprent(FunctionType funcType, List<Exprent> operands, BitSet bytecodeOffsets) {
+  public KFunctionExprent(FunctionType funcType, List<Exprent> operands, BytecodeRange bytecodeOffsets) {
     super(funcType, new ArrayList<>(KUtils.replaceExprents(operands)), bytecodeOffsets);
   }
 

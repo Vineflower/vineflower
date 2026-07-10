@@ -30,7 +30,7 @@ public class ExitExprent extends Exprent {
   private final VarType retType;
   private final MethodDescriptor methodDescriptor;
 
-  public ExitExprent(Type exitType, Exprent value, VarType retType, BitSet bytecodeOffsets, MethodDescriptor methodDescriptor) {
+  public ExitExprent(Type exitType, Exprent value, VarType retType, BytecodeRange bytecodeOffsets, MethodDescriptor methodDescriptor) {
     super(Exprent.Type.EXIT);
     this.exitType = exitType;
     this.value = value;
@@ -155,7 +155,7 @@ public class ExitExprent extends Exprent {
   }
 
   @Override
-  public void getBytecodeRange(BitSet values) {
+  public void getBytecodeRange(BytecodeRange values) {
     measureBytecode(values, value);
     measureBytecode(values);
   }

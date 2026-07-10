@@ -14,7 +14,7 @@ public class TestTryWithResourcesNestedJ16 {
       ) {
          scanner.next();// 14
       }
-   }// 18
+   }// 19
 
    public void testNestedFinally(File file) throws IOException {
       try (Scanner scanner = new Scanner(file)) {// 22
@@ -34,7 +34,7 @@ public class TestTryWithResourcesNestedJ16 {
       } finally {
          System.out.println(1);// 37
       }
-   }// 38
+   }// 39
 }
 
 class 'pkg/TestTryWithResourcesNestedJ16' {
@@ -53,7 +53,7 @@ class 'pkg/TestTryWithResourcesNestedJ16' {
       27      14
       28      14
       29      14
-      87      16
+      9c      16
    }
 
    method 'testNestedFinally (Ljava/io/File;)V' {
@@ -92,7 +92,6 @@ class 'pkg/TestTryWithResourcesNestedJ16' {
       bf      31
       c0      31
       c1      31
-      e5      36
       ea      34
       eb      34
       ec      34
@@ -100,6 +99,7 @@ class 'pkg/TestTryWithResourcesNestedJ16' {
       ee      34
       ef      34
       f0      34
+      f4      36
    }
 }
 
@@ -109,7 +109,7 @@ Lines mapping:
 12 <-> 12
 13 <-> 13
 14 <-> 15
-18 <-> 17
+19 <-> 17
 22 <-> 20
 23 <-> 21
 24 <-> 22
@@ -119,12 +119,12 @@ Lines mapping:
 31 <-> 29
 34 <-> 32
 37 <-> 35
-38 <-> 37
+39 <-> 37
 Not mapped:
 15
 16
 17
-19
+18
 27
 29
 30
@@ -132,4 +132,4 @@ Not mapped:
 33
 35
 36
-39
+38

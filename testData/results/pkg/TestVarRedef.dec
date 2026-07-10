@@ -46,7 +46,7 @@ class 'pkg/TestVarRedef' {
       4      16
       5      16
       6      17
-      9      17
+      17      17
       1f      20
       24      21
       28      21
@@ -65,7 +65,7 @@ class 'pkg/TestVarRedef' {
       35      23
       36      23
       37      23
-      3c      23
+      4c      23
       4d      24
       52      25
       56      25

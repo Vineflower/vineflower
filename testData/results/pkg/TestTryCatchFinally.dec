@@ -33,8 +33,17 @@ public class TestTryCatchFinally {
          System.out.println("Finally");// 55
       }
 
-      return -1;// 56 57
+      return -1;// 57
    }
+
+   void testEmptyCatch(String msg) {
+      try {
+         System.out.println(msg);// 62
+      } catch (RuntimeException var6) {// 63
+      } finally {
+         System.out.println("Bye");// 65
+      }
+   }// 67
 }
 
 class 'pkg/TestTryCatchFinally' {
@@ -89,7 +98,7 @@ class 'pkg/TestTryCatchFinally' {
       1      28
       2      28
       3      28
-      4      28
+      e      28
       f      29
       10      30
       11      30
@@ -103,7 +112,6 @@ class 'pkg/TestTryCatchFinally' {
       26      30
       27      30
       28      30
-      31      35
       35      32
       36      32
       37      32
@@ -113,6 +121,27 @@ class 'pkg/TestTryCatchFinally' {
       3b      32
       3c      32
       3f      35
+      40      35
+   }
+
+   method 'testEmptyCatch (Ljava/lang/String;)V' {
+      0      40
+      1      40
+      2      40
+      3      40
+      4      40
+      5      40
+      6      40
+      12      41
+      1f      43
+      20      43
+      21      43
+      22      43
+      23      43
+      24      43
+      25      43
+      26      43
+      29      45
    }
 }
 
@@ -131,9 +160,14 @@ Lines mapping:
 52 <-> 30
 53 <-> 31
 55 <-> 33
-56 <-> 36
 57 <-> 36
+62 <-> 41
+63 <-> 42
+65 <-> 44
+67 <-> 46
 Not mapped:
 25
 32
 35
+56
+66

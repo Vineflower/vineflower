@@ -318,11 +318,11 @@ class 'pkg/TestRecordPatterns8' {
       28      187
       29      187
       2a      187
-      2b      188
       3f      190
       40      191
       41      191
       42      188
+      43      188
    }
 
    method 'get (Ljava/lang/String;)Lpkg/TestRecordPatterns8$Sealed;' {

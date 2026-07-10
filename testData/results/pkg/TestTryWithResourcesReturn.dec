@@ -280,7 +280,7 @@ class 'pkg/TestTryWithResourcesReturn' {
       4      9
       8      9
       b      10
-      c      10
+      2e      10
    }
 
    method 'test2 (Ljava/io/File;)Ljava/util/Scanner;' {
@@ -295,7 +295,7 @@ class 'pkg/TestTryWithResourcesReturn' {
       11      16
       12      16
       13      17
-      14      17
+      36      17
       62      18
       63      19
       64      19
@@ -313,7 +313,7 @@ class 'pkg/TestTryWithResourcesReturn' {
       4      25
       8      25
       b      26
-      c      26
+      2e      26
       5a      27
       5b      28
       5c      28
@@ -339,7 +339,7 @@ class 'pkg/TestTryWithResourcesReturn' {
       c      36
       10      36
       13      37
-      14      37
+      36      37
       62      38
       63      39
       64      39
@@ -373,7 +373,7 @@ class 'pkg/TestTryWithResourcesReturn' {
       19      48
       1a      48
       1b      49
-      1c      49
+      3e      49
       6a      50
       6b      51
       6c      51
@@ -402,7 +402,7 @@ class 'pkg/TestTryWithResourcesReturn' {
       11      58
       12      58
       19      58
-      1a      58
+      3c      58
       68      59
       69      60
       6a      60
@@ -424,7 +424,7 @@ class 'pkg/TestTryWithResourcesReturn' {
       4      66
       5      66
       8      67
-      9      67
+      2b      67
    }
 
    method 'testFinally (Ljava/io/File;)Ljava/util/Scanner;' {
@@ -471,7 +471,7 @@ class 'pkg/TestTryWithResourcesReturn' {
       28      227
       29      227
       2a      228
-      2b      228
+      75      228
       76      231
       77      231
       78      231
@@ -556,7 +556,7 @@ class 'pkg/TestTryWithResourcesReturn' {
       26      251
       27      251
       28      251
-      29      251
+      73      251
       74      254
       75      254
       76      254
@@ -587,7 +587,7 @@ class 'pkg/TestTryWithResourcesReturn' {
       14      263
       15      263
       16      263
-      17      263
+      3e      263
       3f      266
       40      266
       41      266

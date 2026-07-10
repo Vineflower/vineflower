@@ -38,8 +38,6 @@ public class IfStatement extends Statement {
   private boolean negated = false;
   private boolean patternMatched = false;
 
-  private boolean hasPPMM = false;
-
   private final List<Exprent> headexprent = new ArrayList<>(1); // contains IfExprent
 
   // *****************************************************************************
@@ -415,14 +413,6 @@ public class IfStatement extends Statement {
 
   public void setPatternMatched(boolean patternMatched) {
     this.patternMatched = patternMatched;
-  }
-
-  public boolean hasPPMM() {
-    return hasPPMM;
-  }
-
-  public void setHasPPMM(boolean hasPPMM) {
-    this.hasPPMM = hasPPMM;
   }
 
   @Override

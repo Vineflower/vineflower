@@ -579,7 +579,7 @@ public class KotlinWriter implements StatementWriter, Flags {
     buffer.appendIndent(indent).append("}");
   }
 
-  public static TextBuffer stringifyReference(int indent, ClassesProcessor.ClassNode node, BitSet bytecode, Exprent receiver) {
+  public static TextBuffer stringifyReference(int indent, ClassesProcessor.ClassNode node, Exprent.BytecodeRange bytecode, Exprent receiver) {
     // Attempt to extract the real reference from <init>
     MethodWrapper init = node.getWrapper().getMethodWrapper("<init>", receiver != null ? "(Ljava/lang/Object;)V" : "()V");
     if (init == null) {

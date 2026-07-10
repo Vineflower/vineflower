@@ -1,0 +1,315 @@
+package pkg;
+
+public class TestTryCatchThrowable {
+   void testEmptyCatch() {
+      try {
+         System.out.println("Hi");// 7
+      } catch (Throwable var2) {// 8
+      }
+   }// 10
+
+   void testEmptyCatchWithTail() {
+      try {
+         System.out.println("Hi");// 14
+      } catch (Throwable var2) {// 15
+      }
+
+      System.out.println("tail");// 18
+   }// 19
+
+   String testCatchWithReturn() {
+      try {
+         System.out.println("Hi");// 23
+         return "5";// 24
+      } catch (Throwable ignored) {// 25
+         return null;// 26
+      }
+   }
+
+   String testCatchWithReturnAndTail() {
+      try {
+         System.out.println("Hi");// 32
+      } catch (Throwable ignored) {// 33
+         return null;// 34
+      }
+
+      System.out.println("Ho");// 36
+      return "bye";// 37
+   }
+
+   String testCatchNested() {
+      try {
+         System.out.println("Hi");// 42
+         return "hello";// 43
+      } catch (Throwable ignored) {
+         try {
+            System.out.println("Hi!");// 46
+            return "5";// 47
+         } catch (Throwable throwable) {// 48
+            return throwable.getMessage();// 49
+         }
+      }
+   }
+
+   String testCatchWithRethrow() {
+      try {
+         System.out.println("Hi");// 56
+         return "5";// 57
+      } catch (Throwable throwable) {// 58
+         System.out.println("Oh no");// 59
+         throw throwable;// 60
+      }
+   }
+
+   void testCatchAndOtherEmptyCatch() {
+      try {
+         System.out.println("Hi");// 67
+      } catch (RuntimeException var2) {// 68
+      } catch (Throwable ignored) {// 70
+         System.out.println("Oh no");// 71
+      }
+   }// 73
+
+   void testCatchAndOtherNonEmptyCatch() {
+      try {
+         System.out.println("Hi");// 77
+      } catch (RuntimeException ignored) {// 78
+         System.out.println("Hello");// 79
+      } catch (Throwable ignored) {// 80
+         System.out.println("Oh no");// 81
+      }
+   }// 83
+}
+
+class 'pkg/TestTryCatchThrowable' {
+   method 'testEmptyCatch ()V' {
+      0      5
+      1      5
+      2      5
+      3      5
+      4      5
+      5      5
+      6      5
+      7      5
+      b      6
+      c      8
+   }
+
+   method 'testEmptyCatchWithTail ()V' {
+      0      12
+      1      12
+      2      12
+      3      12
+      4      12
+      5      12
+      6      12
+      7      12
+      b      13
+      c      16
+      d      16
+      e      16
+      f      16
+      10      16
+      11      16
+      12      16
+      13      16
+      14      17
+   }
+
+   method 'testCatchWithReturn ()Ljava/lang/String;' {
+      0      21
+      1      21
+      2      21
+      3      21
+      4      21
+      5      21
+      6      21
+      7      21
+      8      22
+      9      22
+      a      22
+      b      23
+      c      24
+      d      24
+   }
+
+   method 'testCatchWithReturnAndTail ()Ljava/lang/String;' {
+      0      30
+      1      30
+      2      30
+      3      30
+      4      30
+      5      30
+      6      30
+      7      30
+      b      31
+      c      32
+      d      32
+      e      35
+      f      35
+      10      35
+      11      35
+      12      35
+      13      35
+      14      35
+      15      35
+      16      36
+      17      36
+      18      36
+   }
+
+   method 'testCatchNested ()Ljava/lang/String;' {
+      0      41
+      1      41
+      2      41
+      3      41
+      4      41
+      5      41
+      6      41
+      7      41
+      8      42
+      9      42
+      a      42
+      c      45
+      d      45
+      e      45
+      f      45
+      10      45
+      11      45
+      12      45
+      13      45
+      14      46
+      15      46
+      16      46
+      17      47
+      18      48
+      19      48
+      1a      48
+      1b      48
+      1c      48
+   }
+
+   method 'testCatchWithRethrow ()Ljava/lang/String;' {
+      0      55
+      1      55
+      2      55
+      3      55
+      4      55
+      5      55
+      6      55
+      7      55
+      8      56
+      9      56
+      a      56
+      b      57
+      c      58
+      d      58
+      e      58
+      f      58
+      10      58
+      11      58
+      12      58
+      13      58
+      14      59
+      15      59
+   }
+
+   method 'testCatchAndOtherEmptyCatch ()V' {
+      0      65
+      1      65
+      2      65
+      3      65
+      4      65
+      5      65
+      6      65
+      7      65
+      b      66
+      f      67
+      10      68
+      11      68
+      12      68
+      13      68
+      14      68
+      15      68
+      16      68
+      17      68
+      18      70
+   }
+
+   method 'testCatchAndOtherNonEmptyCatch ()V' {
+      0      74
+      1      74
+      2      74
+      3      74
+      4      74
+      5      74
+      6      74
+      7      74
+      b      75
+      c      76
+      d      76
+      e      76
+      f      76
+      10      76
+      11      76
+      12      76
+      13      76
+      17      77
+      18      78
+      19      78
+      1a      78
+      1b      78
+      1c      78
+      1d      78
+      1e      78
+      1f      78
+      20      80
+   }
+}
+
+Lines mapping:
+7 <-> 6
+8 <-> 7
+10 <-> 9
+14 <-> 13
+15 <-> 14
+18 <-> 17
+19 <-> 18
+23 <-> 22
+24 <-> 23
+25 <-> 24
+26 <-> 25
+32 <-> 31
+33 <-> 32
+34 <-> 33
+36 <-> 36
+37 <-> 37
+42 <-> 42
+43 <-> 43
+46 <-> 46
+47 <-> 47
+48 <-> 48
+49 <-> 49
+56 <-> 56
+57 <-> 57
+58 <-> 58
+59 <-> 59
+60 <-> 60
+67 <-> 66
+68 <-> 67
+70 <-> 68
+71 <-> 69
+73 <-> 71
+77 <-> 75
+78 <-> 76
+79 <-> 77
+80 <-> 78
+81 <-> 79
+83 <-> 81
+Not mapped:
+9
+16
+35
+44
+72
+82

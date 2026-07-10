@@ -1,0 +1,240 @@
+package pkg;
+
+import java.util.List;
+
+public class TestTryCatchNoIncrement {
+   public final void baseline(List<String> items) {
+      try {
+         for (int i = 0; i < items.size(); i++) {// 12
+            String item = (String)items.get(i);// 13
+            System.out.println(i + ": " + item);// 14
+         }
+      } catch (Throwable ex2) {// 17
+         ex2.printStackTrace();// 18
+      }
+   }// 20
+
+   // $VF: Handled exception range with multiple entry points by expanding it
+   public final void skippedInc(List<String> items) {
+      try {
+         for (int i = 0; i < items.size(); i++) {// 24 25 29
+            String item = (String)items.get(i);// 26
+            System.out.println(i + ": " + item);// 27
+         }
+      } catch (Throwable ex2) {// 34
+         ex2.printStackTrace();// 35
+      }
+   }// 38
+
+   // $VF: Handled exception range with multiple entry points by splitting it
+   // $VF: Duplicated exception handlers to handle obfuscated exceptions
+   public final void skipPrinting(List<String> items) {
+      int i;
+      try {
+         i = 0;
+      } catch (Throwable ex2) {
+         ex2.printStackTrace();// 50
+         return;// 52
+      }
+
+      while (true) {
+         String item;
+         try {
+            if (i >= items.size()) {
+               break;
+            }
+
+            item = (String)items.get(i);// 42
+         } catch (Throwable ex2) {// 49
+            ex2.printStackTrace();
+            break;
+         }
+
+         System.out.println(i + ": " + item);// 44
+
+         try {
+            i++;// 41
+         } catch (Throwable ex2) {
+            ex2.printStackTrace();
+            break;
+         }
+      }
+   }
+}
+
+class 'pkg/TestTryCatchNoIncrement' {
+   method 'baseline (Ljava/util/List;)V' {
+      0      7
+      1      7
+      2      7
+      3      7
+      4      7
+      5      7
+      6      7
+      7      7
+      8      7
+      9      7
+      a      7
+      b      7
+      c      8
+      d      8
+      e      8
+      f      8
+      10      8
+      11      8
+      12      8
+      13      8
+      14      8
+      15      8
+      16      8
+      17      9
+      18      9
+      19      9
+      21      9
+      25      9
+      26      9
+      2a      9
+      2e      9
+      2f      9
+      30      9
+      31      9
+      32      9
+      33      9
+      34      7
+      35      7
+      36      7
+      3d      11
+      3e      12
+      3f      12
+      40      12
+      41      12
+      42      14
+   }
+
+   method 'skippedInc (Ljava/util/List;)V' {
+      0      19
+      1      19
+      2      19
+      3      19
+      4      19
+      5      19
+      6      19
+      7      19
+      8      19
+      9      19
+      a      19
+      b      19
+      c      20
+      d      20
+      e      20
+      f      20
+      10      20
+      11      20
+      12      20
+      13      20
+      14      20
+      15      20
+      16      20
+      17      21
+      18      21
+      19      21
+      21      21
+      25      21
+      26      21
+      2a      21
+      2e      21
+      2f      21
+      30      21
+      31      21
+      32      21
+      33      21
+      34      19
+      35      19
+      36      19
+      42      23
+      43      24
+      44      24
+      45      24
+      46      24
+      47      26
+   }
+
+   method 'skipPrinting (Ljava/util/List;)V' {
+      0      33
+      1      33
+      2      42
+      3      42
+      4      42
+      5      42
+      6      42
+      7      42
+      8      42
+      9      42
+      a      42
+      b      42
+      c      46
+      d      46
+      e      46
+      f      46
+      10      46
+      11      46
+      12      46
+      13      46
+      14      46
+      15      46
+      16      46
+      17      52
+      18      52
+      19      52
+      21      52
+      25      52
+      26      52
+      2a      52
+      2e      52
+      2f      52
+      30      52
+      31      52
+      32      52
+      33      52
+      39      55
+      3a      55
+      3b      55
+      42      47
+      43      35
+      44      35
+      45      35
+      46      35
+      47      36
+   }
+}
+
+Lines mapping:
+12 <-> 8
+13 <-> 9
+14 <-> 10
+17 <-> 12
+18 <-> 13
+20 <-> 15
+24 <-> 20
+25 <-> 20
+26 <-> 21
+27 <-> 22
+29 <-> 20
+34 <-> 24
+35 <-> 25
+38 <-> 27
+41 <-> 56
+42 <-> 47
+44 <-> 53
+49 <-> 48
+50 <-> 36
+52 <-> 37
+Not mapped:
+19
+30
+31
+32
+36
+45
+46
+51

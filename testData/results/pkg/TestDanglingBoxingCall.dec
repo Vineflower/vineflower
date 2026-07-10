@@ -10,6 +10,30 @@ public class TestDanglingBoxingCall {
 
       Float.valueOf(0.9F);// 11
    }// 12
+
+   public static void consume(Integer value) {
+      value;// 15
+   }// 16
+
+   public static void consumeWithBox(Object value) {
+      (Integer)value;// 19
+   }// 20
+
+   public static void consumeWithMath(Integer value) {
+      Integer.valueOf(value + 5);// 23
+   }// 24
+
+   public static void consumeReverse(Integer value) {
+      Integer.valueOf(value);// 27
+   }// 28
+
+   public static void consumeReverseMath(Integer value) {
+      Integer.valueOf(value + 5);// 31
+   }// 32
+
+   public static void consumeReverseAndBack(Integer value) {
+      Integer.valueOf(value);// 35
+   }// 36
 }
 
 class 'pkg/TestDanglingBoxingCall' {
@@ -39,6 +63,79 @@ class 'pkg/TestDanglingBoxingCall' {
       1b      10
       1d      11
    }
+
+   method 'consume (Ljava/lang/Integer;)V' {
+      0      14
+      1      14
+      2      14
+      3      14
+      5      15
+   }
+
+   method 'consumeWithBox (Ljava/lang/Object;)V' {
+      0      18
+      1      18
+      2      18
+      3      18
+      4      18
+      5      18
+      6      18
+      8      19
+   }
+
+   method 'consumeWithMath (Ljava/lang/Integer;)V' {
+      0      22
+      1      22
+      2      22
+      3      22
+      4      22
+      5      22
+      6      22
+      7      22
+      8      22
+      9      22
+      a      22
+      b      22
+      d      23
+   }
+
+   method 'consumeReverse (Ljava/lang/Integer;)V' {
+      0      26
+      1      26
+      2      26
+      3      26
+      4      26
+      5      26
+      6      26
+      8      27
+   }
+
+   method 'consumeReverseMath (Ljava/lang/Integer;)V' {
+      0      30
+      1      30
+      2      30
+      3      30
+      4      30
+      5      30
+      6      30
+      7      30
+      8      30
+      a      31
+   }
+
+   method 'consumeReverseAndBack (Ljava/lang/Integer;)V' {
+      0      34
+      1      34
+      2      34
+      3      34
+      4      34
+      5      34
+      6      34
+      7      34
+      8      34
+      9      34
+      b      35
+   }
 }
 
 Lines mapping:
@@ -47,3 +144,15 @@ Lines mapping:
 8 <-> 8
 11 <-> 11
 12 <-> 12
+15 <-> 15
+16 <-> 16
+19 <-> 19
+20 <-> 20
+23 <-> 23
+24 <-> 24
+27 <-> 27
+28 <-> 28
+31 <-> 31
+32 <-> 32
+35 <-> 35
+36 <-> 36

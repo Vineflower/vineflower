@@ -356,11 +356,11 @@ class 'pkg/TestSwitchPatternMatchingJ25' {
       23      51
       54      52
       55      52
-      56      52
-      57      52
       5e      52
       5f      52
       60      52
+      61      52
+      62      52
       66      53
       6a      51
    }
@@ -397,18 +397,18 @@ class 'pkg/TestSwitchPatternMatchingJ25' {
       2b      58
       43      59
       44      59
-      45      59
-      46      59
       4d      59
       4e      59
       4f      59
+      50      59
+      51      59
       6c      60
       6d      60
-      6e      60
-      6f      60
       76      60
       77      60
       78      60
+      79      60
+      7a      60
       85      61
       86      58
    }

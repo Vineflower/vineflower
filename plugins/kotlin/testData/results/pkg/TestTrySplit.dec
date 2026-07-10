@@ -4,7 +4,7 @@ public class TestTrySplit {
    public fun test() {
       try {
          Any()
-         return// 17
+         return// 18
       } catch (var5: ArithmeticException) {// 8
          Companion.throwMyException(var5.getMessage())// 13
       } finally {
@@ -44,7 +44,6 @@ public class TestTrySplit {
 
 class 'pkg/TestTrySplit' {
    method 'test ()V' {
-      14      6
       17      7
       19      8
       1a      8
@@ -65,6 +64,7 @@ class 'pkg/TestTrySplit' {
       35      10
       36      10
       37      10
+      3a      6
    }
 
    method 'testFlat ()V' {
@@ -130,7 +130,7 @@ Lines mapping:
 13 <-> 9
 14 <-> 13
 16 <-> 11
-17 <-> 7
+18 <-> 7
 22 <-> 16
 27 <-> 23
 32 <-> 24
@@ -147,7 +147,7 @@ Not mapped:
 6
 7
 9
-18
+17
 21
 23
 24

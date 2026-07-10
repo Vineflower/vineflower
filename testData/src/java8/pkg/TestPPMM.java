@@ -16,101 +16,101 @@
 package pkg;
 
 public class TestPPMM {
-   // Bytecode wise ipp and ppi are identical when not using the intermediate value. 
-   // We keep these seperate tests just to see the bytecode.
-   public void ipp() {
-      int a = 0;
-      a++;
-      a++;
-      a++;
-      a++;
-   }
-   public void ppi() {
-      int a = 0;
-      ++a;
-      ++a;
-      ++a;
-      ++a;
-   }
-   public void imm() {
-      int a = 0;
-      a--;
-      a--;
-      a--;
-      a--;
-   }
-   public void mmi() {
-      int a = 0;
-      --a;
-      --a;
-      --a;
-      --a;
-   }
-   
-   // These versions actually use the intermediate value
-   public void ippf() {
-      int a = 0;
-      t(a++);
-      t(a++);
-      t(a++);
-      t(a++);
-   }
-   public void ppif() {
-      int a = 0;
-      t(++a);
-      t(++a);
-      t(++a);
-      t(++a);
-   }
-   public void immf() {
-      int a = 0;
-      t(a--);
-      t(a--);
-      t(a--);
-      t(a--);
-   }
-   public void mmif() {
-      int a = 0;
-      t(--a);
-      t(--a);
-      t(--a);
-      t(--a);
-   }
-   public void doubleppi() {
-      int a = 0;
-      ++a;
-      ++a;
-      t2(a, a);
-      ++a;
-      t2(a++, a);
-      ++a;
-      t2(++a, a);
-      ++a;
-      t2(a, ++a);
-      ++a;
-      t2(a, a++);
-      ++a;
-      t2(a, a);
-      t2(++a, a);
-      t2(a++, a);
-      t2(a, ++a);
-      t2(a, a++);
-      t2(a, a);
-   }
+  // Bytecode wise ipp and ppi are identical when not using the intermediate value.
+  // We keep these seperate tests just to see the bytecode.
+  public void ipp() {
+    int a = 0;
+    a++;
+    a++;
+    a++;
+    a++;
+  }
+  public void ppi() {
+    int a = 0;
+    ++a;
+    ++a;
+    ++a;
+    ++a;
+  }
+  public void imm() {
+    int a = 0;
+    a--;
+    a--;
+    a--;
+    a--;
+  }
+  public void mmi() {
+    int a = 0;
+    --a;
+    --a;
+    --a;
+    --a;
+  }
 
-   public void ppiAssign() {
-      int a = 0;
-      ++a;
-      a = 5;
-      System.out.println();
-      ++a;
-      a = a + 5;
-      System.out.println();
-      ++a;
-      a = 5 * a;
-      System.out.println();
-      t(a);
-   }
+  // These versions actually use the intermediate value
+  public void ippf() {
+    int a = 0;
+    t(a++);
+    t(a++);
+    t(a++);
+    t(a++);
+  }
+  public void ppif() {
+    int a = 0;
+    t(++a);
+    t(++a);
+    t(++a);
+    t(++a);
+  }
+  public void immf() {
+    int a = 0;
+    t(a--);
+    t(a--);
+    t(a--);
+    t(a--);
+  }
+  public void mmif() {
+    int a = 0;
+    t(--a);
+    t(--a);
+    t(--a);
+    t(--a);
+  }
+  public void doubleppi() {
+    int a = 0;
+    ++a;
+    ++a;
+    t2(a, a);
+    ++a;
+    t2(a++, a);
+    ++a;
+    t2(++a, a);
+    ++a;
+    t2(a, ++a);
+    ++a;
+    t2(a, a++);
+    ++a;
+    t2(a, a);
+    t2(++a, a);
+    t2(a++, a);
+    t2(a, ++a);
+    t2(a, a++);
+    t2(a, a);
+  }
+
+  public void ppiAssign() {
+    int a = 0;
+    ++a;
+    a = 5;
+    System.out.println();
+    ++a;
+    a = a + 5;
+    System.out.println();
+    ++a;
+    a = 5 * a;
+    System.out.println();
+    t(a);
+  }
 
 
   public void ppiAssignPhi(boolean b) {
@@ -133,10 +133,69 @@ public class TestPPMM {
     t(a);
   }
 
-   private static void t(int x){
-   }
+  public void ppiIf(boolean b, int i, int j) {
+    if (i++ > ++i) {
+      System.out.println("i++ > ++i");
+    }
+    if (b && i++ < 5) {
+      System.out.println("b && i++ < 5");
+    }
+    if (++i < j) {
+      System.out.println("++i < j");
+    }
+    j++;
+    --i;
+    if (i > j) {
+      System.out.println("--i > ++j");
+    }
+    if (!b || ++i < j) {
+      System.out.println("!b || ++i < j");
+    }
+    j++;
+    if (!b && j < i) {
+      System.out.println("!b && j < i");
+    }
+    if ((b ? ++i : ++j) > 0) {
+      System.out.println("(b ? ++i : ++j) > 0");
+    }
+    i++;
+    j++;
+    if ((b ? i : j) > 0) {
+      System.out.println("(b ? i : j) > 0");
+    }
+    if (++i > j ? b : j > 0){
+      System.out.println("++i > j ? b : j > 0");
+    }
+    i++;
+    if (i > j ? b : j > 0){
+      System.out.println("++i > j ? b : j > 0");
+    }
+    j++;
+    if (++i < j && (b || i < 5) && ++j > i && b) {
+      System.out.println("++i < ++j && (b || i < 5) && ++j > i && b");
+    }
+    i++;
+    if ((b && i++ > 0) | i > 0){
+      System.out.println("(b && i++ > 0) | i > 0");
+    }
+  }
 
-   private static void t2(int x, int y){
+  public void doubleppi2vars() {
+    int a = 0;
+    int b = 0;
+    t2(a++, ++b);
+    a++;
+    b++;
+    t2(a,b);
+    b++;
+    a++;
+    t2(a,b);
+  }
 
-   }
+  private static void t(int x) {
+  }
+
+  private static void t2(int x, int y) {
+
+  }
 }

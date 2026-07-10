@@ -22,7 +22,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "0",
       IFernflowerPreferences.TERNARY_CONDITIONS, "1",
       IFernflowerPreferences.FORCE_JSR_INLINE, "1",
-      IFernflowerPreferences.VERIFY_PRE_POST_VARIABLE_MERGES, "1"
+      IFernflowerPreferences.VERIFY_PRE_POST_VARIABLE_MERGES, "1",
+      IFernflowerPreferences.DEBUG_MARKER_EXCEPTIONS, "1"
     );
     registerSet("Entire Classpath", this::registerEntireClassPath,
       IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
@@ -225,7 +226,10 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestInnerClassConstructor");
     register(CUSTOM, "v11/TestInnerClassConstructor");
     register(JAVA_8, "TestTryCatchFinally");
+    register(JAVA_8, "TestTryCatchThrowable");
     register(JAVA_8, "TestTryFinally");
+    register(JAVA_8, "TestTryFinallyMarkerExceptions");
+    register(JAVA_8, "TestTryFinallyMarkerExceptionsInvalid");
     register(JAVA_8, "TestAmbiguousCall");
     register(JAVA_8, "TestSynchronizedMapping");
     register(JAVA_8, "TestAbstractMethods");
@@ -286,8 +290,17 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestInUse");
 
     register(GROOVY, "TestGroovyClass");
+    register(GROOVY, "TestGroovyFinallyBlockVariableUse");
+    register(GROOVY, "TestGroovyFinallyThrow");
+    register(GROOVY, "TestGroovyFinallyVarDef");
     register(GROOVY, "TestGroovyTrait");
     register(GROOVY, "TestGroovyTryCatch");
+    register(GROOVY, "TestGroovyTryCatchFinally");
+    register(GROOVY, "TestGroovyTryFinally");
+    register(GROOVY, "TestGroovyTryLoopReturnFinally");
+    register(GROOVY, "TestGroovyTryLoopSimpleFinally");
+    register(GROOVY, "TestGroovyTryReturn");
+    register(GROOVY, "TestGroovyTrySplit");
     register(JAVA_8, "TestPrivateClasses");
     register(KOTLIN, "TestSuspendLambdaKt");
     register(KOTLIN, "TestRunSuspend");
@@ -445,6 +458,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestSwitchExpressionPPMM");
     register(JAVA_16, "TestSwitchExpressionNested1");
     register(JAVA_16, "TestSwitchExprInvoc");
+    // TODO: Wrong variable analysis
+    register(JAVA_16, "TestSwitchExpressionAssignmentOrder");
 
     register(JAVA_16, "TestAccidentalSwitchExpression");
 
@@ -584,6 +599,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestWhile1");
     registerRaw(CUSTOM, "TestEclipseSwitchEnum");
     registerRaw(CUSTOM, "TestEclipseSwitchString");
+    registerRaw(CUSTOM, "TestEclipseSwitchString2");
     registerRaw(CUSTOM, "TestStringConcatJ19");
     register(JAVA_8, "TestNestedAnonymousClass");
     // TODO: ppmm not created in test4-5
@@ -654,6 +670,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     //   seems also is a bug in stack vars processing, disable main loop stackvars to replicate
     register(JAVA_8_NODEBUG, "TestCompoundAssignmentReplace");
 
+    // TODO: types are merged; issue #574
     register(JAVA_8, "TestSharedVarIndex");
 
     // NOTE: regular fernflower fails to merge the variables here, leading to incorrect results in both
@@ -674,6 +691,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestForCyclicVarDef");
     // TODO: merging of trycatch incorrect
     register(JAVA_8, "TestTryCatchNested");
+    register(JAVA_8, "TestTryCatchNoIncrement"); // Issue #568
     register(JAVA_8, "TestSwitchTernary");
     register(JAVA_8, "TestBooleanExpressions");
     register(JAVA_8, "TestObjectBitwise");
@@ -745,6 +763,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestNumberCasts");
     // TODO: Disambiguate only the required parameters
     register(JAVA_8, "TestNumberDisambiguation");
+    // TODO: Dangling unboxing calls are still elided; issue #575
     register(JAVA_8, "TestDanglingBoxingCall");
     register(JAVA_21, "TestSwitchOnEnumJ21", "ext/TestEnum2");
     // Test switch-on-enum decompilation when enum does not exist in the classpath
@@ -830,7 +849,21 @@ public class SingleClassesTest extends SingleClassesTestBase {
 
     register(JAVA_17, "TestStringSwitchTypes");
 
+    // TODO: Fix issue #543
+    register(JAVA_8, "TestForEachInSwitch");
+
     register(JAVA_16, "TestSwitchExpressionIfBlocks");
+
+    // TODO: String type info is lost; does not recompile; issue #573
+    register(JAVA_8_NODEBUG, "TestStringConcatObjectAppend");
+    register(JAVA_25, "TestStringConcatObjectAppendJ25");
+
+    register(JAVA_25, "/TestCompactSourceFile");
+    register(JAVA_25, "/TestCompactSourceFileArgs");
+    register(JAVA_25, "/TestCompactSourceFileOtherMembers");
+    register(JAVA_25, "/TestCompactSourceFileOtherMembersStatic");
+    register(JAVA_8_NODEBUG, "TestByteArrayMerge");
+    register(JAVA_8, "TestFloatDupStoreTernary");
   }
 
   private void registerEntireClassPath() {
@@ -926,6 +959,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: wrong cast in lambda for array
     register(JAVA_8, "TestArrayGenerics");
     register(JAVA_8, "TestEmptyLambda");
+    // TODO: test5b is missing a required cast in the output; issue #582
     register(JAVA_8, "TestArrayArg");
     register(JAVA_8, "TestGenericLattice");
     // TODO: parsing failure

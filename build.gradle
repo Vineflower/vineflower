@@ -39,7 +39,7 @@ allprojects {
   }
 
   dependencies {
-    implementation 'org.jetbrains:annotations:24.0.0'
+    implementation 'org.jetbrains:annotations:26.1.0'
     testImplementation("org.junit.jupiter:junit-jupiter-api:${project.junit_bom}")
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${project.junit_bom}")
@@ -57,7 +57,7 @@ allprojects {
 group = 'org.vineflower'
 base.archivesName = 'vineflower'
 
-version = '1.12.0'
+version = '1.13.0'
 
 def ENV = System.getenv()
 version = version + (ENV.GITHUB_ACTIONS ? "" : "+local")
@@ -66,6 +66,7 @@ version = version + (ENV.STATUS == "snapshot" ? "-SNAPSHOT" : "")
 sourceSets {
   main.java.srcDirs 'src'
   test.java.srcDirs 'test'
+  testMarkers.java.srcDirs files("testData/markers")
   testFixtures.java.srcDirs 'testFixtures'
   testDataGroovy.groovy.srcDirs files("testData/src/groovy/")
   testDataKotlin.kotlin.srcDirs files("testData/src/kt/")
@@ -115,6 +116,7 @@ testClasses.dependsOn(testDataClasses)
 void createJavaTestDataSet(int version, String suffix = "", List<String> compilerArgs = []) {
   sourceSets.create("testDataJava${version}${suffix}") {
     it.java.srcDirs file("testData/src/java${version}${suffix.toLowerCase()}")
+    compileClasspath += sourceSets.testMarkers.output
   }
   tasks.getByName("compileTestDataJava${version}${suffix}Java") {
     destinationDirectory = file("testData/classes/java${version}${suffix.toLowerCase()}")
@@ -123,6 +125,9 @@ void createJavaTestDataSet(int version, String suffix = "", List<String> compile
     }
 
     options.compilerArgs = compilerArgs
+  }
+  tasks.getByName("testDataJava${version}${suffix}Classes") {
+    dependsOn testMarkersClasses
   }
   testDataClasses.dependsOn("testDataJava${version}${suffix}Classes")
 }
@@ -137,6 +142,12 @@ def testJavaRuntimes = [:]
 }
 [16, 17, 21].forEach { version -> createJavaTestDataSet(version, "Preview", ["--enable-preview"]) }
 [8, 16].forEach { version -> createJavaTestDataSet(version, "NoDebug", ["-g:none"])}
+
+compileTestMarkersJava {
+  javaCompiler = javaToolchains.compilerFor {
+    languageVersion = JavaLanguageVersion.of(8)
+  }
+}
 
 task compileTestDataJasm(type: JasmCompile) {
   source = fileTree("testData/src/jasm/")

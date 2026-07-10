@@ -34,7 +34,7 @@ public class TestTryCatchFinally {
          System.out.println("Finally")// 52
       }
 
-      return -1// 53 54
+      return -1// 54
    }
 
    public fun testEmptyCatch(msg: String?) {
@@ -100,7 +100,7 @@ class 'pkg/TestTryCatchFinally' {
       8      29
       9      29
       a      29
-      b      29
+      16      29
       17      30
       18      31
       19      31
@@ -114,7 +114,6 @@ class 'pkg/TestTryCatchFinally' {
       22      31
       23      31
       24      31
-      2e      36
       32      33
       33      33
       34      33
@@ -124,6 +123,7 @@ class 'pkg/TestTryCatchFinally' {
       39      33
       3a      33
       3d      36
+      3e      36
    }
 
    method 'testEmptyCatch (Ljava/lang/String;)V' {
@@ -162,7 +162,6 @@ Lines mapping:
 49 <-> 31
 50 <-> 32
 52 <-> 34
-53 <-> 37
 54 <-> 37
 59 <-> 42
 60 <-> 43
@@ -174,5 +173,6 @@ Not mapped:
 23
 32
 47
+53
 58
 63

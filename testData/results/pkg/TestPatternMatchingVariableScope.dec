@@ -176,9 +176,6 @@ class 'pkg/TestPatternMatchingVariableScope' {
       7      31
       8      31
       d      31
-      e      32
-      f      32
-      10      32
       11      34
       12      34
       13      34
@@ -186,9 +183,12 @@ class 'pkg/TestPatternMatchingVariableScope' {
       15      34
       16      34
       1a      32
+      1b      32
+      1c      32
       1d      32
       1e      32
       1f      32
+      20      32
       21      37
       24      37
       25      37
@@ -197,14 +197,14 @@ class 'pkg/TestPatternMatchingVariableScope' {
       28      37
       29      37
       2e      37
-      2f      40
-      30      40
-      31      40
       39      38
       3a      40
+      3b      40
+      3c      40
       3d      40
       3e      40
       3f      40
+      40      40
       41      42
       44      42
       45      42
@@ -213,9 +213,6 @@ class 'pkg/TestPatternMatchingVariableScope' {
       48      42
       49      42
       4e      42
-      4f      47
-      50      47
-      51      47
       52      43
       53      43
       54      43
@@ -223,9 +220,12 @@ class 'pkg/TestPatternMatchingVariableScope' {
       56      43
       57      43
       5b      47
+      5c      47
+      5d      47
       5e      47
       5f      47
       60      47
+      61      47
       62      51
       63      51
       64      51
@@ -261,9 +261,6 @@ class 'pkg/TestPatternMatchingVariableScope' {
       84      58
       85      58
       8a      58
-      8b      63
-      8c      63
-      8d      63
       8e      59
       8f      59
       90      59
@@ -279,13 +276,19 @@ class 'pkg/TestPatternMatchingVariableScope' {
       9a      60
       9b      60
       9f      63
+      a0      63
+      a1      63
       a2      63
       a3      63
       a4      63
-      a8      64
+      a5      63
+      a6      64
       a9      64
       aa      64
       ab      64
+      ac      64
+      ad      64
+      ae      64
       b3      64
       b4      65
       b5      65

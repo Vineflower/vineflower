@@ -470,6 +470,9 @@ public class VarDefinitionHelper {
                 if (exit.getExitType() == ExitExprent.Type.RETURN) {
                   instance = exit.getValue();
                   target = exit.getRetType().value;
+                  if (exit.getRetType().type != CodeType.OBJECT) {
+                    continue;
+                  }
                 }
               }
 
@@ -493,6 +496,7 @@ public class VarDefinitionHelper {
                 }
                 */
 
+                // TODO: does this do anything?
                 if (!newType.equals(oldMax)) {
                   if (oldMax != null && oldMax.type == CodeType.OBJECT) {
                     // If the old min is an instanceof the new target, EXA: List -> ArrayList

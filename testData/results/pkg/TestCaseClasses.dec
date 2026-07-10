@@ -251,9 +251,6 @@ class 'pkg/Option1' {
       8      57
       9      57
       a      57
-      b      57
-      c      57
-      d      57
       12      59
       13      59
       14      59
@@ -263,6 +260,9 @@ class 'pkg/Option1' {
       18      59
       1c      59
       1d      57
+      1e      57
+      1f      57
+      20      57
    }
 
    method 'productElementName (I)Ljava/lang/String;' {

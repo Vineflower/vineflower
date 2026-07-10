@@ -149,7 +149,7 @@ public class FunctionExprent extends Exprent {
   private boolean needsCast = true;
   private boolean disableNewlineGroupCreation = false;
 
-  public FunctionExprent(FunctionType funcType, ListStack<Exprent> stack, BitSet bytecodeOffsets) {
+  public FunctionExprent(FunctionType funcType, ListStack<Exprent> stack, BytecodeRange bytecodeOffsets) {
     this(funcType, new ArrayList<>(), bytecodeOffsets);
 
     if (funcType.arity == 1) {
@@ -165,7 +165,7 @@ public class FunctionExprent extends Exprent {
     }
   }
 
-  public FunctionExprent(FunctionType funcType, List<Exprent> operands, BitSet bytecodeOffsets) {
+  public FunctionExprent(FunctionType funcType, List<Exprent> operands, BytecodeRange bytecodeOffsets) {
     super(Type.FUNCTION);
     this.funcType = funcType;
     this.lstOperands = operands;
@@ -173,7 +173,7 @@ public class FunctionExprent extends Exprent {
     addBytecodeOffsets(bytecodeOffsets);
   }
 
-  public FunctionExprent(FunctionType funcType, Exprent operand, BitSet bytecodeOffsets) {
+  public FunctionExprent(FunctionType funcType, Exprent operand, BytecodeRange bytecodeOffsets) {
     this(funcType, new ArrayList<>(1), bytecodeOffsets);
     lstOperands.add(operand);
   }
@@ -394,6 +394,35 @@ public class FunctionExprent extends Exprent {
         result.addExprLowerBound(param1, implicitType);
         result.addExprUpperBound(param1, implicitType);
         break;
+      case LCMP:
+        result.addExprLowerBound(param1, VarType.VARTYPE_LONG);
+        result.addExprLowerBound(param2, VarType.VARTYPE_LONG);
+      case FCMPL:
+      case FCMPG:
+        result.addExprLowerBound(param1, VarType.VARTYPE_FLOAT);
+        result.addExprLowerBound(param2, VarType.VARTYPE_FLOAT);
+        break;
+      case DCMPL:
+      case DCMPG:
+        result.addExprLowerBound(param1, VarType.VARTYPE_DOUBLE);
+        result.addExprLowerBound(param2, VarType.VARTYPE_DOUBLE);
+        break;
+      case LT:
+      case GE:
+      case GT:
+      case LE:
+        // After secondary functions are identified, float and double comparisons (fcmp* and dcmp*) become regular comparisons.
+        // Without special handling here, we might introduce incorrect bounds and turn variables that should be floats/doubles into ints.
+        if (type1.equals(VarType.VARTYPE_FLOAT) && type2.equals(VarType.VARTYPE_FLOAT)) {
+          result.addExprLowerBound(param1, VarType.VARTYPE_FLOAT);
+          result.addExprLowerBound(param2, VarType.VARTYPE_FLOAT);
+          break;
+        }
+        if (type1.equals(VarType.VARTYPE_DOUBLE) && type2.equals(VarType.VARTYPE_DOUBLE)) {
+          result.addExprLowerBound(param1, VarType.VARTYPE_DOUBLE);
+          result.addExprLowerBound(param2, VarType.VARTYPE_DOUBLE);
+          break;
+        }
       case ADD:
       case SUB:
       case MUL:
@@ -402,10 +431,6 @@ public class FunctionExprent extends Exprent {
       case SHL:
       case SHR:
       case USHR:
-      case LT:
-      case GE:
-      case GT:
-      case LE:
         result.addExprLowerBound(param2, VarType.VARTYPE_BYTECHAR);
       case BIT_NOT:
         // case BOOL_NOT:
@@ -845,7 +870,7 @@ public class FunctionExprent extends Exprent {
   }
 
   @Override
-  public void getBytecodeRange(BitSet values) {
+  public void getBytecodeRange(BytecodeRange values) {
     measureBytecode(values, lstOperands);
     measureBytecode(values);
   }

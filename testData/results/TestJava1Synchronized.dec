@@ -3,14 +3,14 @@ public class TestJava1Synchronized {
       synchronized (this) {// 3
          if (var1 == 0) {// 4
             System.out.println("0");// 5
-            return;
+            return;// 6
          }
 
          System.out.println("1");// 9
       }
 
       System.out.println("2");// 12
-   }
+   }// 2
 
    public void test2(int var1) {
       synchronized (this) {// 16
@@ -58,6 +58,7 @@ class 'TestJava1Synchronized' {
       d      4
       e      4
       f      4
+      13      5
       14      8
       15      8
       16      8
@@ -66,15 +67,15 @@ class 'TestJava1Synchronized' {
       19      8
       1a      8
       1b      8
-      1e      11
-      1f      11
-      20      11
-      26      5
       29      11
       2a      11
+      2b      11
       2c      11
       2d      11
       2e      11
+      2f      11
+      30      11
+      31      12
    }
 
    method 'test2 (I)V' {
@@ -116,14 +117,15 @@ class 'TestJava1Synchronized' {
       9      25
       a      25
       b      25
-      19      28
-      1a      28
-      1b      28
-      1e      28
+      17      30
       1f      28
       20      28
       21      28
-      24      30
+      22      28
+      23      28
+      24      28
+      25      28
+      26      28
    }
 
    method 'test4 ()V' {
@@ -135,9 +137,10 @@ class 'TestJava1Synchronized' {
       5      34
       6      34
       7      34
-      d      36
+      b      40
       13      36
-      14      36
+      15      36
+      16      36
       17      37
       18      37
       19      37
@@ -147,14 +150,15 @@ class 'TestJava1Synchronized' {
       1d      37
       1e      37
       20      38
-      21      40
    }
 }
 
 Lines mapping:
+2 <-> 13
 3 <-> 3
 4 <-> 4
 5 <-> 5
+6 <-> 6
 9 <-> 9
 12 <-> 12
 16 <-> 16
@@ -168,6 +172,3 @@ Lines mapping:
 35 <-> 35
 37 <-> 37
 38 <-> 38
-Not mapped:
-2
-6

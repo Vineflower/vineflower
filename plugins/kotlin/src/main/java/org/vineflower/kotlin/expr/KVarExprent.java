@@ -21,7 +21,7 @@ public class KVarExprent extends VarExprent implements KExprent {
 
   private DeclarationType declarationType;
 
-  public KVarExprent(int index, VarType varType, VarProcessor processor, BitSet bytecode) {
+  public KVarExprent(int index, VarType varType, VarProcessor processor, BytecodeRange bytecode) {
     super(index, varType, processor, bytecode);
   }
 

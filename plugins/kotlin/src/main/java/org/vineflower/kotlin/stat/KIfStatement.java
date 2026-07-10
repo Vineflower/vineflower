@@ -35,7 +35,6 @@ public class KIfStatement extends IfStatement {
     setElseEdge(statement.getElseEdge());
     setNegated(statement.isNegated());
     setPatternMatched(statement.isPatternMatched());
-    setHasPPMM(statement.hasPPMM());
     getHeadexprentList().set(0, statement.getHeadexprent());
   }
 

@@ -1,0 +1,64 @@
+package pkg;
+
+public class TestByteArrayMerge {
+   private static byte[] decode(int var0, int var1) {
+      byte[] var2 = null;
+      if (var0 > 0) {
+         var2 = new byte[var0];
+      } else {
+         var2 = new byte[1];
+      }
+
+      int var3 = var1 & 0xFF;
+
+      for (int var4 = 0; var4 < var2.length; var4++) {
+         var2[var4] = (byte)var3;
+      }
+
+      return var2;
+   }
+}
+
+class 'pkg/TestByteArrayMerge' {
+   method 'decode (II)[B' {
+      0      4
+      1      4
+      2      5
+      3      5
+      4      5
+      5      5
+      6      6
+      9      6
+      d      8
+      10      8
+      11      11
+      12      11
+      13      11
+      14      11
+      15      11
+      16      11
+      17      13
+      18      13
+      19      13
+      1a      13
+      1b      13
+      1c      13
+      1d      13
+      1e      13
+      1f      13
+      20      13
+      21      14
+      22      14
+      23      14
+      24      14
+      25      14
+      26      14
+      27      13
+      28      13
+      29      13
+      2d      17
+      2e      17
+   }
+}
+
+Lines mapping:

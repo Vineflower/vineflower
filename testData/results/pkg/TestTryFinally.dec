@@ -7,7 +7,7 @@ public class TestTryFinally {
       } finally {
          long var4 = 5L;// 8
       }
-   }// 9
+   }// 10
 
    public void test1() {
       try {
@@ -16,8 +16,8 @@ public class TestTryFinally {
          System.out.println("Finally");// 16
       }
 
-      System.out.println("Bye");// 17 19
-   }
+      System.out.println("Bye");// 19
+   }// 20
 
    public void test2(int i) {
       try {
@@ -44,12 +44,12 @@ class 'pkg/TestTryFinally' {
       5      5
       6      5
       7      5
-      c      9
       10      7
       11      7
       12      7
       13      7
       14      7
+      17      9
    }
 
    method 'test1 ()V' {
@@ -61,9 +61,6 @@ class 'pkg/TestTryFinally' {
       5      13
       6      13
       7      13
-      10      18
-      11      18
-      12      18
       14      15
       15      15
       16      15
@@ -74,9 +71,13 @@ class 'pkg/TestTryFinally' {
       1b      15
       1e      18
       1f      18
+      20      18
       21      18
       22      18
       23      18
+      24      18
+      25      18
+      26      19
    }
 
    method 'test2 (I)V' {
@@ -123,11 +124,11 @@ class 'pkg/TestTryFinally' {
 Lines mapping:
 6 <-> 6
 8 <-> 8
-9 <-> 10
+10 <-> 10
 14 <-> 14
 16 <-> 16
-17 <-> 19
 19 <-> 19
+20 <-> 20
 25 <-> 24
 27 <-> 26
 28 <-> 27
@@ -136,6 +137,6 @@ Lines mapping:
 34 <-> 33
 35 <-> 34
 Not mapped:
-10
-20
+9
+17
 32

@@ -19,7 +19,7 @@ public class TestTryWithResourcesManyJ16 {
          System.out.println(s4.nextLine());// 19
          System.out.println(s5.nextLine());// 20
       }
-   }// 21
+   }// 22
 }
 
 class 'pkg/TestTryWithResourcesManyJ16' {
@@ -90,7 +90,7 @@ class 'pkg/TestTryWithResourcesManyJ16' {
       62      19
       63      19
       64      19
-      df      21
+      f4      21
    }
 }
 
@@ -105,7 +105,7 @@ Lines mapping:
 18 <-> 18
 19 <-> 19
 20 <-> 20
-21 <-> 22
+22 <-> 22
 Not mapped:
 9
-22
+21

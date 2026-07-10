@@ -1,0 +1,275 @@
+package pkg;
+
+public class TestSwitchExpressionAssignmentOrder {
+   public int test1(int i1) {
+      int v = 5;// 5
+      byte var3;
+
+      return v + (var3 = this.test1(i1)) + switch (var3) {// 6
+         case 0 -> 1;// 7
+         case 1 -> 2;// 8
+         default -> 0;// 9
+      };
+   }
+
+   // $VF: Variable merging failed for merge VarExprent[2,0]: {var2}. Code has semantic differences!
+   public int test2(int i1) {
+      int v = 5;// 14
+      v = i1;
+
+      return v + i1 + switch (v) {// 15
+         case 0 -> 1;// 16
+         case 1 -> 2;// 17
+         default -> 0;// 18
+      };
+   }
+
+   public int test3(int i1) {
+      int v = 5;// 23
+      int o = 3;
+      if (i1 > 0) {// 24
+         v = i1;
+
+         o = v + i1 + switch (v) {// 25
+            case 0 -> 1;// 26
+            case 1 -> v = 2;// 27
+            default -> 0;// 28
+         };
+      }
+
+      return v - 3;// 31
+   }
+
+   public int test4(int i1) {
+      int v = 5;// 36
+      byte var4;
+      int o = var4;
+
+      return (var4 = i1 + v) + var4 + switch (v = v + var4) {// 37
+         case 0 -> o;// 38
+         case 1 -> {
+            byte var6;
+            yield var6 = (byte)2;// 39
+         }
+         default -> 0;// 40
+      };
+   }
+}
+
+class 'pkg/TestSwitchExpressionAssignmentOrder' {
+   method 'test1 (I)I' {
+      0      4
+      1      4
+      2      7
+      3      7
+      4      7
+      5      7
+      6      7
+      7      7
+      9      7
+      a      7
+      b      7
+      c      7
+      d      7
+      e      7
+      f      7
+      10      7
+      11      7
+      12      7
+      13      7
+      14      7
+      15      7
+      16      7
+      17      7
+      18      7
+      19      7
+      1a      7
+      1b      7
+      1c      7
+      1d      7
+      1e      7
+      1f      7
+      20      7
+      21      7
+      22      7
+      23      7
+      24      7
+      25      7
+      26      7
+      27      7
+      28      8
+      2c      9
+      30      10
+      31      7
+      32      7
+   }
+
+   method 'test2 (I)I' {
+      0      16
+      1      16
+      2      19
+      3      17
+      5      17
+      6      19
+      7      19
+      8      19
+      9      19
+      a      19
+      b      19
+      c      19
+      d      19
+      e      19
+      f      19
+      10      19
+      11      19
+      12      19
+      13      19
+      14      19
+      15      19
+      16      19
+      17      19
+      18      19
+      19      19
+      1a      19
+      1b      19
+      1c      19
+      1d      19
+      1e      19
+      1f      19
+      20      19
+      21      19
+      22      19
+      23      19
+      24      20
+      28      21
+      2c      22
+      2d      19
+      2e      19
+   }
+
+   method 'test3 (I)I' {
+      0      27
+      1      27
+      2      28
+      3      28
+      4      29
+      5      29
+      6      29
+      7      29
+      8      32
+      9      30
+      b      30
+      c      32
+      d      32
+      e      32
+      f      32
+      10      32
+      11      32
+      12      32
+      13      32
+      14      32
+      15      32
+      16      32
+      17      32
+      18      32
+      19      32
+      1a      32
+      1b      32
+      1c      32
+      1d      32
+      1e      32
+      1f      32
+      20      32
+      21      32
+      22      32
+      23      32
+      24      32
+      25      32
+      26      32
+      27      32
+      28      33
+      2c      34
+      2e      34
+      32      35
+      33      32
+      34      32
+      35      39
+      36      39
+      37      39
+      38      39
+   }
+
+   method 'test4 (I)I' {
+      0      43
+      1      43
+      2      47
+      3      47
+      4      47
+      6      47
+      7      45
+      9      45
+      a      47
+      b      47
+      c      47
+      d      47
+      f      47
+      10      47
+      11      47
+      12      47
+      13      47
+      14      47
+      15      47
+      16      47
+      17      47
+      18      47
+      19      47
+      1a      47
+      1b      47
+      1c      47
+      1d      47
+      1e      47
+      1f      47
+      20      47
+      21      47
+      22      47
+      23      47
+      24      47
+      25      47
+      26      47
+      27      47
+      28      47
+      29      47
+      2a      47
+      2b      47
+      2c      48
+      30      51
+      32      51
+      36      53
+      37      47
+      38      47
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 8
+7 <-> 9
+8 <-> 10
+9 <-> 11
+14 <-> 17
+15 <-> 20
+16 <-> 21
+17 <-> 22
+18 <-> 23
+23 <-> 28
+24 <-> 30
+25 <-> 33
+26 <-> 34
+27 <-> 35
+28 <-> 36
+31 <-> 40
+36 <-> 44
+37 <-> 48
+38 <-> 49
+39 <-> 52
+40 <-> 54

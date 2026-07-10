@@ -947,7 +947,8 @@ public abstract class Statement implements IMatchable {
     return varDefinitions;
   }
 
-  // The exprents stored in the body, only nonnull for BasicBlockStatements. To find other exprents, use getStatExprents.
+  // The exprents stored in the body, only nonnull for BasicBlockStatements, but only if exprents have been generated.
+  // To find other exprents, use getStatExprents.
   public @Nullable List<Exprent> getExprents() {
     return exprents;
   }
@@ -985,7 +986,7 @@ public abstract class Statement implements IMatchable {
   }
 
   //TODO: Cleanup/cache?
-  public void getOffset(BitSet values) {
+  public void getOffset(Exprent.BytecodeRange values) {
     if (this instanceof DummyExitStatement && ((DummyExitStatement)this).bytecode != null)
       values.or(((DummyExitStatement)this).bytecode);
     if (this.getExprents() != null) {
@@ -1006,9 +1007,9 @@ public abstract class Statement implements IMatchable {
   private StartEndPair endpoints;
   public StartEndPair getStartEndRange() {
     if (endpoints == null) {
-      BitSet set = new BitSet();
+      Exprent.BytecodeRange set = new Exprent.BytecodeRange();
       getOffset(set);
-      endpoints = new StartEndPair(set.nextSetBit(0), set.length() - 1);
+      endpoints = new StartEndPair(set.asBitSet().nextSetBit(0), set.length() - 1);
     }
     return endpoints;
   }

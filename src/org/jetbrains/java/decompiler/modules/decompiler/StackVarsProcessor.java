@@ -53,7 +53,7 @@ public class StackVarsProcessor {
       SSAConstructorSparseEx ssa = new SSAConstructorSparseEx();
       ssa.splitVariables(root, mt);
 
-      while (SimplifyExprentsHelper.simplifyStackVarsStatement(root, setReorderedIfs, ssa, cl, first)) {
+      while (SimplifyExprentsHelper.simplifyStackVarsStatement(root, setReorderedIfs, ssa, cl, first) || PPandMMHelper.inlinePPIandMMIIf(root)) {
         ValidationHelper.validateStatement(root);
         found = true;
       }

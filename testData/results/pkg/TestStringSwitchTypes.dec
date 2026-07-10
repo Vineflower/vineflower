@@ -44,7 +44,7 @@ public class TestStringSwitchTypes {
             return 2;// 48
          default:
             System.out.println("Test");// 43
-            return 0;// 44 51
+            return 0;// 51
       }
    }
 
@@ -68,7 +68,7 @@ public class TestStringSwitchTypes {
             return 1;// 74
          default:
             System.out.println("Test");// 69
-            return 0;// 70 77
+            return 0;// 77
       }
    }
 }
@@ -239,12 +239,12 @@ class 'pkg/TestStringSwitchTypes' {
       5d      45
       5e      45
       5f      45
-      60      46
       63      41
       64      41
       65      43
       66      43
       67      46
+      68      46
    }
 
    method 'testSplitDup (Ljava/lang/String;)I' {
@@ -335,12 +335,12 @@ class 'pkg/TestStringSwitchTypes' {
       5d      69
       5e      69
       5f      69
-      60      70
       63      65
       64      65
       65      67
       66      67
       67      70
+      68      70
    }
 }
 
@@ -364,7 +364,6 @@ Lines mapping:
 37 <-> 35
 41 <-> 40
 43 <-> 46
-44 <-> 47
 46 <-> 42
 48 <-> 44
 51 <-> 47
@@ -375,7 +374,9 @@ Lines mapping:
 62 <-> 59
 67 <-> 64
 69 <-> 70
-70 <-> 71
 72 <-> 66
 74 <-> 68
 77 <-> 71
+Not mapped:
+44
+70

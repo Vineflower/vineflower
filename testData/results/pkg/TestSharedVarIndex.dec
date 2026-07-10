@@ -8,11 +8,27 @@ public class TestSharedVarIndex {
       String bx = "lol";// 11
    }// 12
 
+   public static int ObjectVsInt(Object object, int value) {
+      Object alias = object;// 16
+      alias.hashCode();// 17
+      alias = 0;// 20
+      return alias + value;// 21 22
+   }
+
+   public static void ObjectVsInt2(int value) {
+      int alias = null;// 27
+      alias = value;// 30
+      switch (alias) {// 31
+         case 1:
+            return;// 33
+      }
+   }// 35
+
    public void lambda(List<Integer> l) {
-      int i = 0;// 16
-      System.out.println(i);// 17
-      l.forEach(ix -> System.out.println(ix + 1));// 19
-   }// 20
+      int i = 0;// 42
+      System.out.println(i);// 43
+      l.forEach(ix -> System.out.println(ix + 1));// 45
+   }// 46
 }
 
 class 'pkg/TestSharedVarIndex' {
@@ -25,39 +41,83 @@ class 'pkg/TestSharedVarIndex' {
       8      8
    }
 
-   method 'lambda (Ljava/util/List;)V' {
+   method 'ObjectVsInt (Ljava/lang/Object;I)I' {
       0      11
       1      11
       2      12
       3      12
       4      12
       5      12
-      6      12
-      7      12
-      8      12
-      9      13
-      f      13
-      10      13
-      11      13
-      12      13
-      13      13
-      14      14
+      7      13
+      8      13
+      9      14
+      a      14
+      b      14
+      e      14
+   }
+
+   method 'ObjectVsInt2 (I)V' {
+      0      18
+      1      18
+      2      19
+      3      19
+      4      20
+      5      20
+      6      20
+      7      20
+      8      20
+      9      20
+      a      20
+      b      20
+      c      20
+      d      20
+      e      20
+      f      20
+      10      20
+      11      20
+      12      20
+      13      20
+      14      20
+      15      20
+      16      20
+      17      20
+      18      22
+      19      24
+   }
+
+   method 'lambda (Ljava/util/List;)V' {
+      0      27
+      1      27
+      2      28
+      3      28
+      4      28
+      5      28
+      6      28
+      7      28
+      8      28
+      9      29
+      f      29
+      10      29
+      11      29
+      12      29
+      13      29
+      14      30
    }
 
    method 'lambda$lambda$0 (Ljava/lang/Integer;)V' {
-      0      13
-      1      13
-      2      13
-      3      13
-      4      13
-      5      13
-      6      13
-      7      13
-      8      13
-      9      13
-      a      13
-      b      13
-      c      13
+      0      29
+      1      29
+      2      29
+      3      29
+      4      29
+      5      29
+      6      29
+      7      29
+      8      29
+      9      29
+      a      29
+      b      29
+      c      29
    }
 }
 
@@ -67,5 +127,15 @@ Lines mapping:
 12 <-> 9
 16 <-> 12
 17 <-> 13
-19 <-> 14
-20 <-> 15
+20 <-> 14
+21 <-> 15
+22 <-> 15
+27 <-> 19
+30 <-> 20
+31 <-> 21
+33 <-> 23
+35 <-> 25
+42 <-> 28
+43 <-> 29
+45 <-> 30
+46 <-> 31

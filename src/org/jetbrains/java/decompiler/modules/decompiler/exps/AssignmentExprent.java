@@ -33,7 +33,7 @@ public class AssignmentExprent extends Exprent {
   private Exprent right;
   private FunctionExprent.FunctionType condType = null;
 
-  public AssignmentExprent(Exprent left, Exprent right, BitSet bytecodeOffsets) {
+  public AssignmentExprent(Exprent left, Exprent right, BytecodeRange bytecodeOffsets) {
     super(Type.ASSIGNMENT);
     this.left = left;
     this.right = right;
@@ -41,7 +41,7 @@ public class AssignmentExprent extends Exprent {
     addBytecodeOffsets(bytecodeOffsets);
   }
 
-  public AssignmentExprent(Exprent left, Exprent right, FunctionExprent.FunctionType condType, BitSet bytecodeOffsets) {
+  public AssignmentExprent(Exprent left, Exprent right, FunctionExprent.FunctionType condType, BytecodeRange bytecodeOffsets) {
     this(left, right, bytecodeOffsets);
     this.condType = condType;
   }
@@ -286,7 +286,7 @@ public class AssignmentExprent extends Exprent {
   }
 
   @Override
-  public void getBytecodeRange(BitSet values) {
+  public void getBytecodeRange(BytecodeRange values) {
     measureBytecode(values, left);
     measureBytecode(values, right);
     measureBytecode(values);

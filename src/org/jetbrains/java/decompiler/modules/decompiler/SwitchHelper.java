@@ -426,8 +426,12 @@ public final class SwitchHelper {
     }
     Exprent realExpr = assignment.getRight();
 
-    VarExprent headVar = (VarExprent) (switchHead.getValue() instanceof InvocationExprent val
-      ? val.getInstance() : switchHead.getValue());
+    Exprent headEx = switchHead.getValue() instanceof InvocationExprent val
+      ? val.getInstance() : switchHead.getValue();
+
+    if (!(headEx instanceof VarExprent headVar)) {
+      return null;
+    }
 
     // If the dup var is not in the switch head,
     //   and the dup var is referenced somewhere else other than the switch head...

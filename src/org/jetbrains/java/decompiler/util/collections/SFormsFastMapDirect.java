@@ -1,11 +1,13 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.util.collections;
 
+import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionNode;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.collections.FastSparseSetFactory.FastSparseSet;
+import org.jetbrains.java.decompiler.util.collections.FastSparseSetFactory.IntArray;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,9 +22,9 @@ public class SFormsFastMapDirect {
   private int size;
   private final FastSparseSetFactory<Integer> factory;
 
-  @SuppressWarnings("unchecked") private final FastSparseSet<Integer>[][] elements = new FastSparseSet[3][];
+  private final FastSparseSetArray[] elements = new FastSparseSetArray[3];
 
-  private final int[][] next = new int[3][];
+  private final IntArray[] next = new IntArray[3];
 
   public SFormsFastMapDirect(FastSparseSetFactory<Integer> factory) {
     this(true, factory);
@@ -32,9 +34,8 @@ public class SFormsFastMapDirect {
     this.factory = factory;
     if (initialize) {
       for (int i = 2; i >= 0; i--) {
-        @SuppressWarnings("unchecked") FastSparseSet<Integer>[] empty = FastSparseSet.EMPTY_ARRAY;
-        elements[i] = empty;
-        next[i] = InterpreterUtil.EMPTY_INT_ARRAY;
+        elements[i] = new FastSparseSetArray(0);
+        next[i] = new FastSparseSetFactory.IntArray(0);
       }
     }
   }
@@ -44,35 +45,22 @@ public class SFormsFastMapDirect {
     SFormsFastMapDirect map = new SFormsFastMapDirect(false, factory);
     map.size = size;
 
-    FastSparseSet[][] mapelements = map.elements;
-    int[][] mapnext = map.next;
+    FastSparseSetArray[] mapelements = map.elements;
+    IntArray[] mapnext = map.next;
 
     for (int i = 2; i >= 0; i--) {
-      FastSparseSet<Integer>[] arr = elements[i];
-      int length = arr.length;
+      FastSparseSetArray arr = elements[i];
+      int length = arr.length();
 
       if (length > 0) {
-        int[] arrnext = next[i];
+        IntArray arrnext = next[i];
 
-        @SuppressWarnings("unchecked") FastSparseSet<Integer>[] arrnew = new FastSparseSet[length];
-        int[] arrnextnew = Arrays.copyOf(arrnext, length);
+        mapelements[i] = arr.copy();
+        mapnext[i] = arrnext.copy();
 
-        mapelements[i] = arrnew;
-        mapnext[i] = arrnextnew;
-
-        int pointer = 0;
-        do {
-          FastSparseSet<Integer> set = arr[pointer];
-          if (set != null) {
-            arrnew[pointer] = set.getCopy();
-          }
-
-          pointer = arrnext[pointer];
-        }
-        while (pointer != 0);
       } else {
-        mapelements[i] = FastSparseSet.EMPTY_ARRAY;
-        mapnext[i] = InterpreterUtil.EMPTY_INT_ARRAY;
+        mapelements[i] = new FastSparseSetArray(0);
+        mapnext[i] = new IntArray(0);
       }
     }
 
@@ -96,31 +84,23 @@ public class SFormsFastMapDirect {
   }
 
   public void removeAllFields() {
-    FastSparseSet<Integer>[] arr = elements[2];
-    int[] arrnext = next[2];
+    FastSparseSetArray arr = elements[2];
+    IntArray arrnext = next[2];
 
-    for (int i = arr.length - 1; i >= 0; i--) {
-      FastSparseSet<Integer> val = arr[i];
-      if (val != null) {
-        arr[i] = null;
-        size--;
-      }
-      arrnext[i] = 0;
-    }
+    size -= arr.cardinality();
+
+    arrnext.setNone();
+    arr.setNone();
   }
 
   public void removeAllStacks() {
-    FastSparseSet<Integer>[] arr = elements[1];
-    int[] arrnext = next[1];
+    FastSparseSetArray arr = elements[1];
+    IntArray arrnext = next[1];
 
-    for (int i = arr.length - 1; i >= 0; i--) {
-      FastSparseSet<Integer> val = arr[i];
-      if (val != null) {
-        arr[i] = null;
-        size--;
-      }
-      arrnext[i] = 0;
-    }
+    size -= arr.cardinality();
+
+    arrnext.setNone();
+    arr.setNone();
   }
 
   private void putInternal(final int key, final FastSparseSet<Integer> value, boolean remove) {
@@ -134,33 +114,36 @@ public class SFormsFastMapDirect {
       ikey -= VarExprent.STACK_BASE;
     }
 
-    FastSparseSet<Integer>[] arr = elements[index];
-    if (ikey >= arr.length) {
+    FastSparseSetArray arr = elements[index];
+    if (ikey >= arr.length()) {
       if (remove) {
         return;
       } else {
-        arr = ensureCapacity(index, ikey + 1, false);
+        ensureCapacity(index, ikey + 1, false);
       }
     }
 
-    FastSparseSet<Integer> oldval = arr[ikey];
-    arr[ikey] = value;
+    FastSparseSet<Integer> oldval = arr.get(ikey);
+    arr.set(ikey, value);
 
-    int[] arrnext = next[index];
+    IntArray arrnext = next[index];
 
     if (oldval == null && value != null) {
       size++;
-      changeNext(arrnext, ikey, arrnext[ikey], ikey);
+      changeNext(arrnext, ikey, arrnext.get(ikey), ikey);
     } else if (oldval != null && value == null) {
       size--;
-      changeNext(arrnext, ikey, ikey, arrnext[ikey]);
+      changeNext(arrnext, ikey, ikey, arrnext.get(ikey));
     }
   }
 
-  private static void changeNext(int[] arrnext, int key, int oldnext, int newnext) {
+  private static void changeNext(IntArray arrnext, int key, int oldnext, int newnext) {
+    if (oldnext == newnext) {
+      return;
+    }
     for (int i = key - 1; i >= 0; i--) {
-      if (arrnext[i] == oldnext) {
-        arrnext[i] = newnext;
+      if (arrnext.get(i) == oldnext) {
+        arrnext.set(i, newnext);
       } else {
         break;
       }
@@ -182,10 +165,10 @@ public class SFormsFastMapDirect {
       key -= VarExprent.STACK_BASE;
     }
 
-    FastSparseSet<Integer>[] arr = elements[index];
+    FastSparseSetArray arr = elements[index];
 
-    if (key < arr.length) {
-      return arr[key];
+    if (key < arr.length()) {
+      return arr.get(key);
     }
 
     return null;
@@ -194,36 +177,36 @@ public class SFormsFastMapDirect {
   public void complement(SFormsFastMapDirect map) {
 
     for (int i = 2; i >= 0; i--) {
-      FastSparseSet<Integer>[] lstOwn = elements[i];
+      FastSparseSetArray lstOwn = elements[i];
 
-      if (lstOwn.length == 0) {
+      if (lstOwn.length() == 0) {
         continue;
       }
 
-      FastSparseSet<Integer>[] lstExtern = map.elements[i];
-      int[] arrnext = next[i];
+      FastSparseSetArray lstExtern = map.elements[i];
+      IntArray arrnext = next[i];
 
       int pointer = 0;
       do {
-        FastSparseSet<Integer> first = lstOwn[pointer];
+        FastSparseSet<Integer> first = lstOwn.get(pointer);
 
         if (first != null) {
-          if (pointer >= lstExtern.length) {
+          if (pointer >= lstExtern.length()) {
             break;
           }
-          FastSparseSet<Integer> second = lstExtern[pointer];
+          FastSparseSet<Integer> second = lstExtern.get(pointer);
 
           if (second != null) {
             first.complement(second);
             if (first.isEmpty()) {
-              lstOwn[pointer] = null;
+              lstOwn.set(pointer, null);
               size--;
-              changeNext(arrnext, pointer, pointer, arrnext[pointer]);
+              changeNext(arrnext, pointer, pointer, arrnext.get(pointer));
             }
           }
         }
 
-        pointer = arrnext[pointer];
+        pointer = arrnext.get(pointer);
       }
       while (pointer != 0);
     }
@@ -232,23 +215,23 @@ public class SFormsFastMapDirect {
   public void intersection(SFormsFastMapDirect map) {
 
     for (int i = 2; i >= 0; i--) {
-      FastSparseSet<Integer>[] lstOwn = elements[i];
+      FastSparseSetArray lstOwn = elements[i];
 
-      if (lstOwn.length == 0) {
+      if (lstOwn.length() == 0) {
         continue;
       }
 
-      FastSparseSet<Integer>[] lstExtern = map.elements[i];
-      int[] arrnext = next[i];
+      FastSparseSetArray lstExtern = map.elements[i];
+      IntArray arrnext = next[i];
 
       int pointer = 0;
       do {
-        FastSparseSet<Integer> first = lstOwn[pointer];
+        FastSparseSet<Integer> first = lstOwn.get(pointer);
 
         if (first != null) {
           FastSparseSet<Integer> second = null;
-          if (pointer < lstExtern.length) {
-            second = lstExtern[pointer];
+          if (pointer < lstExtern.length()) {
+            second = lstExtern.get(pointer);
           }
 
           if (second != null) {
@@ -256,13 +239,13 @@ public class SFormsFastMapDirect {
           }
 
           if (second == null || first.isEmpty()) {
-            lstOwn[pointer] = null;
+            lstOwn.set(pointer, null);
             size--;
-            changeNext(arrnext, pointer, pointer, arrnext[pointer]);
+            changeNext(arrnext, pointer, pointer, arrnext.get(pointer));
           }
         }
 
-        pointer = arrnext[pointer];
+        pointer = arrnext.get(pointer);
       }
       while (pointer != 0);
     }
@@ -271,39 +254,40 @@ public class SFormsFastMapDirect {
   public void union(SFormsFastMapDirect map) {
 
     for (int i = 2; i >= 0; i--) {
-      FastSparseSet<Integer>[] lstExtern = map.elements[i];
+      FastSparseSetArray lstExtern = map.elements[i];
 
-      if (lstExtern.length == 0) {
+      if (lstExtern.length() == 0) {
         continue;
       }
 
-      FastSparseSet<Integer>[] lstOwn = elements[i];
-      int[] arrnext = next[i];
-      int[] arrnextExtern = map.next[i];
+      FastSparseSetArray lstOwn = elements[i];
+
+      IntArray arrnext = next[i];
+      IntArray arrnextExtern = map.next[i];
 
       int pointer = 0;
       do {
-        if (pointer >= lstOwn.length) {
-          lstOwn = ensureCapacity(i, lstExtern.length, true);
+        if (pointer >= lstOwn.length()) {
+          ensureCapacity(i, lstExtern.length(), true);
           arrnext = next[i];
         }
 
-        FastSparseSet<Integer> second = lstExtern[pointer];
+        FastSparseSet<Integer> second = lstExtern.get(pointer);
 
         if (second != null) {
-          FastSparseSet<Integer> first = lstOwn[pointer];
+          FastSparseSet<Integer> first = lstOwn.get(pointer);
 
           if (first == null) {
-            lstOwn[pointer] = second.getCopy();
+            lstOwn.set(pointer, second.getCopy());
             size++;
-            changeNext(arrnext, pointer, arrnext[pointer], pointer);
+            changeNext(arrnext, pointer, arrnext.get(pointer), pointer);
           }
           else {
             first.union(second);
           }
         }
 
-        pointer = arrnextExtern[pointer];
+        pointer = arrnextExtern.get(pointer);
       }
       while (pointer != 0);
     }
@@ -338,7 +322,8 @@ public class SFormsFastMapDirect {
 
     for (int i = 2; i >= 0; i--) {
       int ikey = 0;
-      for (final FastSparseSet<Integer> ent : elements[i]) {
+      for (int j = 0; j < elements[i].length(); j++) {
+        final FastSparseSet<Integer> ent = elements[i].get(j);
         if (ent != null) {
           final int key = i == 0 ? ikey : (i == 1 ? ikey + VarExprent.STACK_BASE : -ikey);
 
@@ -368,29 +353,21 @@ public class SFormsFastMapDirect {
     return list;
   }
 
-  private FastSparseSet<Integer>[] ensureCapacity(int index, int size, boolean exact) {
+  private void ensureCapacity(int index, int size, boolean exact) {
 
-    FastSparseSet<Integer>[] arr = elements[index];
-    int[] arrnext = next[index];
+    FastSparseSetArray arr = elements[index];
+    IntArray arrnext = next[index];
 
     int minsize = size;
     if (!exact) {
-      minsize = 2 * arr.length / 3 + 1;
+      minsize = 2 * arr.length() / 3 + 1;
       if (size > minsize) {
         minsize = size;
       }
     }
 
-    @SuppressWarnings("unchecked") FastSparseSet<Integer>[] arrnew = new FastSparseSet[minsize];
-    System.arraycopy(arr, 0, arrnew, 0, arr.length);
-
-    int[] arrnextnew = new int[minsize];
-    System.arraycopy(arrnext, 0, arrnextnew, 0, arrnext.length);
-
-    elements[index] = arrnew;
-    next[index] = arrnextnew;
-
-    return arrnew;
+    arr.resize(minsize);
+    arrnext.resize(minsize);
   }
 
   public void setCurrentVar(int var, int version) {
@@ -413,5 +390,193 @@ public class SFormsFastMapDirect {
 
   public FastSparseSet<Integer> get(VarExprent varExprent) {
     return this.get(varExprent.getIndex());
+  }
+
+  private static class FastSparseSetArray {
+    private ArrayTower tower = ArrayTower.None.INSTANCE;
+    private int size;
+
+    public FastSparseSetArray(int size) {
+      this.size = size;
+    }
+
+    public FastSparseSet<Integer> get(int index) {
+      return tower.get(index);
+    }
+
+    public void setNone() {
+      tower = ArrayTower.None.INSTANCE;
+    }
+
+    public void set(int index, FastSparseSet<Integer> value) {
+      if (!tower.canSet(index, value)) {
+        ArrayTower last = tower;
+        if (tower instanceof ArrayTower.None) {
+          tower = new ArrayTower.Single(index, value);
+        } else if (tower instanceof ArrayTower.Single single) {
+          // Different values, fall all the way down to array
+          if (index == single.index || single.value == null) {
+            // Size is one, just replace the value in single
+            tower = new ArrayTower.Single(index, value);
+          } else {
+            FastSparseSet<Integer>[] ints = new FastSparseSet[size];
+            ints[single.index] = single.value;
+            tower = new ArrayTower.Array(ints, 1);
+          }
+        }
+
+        ValidationHelper.validateTrue(last != tower, "must have changed");
+      }
+
+      tower.set(index, value);
+
+      if (tower instanceof ArrayTower.Array ary && ary.set == 0) {
+        tower = ArrayTower.None.INSTANCE;
+      }
+    }
+
+    public void resize(int newSize) {
+      if (newSize > size) {
+        size = newSize;
+
+        if (tower instanceof ArrayTower.Array ary) {
+          tower = new ArrayTower.Array(Arrays.copyOf(ary.ary, newSize), ary.set);
+        }
+      }
+    }
+
+    public int cardinality() {
+      if (this.tower instanceof ArrayTower.None) {
+        return 0;
+      } else if (this.tower instanceof ArrayTower.Single) {
+        return 1;
+      } else if (this.tower instanceof ArrayTower.Array ary) {
+        return ary.set;
+      }
+
+      throw new IllegalStateException("illegal state!");
+    }
+
+    public FastSparseSetArray copy() {
+      FastSparseSetArray next = new FastSparseSetArray(size);
+      next.tower = tower.copy();
+
+      return next;
+    }
+
+    public int length() {
+      return size;
+    }
+  }
+
+  private sealed interface ArrayTower {
+    FastSparseSet<Integer> get(int i);
+
+    default void set(int i, FastSparseSet<Integer> v) {
+      if (canSet(i, v)) {
+        return;
+      }
+
+      throw new IllegalStateException("Can't set " + i + " " + v);
+    }
+
+    boolean canSet(int i, FastSparseSet<Integer> v);
+
+    ArrayTower copy();
+
+    record None() implements ArrayTower {
+      public static final None INSTANCE = new None();
+
+      @Override
+      public FastSparseSet<Integer> get(int i) {
+        return null;
+      }
+
+      @Override
+      public boolean canSet(int i, FastSparseSet<Integer> v) {
+        return v == null;
+      }
+
+      @Override
+      public ArrayTower copy() {
+        return INSTANCE;
+      }
+
+      @Override
+      public String toString() {
+        return "Nil";
+      }
+    }
+
+    record Single(int index, FastSparseSet<Integer> value) implements ArrayTower {
+
+      @Override
+      public FastSparseSet<Integer> get(int i) {
+        return i == index ? value : null;
+      }
+
+      @Override
+      public boolean canSet(int i, FastSparseSet<Integer> v) {
+        return (i == index && v == value) || (i != index && v == null);
+      }
+
+      @Override
+      public ArrayTower copy() {
+        return new Single(index, value.getCopy());
+      }
+
+      @Override
+      public String toString() {
+        return value + "@" + index;
+      }
+    }
+
+    final class Array implements ArrayTower {
+      private final FastSparseSet<Integer>[] ary;
+      private int set;
+
+      Array(FastSparseSet<Integer>[] ary, int set) {
+        this.ary = ary;
+        this.set = set;
+      }
+
+      @Override
+      public FastSparseSet<Integer> get(int i) {
+        return ary[i];
+      }
+
+      @Override
+      public void set(int i, FastSparseSet<Integer> v) {
+        FastSparseSet<Integer> old = ary[i];
+        ary[i] = v;
+
+        if (old == null && v != null) {
+          set++;
+        } else if (old != null && v == null) {
+          set--;
+        }
+      }
+
+      @Override
+      public boolean canSet(int i, FastSparseSet<Integer> v) {
+        return true;
+      }
+
+      @Override
+      public ArrayTower copy() {
+        FastSparseSet<Integer>[] cpy = Arrays.copyOf(ary, ary.length);
+        for (int i = 0; i < cpy.length; i++) {
+          FastSparseSet<Integer> v = cpy[i];
+          cpy[i] = v == null ? null : v.getCopy();
+        }
+
+        return new ArrayTower.Array(cpy, set);
+      }
+
+      @Override
+      public String toString() {
+        return Arrays.toString(ary);
+      }
+    }
   }
 }

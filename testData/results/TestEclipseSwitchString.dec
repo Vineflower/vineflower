@@ -10,7 +10,7 @@ public class TestEclipseSwitchString {
       }
 
       System.out.println("Test");// 7
-      return 0;// 8 15
+      return 0;// 15
    }
 
    public int test1(String var1) {
@@ -23,7 +23,7 @@ public class TestEclipseSwitchString {
       }
 
       System.out.println("Test");// 21
-      return 0;// 22 30
+      return 0;// 30
    }
 
    public int test2(String var1) {
@@ -47,7 +47,7 @@ public class TestEclipseSwitchString {
       }
 
       System.out.println("Test");// 36
-      return 0;// 37 45
+      return 0;// 45
    }
 
    public int testHashcodeCollision(String var1) {
@@ -58,7 +58,7 @@ public class TestEclipseSwitchString {
             return 2;// 56
          default:
             System.out.println("Test");// 51
-            return 0;// 52 58
+            return 0;// 58
       }
    }
 
@@ -70,7 +70,7 @@ public class TestEclipseSwitchString {
       }
 
       System.out.println("Test");// 64
-      return 0;// 65 70
+      return 0;// 70
    }
 
    public int testHashcodeCollision2(String var1) {
@@ -91,7 +91,7 @@ public class TestEclipseSwitchString {
       }
 
       System.out.println("Test");// 76
-      return 0;// 77 83
+      return 0;// 83
    }
 }
 
@@ -136,12 +136,12 @@ class 'pkg/TestEclipseSwitchString' {
       3a      11
       3b      11
       3c      11
-      3d      12
       40      6
       41      6
       42      8
       43      8
       44      12
+      45      12
    }
 
    method 'test1 (Ljava/lang/String;)I' {
@@ -194,12 +194,12 @@ class 'pkg/TestEclipseSwitchString' {
       4e      24
       4f      24
       50      24
-      51      25
       54      18
       55      18
       56      21
       57      21
       58      25
+      59      25
    }
 
    method 'test2 (Ljava/lang/String;)I' {
@@ -277,7 +277,6 @@ class 'pkg/TestEclipseSwitchString' {
       4e      48
       4f      48
       50      48
-      51      49
       54      33
       55      33
       56      33
@@ -289,6 +288,7 @@ class 'pkg/TestEclipseSwitchString' {
       5c      34
       5d      34
       5e      49
+      5f      49
    }
 
    method 'testHashcodeCollision (Ljava/lang/String;)I' {
@@ -323,12 +323,12 @@ class 'pkg/TestEclipseSwitchString' {
       2f      59
       30      59
       31      59
-      32      60
       35      55
       36      55
       37      57
       38      57
       39      60
+      3a      60
    }
 
    method 'testHashcodeCollision1 (Ljava/lang/String;)I' {
@@ -363,10 +363,10 @@ class 'pkg/TestEclipseSwitchString' {
       2f      71
       30      71
       31      71
-      32      72
       35      68
       36      68
       37      72
+      38      72
    }
 
    method 'testHashcodeCollision2 (Ljava/lang/String;)I' {
@@ -419,7 +419,6 @@ class 'pkg/TestEclipseSwitchString' {
       2f      92
       30      92
       31      92
-      32      93
       35      85
       36      85
       37      85
@@ -431,42 +430,44 @@ class 'pkg/TestEclipseSwitchString' {
       3d      88
       3e      88
       3f      93
+      40      93
    }
 }
 
 Lines mapping:
 5 <-> 5
 7 <-> 12
-8 <-> 13
 10 <-> 7
 12 <-> 9
 15 <-> 13
 19 <-> 17
 21 <-> 25
-22 <-> 26
 24 <-> 19
 27 <-> 22
 30 <-> 26
 34 <-> 30
 36 <-> 49
-37 <-> 50
 39 <-> 34
 42 <-> 35
 45 <-> 50
 49 <-> 54
 51 <-> 60
-52 <-> 61
 54 <-> 56
 56 <-> 58
 58 <-> 61
 62 <-> 66
 64 <-> 72
-65 <-> 73
 68 <-> 69
 70 <-> 73
 74 <-> 77
 76 <-> 93
-77 <-> 94
 79 <-> 86
 81 <-> 89
 83 <-> 94
+Not mapped:
+8
+22
+37
+52
+65
+77

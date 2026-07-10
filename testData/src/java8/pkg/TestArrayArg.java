@@ -56,6 +56,14 @@ public class TestArrayArg {
     overloaded2((Object[]) null);
   }
 
+  public static void test5b(Object[] object) {
+    overloaded2((Object) object);
+  }
+
+  public static void test5b_(Object object) {
+    overloaded2((Object[]) object);
+  }
+
   public static void test6() {
     overloaded3(null, 1);
   }

@@ -21,7 +21,7 @@ public class TestTailrecFunctions {
       } finally {
          this.testFinally()// 13
       }
-   }// 14
+   }// 15
 
    public tailrec fun testFinallyReturn(): Int {
       try {
@@ -133,11 +133,11 @@ class 'pkg/TestTailrecFunctions' {
    }
 
    method 'testFinally ()V' {
-      5      23
       9      21
       a      21
       b      21
       c      21
+      f      23
    }
 
    method 'testFinallyReturn ()I' {
@@ -318,7 +318,7 @@ Lines mapping:
 5 <-> 7
 6 <-> 10
 13 <-> 22
-14 <-> 24
+15 <-> 24
 21 <-> 30
 27 <-> 36
 29 <-> 37
@@ -339,7 +339,7 @@ Lines mapping:
 53 <-> 97
 Not mapped:
 10
-15
+14
 18
 26
 34

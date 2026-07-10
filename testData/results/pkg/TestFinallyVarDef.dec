@@ -9,8 +9,8 @@ public class TestFinallyVarDef {
       }
 
       byte var5;
-      System.out.println(var5);// 10 12
-   }
+      System.out.println(var5);// 12
+   }// 13
 
    public void test2() {
       int i = 2;// 16
@@ -21,8 +21,8 @@ public class TestFinallyVarDef {
          int var5 = 5;// 20
       }
 
-      System.out.println(i);// 21 23
-   }
+      System.out.println(i);// 23
+   }// 24
 }
 
 class 'pkg/TestFinallyVarDef' {
@@ -35,15 +35,16 @@ class 'pkg/TestFinallyVarDef' {
       5      5
       6      5
       7      5
-      a      11
-      b      11
-      c      11
       e      7
       f      7
       12      11
+      13      11
+      14      11
       15      11
       16      11
       17      11
+      18      11
+      19      12
    }
 
    method 'test2 ()V' {
@@ -57,28 +58,29 @@ class 'pkg/TestFinallyVarDef' {
       7      18
       8      18
       9      18
-      c      23
-      d      23
-      e      23
       10      20
       11      20
       14      23
+      15      23
+      16      23
       17      23
       18      23
       19      23
+      1a      23
+      1b      24
    }
 }
 
 Lines mapping:
 7 <-> 6
 9 <-> 8
-10 <-> 12
 12 <-> 12
+13 <-> 13
 16 <-> 16
 18 <-> 19
 20 <-> 21
-21 <-> 24
 23 <-> 24
+24 <-> 25
 Not mapped:
-13
-24
+10
+21

@@ -11,6 +11,7 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.extern.TextTokenVisitor;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.AnnotationExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.TypeAnnotation;
 import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.FieldDescriptor;
@@ -350,20 +351,26 @@ public class TextBuffer {
     myBytecodeOffsetMapping.putIfAbsent(new BytecodeMappingKey(bytecodeOffset, null, null), 0);
   }
 
-  public void addBytecodeMapping(BitSet bytecodeOffsets) {
+  public void addBytecodeMapping(Exprent.BytecodeRange bytecodeOffsets) {
     if (bytecodeOffsets == null) {
       return;
     }
-    for (int i = bytecodeOffsets.nextSetBit(0); i >= 0; i = bytecodeOffsets.nextSetBit(i + 1)) {
+
+    BitSet set = bytecodeOffsets.asBitSet();
+
+    for (int i = set.nextSetBit(0); i >= 0; i = set.nextSetBit(i + 1)) {
       addBytecodeMapping(i);
     }
   }
 
-  public void addStartBytecodeMapping(BitSet bytecodeOffsets) {
+  public void addStartBytecodeMapping(Exprent.BytecodeRange bytecodeOffsets) {
     if (bytecodeOffsets == null) {
       return;
     }
-    for (int i = bytecodeOffsets.nextSetBit(0); i >= 0; i = bytecodeOffsets.nextSetBit(i + 1)) {
+
+    BitSet set = bytecodeOffsets.asBitSet();
+
+    for (int i = set.nextSetBit(0); i >= 0; i = set.nextSetBit(i + 1)) {
       addStartBytecodeMapping(i);
     }
   }
@@ -841,7 +848,11 @@ public class TextBuffer {
 
     @Override
     public int hashCode() {
-      return Objects.hash(myBytecodeOffset, myClass, myMethod);
+      int res = 1;
+      res = 31 * res + Integer.hashCode(myBytecodeOffset);
+      res = 31 * res + (myClass == null ? 0 : myClass.hashCode());
+      res = 31 * res + (myMethod == null ? 0 : myMethod.hashCode());
+      return res;
     }
 
     @Override
