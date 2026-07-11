@@ -338,11 +338,6 @@ public final class SwitchHelper {
         if (currIf.getIfstat().hasSuccessor(StatEdge.TYPE_BREAK)) {
           StatEdge edge = currIf.getIfstat().getSuccessorEdges(StatEdge.TYPE_BREAK).get(0);
           edge.changeClosure(switchInfo.first());
-
-          // Repurpose the edge because it's cheaper instead of creating a new edge.
-          // This edge should always be explicit and not-labeled!
-          edge.explicit = true;
-          edge.labeled = false;
         }
 
         // Disconnect any blocks connected to this if basichead (such as if stat, else stat, etc.)
