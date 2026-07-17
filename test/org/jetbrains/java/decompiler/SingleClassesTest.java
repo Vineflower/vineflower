@@ -865,6 +865,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8_NODEBUG, "TestByteArrayMerge");
     register(JAVA_8_NODEBUG, "TestByteVarIntMerge");
     register(JAVA_8, "TestFloatDupStoreTernary");
+    register(JAVA_16, "TestRecordFakeSyntheticConstructor");
   }
 
   private void registerEntireClassPath() {
