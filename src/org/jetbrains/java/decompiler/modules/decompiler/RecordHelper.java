@@ -232,9 +232,7 @@ public final class RecordHelper {
     }
   }
 
-  // Ideally this is iterated backwards.
-  // However, what we do is check that the last exprents are field invocations to local variables.
-  // (And that the name of the lvt matches the field)
+  // Checks for a block of assignments at the end that assigns all of the fields
   private static boolean isCompactCanonicalConstructor(MethodWrapper mw, StructClass cl) {
     List<StructRecordComponent> components = cl.getRecordComponents();
     if (components.isEmpty())
@@ -246,32 +244,33 @@ public final class RecordHelper {
       if (exit instanceof BasicBlockStatement block &&
           !block.getExprents().isEmpty()) {
         Exprent last = block.getExprents().get(block.getExprents().size() - 1);
+        // If the exit is a throws then skip
         if (last instanceof ExitExprent exitExp && exitExp.getExitType() == ExitExprent.Type.THROW) {
           continue;
         }
         
-        if (block.getExprents().size() >= components.size()) {
-          if (found) return false;
+        if (found ||
+            block.getExprents().size() < components.size()) return false;
 
-          int offset = block.getExprents().size() - components.size();
-          int lastIndex = 0;
-          for (int i = 0; i < components.size(); i++) {
-            StructRecordComponent component = components.get(i);
-            Exprent assignment = block.getExprents().get(offset + i);
-            if (!(assignment instanceof AssignmentExprent)) return false;
-            Exprent left = ((AssignmentExprent) assignment).getLeft();
-            if (!(left instanceof FieldExprent)) return false;
-            if (!component.getName().equals(((FieldExprent) left).getName())) return false;
-            Exprent fieldInstance = ((FieldExprent) left).getInstance();
-            if (!(fieldInstance instanceof VarExprent) || ((VarExprent) fieldInstance).getIndex() != 0) return false;
-            Exprent right = ((AssignmentExprent) assignment).getRight();
-            if (!(right instanceof VarExprent)) return false;
-            int index = ((VarExprent) right).getIndex();
-            if (index <= lastIndex) return false;
-            lastIndex = index;
-          }
-          found = true;
+        int offset = block.getExprents().size() - components.size();
+        int lastIndex = 0;
+        for (int i = 0; i < components.size(); i++) {
+          // Check for this.<field> = <parameter>
+          StructRecordComponent component = components.get(i);
+          Exprent assignment = block.getExprents().get(offset + i);
+          if (!(assignment instanceof AssignmentExprent)) return false;
+          Exprent left = ((AssignmentExprent) assignment).getLeft();
+          if (!(left instanceof FieldExprent)) return false;
+          if (!component.getName().equals(((FieldExprent) left).getName())) return false;
+          Exprent fieldInstance = ((FieldExprent) left).getInstance();
+          if (!(fieldInstance instanceof VarExprent) || ((VarExprent) fieldInstance).getIndex() != 0) return false;
+          Exprent right = ((AssignmentExprent) assignment).getRight();
+          if (!(right instanceof VarExprent)) return false;
+          int index = ((VarExprent) right).getIndex();
+          if (index <= lastIndex) return false;
+          lastIndex = index;
         }
+        found = true;
       }
     }
     return found;
