@@ -64,4 +64,17 @@ public class TestSwitchPatternMatchingJ25 {
       default -> throw new RuntimeException();
     };
   }
+
+  enum Test7 {
+    VALUE1,
+    VALUE2;
+  }
+  public String test7(Object o) {
+    return switch (o) {
+      case Integer i -> Integer.toString(i);
+      case Test7.VALUE1 -> "1";
+      case Test7.VALUE2 -> "2";
+      default -> "";
+    };
+  }
 }

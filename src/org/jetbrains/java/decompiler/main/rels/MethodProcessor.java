@@ -340,7 +340,7 @@ public class MethodProcessor implements Runnable {
 
       if (root.hasSwitch()) {
         boolean changed = false;
-        if (SwitchPatternMatchProcessor.hasPatternMatch(root) && SwitchPatternMatchProcessor.processPatternMatching(root)) {
+        if (SwitchPatternMatchProcessor.hasPatternMatch(root) && SwitchPatternMatchProcessor.processPatternMatching(root, cl)) {
           decompileRecord.add("ProcessSwitchPatternMatch", root);
           changed = true;
         }
