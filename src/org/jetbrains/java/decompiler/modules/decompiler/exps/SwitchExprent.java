@@ -89,8 +89,7 @@ public class SwitchExprent extends Exprent {
           ((ConstExprent) value).setConstType(switchType);
         }
 
-        if (value instanceof FieldExprent && ((FieldExprent) value).isStatic()) { // enum values
-          FieldExprent field = (FieldExprent) value;
+        if (value instanceof FieldExprent field && field.isStatic() && (!this.backing.getTopParent().mt.getBytecodeVersion().hasSwitchPatternMatch() || switchType.equals(field.getExprType()))) { // enum values
           buf.appendField(field.getName(), false, field.getClassname(), field.getName(), field.getDescriptor());
         } else if (value instanceof FunctionExprent && ((FunctionExprent) value).getFuncType() == FunctionExprent.FunctionType.INSTANCEOF) {
           // Pattern matching variables

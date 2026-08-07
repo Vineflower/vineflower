@@ -14,7 +14,7 @@ public class TestCondy {
    }
 
    public static FakeEnum testEnum() {
-      return /* $VF: constant dynamic */ FakeEnum.FOO;// 32
+      return FakeEnum.FOO;// 32
    }
 
    public static Class testPrimitiveClass() {
@@ -26,11 +26,11 @@ public class TestCondy {
    }
 
    public static Class testGetStaticFinal() {
-      return /* $VF: constant dynamic */ field;// 55
+      return field;// 55
    }
 
    public static Class testGetSelfStaticFinal() {
-      return /* $VF: constant dynamic */ selfField;// 62
+      return selfField;// 62
    }
 
    public static VarHandle testStaticVarHandle() {

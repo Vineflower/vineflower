@@ -66,8 +66,8 @@ public class TestSwitchPatternMatchingJ25 {
    public String test7(Object o) {
       return switch (o) {// 73
          case Integer i -> Integer.toString(i);// 74
-         case VALUE1 -> "1";// 75
-         case VALUE2 -> "2";// 76
+         case pkg.TestSwitchPatternMatchingJ25.Test7.VALUE1 -> "1";// 75
+         case pkg.TestSwitchPatternMatchingJ25.Test7.VALUE2 -> "2";// 76
          default -> "";// 77
       };
    }
