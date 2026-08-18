@@ -72,6 +72,15 @@ public class TestSwitchPatternMatchingJ25 {
       };
    }
 
+   public String test8(Object o, boolean b) {
+      return switch (o) {// 82
+         case Integer i when b -> Integer.toString(i);// 83
+         case pkg.TestSwitchPatternMatchingJ25.Test7.VALUE1 -> "1";// 84
+         case pkg.TestSwitchPatternMatchingJ25.Test7.VALUE2 -> "2";// 85
+         default -> "";// 86
+      };
+   }
+
    record Test5(Object o) {
    }
 
@@ -475,6 +484,54 @@ class 'pkg/TestSwitchPatternMatchingJ25' {
       48      70
       49      66
    }
+
+   method 'test8 (Ljava/lang/Object;Z)Ljava/lang/String;' {
+      0      75
+      12      75
+      13      75
+      14      75
+      15      75
+      16      75
+      17      75
+      18      75
+      19      75
+      1a      75
+      1b      75
+      1c      75
+      1d      75
+      1e      75
+      1f      75
+      20      75
+      21      75
+      22      75
+      23      75
+      24      75
+      25      75
+      26      75
+      27      75
+      28      75
+      29      75
+      2a      75
+      2b      75
+      30      76
+      31      76
+      32      76
+      3c      76
+      3d      76
+      3e      76
+      3f      76
+      40      76
+      41      76
+      42      76
+      43      76
+      47      77
+      48      77
+      4c      78
+      4d      78
+      51      79
+      52      79
+      56      75
+   }
 }
 
 Lines mapping:
@@ -514,3 +571,8 @@ Lines mapping:
 75 <-> 69
 76 <-> 70
 77 <-> 71
+82 <-> 76
+83 <-> 77
+84 <-> 78
+85 <-> 79
+86 <-> 80

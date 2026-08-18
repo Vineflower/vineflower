@@ -77,4 +77,13 @@ public class TestSwitchPatternMatchingJ25 {
       default -> "";
     };
   }
+
+  public String test8(Object o, boolean b) {
+    return switch (o) {
+      case Integer i when b -> Integer.toString(i);
+      case Test7.VALUE1 -> "1";
+      case Test7.VALUE2 -> "2";
+      default -> "";
+    };
+  }
 }

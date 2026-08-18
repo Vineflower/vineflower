@@ -155,7 +155,15 @@ public class FieldExprent extends Exprent {
 
   @Override
   public TextBuffer toJava(int indent) {
+    return toJava(indent, true);
+  }
+
+  public TextBuffer toJava(int indent, boolean includeCondyComment) {
     TextBuffer buf = new TextBuffer();
+
+    if (wasCondy && includeCondyComment) {
+      buf.append("/* $VF: constant dynamic */ ");
+    }
 
     if (isStatic) {
       if (name.equals("TYPE") && ExprUtil.PRIMITIVE_TYPES.containsKey(classname)) {
