@@ -8,6 +8,9 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.struct.StructClass;
+import org.jetbrains.java.decompiler.struct.attr.StructBootstrapMethodsAttribute;
+import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
+import org.jetbrains.java.decompiler.struct.consts.LinkConstant;
 import org.jetbrains.java.decompiler.struct.consts.PooledConstant;
 import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
 import org.jetbrains.java.decompiler.struct.gen.CodeType;
@@ -20,8 +23,8 @@ import java.util.*;
 import java.util.stream.Stream;
 
 public final class SwitchPatternMatchProcessor {
-  public static boolean processPatternMatching(Statement root) {
-    boolean ret = processPatternMatchingRec(root, root);
+  public static boolean processPatternMatching(Statement root, StructClass cl) {
+    boolean ret = processPatternMatchingRec(root, root, cl);
 
     if (ret) {
       SequenceHelper.condenseSequences(root);
@@ -30,24 +33,24 @@ public final class SwitchPatternMatchProcessor {
     return ret;
   }
 
-  private static boolean processPatternMatchingRec(Statement stat, Statement root) {
+  private static boolean processPatternMatchingRec(Statement stat, Statement root, StructClass cl) {
     ValidationHelper.validateStatement((RootStatement) root);
 
     boolean ret = false;
     for (Statement st : new ArrayList<>(stat.getStats())) {
-      ret |= processPatternMatchingRec(st, root);
+      ret |= processPatternMatchingRec(st, root, cl);
       ValidationHelper.validateStatement((RootStatement) root);
     }
 
     if (stat instanceof SwitchStatement) {
-      ret |= processStatement((SwitchStatement) stat, root);
+      ret |= processStatement((SwitchStatement) stat, root, cl);
       ValidationHelper.validateStatement((RootStatement) root);
     }
 
     return ret;
   }
 
-  private static boolean processStatement(SwitchStatement stat, Statement root) {
+  private static boolean processStatement(SwitchStatement stat, Statement root, StructClass cl) {
     if (stat.isPhantom()) {
       return false;
     }
@@ -261,10 +264,11 @@ public final class SwitchPatternMatchProcessor {
           }
         }
       }
-      // either an integer, String, or Class
+
+      Exprent newValue = null;
       if (bsa instanceof PrimitiveConstant) {
+        // either an integer, String, or Class
         PrimitiveConstant p = (PrimitiveConstant) bsa;
-        Exprent newValue = null;
         switch (p.type) {
           case CodeConstants.CONSTANT_Integer:
             newValue = new ConstExprent((Integer) p.value, false, null);
@@ -297,16 +301,25 @@ public final class SwitchPatternMatchProcessor {
           default:
             ValidationHelper.assertTrue(false, "unexpected case");
         }
-        if (newValue != null) {
-          int ix = i;
-          Exprent nvx = newValue;
-          // make sure we replace the right constant, null can be shared with anything
-          stat.getCaseValues().get(replaceIndex).replaceAll(u ->
-            u instanceof ConstExprent
+      } else if (bsa instanceof LinkConstant link) {
+        // Enum
+        StructBootstrapMethodsAttribute bootstrap = cl.getAttribute(StructGeneralAttribute.ATTRIBUTE_BOOTSTRAP_METHODS);
+        if (link.type == CodeConstants.CONSTANT_Dynamic && bootstrap != null) {
+          List<PooledConstant> constants = bootstrap.getMethodArguments(link.index1);
+          LinkConstant other = bootstrap.getMethodReference(link.index1);
+          newValue = CondyHelper.simplifyCondy(other, link.elementname, new VarType(link.descriptor), constants);
+        }
+      }
+
+      if (newValue != null) {
+        int ix = i;
+        Exprent nvx = newValue;
+        // make sure we replace the right constant, null can be shared with anything
+        stat.getCaseValues().get(replaceIndex).replaceAll(u -> u instanceof ConstExprent
             && u.getExprType().typeFamily == TypeFamily.INTEGER
             && ((ConstExprent) u).getIntValue() == ix
-              ? nvx : u);
-        }
+                ? nvx
+                : u);
       }
     }
 
