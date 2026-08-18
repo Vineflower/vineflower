@@ -27,7 +27,7 @@ public final class RecordHelper {
   public static boolean isHiddenRecordMethod(StructClass cl, StructMethod mt, RootStatement root) {
     if (cl.getRecordComponents() == null) return false;
     return isSyntheticRecordMethod(mt, root) || isDefaultRecordMethod(mt, root) ||
-      (mt.getName().equals(CodeConstants.INIT_NAME) && !hasAnnotations(mt) && isDefaultRecordConstructor(cl, root));
+      (mt.getName().equals(CodeConstants.INIT_NAME) && !hasAnnotations(mt) && isDefaultRecordConstructor(cl, mt, root));
   }
 
   public static boolean isHiddenRecordField(List<StructRecordComponent> components, StructField fd) {
@@ -96,30 +96,11 @@ public final class RecordHelper {
     return ((VarExprent) instance).getIndex() == 0 && fieldExprent.getName().equals(mt.getName());
   }
 
-  private static boolean isDefaultRecordConstructor(StructClass cl, RootStatement root) {
-    List<StructRecordComponent> components = cl.getRecordComponents();
-    if (components == null) return false;
-    Statement block = root.getFirst();
-    if (!(block instanceof BasicBlockStatement)) return false;
-    List<Exprent> exprents = block.getExprents();
-    if (exprents.size() != components.size()) return false;
-    int lastIndex = 0;
-    for (int i = 0; i < components.size(); i++) {
-      StructRecordComponent component = components.get(i);
-      Exprent assignment = exprents.get(i);
-      if (!(assignment instanceof AssignmentExprent)) return false;
-      Exprent left = ((AssignmentExprent) assignment).getLeft();
-      if (!(left instanceof FieldExprent)) return false;
-      if (!component.getName().equals(((FieldExprent) left).getName())) return false;
-      Exprent fieldInstance = ((FieldExprent) left).getInstance();
-      if (!(fieldInstance instanceof VarExprent) || ((VarExprent) fieldInstance).getIndex() != 0) return false;
-      Exprent right = ((AssignmentExprent) assignment).getRight();
-      if (!(right instanceof VarExprent)) return false;
-      int index = ((VarExprent) right).getIndex();
-      if (index <= lastIndex) return false;
-      lastIndex = index;
-    }
-    return true;
+  private static boolean isDefaultRecordConstructor(StructClass cl, StructMethod mt, RootStatement root) {
+    return getCanonicalConstructor(cl) == mt &&
+        root.getStats().size() == 1 &&
+        root.getStats().get(0) instanceof BasicBlockStatement block &&
+        block.getExprents().size() == 0;
   }
 
   private static StructMethod getCanonicalConstructor(StructClass cl) {
@@ -237,38 +218,62 @@ public final class RecordHelper {
     }
 
     // Prune all field assignments from the canonical constructor
-    if (isCompactCanonicalConstructor(mw)) {
+    if (isCompactCanonicalConstructor(mw, cl)) {
       mw.getOrBuildGraph().iterateExprents(exprent -> {
-        if (exprent instanceof AssignmentExprent assignmentExprent && assignmentExprent.getLeft() instanceof FieldExprent) {
+        if (exprent instanceof AssignmentExprent assignmentExprent && assignmentExprent.getLeft() instanceof FieldExprent field && field.getInstance() instanceof VarExprent variable && variable.getIndex() == 0) {
           return 2;
         }
 
         return 0;
       });
+      // Invert if else with empty if
+      SecondaryFunctionsHelper.identifySecondaryFunctions(mw.root, mw.varproc);
       mw.isCompactRecordConstructor = true;
     }
   }
 
-  // Ideally this is iterated backwards.
-  // However, what we do is check that the last exprents are field invocations to local variables.
-  // (And that the name of the lvt matches the field)
-  private static boolean isCompactCanonicalConstructor(MethodWrapper mw) {
-    DirectGraph graph = mw.getOrBuildGraph();
-    if (graph == null) {
+  // Checks for a block of assignments at the end that assigns all of the fields
+  private static boolean isCompactCanonicalConstructor(MethodWrapper mw, StructClass cl) {
+    List<StructRecordComponent> components = cl.getRecordComponents();
+    if (components.isEmpty())
       return false;
-    }
+    List<StatEdge> edges = mw.root.getDummyExit().getAllPredecessorEdges();
+    boolean found = false;
+    for (StatEdge edge : edges) {
+      Statement exit = edge.getSource();
+      if (exit instanceof BasicBlockStatement block &&
+          !block.getExprents().isEmpty()) {
+        Exprent last = block.getExprents().get(block.getExprents().size() - 1);
+        // If the exit is a throws then skip
+        if (last instanceof ExitExprent exitExp && exitExp.getExitType() == ExitExprent.Type.THROW) {
+          continue;
+        }
+        
+        if (found ||
+            block.getExprents().size() < components.size()) return false;
 
-    boolean[] valid = new boolean[1];
-    graph.iterateExprents(exprent -> {
-      if (exprent instanceof AssignmentExprent assignmentExprent && assignmentExprent.getLeft() instanceof FieldExprent fieldExprent && assignmentExprent.getRight() instanceof VarExprent varExprent) {
-        valid[0] = varExprent.getLVT() != null && fieldExprent.getName().equals(varExprent.getName());
-      } else {
-        valid[0] = false;
+        int offset = block.getExprents().size() - components.size();
+        int lastIndex = 0;
+        for (int i = 0; i < components.size(); i++) {
+          // Check for this.<field> = <parameter>
+          StructRecordComponent component = components.get(i);
+          Exprent assignment = block.getExprents().get(offset + i);
+          if (!(assignment instanceof AssignmentExprent)) return false;
+          Exprent left = ((AssignmentExprent) assignment).getLeft();
+          if (!(left instanceof FieldExprent)) return false;
+          if (!component.getName().equals(((FieldExprent) left).getName())) return false;
+          Exprent fieldInstance = ((FieldExprent) left).getInstance();
+          if (!(fieldInstance instanceof VarExprent) || ((VarExprent) fieldInstance).getIndex() != 0) return false;
+          Exprent right = ((AssignmentExprent) assignment).getRight();
+          if (!(right instanceof VarExprent)) return false;
+          int index = ((VarExprent) right).getIndex();
+          if (index <= lastIndex) return false;
+          lastIndex = index;
+        }
+        found = true;
       }
-
-      return 0;
-    });
-    return valid[0];
+    }
+    return found;
   }
 
 }

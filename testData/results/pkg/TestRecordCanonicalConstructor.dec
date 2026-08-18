@@ -1,13 +1,10 @@
 package pkg;
 
 public record TestRecordCanonicalConstructor(String name, Object meta) {
-   public TestRecordCanonicalConstructor(String name, Object meta) {
+   public TestRecordCanonicalConstructor {
       if (name == null) {
          throw new NullPointerException("name");
       }
-
-      this.name = name;
-      this.meta = meta;
    }
 }
 
@@ -20,17 +17,7 @@ class 'pkg/TestRecordCanonicalConstructor' {
       c      5
       d      5
       11      5
-      12      8
-      13      8
-      14      8
-      15      8
-      16      8
-      17      9
-      18      9
-      19      9
-      1a      9
-      1b      9
-      1c      10
+      1c      7
    }
 }
 
