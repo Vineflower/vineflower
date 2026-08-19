@@ -18,6 +18,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.stats.CatchStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.DoStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.SynchronizedStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionNode;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionsGraph;
@@ -441,6 +442,16 @@ public class StackVarsProcessor {
     // stack variables only
     if ((!left.isStack() && !options.inlineRegularVars) &&
         (!(right instanceof VarExprent variable) || !variable.isCatchTempVar())) { // special case catch(... ex)
+      setRet(ret, -1, changed);
+      return;
+    }
+
+    // A dup followed by a store can make one field-read stack value feed both a local and another
+    // expression. Inlining the field into the other expression would evaluate it a second time.
+    if (right instanceof FieldExprent &&
+        !(stat instanceof SynchronizedStatement) &&
+        usedVers.size() > 1 &&
+        isAssignedToRegularVariable(usedVers, ssau)) {
       setRet(ret, -1, changed);
       return;
     }
@@ -941,6 +952,38 @@ public class StackVarsProcessor {
     setNotDoms.removeAll(setVisited);
 
     return !setNotDoms.isEmpty();
+  }
+
+  private static boolean isAssignedToRegularVariable(List<VarVersionNode> usedVersions, SSAUConstructorSparseEx ssau) {
+    Deque<VarVersionPair> stack = usedVersions.stream()
+      .map(VarVersionNode::asPair)
+      .collect(Collectors.toCollection(ArrayDeque::new));
+    Set<VarVersionPair> visited = new HashSet<>();
+
+    while (!stack.isEmpty()) {
+      VarVersionPair use = stack.removeFirst();
+      if (!visited.add(use)) {
+        continue;
+      }
+
+      for (Entry<VarVersionPair, VarVersionPair> assignment : ssau.getVarAssignmentMap().entrySet()) {
+        if (!use.equals(assignment.getValue())) {
+          continue;
+        }
+
+        VarVersionPair target = assignment.getKey();
+        if (target.var >= 0 && target.var < VarExprent.STACK_BASE) {
+          return true;
+        }
+
+        VarVersionNode targetNode = ssau.getSsuVersions().nodes.getWithKey(target);
+        if (targetNode != null) {
+          targetNode.successors.stream().map(VarVersionNode::asPair).forEach(stack::addLast);
+        }
+      }
+    }
+
+    return false;
   }
 
   private static boolean isVersionToBeReplaced(VarVersionPair usedvar,
