@@ -3,7 +3,7 @@ package pkg;
 public class TestSwitchPatternMatching20 {
    public void test(Object o) {
       switch (o) {// 5
-         case Integer var6 when false:
+         case Integer _ when false:
             break;
          case String s:// 7
             System.out.println(s);
