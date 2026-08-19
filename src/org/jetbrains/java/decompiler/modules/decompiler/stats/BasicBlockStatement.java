@@ -1,6 +1,7 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.stats;
 
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.Instruction;
 import org.jetbrains.java.decompiler.code.InstructionSequence;
@@ -106,7 +107,7 @@ public final class BasicBlockStatement extends Statement {
 
   // TODO: cache this?
   @Override
-  public List<VarExprent> getImplicitlyDefinedVars() {
+  public @Nullable List<VarExprent> getImplicitlyDefinedVars() {
     if (getExprents() != null && getExprents().size() > 0) {
       List<VarExprent> vars = new ArrayList<>();
       List<Exprent> exps = getExprents();
