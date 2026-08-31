@@ -1068,6 +1068,20 @@ public class SimplifyExprentsHelper {
                 return false;
               }
 
+              // Prevent if-chains of single variables from becoming ternaries
+              if (stat.getParent() instanceof IfStatement parentIf) {
+                var parentCond = parentIf.getHeadexprent().getAllExprents().get(0).getAllExprents(true);
+                assert ifHeadExpr != null;
+                var cond = ifHeadExpr.getAllExprents().get(0).getAllExprents(true);
+
+                var parentCondVars = parentCond.stream().filter(VarExprent.class::isInstance).map(VarExprent.class::cast).map(VarExprent::getVarVersionPair).toList();
+                var condVars = cond.stream().filter(VarExprent.class::isInstance).map(VarExprent.class::cast).map(VarExprent::getVarVersionPair).toList();
+
+                if (condVars.size() == 1 && condVars.get(0).equals(parentCondVars.get(0))) {
+                  return false;
+                }
+              }
+
               List<Exprent> data = new ArrayList<>(statement.getFirst().getExprents());
 
               data.add(new ExitExprent(ifExit.getExitType(), new FunctionExprent(FunctionType.TERNARY,

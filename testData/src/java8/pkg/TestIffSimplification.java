@@ -16,6 +16,18 @@ public class TestIffSimplification {
         }
     }
 
+    public int testLongerIf(int status, int[] values) {
+        if (status == 0) {
+            return values[1];
+        }
+        else if (status == 1) {
+            return values[3];
+        }
+        else {
+            return values[4];
+        }
+    }
+
     public int nestedIf(boolean status, boolean condition, int[] values) {
         if (status) {
             if (condition) {
