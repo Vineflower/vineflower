@@ -19,23 +19,35 @@ public class TestIffSimplification {
       }
    }
 
-   public int nestedIf(boolean status, boolean condition, int[] values) {
-      if (status) {// 32
-         return condition ? values[2] : values[0];// 33 34 37
+   public int testLongerIf(Object match, Object[] comparisons, int[] values) {
+      if (match.equals(comparisons[0])) {// 32
+         return values[1];// 33
+      } else if (match.equals(comparisons[2])) {// 35
+         return values[3];// 36
+      } else if (match.equals(comparisons[3])) {// 38
+         return values[0];// 39
       } else {
-         return values[1];// 41
+         return values[4];// 42
+      }
+   }
+
+   public int nestedIf(boolean status, boolean condition, int[] values) {
+      if (status) {// 47
+         return condition ? values[2] : values[0];// 48 49 52
+      } else {
+         return values[1];// 56
       }
    }
 
    public int compareTo(int mc1, int mc2, byte csg1, byte csg2, double score1, double score2, int doc1, int doc2) {
-      if (mc1 != mc2) {// 46
-         return mc1 < mc2 ? 1 : -1;// 47
-      } else if (csg1 != csg2) {// 50
-         return csg1 < csg2 ? 1 : -1;// 51
-      } else if (Math.abs(score1 - score2) < 1.0E-6) {// 54
-         return doc1 < doc2 ? -1 : 1;// 55
+      if (mc1 != mc2) {// 61
+         return mc1 < mc2 ? 1 : -1;// 62
+      } else if (csg1 != csg2) {// 65
+         return csg1 < csg2 ? 1 : -1;// 66
+      } else if (Math.abs(score1 - score2) < 1.0E-6) {// 69
+         return doc1 < doc2 ? -1 : 1;// 70
       } else {
-         return score1 < score2 ? 1 : -1;// 58
+         return score1 < score2 ? 1 : -1;// 73
       }
    }
 }
@@ -92,92 +104,141 @@ class 'pkg/TestIffSimplification' {
       14      17
    }
 
-   method 'nestedIf (ZZ[I)I' {
+   method 'testLongerIf (Ljava/lang/Object;[Ljava/lang/Object;[I)I' {
       0      22
       1      22
       2      22
       3      22
-      4      23
-      5      23
-      6      23
-      7      23
-      8      23
-      9      23
+      4      22
+      5      22
+      6      22
+      7      22
+      8      22
+      9      22
       a      23
+      b      23
       c      23
       d      23
-      e      23
-      10      25
-      11      25
-      12      25
-      13      25
+      e      24
+      f      24
+      10      24
+      11      24
+      12      24
+      13      24
+      14      24
+      15      24
+      16      24
+      17      24
+      18      25
+      19      25
+      1a      25
+      1b      25
+      1c      26
+      1d      26
+      1e      26
+      1f      26
+      20      26
+      21      26
+      22      26
+      23      26
+      24      26
+      25      26
+      26      27
+      27      27
+      28      27
+      29      27
+      2a      29
+      2b      29
+      2c      29
+      2d      29
+   }
+
+   method 'nestedIf (ZZ[I)I' {
+      0      34
+      1      34
+      2      34
+      3      34
+      4      35
+      5      35
+      6      35
+      7      35
+      8      35
+      9      35
+      a      35
+      c      35
+      d      35
+      e      35
+      10      37
+      11      37
+      12      37
+      13      37
    }
 
    method 'compareTo (IIBBDDII)I' {
-      0      30
-      1      30
-      2      30
-      3      30
-      4      30
-      5      31
-      6      31
-      7      31
-      8      31
-      9      31
-      a      31
-      e      31
-      f      31
-      10      32
-      11      32
-      12      32
-      13      32
-      14      32
-      15      32
-      16      33
-      17      33
-      18      33
-      19      33
-      1a      33
-      1b      33
-      1c      33
-      20      33
-      21      33
-      22      34
-      23      34
-      24      34
-      25      34
-      26      34
-      27      34
-      28      34
-      29      34
-      2a      34
-      2b      34
-      2c      34
-      2d      34
-      2e      34
-      2f      34
-      30      34
-      31      35
-      32      35
-      33      35
-      34      35
-      35      35
-      36      35
-      37      35
-      38      35
-      3c      35
-      3d      35
-      3e      37
-      3f      37
-      40      37
-      41      37
-      42      37
-      43      37
-      44      37
-      45      37
-      46      37
-      4a      37
-      4b      37
+      0      42
+      1      42
+      2      42
+      3      42
+      4      42
+      5      43
+      6      43
+      7      43
+      8      43
+      9      43
+      a      43
+      e      43
+      f      43
+      10      44
+      11      44
+      12      44
+      13      44
+      14      44
+      15      44
+      16      45
+      17      45
+      18      45
+      19      45
+      1a      45
+      1b      45
+      1c      45
+      20      45
+      21      45
+      22      46
+      23      46
+      24      46
+      25      46
+      26      46
+      27      46
+      28      46
+      29      46
+      2a      46
+      2b      46
+      2c      46
+      2d      46
+      2e      46
+      2f      46
+      30      46
+      31      47
+      32      47
+      33      47
+      34      47
+      35      47
+      36      47
+      37      47
+      38      47
+      3c      47
+      3d      47
+      3e      49
+      3f      49
+      40      49
+      41      49
+      42      49
+      43      49
+      44      49
+      45      49
+      46      49
+      4a      49
+      4b      49
    }
 }
 
@@ -193,13 +254,20 @@ Lines mapping:
 27 <-> 18
 32 <-> 23
 33 <-> 24
-34 <-> 24
-37 <-> 24
-41 <-> 26
-46 <-> 31
-47 <-> 32
-50 <-> 33
-51 <-> 34
-54 <-> 35
-55 <-> 36
-58 <-> 38
+35 <-> 25
+36 <-> 26
+38 <-> 27
+39 <-> 28
+42 <-> 30
+47 <-> 35
+48 <-> 36
+49 <-> 36
+52 <-> 36
+56 <-> 38
+61 <-> 43
+62 <-> 44
+65 <-> 45
+66 <-> 46
+69 <-> 47
+70 <-> 48
+73 <-> 50

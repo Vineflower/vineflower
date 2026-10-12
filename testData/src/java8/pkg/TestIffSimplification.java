@@ -28,6 +28,21 @@ public class TestIffSimplification {
         }
     }
 
+    public int testLongerIf(Object match, Object[] comparisons, int[] values) {
+      if (match.equals(comparisons[0])) {
+        return values[1];
+      }
+      else if (match.equals(comparisons[2])) {
+        return values[3];
+      }
+      else if (match.equals(comparisons[3])) {
+        return values[0];
+      }
+      else {
+        return values[4];
+      }
+    }
+
     public int nestedIf(boolean status, boolean condition, int[] values) {
         if (status) {
             if (condition) {

@@ -1070,9 +1070,21 @@ public class SimplifyExprentsHelper {
 
               // Prevent if-chains of single variables from becoming ternaries
               if (stat.getParent() instanceof IfStatement parentIf) {
-                var parentCond = parentIf.getHeadexprent().getAllExprents().get(0).getAllExprents(true);
+                var parentCond = parentIf.getHeadexprent().getAllExprents(true);
                 assert ifHeadExpr != null;
-                var cond = ifHeadExpr.getAllExprents().get(0).getAllExprents(true);
+                var cond = ifHeadExpr.getAllExprents(true);
+
+                int parentInvokeExpr = 0, invokeExpr = 0;
+                while (parentInvokeExpr < parentCond.size() && !(parentCond.get(parentInvokeExpr) instanceof InvocationExprent)) parentInvokeExpr++;
+                while (invokeExpr < cond.size() && !(cond.get(invokeExpr) instanceof InvocationExprent)) invokeExpr++;
+                if (parentInvokeExpr < parentCond.size() &&
+                    invokeExpr < cond.size() &&
+                    parentCond.get(parentInvokeExpr) instanceof InvocationExprent parentInvoke &&
+                    cond.get(invokeExpr) instanceof InvocationExprent invoke) {
+                  if (Objects.equals(parentInvoke.getInstance(), invoke.getInstance())) {
+                    return false;
+                  }
+                }
 
                 var parentCondVars = parentCond.stream().filter(VarExprent.class::isInstance).map(VarExprent.class::cast).map(VarExprent::getVarVersionPair).toList();
                 var condVars = cond.stream().filter(VarExprent.class::isInstance).map(VarExprent.class::cast).map(VarExprent::getVarVersionPair).toList();
