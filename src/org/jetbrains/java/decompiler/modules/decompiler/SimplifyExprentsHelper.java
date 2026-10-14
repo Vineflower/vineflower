@@ -1081,7 +1081,7 @@ public class SimplifyExprentsHelper {
                     invokeExpr < cond.size() &&
                     parentCond.get(parentInvokeExpr) instanceof InvocationExprent parentInvoke &&
                     cond.get(invokeExpr) instanceof InvocationExprent invoke) {
-                  if (Objects.equals(parentInvoke.getInstance(), invoke.getInstance())) {
+                  if (parentInvoke.getInstance() != null && parentInvoke.getInstance().equals(invoke.getInstance())) {
                     return false;
                   }
                 }
