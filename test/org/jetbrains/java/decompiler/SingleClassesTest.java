@@ -266,6 +266,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestInterfaceMethods");
     register(JAVA_8, "TestConstType");
     register(JASM, "TestPop2OneDoublePop2");
+    register(JASM, "TestSharedTail");
     register(JASM, "TestPop2OneLongPop2");
     register(JASM, "TestPop2TwoIntPop2");
     register(JASM, "TestPop2TwoIntTwoPop");

@@ -1,0 +1,100 @@
+/**
+ * This code can be assembled with <a href="https://wiki.openjdk.java.net/display/CodeTools/asmtools">asmtools</a>
+ * using <code>asmtools jasm -g *.jasm</code> command line.
+ *
+ * Control flow with a tail ("normal") shared by the "!c" branch and the default case of a switch
+ * inside the "c" branch (as emitted by non-javac compilers). The default case must not be turned
+ * into a break out of the if that skips the shared tail.
+ *
+ *   for each k in keys:
+ *     if (!c) goto NORMAL;
+ *     if (k == 1) { d = true; continue; }
+ *     c = false;
+ *     switch (k) { case 7: special(k); continue;  default: if (d) return; (falls into NORMAL) }
+ *   NORMAL: normal(k); continue;
+ */
+package  pkg;
+
+super public class TestSharedTail
+	version 50:0
+{
+
+private Field c:"Z";
+private Field d:"Z";
+
+public Method "<init>":"()V"
+	stack 1 locals 1
+{
+		aload_0;
+		invokespecial	Method java/lang/Object."<init>":"()V";
+		return;
+}
+
+private Method special:"(I)V"
+	stack 0 locals 2
+{
+		return;
+}
+
+private Method normal:"(I)V"
+	stack 0 locals 2
+{
+		return;
+}
+
+public Method handle:"([I)V"
+	stack 3 locals 4
+{
+		iconst_0;
+		istore_2;
+	LOOP:
+		iload_2;
+		aload_1;
+		arraylength;
+		if_icmpge	END;
+		aload_1;
+		iload_2;
+		iaload;
+		istore_3;
+		aload_0;
+		getfield	Field c:"Z";
+		ifeq	NORMAL;
+		iload_3;
+		iconst_1;
+		if_icmpne	NOTONE;
+		aload_0;
+		iconst_1;
+		putfield	Field d:"Z";
+		iinc	2, 1;
+		goto	LOOP;
+	NOTONE:
+		aload_0;
+		iconst_0;
+		putfield	Field c:"Z";
+		iload_3;
+		lookupswitch {
+			7: CASE7;
+			default: DEFAULT
+		};
+	CASE7:
+		aload_0;
+		iload_3;
+		invokevirtual	Method special:"(I)V";
+		iinc	2, 1;
+		goto	LOOP;
+	DEFAULT:
+		aload_0;
+		getfield	Field d:"Z";
+		ifeq	NORMAL;
+		return;
+	NORMAL:
+		aload_0;
+		iload_3;
+		invokevirtual	Method normal:"(I)V";
+		iinc	2, 1;
+		goto	LOOP;
+	END:
+		return;
+}
+
+} // end Class TestSharedTail

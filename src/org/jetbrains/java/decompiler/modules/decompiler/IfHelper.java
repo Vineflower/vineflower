@@ -565,7 +565,8 @@ public final class IfHelper {
             Statement nextStat = !successors.isEmpty() && successors.get(0).getType() == StatEdge.TYPE_REGULAR ? successors.get(0).getDestination() : null;
             IfStatement nextIfStat = nextStat == null ? null : nextStat instanceof IfStatement ? (IfStatement) nextStat
               : nextStat instanceof SequenceStatement && nextStat.getFirst() instanceof IfStatement ? (IfStatement) nextStat.getFirst() : null;
-            if (nextStat != null && (nextIfStat == null || !nextIfStat.getFirst().getExprents().isEmpty())) {
+            if (nextStat != null && (nextIfStat == null || !nextIfStat.getFirst().getExprents().isEmpty())
+                && !bodyReachesFollowingStatements(outerIf, parent)) {
               // negate the condition and swap the branches
               IfExprent conditionExprent = outerIf.getHeadexprent();
               conditionExprent.setCondition(new FunctionExprent(FunctionType.BOOL_NOT, conditionExprent.getCondition(), null));
@@ -620,6 +621,10 @@ public final class IfHelper {
     }
 
     if (!noelsestat && existsPath(ifstat, successors.get(0).getDestination())) {
+      return false;
+    }
+
+    if (!noelsestat && bodyReachesFollowingStatements(ifstat, (SequenceStatement) parent)) {
       return false;
     }
 
@@ -846,6 +851,24 @@ public final class IfHelper {
     }
 
     return getNextStatement(parent);
+  }
+
+  /**
+   * Checks whether the body of an if statement can reach one of the statements following it in its parent sequence
+   * other than by falling out of the if, e.g. a switch default that breaks out of the if into the shared tail. Those
+   * statements then cannot be moved into an else branch of the if, since that path would skip them.
+   */
+  private static boolean bodyReachesFollowingStatements(IfStatement ifstat, SequenceStatement parent) {
+    boolean afterIf = false;
+    for (Statement st : parent.getStats()) {
+      if (afterIf && existsPath(ifstat, st)) {
+        return true;
+      }
+      if (st == ifstat) {
+        afterIf = true;
+      }
+    }
+    return false;
   }
 
   private static boolean existsPath(Statement from, Statement to) {
