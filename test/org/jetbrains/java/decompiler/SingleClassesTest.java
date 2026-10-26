@@ -204,6 +204,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
   private void registerDefault() {
     register(JAVA_8, "TestEnhancedForLoops");
     register(JAVA_8, "TestPrimitiveNarrowing");
+    register(JAVA_8, "TestVarargsOverload");
     register(JAVA_8, "TestClassFields");
     register(JAVA_8, "TestStaticInitOrder");
     register(JAVA_8, "TestInterfaceFields");

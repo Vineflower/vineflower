@@ -18,6 +18,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.StructClass;
+import org.jetbrains.java.decompiler.struct.StructContext;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.consts.LinkConstant;
 import org.jetbrains.java.decompiler.struct.consts.PooledConstant;
@@ -992,7 +993,7 @@ public class InvocationExprent extends Exprent {
     if (lstParameters.size() == descriptor.params.length && isVarArgCall() && !lstParameters.isEmpty()) {
       Exprent lastParam = lstParameters.get(lstParameters.size() - 1);
       if (lastParam instanceof NewExprent lastNew && lastParam.getExprType().arrayDim >= 1) {
-        if (!ambiguousVararg || lastNew.getLstArrayElements().size() != 1) {
+        if ((!ambiguousVararg || lastNew.getLstArrayElements().size() != 1) && !varargSugarChangesResolution(lastNew)) {
           lastNew.setVarArgParam(true);
         }
       }
@@ -1169,6 +1170,175 @@ public class InvocationExprent extends Exprent {
     }
 
     return buf;
+  }
+
+
+  /**
+   * Checks whether writing {@code m(a, new T[]{b, c})} in its variable-arity form {@code m(a, b, c)} could make the
+   * compiler select a different method than the one invoked by the bytecode.
+   * <p>
+   * Method invocation resolution (JLS 15.12.2) only considers variable-arity invocation in its third phase: any
+   * fixed-arity method with the expanded number of parameters that is applicable by strict (phase 1) or loose
+   * invocation (phase 2, boxing and unboxing) takes precedence. Typical cases are {@code trim(String, char...)} next
+   * to {@code trim(String, char)}, {@code format(String, Object...)} next to {@code format(String, int, String)},
+   * or a method {@code get(int)} delegating to its own overload {@code get(int...)} (which would otherwise be
+   * decompiled into an infinitely recursive call).
+   */
+  private boolean varargSugarChangesResolution(NewExprent lastNew) {
+    List<VarType> expanded = new ArrayList<>();
+    for (int i = 0; i < lstParameters.size() - 1; i++) {
+      expanded.add(peekThroughNonCasts(lstParameters.get(i)).getExprType());
+    }
+    for (Exprent element : lastNew.getLstArrayElements()) {
+      expanded.add(peekThroughNonCasts(element).getExprType());
+    }
+
+    StructClass cl = DecompilerContext.getStructContext().getClass(classname);
+    if (cl == null) {
+      return false;
+    }
+    ClassNode currCls = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
+
+    Set<String> visited = new HashSet<>();
+    Queue<StructClass> que = new ArrayDeque<>();
+    que.add(cl);
+
+    while (!que.isEmpty()) {
+      StructClass cls = que.poll();
+      if (cls == null) {
+        continue;
+      }
+
+      for (StructMethod mt : cls.getMethods()) {
+        if (!name.equals(mt.getName()) || (cls == cl && mt.getDescriptor().equals(stringDescriptor))) {
+          continue;
+        }
+
+        MethodDescriptor md = mt.methodDescriptor();
+        if (md.params.length != expanded.size() || (currCls != null && !canAccess(currCls.classStruct, mt))) {
+          continue;
+        }
+
+        boolean applicable = true;
+        for (int i = 0; i < expanded.size() && applicable; i++) {
+          applicable = isApplicableByLooseInvocation(expanded.get(i), md.params[i]);
+        }
+
+        if (applicable) {
+          return true;
+        }
+      }
+
+      visited.add(cls.qualifiedName);
+      if (cls.superClass != null && !visited.contains(cls.superClass.value)) {
+        StructClass tmp = DecompilerContext.getStructContext().getClass((String)cls.superClass.value);
+        if (tmp != null) {
+          que.add(tmp);
+        }
+      }
+
+      for (String intf : cls.getInterfaceNames()) {
+        if (!visited.contains(intf)) {
+          StructClass tmp = DecompilerContext.getStructContext().getClass(intf);
+          if (tmp != null) {
+            que.add(tmp);
+          }
+        }
+      }
+    }
+
+    return false;
+  }
+
+  private static Exprent peekThroughNonCasts(Exprent exp) {
+    if (exp instanceof FunctionExprent f && !f.doesCast()) {
+      return f.getLstOperands().get(0);
+    }
+    return exp;
+  }
+
+  /**
+   * Conservative approximation of "is an argument of type {@code arg} applicable to a parameter of type {@code param}
+   * by strict or loose invocation" (JLS 15.12.2.2 and 15.12.2.3). When the class hierarchy is not available the
+   * argument is assumed to be applicable, which only means that an explicit array is kept in the output.
+   */
+  private static boolean isApplicableByLooseInvocation(VarType arg, VarType param) {
+    if (arg.type == CodeType.NULL) {
+      return param.type == CodeType.OBJECT || param.arrayDim > 0;
+    }
+
+    if (arg.arrayDim != param.arrayDim) {
+      return false;
+    }
+
+    if (arg.arrayDim > 0) {
+      if (arg.type != CodeType.OBJECT || param.type != CodeType.OBJECT) {
+        return arg.type == param.type;
+      }
+      return isAssignableObject(arg.value, param.value);
+    }
+
+    boolean argPrimitive = arg.type != CodeType.OBJECT;
+    boolean paramPrimitive = param.type != CodeType.OBJECT;
+
+    if (argPrimitive && paramPrimitive) {
+      return isPrimitiveWidening(arg, param);
+    }
+
+    if (argPrimitive) {
+      // boxing conversion followed by widening reference conversion
+      for (Map.Entry<VarType, VarType> entry : VarType.UNBOXING_TYPES.entrySet()) {
+        VarType primitive = entry.getValue();
+        if (primitive.typeFamily == arg.typeFamily && isPrimitiveWidening(arg, primitive) && isAssignableObject(entry.getKey().value, param.value)) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    if (paramPrimitive) {
+      // unboxing conversion followed by widening primitive conversion
+      VarType unboxed = VarType.UNBOXING_TYPES.get(arg);
+      return unboxed != null && isPrimitiveWidening(unboxed, param);
+    }
+
+    return isAssignableObject(arg.value, param.value);
+  }
+
+  private static boolean isAssignableObject(String argClass, String paramClass) {
+    if (argClass == null || paramClass == null || argClass.equals(paramClass) || "java/lang/Object".equals(paramClass)) {
+      return true;
+    }
+
+    StructContext context = DecompilerContext.getStructContext();
+    if (context.getClass(argClass) == null || context.getClass(paramClass) == null) {
+      return true; // unknown hierarchy: assume applicable
+    }
+
+    return context.instanceOf(argClass, paramClass);
+  }
+
+  private static boolean isPrimitiveWidening(VarType arg, VarType param) {
+    if (arg.typeFamily == TypeFamily.BOOLEAN || param.typeFamily == TypeFamily.BOOLEAN) {
+      return arg.typeFamily == param.typeFamily;
+    }
+
+    switch (param.typeFamily) {
+      case DOUBLE:
+        return true;
+      case FLOAT:
+        return arg.typeFamily != TypeFamily.DOUBLE;
+      case LONG:
+        return arg.typeFamily == TypeFamily.LONG || arg.typeFamily == TypeFamily.INTEGER;
+      case INTEGER:
+        if (arg.typeFamily != TypeFamily.INTEGER) {
+          return false;
+        }
+        // byte -> short -> int, char -> int; the lattice also accepts the imprecise constant types (bytechar, shortchar)
+        return param.higherEqualInLatticeThan(arg) || param.equals(arg);
+      default:
+        return false;
+    }
   }
 
   private boolean isVarArgCall() {

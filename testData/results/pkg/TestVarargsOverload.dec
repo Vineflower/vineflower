@@ -1,0 +1,126 @@
+package pkg;
+
+public class TestVarargsOverload {
+   Object get(int index) {
+      return this.get(new int[]{index});// 5
+   }
+
+   Object get(int... indices) {
+      return indices[0];// 9
+   }
+
+   static String fmt(String pattern, Object... args) {
+      return pattern + args.length;// 13
+   }
+
+   static String fmt(String s, int start, String value) {
+      return s + start + value;// 17
+   }
+
+   static String insertLike(String s, int n, String v) {
+      return fmt(s, new Object[]{n, v});// 21
+   }
+
+   static String trim(String s, char... chars) {
+      return s.trim();// 25
+   }
+
+   static int trim(String s, char c) {
+      return s.indexOf(c);// 29
+   }
+
+   static String useTrim(String s) {
+      return trim(s, new char[]{'"'});// 33
+   }
+}
+
+class 'pkg/TestVarargsOverload' {
+   method 'get (I)Ljava/lang/Object;' {
+      0      4
+      6      4
+      8      4
+      9      4
+      a      4
+      b      4
+   }
+
+   method 'get ([I)Ljava/lang/Object;' {
+      0      8
+      1      8
+      2      8
+      3      8
+      4      8
+      5      8
+      6      8
+   }
+
+   method 'fmt (Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;' {
+      7      12
+      b      12
+      c      12
+      10      12
+      11      12
+      12      12
+      13      12
+   }
+
+   method 'fmt (Ljava/lang/String;ILjava/lang/String;)Ljava/lang/String;' {
+      7      16
+      b      16
+      f      16
+      13      16
+      14      16
+      15      16
+      16      16
+   }
+
+   method 'insertLike (Ljava/lang/String;ILjava/lang/String;)Ljava/lang/String;' {
+      0      20
+      7      20
+      8      20
+      9      20
+      a      20
+      e      20
+      10      20
+      11      20
+      12      20
+      13      20
+   }
+
+   method 'trim (Ljava/lang/String;[C)Ljava/lang/String;' {
+      0      24
+      1      24
+      2      24
+      3      24
+      4      24
+   }
+
+   method 'trim (Ljava/lang/String;C)I' {
+      0      28
+      1      28
+      2      28
+      3      28
+      4      28
+      5      28
+   }
+
+   method 'useTrim (Ljava/lang/String;)Ljava/lang/String;' {
+      0      32
+      6      32
+      7      32
+      9      32
+      a      32
+      b      32
+      c      32
+   }
+}
+
+Lines mapping:
+5 <-> 5
+9 <-> 9
+13 <-> 13
+17 <-> 17
+21 <-> 21
+25 <-> 25
+29 <-> 29
+33 <-> 33
