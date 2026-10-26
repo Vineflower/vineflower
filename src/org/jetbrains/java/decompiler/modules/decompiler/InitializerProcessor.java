@@ -197,6 +197,12 @@ public final class InitializerProcessor {
 
       List<FieldExprent> notInlined = new ArrayList<>();
 
+      // Field initializers are executed in declaration order (JLS 12.4.2), while the assignments in <clinit>
+      // may come in any order. Inlining an assignment whose field is declared before the previously inlined
+      // one would reorder the initialization, which is observable (e.g. a constructor reading a later field).
+      // Mirror extractDynamicInitializers and only inline assignments in increasing field order.
+      int prevFieldIndex = -1;
+
       Iterator<Exprent> itr = firstData.getExprents().iterator();
       while (itr.hasNext()) {
         Exprent exprent = itr.next();
@@ -210,12 +216,15 @@ public final class InitializerProcessor {
 
               // interfaces fields should always be initialized inline
               String keyField = InterpreterUtil.makeUniqueKey(fExpr.getName(), fExpr.getDescriptor().descriptorString);
-              boolean exprentIndependent = isExprentIndependent(fExpr, assignExpr.getRight(), method, cl, whitelist, multiAssign, notInlined, cl.getFields().getIndexByKey(keyField), true);
+              int fieldIndex = cl.getFields().getIndexByKey(keyField);
+              boolean exprentIndependent = fieldIndex >= prevFieldIndex
+                && isExprentIndependent(fExpr, assignExpr.getRight(), method, cl, whitelist, multiAssign, notInlined, fieldIndex, true);
               if (inlineInitializers || exprentIndependent) {
                 if (!wrapper.getStaticFieldInitializers().containsKey(keyField)) {
                   if (exprentIndependent) {
                     wrapper.getStaticFieldInitializers().addWithKey(assignExpr.getRight(), keyField);
                     whitelist.add(keyField);
+                    prevFieldIndex = fieldIndex;
                     itr.remove();
                   } else { //inlineInitializers
                     if (assignExpr.getRight() instanceof NewExprent){

@@ -205,6 +205,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestEnhancedForLoops");
     register(JAVA_8, "TestPrimitiveNarrowing");
     register(JAVA_8, "TestClassFields");
+    register(JAVA_8, "TestStaticInitOrder");
     register(JAVA_8, "TestInterfaceFields");
     register(JAVA_8, "TestClassLambda");
     // TODO: testLoopIpp eliminates loops that it should not!

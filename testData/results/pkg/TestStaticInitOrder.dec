@@ -1,0 +1,36 @@
+package pkg;
+
+import java.util.ArrayList;
+
+public class TestStaticInitOrder {
+   private static final TestStaticInitOrder c;
+   private static final ArrayList<String> d = new ArrayList();
+   private final ArrayList<String> e = new ArrayList(d);// 11
+
+   static {
+      c = new TestStaticInitOrder();// 15
+   }// 16
+}
+
+class 'pkg/TestStaticInitOrder' {
+   method '<init> ()V' {
+      9      7
+      a      7
+      b      7
+   }
+
+   method '<clinit> ()V' {
+      11      10
+      12      10
+      13      10
+      14      11
+   }
+}
+
+Lines mapping:
+11 <-> 8
+15 <-> 11
+16 <-> 12
+Not mapped:
+5
+14
