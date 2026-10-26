@@ -511,6 +511,7 @@ public final class SecondaryFunctionsHelper {
             if (cond != null && (midlayer == null || midlayer.equals(cond.getExprType())) && isSimple(left, cond)) {
               asexpr.setRight(cond);
               asexpr.setCondType(func.getFuncType());
+              asexpr.setImplicitNarrowing(midlayer != null);
               // changed
               ret = exprent;
             }

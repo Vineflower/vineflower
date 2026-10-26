@@ -16,6 +16,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.struct.StructMethod;
+import org.jetbrains.java.decompiler.struct.gen.TypeFamily;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericClassDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericMethodDescriptor;
@@ -32,6 +33,8 @@ public class AssignmentExprent extends Exprent {
   private Exprent left;
   private Exprent right;
   private FunctionExprent.FunctionType condType = null;
+  // compound assignment formed from 'x = (narrow)(x op y)': the dropped cast narrows the result (JLS 15.26.2)
+  private boolean implicitNarrowing = false;
 
   public AssignmentExprent(Exprent left, Exprent right, BitSet bytecodeOffsets) {
     super(Type.ASSIGNMENT);
@@ -70,6 +73,13 @@ public class AssignmentExprent extends Exprent {
       result.addExprLowerBound(right, VarType.findFamilyBottom(typeLeft.typeFamily));
     } else if (typeLeft.typeFamily.isLesser(typeRight.typeFamily)) {
       result.addExprLowerBound(left, typeRight);
+    } else if (left instanceof VarExprent && typeLeft.typeFamily == TypeFamily.INTEGER && typeRight.typeFamily == TypeFamily.INTEGER
+               && ((condType == null && isPromotedArithmetic(right)) || (condType != null && !implicitNarrowing && isPromotedArithmetic(condType)))) {
+      // Binary numeric promotion (JLS 5.6.2): an integral arithmetic result is at least an int. Storing it into a
+      // local without a narrowing conversion (i2b/i2s/i2c) means the local is an int, even if every other use
+      // would accept a byte or short (e.g. 'int pos = 0; ...; pos += 2;' compiled without LVT).
+      // Compound assignments on narrower locals always come with an explicit narrowing cast in bytecode.
+      result.addExprLowerBound(left, VarType.join(typeLeft, VarType.VARTYPE_INT));
     } else {
       // Ternaries with constants always return int, but our own type might be more restrictive (e.g., byte v = (byte) b ? 0 : 1).
       // In this case, treat it as bytechar instead of int to avoid blowing past the left type in the lattice and creating
@@ -86,6 +96,31 @@ public class AssignmentExprent extends Exprent {
     return result;
   }
 
+  private static boolean isPromotedArithmetic(Exprent exprent) {
+    return exprent instanceof FunctionExprent func && isPromotedArithmetic(func.getFuncType());
+  }
+
+  private static boolean isPromotedArithmetic(FunctionExprent.FunctionType type) {
+    switch (type) {
+      case ADD:
+      case SUB:
+      case MUL:
+      case DIV:
+      case REM:
+      case SHL:
+      case SHR:
+      case USHR:
+      case AND:
+      case OR:
+      case XOR:
+      case NEG:
+      case BIT_NOT:
+        return true;
+      default:
+        return false;
+    }
+  }
+
   @Override
   public List<Exprent> getAllExprents(List<Exprent> lst) {
     lst.add(left);
@@ -95,7 +130,9 @@ public class AssignmentExprent extends Exprent {
 
   @Override
   public Exprent copy() {
-    return new AssignmentExprent(left.copy(), right.copy(), condType, bytecode);
+    AssignmentExprent copy = new AssignmentExprent(left.copy(), right.copy(), condType, bytecode);
+    copy.implicitNarrowing = implicitNarrowing;
+    return copy;
   }
 
   @Override
@@ -374,5 +411,9 @@ public class AssignmentExprent extends Exprent {
 
   public void setCondType(FunctionExprent.FunctionType condType) {
     this.condType = condType;
+  }
+
+  public void setImplicitNarrowing(boolean implicitNarrowing) {
+    this.implicitNarrowing = implicitNarrowing;
   }
 }
