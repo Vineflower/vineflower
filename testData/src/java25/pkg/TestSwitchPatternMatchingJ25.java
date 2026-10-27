@@ -1,5 +1,12 @@
 package pkg;
 
+import java.lang.classfile.ClassBuilder;
+import java.lang.classfile.ClassElement;
+import java.lang.classfile.FieldModel;
+import java.lang.classfile.MethodModel;
+import java.lang.classfile.Superclass;
+import java.lang.classfile.attribute.RecordAttribute;
+import java.lang.constant.ConstantDescs;
 import java.util.function.Supplier;
 
 public class TestSwitchPatternMatchingJ25 {
@@ -85,5 +92,15 @@ public class TestSwitchPatternMatchingJ25 {
       case Test7.VALUE2 -> "2";
       default -> "";
     };
+  }
+
+  public void test9(ClassBuilder builder, ClassElement element) {
+    switch (element) {
+      case RecordAttribute _ -> {}
+      case Superclass _ -> builder.withSuperclass(ConstantDescs.CD_Enum);
+      case FieldModel _ -> {}
+      case MethodModel method -> IO.println(builder + " " + method);
+      default -> builder.with(element);
+    }
   }
 }
