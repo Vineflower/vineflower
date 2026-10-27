@@ -181,6 +181,7 @@ public class ClassWriter implements StatementWriter {
     }
 
     boolean lambdaToAnonymous = DecompilerContext.getOption(IFernflowerPreferences.LAMBDA_TO_ANONYMOUS_CLASS);
+    int lambdaStart = buffer.length();
 
     ClassNode outerNode = (ClassNode)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
     DecompilerContext.setProperty(DecompilerContext.CURRENT_CLASS_NODE, node);
@@ -230,6 +231,7 @@ public class ClassWriter implements StatementWriter {
                 true, node.lambdaInformation.content_class_name, node.lambdaInformation.content_method_name, node.lambdaInformation.content_method_descriptor)
               .append(" */ ");
           }
+          lambdaStart = buffer.length();
           // Array constructor lambda
           if (md_lambda.params.length == 1 && md_lambda.params[0].equals(VarType.VARTYPE_INT) && md_lambda.ret.arrayDim > 0) {
             if (root.getFirst() instanceof BasicBlockStatement && root.getFirst().getExprents().size() == 1) {
@@ -355,6 +357,11 @@ public class ClassWriter implements StatementWriter {
     }
     finally {
       DecompilerContext.setProperty(DecompilerContext.CURRENT_CLASS_NODE, outerNode);
+    }
+
+    if (!lambdaToAnonymous || node.lambdaInformation.is_method_reference) {
+      buffer.addLambdaToken(lambdaStart, node.lambdaInformation.content_class_name,
+        node.lambdaInformation.content_method_name, node.lambdaInformation.content_method_descriptor);
     }
 
     DecompilerContext.getLogger().endWriteClass();

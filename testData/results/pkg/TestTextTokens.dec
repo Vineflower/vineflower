@@ -204,9 +204,11 @@ Tokens:
 (14:7, 14:13) method [reference] pkg/TestTextTokens#method(Ljava/util/function/Function;)Ljava/util/function/Function;
 (14:14, 14:20) method [reference] pkg/TestTextTokens#method(Ljava/util/function/Function;)Ljava/util/function/Function;
 (14:21, 14:22) parameter [declaration] pkg/TestTextTokens#lambda$foo$1(Ljava/lang/String;)Ljava/lang/String;(0:s)
+(14:21, 14:109) lambda pkg/TestTextTokens#lambda$foo$1(Ljava/lang/String;)Ljava/lang/String;
 (14:26, 14:32) method [reference] pkg/TestTextTokens#method(Ljava/util/function/Function;)Ljava/util/function/Function;
 (14:33, 14:39) method [reference] pkg/TestTextTokens#method(Ljava/util/function/Function;)Ljava/util/function/Function;
 (14:40, 14:42) parameter [declaration] pkg/TestTextTokens#lambda$null$0(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;(1:s1)
+(14:40, 14:103) lambda pkg/TestTextTokens#lambda$null$0(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 (14:46, 14:48) parameter [reference] pkg/TestTextTokens#lambda$null$0(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;(1:s1)
 (14:102, 14:103) parameter [reference] pkg/TestTextTokens#lambda$foo$1(Ljava/lang/String;)Ljava/lang/String;(0:s)
 (14:108, 14:109) parameter [reference] pkg/TestTextTokens#lambda$foo$1(Ljava/lang/String;)Ljava/lang/String;(0:s)
@@ -231,6 +233,7 @@ Tokens:
 (26:14, 26:77) parameter [reference] pkg/TestTextTokens#method(Ljava/util/function/Function;)Ljava/util/function/Function;(0:extraLongVariableNameToReachPreferredLineLengthAndCauseWrapping)
 (26:78, 26:85) method [reference] java/util/function/Function#andThen(Ljava/util/function/Function;)Ljava/util/function/Function;
 (26:86, 26:89) parameter [declaration] pkg/TestTextTokens#lambda$method$2(Ljava/lang/String;)Ljava/lang/String;(0:str)
+(26:86, 26:113) lambda pkg/TestTextTokens#lambda$method$2(Ljava/lang/String;)Ljava/lang/String;
 (26:93, 26:96) parameter [reference] pkg/TestTextTokens#lambda$method$2(Ljava/lang/String;)Ljava/lang/String;(0:str)
 (26:97, 26:104) method [reference] java/lang/String#replace(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
 (29:5, 29:15) class [reference] java/lang/Deprecated

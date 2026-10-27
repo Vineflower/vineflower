@@ -64,6 +64,16 @@ public class TextTokenDumpVisitor extends TextTokenVisitor {
     text.appendLineSeparator();
   }
 
+  @Override
+  public void visitLambda(TextRange range, String className, String name, MethodDescriptor descriptor) {
+    super.visitLambda(range, className, name, descriptor);
+    range(range).append(" lambda ");
+    text.append(className);
+    text.append("#").append(name);
+    text.append(descriptor.toString());
+    text.appendLineSeparator();
+  }
+
   private void visitVariable(boolean declaration, String className, String methodName, MethodDescriptor methodDescriptor, int index, String name) {
     declaration(declaration).append(" ");
     text.append(className);
