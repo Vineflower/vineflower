@@ -994,7 +994,7 @@ public class SimplifyExprentsHelper {
 
   private static boolean buildIff(Statement stat, SSAConstructorSparseEx ssa) {
     if (stat instanceof IfStatement statement && stat.getExprents() == null) {
-      Exprent ifHeadExpr = statement.getHeadexprent();
+      IfExprent ifHeadExpr = statement.getHeadexprent();
       BitSet ifHeadExprBytecode = (ifHeadExpr == null ? null : ifHeadExpr.bytecode);
 
       if (statement.iftype == IfStatement.IFTYPE_IFELSE) {
@@ -1093,18 +1093,26 @@ public class SimplifyExprentsHelper {
                   }
                 }
 
+                if (ifHeadExpr.getCondition() instanceof FunctionExprent functionExprent && functionExprent.getFuncType().equals(FunctionType.INSTANCEOF)) {
+                  return false;
+                }
+
+                outer:
                 for (Exprent parentExprent : parentCond) {
                   if (parentExprent instanceof VarExprent parentVarExprent) {
                     VarVersionPair parentVarVersionPair = parentVarExprent.getVarVersionPair();
+                    VarVersionPair varVersionPair = null;
                     for (Exprent exprent : cond) {
                       if (exprent instanceof VarExprent varExprent) {
-                        VarVersionPair varVersionPair = varExprent.getVarVersionPair();
-                        if (varVersionPair.equals(parentVarVersionPair)) {
-                          return false;
+                        if (varVersionPair != null) {
+                          break outer;
                         }
-
-                        break;
+                        varVersionPair = varExprent.getVarVersionPair();
                       }
+                    }
+
+                    if (Objects.equals(varVersionPair, parentVarVersionPair)) {
+                      return false;
                     }
 
                     break;
