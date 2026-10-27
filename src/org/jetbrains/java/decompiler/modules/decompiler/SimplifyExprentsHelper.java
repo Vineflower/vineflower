@@ -1070,13 +1070,20 @@ public class SimplifyExprentsHelper {
 
               // Prevent if-chains of single variables from becoming ternaries
               if (stat.getParent() instanceof IfStatement parentIf) {
-                var parentCond = parentIf.getHeadexprent().getAllExprents(true);
-                assert ifHeadExpr != null;
-                var cond = ifHeadExpr.getAllExprents(true);
+                List<Exprent> parentCond = parentIf.getHeadexprent().getAllExprents(true);
+                ValidationHelper.notNull(ifHeadExpr);
+                List<Exprent> cond = ifHeadExpr.getAllExprents(true);
 
-                int parentInvokeExpr = 0, invokeExpr = 0;
-                while (parentInvokeExpr < parentCond.size() && !(parentCond.get(parentInvokeExpr) instanceof InvocationExprent)) parentInvokeExpr++;
-                while (invokeExpr < cond.size() && !(cond.get(invokeExpr) instanceof InvocationExprent)) invokeExpr++;
+                int parentInvokeExpr = 0;
+                while (parentInvokeExpr < parentCond.size() && !(parentCond.get(parentInvokeExpr) instanceof InvocationExprent)) {
+                  parentInvokeExpr++;
+                }
+
+                int invokeExpr = 0;
+                while (invokeExpr < cond.size() && !(cond.get(invokeExpr) instanceof InvocationExprent)) {
+                  invokeExpr++;
+                }
+
                 if (parentInvokeExpr < parentCond.size() &&
                     invokeExpr < cond.size() &&
                     parentCond.get(parentInvokeExpr) instanceof InvocationExprent parentInvoke &&
@@ -1086,11 +1093,22 @@ public class SimplifyExprentsHelper {
                   }
                 }
 
-                var parentCondVars = parentCond.stream().filter(VarExprent.class::isInstance).map(VarExprent.class::cast).map(VarExprent::getVarVersionPair).toList();
-                var condVars = cond.stream().filter(VarExprent.class::isInstance).map(VarExprent.class::cast).map(VarExprent::getVarVersionPair).toList();
+                for (Exprent parentExprent : parentCond) {
+                  if (parentExprent instanceof VarExprent parentVarExprent) {
+                    VarVersionPair parentVarVersionPair = parentVarExprent.getVarVersionPair();
+                    for (Exprent exprent : cond) {
+                      if (exprent instanceof VarExprent varExprent) {
+                        VarVersionPair varVersionPair = varExprent.getVarVersionPair();
+                        if (varVersionPair.equals(parentVarVersionPair)) {
+                          return false;
+                        }
 
-                if (condVars.size() == 1 && condVars.get(0).equals(parentCondVars.get(0))) {
-                  return false;
+                        break;
+                      }
+                    }
+
+                    break;
+                  }
                 }
               }
 
