@@ -994,7 +994,7 @@ public class SimplifyExprentsHelper {
 
   private static boolean buildIff(Statement stat, SSAConstructorSparseEx ssa) {
     if (stat instanceof IfStatement statement && stat.getExprents() == null) {
-      Exprent ifHeadExpr = statement.getHeadexprent();
+      IfExprent ifHeadExpr = statement.getHeadexprent();
       BitSet ifHeadExprBytecode = (ifHeadExpr == null ? null : ifHeadExpr.bytecode);
 
       if (statement.iftype == IfStatement.IFTYPE_IFELSE) {
@@ -1066,6 +1066,58 @@ public class SimplifyExprentsHelper {
               // avoid flattening to 'iff' if any of the branches is an 'iff' already
               if (isIff(ifExit.getValue()) || isIff(elseExit.getValue())) {
                 return false;
+              }
+
+              // Prevent if-chains of single variables from becoming ternaries
+              if (stat.getParent() instanceof IfStatement parentIf) {
+                List<Exprent> parentCond = parentIf.getHeadexprent().getAllExprents(true);
+                ValidationHelper.notNull(ifHeadExpr);
+                List<Exprent> cond = ifHeadExpr.getAllExprents(true);
+
+                int parentInvokeExpr = 0;
+                while (parentInvokeExpr < parentCond.size() && !(parentCond.get(parentInvokeExpr) instanceof InvocationExprent)) {
+                  parentInvokeExpr++;
+                }
+
+                int invokeExpr = 0;
+                while (invokeExpr < cond.size() && !(cond.get(invokeExpr) instanceof InvocationExprent)) {
+                  invokeExpr++;
+                }
+
+                if (parentInvokeExpr < parentCond.size() &&
+                    invokeExpr < cond.size() &&
+                    parentCond.get(parentInvokeExpr) instanceof InvocationExprent parentInvoke &&
+                    cond.get(invokeExpr) instanceof InvocationExprent invoke) {
+                  if (parentInvoke.getInstance() != null && parentInvoke.getInstance().equals(invoke.getInstance())) {
+                    return false;
+                  }
+                }
+
+                if (ifHeadExpr.getCondition() instanceof FunctionExprent functionExprent && functionExprent.getFuncType().equals(FunctionType.INSTANCEOF)) {
+                  return false;
+                }
+
+                outer:
+                for (Exprent parentExprent : parentCond) {
+                  if (parentExprent instanceof VarExprent parentVarExprent) {
+                    VarVersionPair parentVarVersionPair = parentVarExprent.getVarVersionPair();
+                    VarVersionPair varVersionPair = null;
+                    for (Exprent exprent : cond) {
+                      if (exprent instanceof VarExprent varExprent) {
+                        if (varVersionPair != null) {
+                          break outer;
+                        }
+                        varVersionPair = varExprent.getVarVersionPair();
+                      }
+                    }
+
+                    if (Objects.equals(varVersionPair, parentVarVersionPair)) {
+                      return false;
+                    }
+
+                    break;
+                  }
+                }
               }
 
               List<Exprent> data = new ArrayList<>(statement.getFirst().getExprents());
