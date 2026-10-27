@@ -1,0 +1,119 @@
+package pkg;
+
+public class TestDoubleConstantContext {
+   private static final double DOUBLE_UNIT = 1.110223E-16F;
+
+   public double nextDouble(long bits) {
+      return (double)bits * 1.110223E-16F;// 7
+   }
+
+   public boolean less(float f) {
+      return (double)f < 0.1F;// 11
+   }
+
+   public boolean equal(long l) {
+      return (double)l == 3.4E10F;// 15
+   }
+
+   public Object boxed() {
+      return Double.valueOf(5.999997E7F);// 19
+   }
+
+   public String concatConstant(String s) {
+      return s + (double)1.0E-5F;// 23
+   }
+
+   public double toDegrees(double radians) {
+      return radians * (180.0F / (float)Math.PI);// 27
+   }
+
+   public double scaled(double d) {
+      return d * 0.1F;// 31
+   }
+}
+
+class 'pkg/TestDoubleConstantContext' {
+   method 'nextDouble (J)D' {
+      0      6
+      1      6
+      2      6
+      3      6
+      4      6
+      5      6
+      6      6
+   }
+
+   method 'less (F)Z' {
+      0      10
+      1      10
+      2      10
+      3      10
+      4      10
+      5      10
+      6      10
+      7      10
+      8      10
+      e      10
+   }
+
+   method 'equal (J)Z' {
+      0      14
+      1      14
+      2      14
+      3      14
+      4      14
+      5      14
+      6      14
+      7      14
+      8      14
+      e      14
+   }
+
+   method 'boxed ()Ljava/lang/Object;' {
+      0      18
+      1      18
+      2      18
+      3      18
+      4      18
+      5      18
+      6      18
+   }
+
+   method 'concatConstant (Ljava/lang/String;)Ljava/lang/String;' {
+      7      22
+      b      22
+      c      22
+      d      22
+      11      22
+      12      22
+      13      22
+      14      22
+   }
+
+   method 'toDegrees (D)D' {
+      0      26
+      1      26
+      2      26
+      3      26
+      4      26
+      5      26
+   }
+
+   method 'scaled (D)D' {
+      0      30
+      1      30
+      2      30
+      3      30
+      4      30
+      5      30
+   }
+}
+
+Lines mapping:
+7 <-> 7
+11 <-> 11
+15 <-> 15
+19 <-> 19
+23 <-> 23
+27 <-> 27
+31 <-> 31

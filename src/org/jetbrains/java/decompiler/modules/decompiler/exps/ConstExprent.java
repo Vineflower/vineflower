@@ -313,19 +313,8 @@ public class ConstExprent extends Exprent {
             return buf.append(UNINLINED_DOUBLES.get(doubleVal).apply(bytecode));
           }
 
-          // Try to convert the double representation of the value to the float representation, to output the cleanest version of the value.
-          // This patch is based on work in ForgeFlower submitted by Pokechu22.
-          float floatRepresentation = (float) doubleVal;
-          if (floatRepresentation == doubleVal) {
-            if (trimFloat(Float.toString(floatRepresentation), floatRepresentation).length() < trimDouble(Double.toString(doubleVal), doubleVal).length()) {
-              // Check the uninlined values to see if we have one of those
-              if (UNINLINED_FLOATS.containsKey(floatRepresentation)) {
-                return buf.append(UNINLINED_FLOATS.get(floatRepresentation).apply(bytecode));
-              } else {
-                // Return the standard representation if the value is not able to be uninlined
-                return buf.append(trimFloat(Float.toString(floatRepresentation), floatRepresentation)).append("F");
-              }
-            }
+          if (isDoubleWrittenAsFloat()) {
+            return buf.append(asFloat().toJava(indent));
           }
         }
         else if (Double.isNaN(doubleVal)) {
@@ -388,10 +377,29 @@ public class ConstExprent extends Exprent {
         if (UNINLINED_DOUBLES.containsKey(doubleVal) && !NO_PAREN_VALUES.contains(doubleVal) && UNINLINED_DOUBLES.get(doubleVal).apply(bytecode).countChars('(') < 2) {
           return 4;
         }
+        if (isDoubleWrittenAsFloat()) {
+          return asFloat().getPrecedence();
+        }
         break;
     }
 
     return super.getPrecedence();
+  }
+
+  // Try to convert the double representation of the value to the float representation, to output the cleanest version of the value.
+  // This patch is based on work in ForgeFlower submitted by Pokechu22.
+  public boolean isDoubleWrittenAsFloat() {
+    if (value == null || VarType.UNBOXING_TYPES.getOrDefault(constType, constType).type != CodeType.DOUBLE || DecompilerContext.getOption(IFernflowerPreferences.LITERALS_AS_IS)) {
+      return false;
+    }
+    double doubleVal = (Double)value;
+    float floatRepresentation = (float) doubleVal;
+    return floatRepresentation == doubleVal && !UNINLINED_DOUBLES.containsKey(doubleVal) &&
+      trimFloat(Float.toString(floatRepresentation), floatRepresentation).length() < trimDouble(Double.toString(doubleVal), doubleVal).length();
+  }
+
+  public ConstExprent asFloat() {
+    return new ConstExprent(VarType.VARTYPE_FLOAT, (float) (double) (Double) value, bytecode);
   }
 
   private static TextBuffer getPiDouble(BitSet bytecode) {
