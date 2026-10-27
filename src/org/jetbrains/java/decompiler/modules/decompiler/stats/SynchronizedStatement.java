@@ -1,11 +1,13 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.stats;
 
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.SequenceHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
+import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
@@ -15,9 +17,9 @@ import java.util.List;
 
 public class SynchronizedStatement extends Statement {
 
-  private Statement body;
+  private @Nullable Statement body;  // Only null during simple copy
 
-  private final List<Exprent> headexprent = new ArrayList<>(1);
+  private final List<@Nullable Exprent> headexprent = new ArrayList<>(1);
 
   // *****************************************************************************
   // constructors
@@ -57,6 +59,9 @@ public class SynchronizedStatement extends Statement {
 
   @Override
   public TextBuffer toJava(int indent) {
+    ValidationHelper.notNull(first);
+    ValidationHelper.notNull(body);
+
     TextBuffer buf = new TextBuffer();
     buf.append(ExprProcessor.listToJava(varDefinitions, indent));
     buf.append(first.toJava(indent));
@@ -85,6 +90,7 @@ public class SynchronizedStatement extends Statement {
   }
 
   private void mapMonitorExitInstr(TextBuffer buffer) {
+    ValidationHelper.notNull(body);
     BasicBlock block = body.getBasichead().getBlock();
     if (!block.getSeq().isEmpty() && block.getLastInstruction().opcode == CodeConstants.opc_monitorexit) {
       Integer offset = block.getOldOffset(block.size() - 1);
@@ -94,12 +100,13 @@ public class SynchronizedStatement extends Statement {
 
   @Override
   public void initExprents() {
+    ValidationHelper.notNull(first);
     headexprent.set(0, first.getExprents().remove(first.getExprents().size() - 1));
   }
 
   @Override
   public List<Exprent> getStatExprents() {
-    return new ArrayList<>(headexprent);
+    return List.of(getHeadexprent());
   }
 
   @Override
@@ -142,18 +149,18 @@ public class SynchronizedStatement extends Statement {
   // *****************************************************************************
 
   public Statement getBody() {
-    return body;
+    return ValidationHelper.notNull(body);
   }
 
   public void setBody(Statement body) {
     this.body = body;
   }
 
-  public List<Exprent> getHeadexprentList() {
+  public List<@Nullable Exprent> getHeadexprentList() {
     return headexprent;
   }
 
   public Exprent getHeadexprent() {
-    return headexprent.get(0);
+    return ValidationHelper.notNull(headexprent.get(0));
   }
 }

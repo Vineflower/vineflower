@@ -1,6 +1,7 @@
 // Copyright 2000-2017 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler;
 
+import org.jetbrains.annotations.NotNullByDefault;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement.EdgeDirection;
@@ -10,6 +11,7 @@ import java.util.List;
 
 // A connection between 2 statements.
 // Describes edges in graphs where statements are the vertices.
+@NotNullByDefault
 public class StatEdge {
   // Represents direct control flow between 2 statements
   public static final int TYPE_REGULAR = 1;
@@ -38,7 +40,7 @@ public class StatEdge {
 
   private Statement destination;
 
-  private List<String> exceptions;
+  private @Nullable List<String> exceptions;
 
   // The statement that this edge is enclosed in.
   // Take for example, this structure, where we are analyzing the break edge:
@@ -81,7 +83,7 @@ public class StatEdge {
     ValidationHelper.notNull(destination);
   }
 
-  public StatEdge(Statement source, Statement destination, List<String> exceptions) {
+  public StatEdge(Statement source, Statement destination, @Nullable List<String> exceptions) {
     this(TYPE_EXCEPTION, source, destination);
     if (exceptions != null) {
       this.exceptions = new ArrayList<>(exceptions);
@@ -101,7 +103,7 @@ public class StatEdge {
   }
 
   public void setSource(Statement source) {
-    ValidationHelper.assertTrue(source != null, "Should not be null");
+    ValidationHelper.notNull(source);
     this.source = source;
   }
 
@@ -113,7 +115,7 @@ public class StatEdge {
    * @param newSource the new source of this edge
    */
   public void changeSource(Statement newSource) {
-    ValidationHelper.assertTrue(newSource != null, "Should not be null");
+    ValidationHelper.notNull(newSource);
 
     Statement oldSource = this.source;
     oldSource.removeEdgeInternal(EdgeDirection.FORWARD, this);
@@ -126,7 +128,7 @@ public class StatEdge {
   }
 
   public void setDestination(Statement destination) {
-    ValidationHelper.assertTrue(destination != null, "Should not be null");
+    ValidationHelper.notNull(destination);
     this.destination = destination;
   }
 
@@ -138,7 +140,7 @@ public class StatEdge {
    * @param newDestination the new destination of this edge
    */
   public void changeDestination(Statement newDestination) {
-    ValidationHelper.assertTrue(newDestination != null, "Should not be null");
+    ValidationHelper.notNull(newDestination);
 
     Statement oldDestination = this.destination;
     oldDestination.removeEdgeInternal(EdgeDirection.BACKWARD, this);
@@ -182,7 +184,7 @@ public class StatEdge {
     this.closure = null;
   }
 
-  public List<String> getExceptions() {
+  public @Nullable List<String> getExceptions() {
     return this.exceptions;
   }
 
@@ -191,7 +193,7 @@ public class StatEdge {
     return this.type + ": " + this.source.toString() + " -> " + this.destination.toString() + ((this.closure == null) ? "" : " (" + this.closure + ")") + ((this.exceptions == null) ? "" : " Exceptions: " + this.exceptions);
   }
 
-  public void changeClosure(Statement stat) {
+  public void changeClosure(@Nullable Statement stat) {
     if (this.closure != null) {
       this.closure.getLabelEdges().remove(this);
     }

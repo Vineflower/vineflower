@@ -1,14 +1,16 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.stats;
 
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
+import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.InvocationExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 
 public final class Statements {
-  public static Statement findFirstData(Statement stat) {
+  public static @Nullable Statement findFirstData(Statement stat) {
     if (stat.getExprents() != null) {
       return stat;
     }
@@ -22,7 +24,7 @@ public final class Statements {
       case ROOT:
       case SWITCH:
       case SYNCHRONIZED:
-        return findFirstData(stat.getFirst());
+        return findFirstData(ValidationHelper.notNull(stat.getFirst()));
       default:
         return null;
     }

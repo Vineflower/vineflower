@@ -3,13 +3,11 @@
  */
 package org.jetbrains.java.decompiler.modules.decompiler.stats;
 
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.InstructionSequence;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
-import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.StrongConnectivityHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
@@ -18,13 +16,11 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.struct.match.IMatchable;
 import org.jetbrains.java.decompiler.struct.match.MatchEngine;
 import org.jetbrains.java.decompiler.struct.match.MatchNode;
-import org.jetbrains.java.decompiler.struct.match.MatchNode.RuleValue;
 import org.jetbrains.java.decompiler.util.StartEndPair;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
 
 import java.util.*;
-import java.util.Map.Entry;
 
 public abstract class Statement implements IMatchable {
   public enum StatementType {
@@ -79,11 +75,11 @@ public abstract class Statement implements IMatchable {
   // statement as graph
   protected final VBStyleCollection<Statement, Integer> stats = new VBStyleCollection<>();
 
-  protected Statement parent;
+  protected @Nullable Statement parent;
 
-  protected Statement first;
+  protected @Nullable Statement first;
 
-  protected List<Exprent> exprents;
+  protected @Nullable List<Exprent> exprents;
 
   protected final HashSet<StatEdge> labelEdges = new HashSet<>();
 
@@ -95,7 +91,7 @@ public abstract class Statement implements IMatchable {
   // relevant for the first stage of processing only
   // set to null after initializing of the statement structure
 
-  protected Statement post;
+  protected @Nullable Statement post;
 
   protected LastBasicType lastBasicType = LastBasicType.GENERAL;
 
@@ -104,7 +100,7 @@ public abstract class Statement implements IMatchable {
   protected boolean isLastAthrow;
   protected boolean containsMonitorExit;
 
-  protected HashSet<Statement> continueSet = new HashSet<>();
+  protected @Nullable HashSet<Statement> continueSet = new HashSet<>();
 
   // When statements need to be expressed as exprents, they become phantom.
   // This means (for supported statements) that they do not show up in the decompiled code.
@@ -160,6 +156,8 @@ public abstract class Statement implements IMatchable {
     Statement head = stat.getFirst();
     Statement post = stat.getPost();
 
+    ValidationHelper.notNull(head);
+
     VBStyleCollection<Statement, Integer> setNodes = stat.getStats();
 
     // post edges
@@ -186,6 +184,7 @@ public abstract class Statement implements IMatchable {
       stat.addPredecessor(prededge);
     }
 
+    ValidationHelper.notNull(first);
     if (setNodes.containsKey(first.id)) {
       first = stat;
     }
@@ -318,11 +317,6 @@ public abstract class Statement implements IMatchable {
   }
 
   public void removePredecessor(StatEdge edge) {
-
-    if (edge == null) {  // FIXME: redundant?
-      return;
-    }
-
     removeEdgeInternal(EdgeDirection.BACKWARD, edge);
   }
 
@@ -336,8 +330,7 @@ public abstract class Statement implements IMatchable {
     edge.getDestination().addPredecessor(edge);
   }
 
-  public void removeSuccessor(StatEdge edge) {
-
+  public void removeSuccessor(@Nullable StatEdge edge) {
     if (edge == null) {
       return;
     }
@@ -348,13 +341,11 @@ public abstract class Statement implements IMatchable {
       edge.closure.getLabelEdges().remove(edge);
     }
 
-    if (edge.getDestination() != null) {  // TODO: redundant?
-      edge.getDestination().removePredecessor(edge);
-    }
+    edge.getDestination().removePredecessor(edge);
   }
 
   // TODO: make obsolete and remove
-  public void removeAllSuccessors(Statement stat) {
+  public void removeAllSuccessors(@Nullable Statement stat) {
 
     if (stat == null) {
       return;
@@ -429,6 +420,7 @@ public abstract class Statement implements IMatchable {
 
 
   public List<Statement> getReversePostOrderList() {
+    ValidationHelper.notNull(first);
     return getReversePostOrderList(first);
   }
 
@@ -444,7 +436,7 @@ public abstract class Statement implements IMatchable {
     return getPostReversePostOrderList(null);
   }
 
-  public List<Statement> getPostReversePostOrderList(List<Statement> lstexits) {
+  public List<Statement> getPostReversePostOrderList(@Nullable List<Statement> lstexits) {
 
     List<Statement> res = new ArrayList<>();
 
@@ -593,7 +585,7 @@ public abstract class Statement implements IMatchable {
    *
    * @return A list of {@link VarExprent}s that are implicitly defined. Can be null or empty if none exist.
    */
-  public List<VarExprent> getImplicitlyDefinedVars() {
+  public @Nullable List<VarExprent> getImplicitlyDefinedVars() {
     return null;
   }
 
@@ -856,7 +848,7 @@ public abstract class Statement implements IMatchable {
     return getEdges(STATEDGE_ALL, EdgeDirection.BACKWARD);
   }
 
-  public Statement getFirst() {
+  public @Nullable Statement getFirst() {
     return first;
   }
 
@@ -864,7 +856,7 @@ public abstract class Statement implements IMatchable {
     this.first = first;
   }
 
-  public Statement getPost() {
+  public @Nullable Statement getPost() {
     return post;
   }
 
@@ -876,7 +868,7 @@ public abstract class Statement implements IMatchable {
     return lastBasicType;
   }
 
-  public HashSet<Statement> getContinueSet() {
+  public @Nullable HashSet<Statement> getContinueSet() {
     return continueSet;
   }
 
@@ -893,6 +885,7 @@ public abstract class Statement implements IMatchable {
   }
 
   public BasicBlockStatement getBasichead() {
+    ValidationHelper.notNull(first);
     return first.getBasichead();
   }
 
@@ -917,11 +910,11 @@ public abstract class Statement implements IMatchable {
   }
 
 
-  public Statement getParent() {
+  public @Nullable Statement getParent() {
     return parent;
   }
 
-  public void setParent(Statement parent) {
+  public void setParent(@Nullable Statement parent) {
     this.parent = parent;
   }
 
@@ -953,8 +946,8 @@ public abstract class Statement implements IMatchable {
     return exprents;
   }
 
-  public void setExprents(@NotNull List<Exprent> exprents) {
-    ValidationHelper.assertTrue(exprents != null, "Shouldn't set null exprent array here");
+  public void setExprents(List<Exprent> exprents) {
+    ValidationHelper.notNull(exprents);
     this.exprents = exprents;
   }
 
@@ -1004,7 +997,7 @@ public abstract class Statement implements IMatchable {
     }
   }
 
-  private StartEndPair endpoints;
+  private @Nullable StartEndPair endpoints;
   public StartEndPair getStartEndRange() {
     if (endpoints == null) {
       BitSet set = new BitSet();
@@ -1020,7 +1013,7 @@ public abstract class Statement implements IMatchable {
   // *****************************************************************************
 
   @Override
-  public IMatchable findObject(MatchNode matchNode, int index) {
+  public @Nullable IMatchable findObject(MatchNode matchNode, int index) {
     int node_type = matchNode.getType();
 
     if (node_type == MatchNode.MATCHNODE_STATEMENT && !this.stats.isEmpty()) {

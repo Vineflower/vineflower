@@ -1,12 +1,13 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.stats;
 
-import org.jetbrains.java.decompiler.code.CodeConstants;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.modules.decompiler.DecHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
+import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
@@ -19,11 +20,11 @@ import java.util.Set;
 
 public class CatchAllStatement extends Statement {
 
-  private Statement handler;
+  private @Nullable Statement handler; // only null during simple copy
 
   private boolean isFinally;
 
-  private VarExprent monitor;
+  private @Nullable VarExprent monitor;
 
   private final List<VarExprent> vars = new ArrayList<>();
 
@@ -63,7 +64,7 @@ public class CatchAllStatement extends Statement {
   // public methods
   // *****************************************************************************
 
-  public static Statement isHead(Statement head) {
+  public static @Nullable Statement isHead(Statement head) {
     if (head.getLastBasicType() != LastBasicType.GENERAL) {
       return null;
     }
@@ -100,6 +101,9 @@ public class CatchAllStatement extends Statement {
 
   @Override
   public TextBuffer toJava(int indent) {
+    ValidationHelper.notNull(first);
+    ValidationHelper.notNull(handler);
+
     String new_line_separator = DecompilerContext.getNewLineSeparator();
 
     TextBuffer buf = new TextBuffer();
@@ -188,8 +192,13 @@ public class CatchAllStatement extends Statement {
   // getter and setter methods
   // *****************************************************************************
 
+  @Override
+  public Statement getFirst() {
+    return ValidationHelper.notNull(super.getFirst());
+  }
+
   public Statement getHandler() {
-    return handler;
+    return ValidationHelper.notNull(handler);
   }
 
   public boolean isFinally() {
@@ -200,7 +209,7 @@ public class CatchAllStatement extends Statement {
     this.isFinally = isFinally;
   }
 
-  public VarExprent getMonitor() {
+  public @Nullable VarExprent getMonitor() {
     return monitor;
   }
 

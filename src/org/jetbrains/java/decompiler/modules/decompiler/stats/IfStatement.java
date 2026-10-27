@@ -1,6 +1,7 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.stats;
 
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.modules.decompiler.DecHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
@@ -29,16 +30,16 @@ public class IfStatement extends Statement {
   // private fields
   // *****************************************************************************
 
-  private Statement ifstat;
-  private Statement elsestat;
+  private @Nullable Statement ifstat;
+  private @Nullable Statement elsestat;
 
-  private StatEdge ifedge;
-  private StatEdge elseedge;
+  private @Nullable StatEdge ifedge;  // Only null during simple copy
+  private @Nullable StatEdge elseedge;
 
   private boolean negated = false;
   private boolean patternMatched = false;
 
-  private final List<Exprent> headexprent = new ArrayList<>(1); // contains IfExprent
+  private final List<@Nullable Exprent> headexprent = new ArrayList<>(1); // contains IfExprent
 
   // *****************************************************************************
   // constructors
@@ -50,7 +51,7 @@ public class IfStatement extends Statement {
     headexprent.add(null);
   }
 
-  protected IfStatement(Statement head, int regedges, Statement postst) {
+  protected IfStatement(Statement head, int regedges, @Nullable Statement postst) {
 
     this();
 
@@ -158,7 +159,7 @@ public class IfStatement extends Statement {
   // public methods
   // *****************************************************************************
 
-  public static Statement isHead(Statement head) {
+  public static @Nullable Statement isHead(Statement head) {
 
     if (head instanceof BasicBlockStatement && head.getLastBasicType() == LastBasicType.IF) {
       int regsize = head.getSuccessorEdges(StatEdge.TYPE_REGULAR).size();
@@ -191,6 +192,9 @@ public class IfStatement extends Statement {
 
   @Override
   public TextBuffer toJava(int indent) {
+    ValidationHelper.notNull(first);
+    ValidationHelper.notNull(ifedge);
+
     TextBuffer buf = new TextBuffer();
 
     buf.append(ExprProcessor.listToJava(varDefinitions, indent));
@@ -239,14 +243,14 @@ public class IfStatement extends Statement {
     boolean elseif = false;
 
     if (elsestat != null) {
-      if (elsestat instanceof IfStatement
-          && elsestat.varDefinitions.isEmpty() && (elsestat.getFirst().getExprents() != null && elsestat.getFirst().getExprents().isEmpty()) &&
-          !elsestat.isLabeled() &&
-          (elsestat.getSuccessorEdges(STATEDGE_DIRECT_ALL).isEmpty()
-           || !elsestat.getSuccessorEdges(STATEDGE_DIRECT_ALL).get(0).explicit)) { // else if
+      if (elsestat instanceof IfStatement elseIfStat
+          && elseIfStat.varDefinitions.isEmpty() && (elsestat.getFirst().getExprents() != null && elseIfStat.getFirst().getExprents().isEmpty()) &&
+          !elseIfStat.isLabeled() &&
+          (elseIfStat.getSuccessorEdges(STATEDGE_DIRECT_ALL).isEmpty()
+           || !elseIfStat.getSuccessorEdges(STATEDGE_DIRECT_ALL).get(0).explicit)) { // else if
         buf.appendIndent(indent).append("} else ");
 
-        TextBuffer content = ExprProcessor.jmpWrapper(elsestat, indent, false);
+        TextBuffer content = ExprProcessor.jmpWrapper(elseIfStat, indent, false);
         content.setStart(TextUtil.getIndentString(indent).length());
         buf.append(content);
 
@@ -271,6 +275,7 @@ public class IfStatement extends Statement {
 
   @Override
   public void initExprents() {
+    ValidationHelper.notNull(first);
     IfExprent ifexpr = (IfExprent)first.getExprents().remove(first.getExprents().size() - 1);
 
     if (negated) {
@@ -283,11 +288,12 @@ public class IfStatement extends Statement {
 
   @Override
   public List<Exprent> getStatExprents() {
-    return new ArrayList<>(headexprent);
+    return List.of(getHeadexprent());
   }
 
   @Override
   public void replaceExprent(Exprent oldexpr, Exprent newexpr) {
+    ValidationHelper.validateTrue(newexpr instanceof IfExprent, "IfStatement must always have an IfExprent");
     if (headexprent.get(0) == oldexpr) {
       headexprent.set(0, newexpr);
     }
@@ -305,7 +311,7 @@ public class IfStatement extends Statement {
       elsestat = newstat;
     }
 
-    List<StatEdge> lstSuccs = first.getSuccessorEdges(STATEDGE_DIRECT_ALL);
+    List<StatEdge> lstSuccs = getFirst().getSuccessorEdges(STATEDGE_DIRECT_ALL);
 
     if (iftype == IFTYPE_IF) {
       ifedge = lstSuccs.get(0);
@@ -359,19 +365,19 @@ public class IfStatement extends Statement {
   // getter and setter methods
   // *****************************************************************************
 
-  public Statement getElsestat() {
+  public @Nullable Statement getElsestat() {
     return elsestat;
   }
 
-  public void setElsestat(Statement elsestat) {
+  public void setElsestat(@Nullable Statement elsestat) {
     this.elsestat = elsestat;
   }
 
-  public Statement getIfstat() {
+  public @Nullable Statement getIfstat() {
     return ifstat;
   }
 
-  public void setIfstat(Statement ifstat) {
+  public void setIfstat(@Nullable Statement ifstat) {
     this.ifstat = ifstat;
   }
 
@@ -383,15 +389,22 @@ public class IfStatement extends Statement {
     this.negated = negated;
   }
 
-  public List<Exprent> getHeadexprentList() {
+  @Override
+  public BasicBlockStatement getFirst() {
+    return (BasicBlockStatement) ValidationHelper.notNull(first);
+  }
+
+  public List<@Nullable Exprent> getHeadexprentList() {
     return headexprent;
   }
 
   public IfExprent getHeadexprent() {
-    return (IfExprent)headexprent.get(0);
+    Exprent head = headexprent.get(0);
+    ValidationHelper.assertTrue(head instanceof IfExprent, "IfStatement head must be an ifExprent");
+    return (IfExprent) head;
   }
 
-  public void setElseEdge(StatEdge elseedge) {
+  public void setElseEdge(@Nullable StatEdge elseedge) {
     this.elseedge = elseedge;
   }
 
@@ -400,10 +413,11 @@ public class IfStatement extends Statement {
   }
 
   public StatEdge getIfEdge() {
+    ValidationHelper.notNull(ifedge);
     return ifedge;
   }
 
-  public StatEdge getElseEdge() {
+  public @Nullable StatEdge getElseEdge() {
     return elseedge;
   }
 
@@ -446,7 +460,7 @@ public class IfStatement extends Statement {
   // *****************************************************************************
 
   @Override
-  public IMatchable findObject(MatchNode matchNode, int index) {
+  public @Nullable IMatchable findObject(MatchNode matchNode, int index) {
     IMatchable object = super.findObject(matchNode, index);
     if (object != null) {
       return object;
@@ -478,7 +492,7 @@ public class IfStatement extends Statement {
     Statement elseStat = this.getElsestat();
 
     if (this.iftype != IfStatement.IFTYPE_IFELSE ||
-        elseStat.type != StatementType.BASIC_BLOCK ||
+        ValidationHelper.notNull(elseStat).type != StatementType.BASIC_BLOCK ||
         elseStat.getExprents() == null ||
         !elseStat.getExprents().isEmpty()) {
       return;
@@ -491,7 +505,7 @@ public class IfStatement extends Statement {
     this.setElsestat(null);
 
     // remove the if head -> elseStat edge
-    this.getFirst().removeSuccessor(this.getElseEdge());
+    this.getFirst().removeSuccessor(ValidationHelper.notNull(this.getElseEdge()));
 
     this.setElseEdge(null);
 
@@ -533,7 +547,7 @@ public class IfStatement extends Statement {
     // remove the if head -> ifStat edge
     this.getFirst().removeSuccessor(this.getIfEdge());
 
-    this.setIfEdge(this.getElseEdge());
+    this.setIfEdge(ValidationHelper.notNull(this.getElseEdge()));
     this.setElseEdge(null);
 
     if (this.getAllSuccessorEdges().isEmpty()) {

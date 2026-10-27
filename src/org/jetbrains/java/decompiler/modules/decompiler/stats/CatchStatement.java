@@ -1,11 +1,12 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.stats;
 
+import org.jetbrains.annotations.NotNullByDefault;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
-import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.DecHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
@@ -35,7 +36,7 @@ public class CatchStatement extends Statement {
     super(StatementType.TRY_CATCH);
   }
 
-  protected CatchStatement(Statement head, Statement next, Set<Statement> setHandlers) {
+  protected CatchStatement(Statement head, @Nullable Statement next, Set<Statement> setHandlers) {
     this();
 
     first = head;
@@ -64,7 +65,7 @@ public class CatchStatement extends Statement {
   // public methods
   // *****************************************************************************
 
-  public static Statement isHead(Statement head) {
+  public static @Nullable Statement isHead(Statement head) {
     if (head.getLastBasicType() != LastBasicType.GENERAL) {
       return null;
     }
@@ -139,6 +140,7 @@ public class CatchStatement extends Statement {
 
   @Override
   public TextBuffer toJava(int indent) {
+    ValidationHelper.notNull(first);
     TextBuffer buf = new TextBuffer();
 
     buf.append(ExprProcessor.listToJava(varDefinitions, indent));
@@ -248,6 +250,11 @@ public class CatchStatement extends Statement {
   // *****************************************************************************
   // getter and setter methods
   // *****************************************************************************
+
+  @Override
+  public Statement getFirst() {
+    return ValidationHelper.notNull(super.getFirst());
+  }
 
   public List<List<String>> getExctStrings() {
     return exctstrings;
