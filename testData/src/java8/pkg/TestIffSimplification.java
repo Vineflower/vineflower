@@ -16,6 +16,24 @@ public class TestIffSimplification {
         }
     }
 
+    public int simpleIfElseIfElse(int status, int[] values) {
+      if (status < 3) {
+        if (status < 2) {
+          return values[0];
+        } else {
+          return values[1];
+        }
+      }
+      else {
+        System.out.println("print");
+        if (status == 3) {
+          return values[1];
+        } else {
+          return values[2];
+        }
+      }
+    }
+
     public int testLongerIf(int status, int[] values) {
         if (status == 0) {
             return values[1];

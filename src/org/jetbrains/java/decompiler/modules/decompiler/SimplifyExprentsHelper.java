@@ -1069,7 +1069,11 @@ public class SimplifyExprentsHelper {
               }
 
               // Prevent if-chains of single variables from becoming ternaries
-              if (stat.getParent() instanceof IfStatement parentIf) {
+              if (
+                stat.getParent() instanceof IfStatement parentIf && // Needs to have an if statement parent
+                !Objects.equals(parentIf.getIfstat(), stat) && // Do not simplify when if { if {} }
+                (stat.getFirst().getExprents() == null || stat.getFirst().getExprents().isEmpty()) // Do not simplify when if {} else { code; if {} else {} }
+              ) {
                 List<Exprent> parentCond = parentIf.getHeadexprent().getAllExprents(true);
                 ValidationHelper.notNull(ifHeadExpr);
                 List<Exprent> cond = ifHeadExpr.getAllExprents(true);
