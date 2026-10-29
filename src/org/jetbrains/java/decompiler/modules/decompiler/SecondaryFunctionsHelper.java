@@ -313,6 +313,8 @@ public final class SecondaryFunctionsHelper {
                 }
               }
             }
+            keepCastNextToFloatLiteral(lstOperands.get(0), lstOperands.get(1));
+            keepCastNextToFloatLiteral(lstOperands.get(1), lstOperands.get(0));
             break;
           case BOOL_NOT:
             if (lstOperands.get(0) instanceof ConstExprent) {
@@ -435,10 +437,15 @@ public final class SecondaryFunctionsHelper {
               return ret;
             }
             break;
+          case LT:
+          case GE:
+          case GT:
+          case LE:
           case ADD:
           case SUB:
           case MUL:
           case DIV:
+          case REM:
             Exprent left = lstOperands.get(0);
             boolean leftImplicitCast = left instanceof FunctionExprent && ((FunctionExprent) left).getSimpleCastType() != null && !((FunctionExprent) left).doesCast();
             Exprent right = lstOperands.get(1);
@@ -448,6 +455,8 @@ public final class SecondaryFunctionsHelper {
               // Only a single cast is needed explicitly
               ((FunctionExprent) left).setNeedsCast(true);
             }
+            keepCastNextToFloatLiteral(left, right);
+            keepCastNextToFloatLiteral(right, left);
             break;
           case SHL:
           case SHR:
@@ -455,6 +464,16 @@ public final class SecondaryFunctionsHelper {
             Exprent op = lstOperands.get(0);
             if (op instanceof FunctionExprent && ((FunctionExprent) op).getSimpleCastType() != null && !((FunctionExprent) op).doesCast()) {
               ((FunctionExprent) op).setNeedsCast(true);
+            }
+            break;
+          case STR_CONCAT:
+            for (int i = 0; i < lstOperands.size(); i++) {
+              Exprent operand = lstOperands.get(i);
+              if (operand instanceof ConstExprent && ((ConstExprent) operand).isDoubleWrittenAsFloat()) {
+                lstOperands.set(i, new FunctionExprent(FunctionType.F2D, ((ConstExprent) operand).asFloat(), operand.bytecode));
+              } else if (operand instanceof FunctionExprent && ((FunctionExprent) operand).getSimpleCastType() != null && !((FunctionExprent) operand).doesCast()) {
+                ((FunctionExprent) operand).setNeedsCast(true);
+              }
             }
         }
         break;
@@ -524,6 +543,8 @@ public final class SecondaryFunctionsHelper {
           // Keep casts of boxed exprents
           if (param instanceof FunctionExprent && ((FunctionExprent) param).getSimpleCastType() != null && !((FunctionExprent) param).doesCast()) {
             ((FunctionExprent) param).setNeedsCast(true);
+          } else if (param instanceof ConstExprent && ((ConstExprent) param).isDoubleWrittenAsFloat()) {
+            invocationExpr.forceBoxing(true);
           }
         }
 
@@ -542,6 +563,14 @@ public final class SecondaryFunctionsHelper {
     }
 
     return ret;
+  }
+
+  // Keep the cast next to a double written as a float literal, otherwise the math is done in float
+  private static void keepCastNextToFloatLiteral(Exprent operand, Exprent other) {
+    if (operand instanceof FunctionExprent && ((FunctionExprent) operand).getSimpleCastType() != null && !((FunctionExprent) operand).doesCast() &&
+      other instanceof ConstExprent && ((ConstExprent) other).isDoubleWrittenAsFloat()) {
+      ((FunctionExprent) operand).setNeedsCast(true);
+    }
   }
 
   // whether `exprent = exprent + ...` can be simplified to `exprent += ...`

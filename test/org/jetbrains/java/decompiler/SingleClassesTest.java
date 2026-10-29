@@ -973,6 +973,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestNotFloatPrecision");
     register(JAVA_8, "TestConstantUninlining");
     register(JAVA_8, "TestPiDivision");
+    register(JAVA_8, "TestDoubleConstantContext");
+    register(JAVA_17, "TestStringConcatWidening");
   }
 
   private void registerTernaryConstantSimplification() {

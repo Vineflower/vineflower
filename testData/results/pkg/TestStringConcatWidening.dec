@@ -1,0 +1,41 @@
+package pkg;
+
+public class TestStringConcatWidening {
+   public String floatToDouble(String s, float f) {
+      return s + (double)f;// 5
+   }
+
+   public String plain(String s, float f, double d) {
+      return s + f + d;// 9
+   }
+}
+
+class 'pkg/TestStringConcatWidening' {
+   method 'floatToDouble (Ljava/lang/String;F)Ljava/lang/String;' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      5      4
+      6      4
+      7      4
+      8      4
+   }
+
+   method 'plain (Ljava/lang/String;FD)Ljava/lang/String;' {
+      0      8
+      1      8
+      2      8
+      3      8
+      4      8
+      5      8
+      6      8
+      7      8
+      8      8
+   }
+}
+
+Lines mapping:
+5 <-> 5
+9 <-> 9
