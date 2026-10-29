@@ -82,7 +82,7 @@ public class ClassesProcessor implements CodeConstants {
       return true;
 
     for (String prefix : this.whitelist) {
-      if (cls.startsWith(prefix))
+      if (cls.startsWith(prefix) || prefix.startsWith(cls))
         return true;
     }
 
