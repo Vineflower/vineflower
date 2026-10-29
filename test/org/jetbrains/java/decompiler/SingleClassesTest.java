@@ -284,6 +284,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(KOTLIN, "TestSynchronizedUnprotected");
     register(JAVA_8, "TestInterfaceSuper");
     register(JASM, "TestFieldSingleAccess");
+    register(JAVA_8, "TestDuplicatedFieldRead");
     register(JAVA_8, "package-info");
 
     register(JAVA_8, "TestInner2");

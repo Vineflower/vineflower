@@ -1,0 +1,43 @@
+package pkg;
+
+public class TestDuplicatedFieldRead {
+   private static volatile int staticField;
+   private int instanceField;
+
+   public static int readStaticOnce() {
+      int value;
+      return (value = staticField) * value;// 9
+   }
+
+   public int readInstanceOnce() {
+      int value;
+      return (value = this.instanceField) * value;// 14
+   }
+}
+
+class 'pkg/TestDuplicatedFieldRead' {
+   method 'readStaticOnce ()I' {
+      0      8
+      1      8
+      2      8
+      4      8
+      5      8
+      6      8
+      7      8
+   }
+
+   method 'readInstanceOnce ()I' {
+      0      13
+      1      13
+      2      13
+      3      13
+      5      13
+      6      13
+      7      13
+      8      13
+   }
+}
+
+Lines mapping:
+9 <-> 9
+14 <-> 14
