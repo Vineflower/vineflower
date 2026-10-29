@@ -66,6 +66,10 @@ public final class BytecodeVersion implements Comparable<BytecodeVersion> {
     return major >= MAJOR_11;
   }
 
+  public boolean hasUnnamedVariables() {
+    return major >= MAJOR_22;
+  }
+
   public boolean predatesJava() {
     return major <= MAJOR_1_0_2 && minor <= 2;
   }
@@ -120,4 +124,5 @@ public final class BytecodeVersion implements Comparable<BytecodeVersion> {
   public static final int MAJOR_19 = 63;
   public static final int MAJOR_20 = 64;
   public static final int MAJOR_21 = 65;
+  public static final int MAJOR_22 = 66;
 }
