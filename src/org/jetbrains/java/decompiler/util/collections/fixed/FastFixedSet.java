@@ -39,11 +39,8 @@ public abstract class FastFixedSet<E> extends AbstractCollection<E> implements S
   @Override
   @SuppressWarnings("unchecked")
   public boolean containsAll(Collection<?> c) {
-    if (c instanceof FastFixedSet<?>) {
-      FastFixedSet<?> c1 = (FastFixedSet<?>) c;
-      if (c1.factory == this.factory) {
-        return this.containsAll((FastFixedSet<E>) c1);
-      }
+    if (c instanceof FastFixedSet<?> c1 && c1.factory == this.factory) {
+      return this.containsAll((FastFixedSet<E>) c1);
     }
 
     return this.containsAll(c);
@@ -54,11 +51,8 @@ public abstract class FastFixedSet<E> extends AbstractCollection<E> implements S
   @Override
   @SuppressWarnings("unchecked")
   public boolean addAll(Collection<? extends E> c) {
-    if (c instanceof FastFixedSet<?>) {
-      FastFixedSet<?> c1 = (FastFixedSet<?>) c;
-      if (c1.factory == this.factory) {
-        return this.addAll((FastFixedSet<E>) c1);
-      }
+    if (c instanceof FastFixedSet<?> c1 && c1.factory == this.factory) {
+      return this.addAll((FastFixedSet<E>) c1);
     }
 
     return super.addAll(c);
@@ -69,11 +63,8 @@ public abstract class FastFixedSet<E> extends AbstractCollection<E> implements S
   @Override
   @SuppressWarnings({"unchecked", "SuspiciousMethodCalls"})
   public boolean retainAll(Collection<?> c) {
-    if (c instanceof FastFixedSet<?>) {
-      FastFixedSet<?> c1 = (FastFixedSet<?>) c;
-      if (c1.factory == this.factory) {
-        return this.retainAll((FastFixedSet<E>) c1);
-      }
+    if (c instanceof FastFixedSet<?> c1 && c1.factory == this.factory) {
+      return this.retainAll((FastFixedSet<E>) c1);
     }
 
     Set<E> stuffs = new HashSet<>(this.factory.getEntries());
@@ -86,11 +77,8 @@ public abstract class FastFixedSet<E> extends AbstractCollection<E> implements S
   @Override
   @SuppressWarnings("unchecked")
   public boolean removeAll(Collection<?> c) {
-    if (c instanceof FastFixedSet<?>) {
-      FastFixedSet<?> c1 = (FastFixedSet<?>) c;
-      if (c1.factory == this.factory) {
-        return this.removeAll((FastFixedSet<E>) c1);
-      }
+    if (c instanceof FastFixedSet<?> c1 && c1.factory == this.factory) {
+      return this.removeAll((FastFixedSet<E>) c1);
     }
 
     // super uses c.contains, which might be much slower

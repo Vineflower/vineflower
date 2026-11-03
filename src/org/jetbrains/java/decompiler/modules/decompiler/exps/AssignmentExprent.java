@@ -3,6 +3,7 @@
  */
 package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
@@ -108,9 +109,8 @@ public class AssignmentExprent extends Exprent {
     VarType leftType = left.getInferredExprType(null);
 
     boolean fieldInClassInit = false, hiddenField = false;
-    if (left instanceof FieldExprent) { // first assignment to a final field. Field name without "this" in front of it
-      FieldExprent field = (FieldExprent) left;
-      ClassNode node = ((ClassNode) DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE));
+    if (left instanceof FieldExprent field) { // first assignment to a final field. Field name without "this" in front of it
+      ClassNode node = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
       if (node != null) {
         StructField fd = node.classStruct.getField(field.getName(), field.getDescriptor().descriptorString);
         if (fd != null) {
@@ -137,8 +137,8 @@ public class AssignmentExprent extends Exprent {
       buffer.append(left.toJava(indent));
     }
 
-    if (right instanceof ConstExprent) {
-      ((ConstExprent) right).adjustConstType(leftType);
+    if (right instanceof ConstExprent constExpr) {
+      constExpr.adjustConstType(leftType);
     }
 
     this.optimizeCastForAssign();
@@ -182,11 +182,9 @@ public class AssignmentExprent extends Exprent {
   // E var = (T)expr; -> E var = (E)expr;
   // when E extends T & A
   private void optimizeCastForAssign() {
-    if (!(this.right instanceof FunctionExprent)) {
+    if (!(this.right instanceof FunctionExprent func)) {
       return;
     }
-
-    FunctionExprent func = (FunctionExprent) this.right;
 
     if (func.getFuncType() != FunctionExprent.FunctionType.CAST) {
       return;
@@ -277,9 +275,8 @@ public class AssignmentExprent extends Exprent {
   @Override
   public boolean equals(Object o) {
     if (o == this) return true;
-    if (!(o instanceof AssignmentExprent)) return false;
+    if (!(o instanceof AssignmentExprent as)) return false;
 
-    AssignmentExprent as = (AssignmentExprent)o;
     return InterpreterUtil.equalObjects(left, as.getLeft()) &&
            InterpreterUtil.equalObjects(right, as.getRight()) &&
            condType == as.getCondType();

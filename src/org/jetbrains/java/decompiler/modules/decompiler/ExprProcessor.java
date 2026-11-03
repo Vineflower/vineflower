@@ -171,14 +171,13 @@ public class ExprProcessor implements CodeConstants {
 
     List<VarExprent> lst = null;
 
-    if (stat instanceof CatchAllStatement) {
-      CatchAllStatement catchall = (CatchAllStatement)stat;
+    if (stat instanceof CatchAllStatement catchall) {
       if (!catchall.isFinally()) {
         lst = catchall.getVars();
       }
     }
-    else if (stat instanceof CatchStatement) {
-      lst = ((CatchStatement)stat).getVars();
+    else if (stat instanceof CatchStatement catchStat) {
+      lst = catchStat.getVars();
     }
 
     if (lst != null) {
@@ -250,8 +249,7 @@ public class ExprProcessor implements CodeConstants {
           if (cn instanceof PrimitiveConstant) {
             pushEx(stack, exprlist, new ConstExprent(consts[cn.type - CONSTANT_Integer], ((PrimitiveConstant)cn).value, bytecode_offsets));
           }
-          else if (cn instanceof LinkConstant && cn.type == CodeConstants.CONSTANT_Dynamic) {
-            LinkConstant invoke_constant = (LinkConstant) cn;
+          else if (cn instanceof LinkConstant invoke_constant && cn.type == CodeConstants.CONSTANT_Dynamic) {
 
             LinkConstant bootstrapMethod = null;
             List<PooledConstant> bootstrap_arguments = null;
@@ -580,8 +578,7 @@ public class ExprProcessor implements CodeConstants {
             Exprent last = exprlist.get(exprlist.size() - 1);
             // Our heuristic is checking for an assignment and the type of the assignment is an invocation.
             // This roughly corresponds to a pattern of DUP [nullcheck] POP.
-            if (last instanceof AssignmentExprent && ((AssignmentExprent)last).getRight() instanceof InvocationExprent) {
-              InvocationExprent invocation = (InvocationExprent) ((AssignmentExprent) last).getRight();
+            if (last instanceof AssignmentExprent assExpr && assExpr.getRight() instanceof InvocationExprent invocation) {
 
               // Check to make sure there's still more opcodes after this one
               if (i + 1 < seq.length()) {
@@ -673,13 +670,11 @@ public class ExprProcessor implements CodeConstants {
 
           // Remove Checkcast(Type, Checkcast(Type, ...)) and turn it just into Checkcast(Type, ...) where both have the same type
           // The extra checkcast causes issues with generic type decompilation
-          if (ex instanceof FunctionExprent && ((FunctionExprent)ex).getFuncType() == FunctionExprent.FunctionType.CAST) {
-            FunctionExprent func = (FunctionExprent)ex;
+          if (ex instanceof FunctionExprent func && func.getFuncType() == FunctionExprent.FunctionType.CAST) {
             Exprent inner = func.getLstOperands().get(0);
             Exprent cast = func.getLstOperands().get(1);
 
-            if (inner instanceof FunctionExprent && ((FunctionExprent)inner).getFuncType() == FunctionExprent.FunctionType.CAST) {
-              FunctionExprent func2 = (FunctionExprent)inner;
+            if (inner instanceof FunctionExprent func2 && func2.getFuncType() == FunctionExprent.FunctionType.CAST) {
               Exprent inner2 = func2.getLstOperands().get(0);
               Exprent cast2 = func2.getLstOperands().get(1);
 
@@ -741,13 +736,11 @@ public class ExprProcessor implements CodeConstants {
     MethodProperties prop = wrapper.getMethodProperties("<clinit>", "()V");
 
     for (Exprent e : ex.getAllExprents(true, true)) {
-      if (e instanceof VarExprent) {
-        VarExprent var = (VarExprent)e;
+      if (e instanceof VarExprent var) {
         if (var.isDefinition() && isInvalidTypeName(var.getDefinitionType()) || var.getExprType() == VarType.VARTYPE_UNKNOWN) {
           root.addComment("$VF: Could not properly define all variable types!", true);
         }
-      } else if (e instanceof FunctionExprent) {
-        FunctionExprent func = (FunctionExprent)e;
+      } else if (e instanceof FunctionExprent func) {
         if (func.getFuncType() == FunctionType.CAST && func.doesCast()) {
           List<Exprent> operands = func.getLstOperands();
           if (isInvalidTypeName(operands.get(1).toString())) {
@@ -846,8 +839,8 @@ public class ExprProcessor implements CodeConstants {
   }
 
   public static void addDeletedGotoInstructionMapping(Statement stat, TextBuffer buffer) {
-    if (stat instanceof BasicBlockStatement) {
-      BasicBlock block = ((BasicBlockStatement)stat).getBlock();
+    if (stat instanceof BasicBlockStatement basicBlockStat) {
+      BasicBlock block = basicBlockStat.getBlock();
       List<Integer> offsets = block.getInstrOldOffsets();
       if (!offsets.isEmpty() &&
           offsets.size() > block.getSeq().length()) { // some instructions have been deleted, but we still have offsets
@@ -987,14 +980,13 @@ public class ExprProcessor implements CodeConstants {
 
     if (unbox) {
       // "unbox" invocation parameters, e.g. 'byteSet.add((byte)123)' or 'new ShortContainer((short)813)'
-      if (exprent instanceof InvocationExprent) {
-        InvocationExprent invocationExprent = (InvocationExprent) exprent;
-        if (invocationExprent.isBoxingCall() && !invocationExprent.shouldForceBoxing()) {
-          exprent = invocationExprent.getLstParameters().get(0);
-          CodeType paramType = invocationExprent.getDescriptor().params[0].type;
-          if (exprent instanceof ConstExprent && ((ConstExprent) exprent).getConstType().type != paramType) {
-            leftType = new VarType(paramType);
-          }
+      if (exprent instanceof InvocationExprent invocationExprent &&
+        invocationExprent.isBoxingCall() &&
+        !invocationExprent.shouldForceBoxing()) {
+        exprent = invocationExprent.getLstParameters().get(0);
+        CodeType paramType = invocationExprent.getDescriptor().params[0].type;
+        if (exprent instanceof ConstExprent constExpr && constExpr.getConstType().type != paramType) {
+          leftType = new VarType(paramType);
         }
       }
     }
@@ -1074,8 +1066,9 @@ public class ExprProcessor implements CodeConstants {
 
   // (Obj)expr; -> (Obj<T>)expr;
   public static Exprent narrowGenericCastType(Exprent expr, VarType type) {
-    if (type.isGeneric() && expr instanceof FunctionExprent && ((FunctionExprent)expr).getFuncType() == FunctionType.CAST) {
-      FunctionExprent func = (FunctionExprent) expr;
+    if (type.isGeneric() &&
+      expr instanceof FunctionExprent func &&
+      func.getFuncType() == FunctionType.CAST) {
       VarType funcType = func.getExprType();
 
       GenericType genType = (GenericType) type;
@@ -1203,9 +1196,7 @@ public class ExprProcessor implements CodeConstants {
         // Right is not generic
         // Check for casting a concrete rightType to a specific left generic
         // e.g. (List<T>)list where 'list' is List<Object>
-        if (genLeft.getWildcard() == GenericType.WILDCARD_NO && genLeft.getArguments().isEmpty()) {
-          return true;
-        }
+        return genLeft.getWildcard() == GenericType.WILDCARD_NO && genLeft.getArguments().isEmpty();
       }
     }
 

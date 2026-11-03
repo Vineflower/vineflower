@@ -146,14 +146,14 @@ public class VarExprent extends Exprent implements Pattern {
       }
 
       String name = getName();
-      MethodWrapper method = (MethodWrapper) DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
+      MethodWrapper method = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
       if (method != null && (!"this".equals(name) || index != 0)) {
         int varIndex = index;
         String thisVar = null;
         if (processor != null) {
           // Resolve the method/varVersion this var came from
           Pair<String, VarVersionPair> source = processor.getVarSource(getVarVersionPair());
-          ClassNode node = (ClassNode) DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
+          ClassNode node = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
 
           while (source != null && node != null) {
             method = node.getWrapper().getMethods().getWithKey(source.a);
@@ -278,7 +278,7 @@ public class VarExprent extends Exprent implements Pattern {
         return getVarType();
       }
 
-      MethodWrapper method = (MethodWrapper)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
+      MethodWrapper method = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
       if (method != null) {
         Integer originalIndex = null;
         if (processor != null) {
@@ -330,9 +330,8 @@ public class VarExprent extends Exprent implements Pattern {
   @Override
   public boolean equals(Object o) {
     if (o == this) return true;
-    if (!(o instanceof VarExprent)) return false;
+    if (!(o instanceof VarExprent ve)) return false;
 
-    VarExprent ve = (VarExprent)o;
     return index == ve.getIndex() &&
            version == ve.getVersion() &&
            InterpreterUtil.equalObjects(getVarType(), ve.getVarType()); // FIXME: varType comparison redundant?
@@ -340,9 +339,8 @@ public class VarExprent extends Exprent implements Pattern {
 
   public boolean equalsVersions(Object o) {
     if (o == this) return true;
-    if (!(o instanceof VarExprent)) return false;
+    if (!(o instanceof VarExprent ve)) return false;
 
-    VarExprent ve = (VarExprent)o;
     return index == ve.getIndex() && version == ve.getVersion();
   }
 
@@ -544,8 +542,8 @@ public class VarExprent extends Exprent implements Pattern {
   public boolean isVarReferenced(Exprent exp, VarExprent... whitelist) {
     List<Exprent> lst = exp.getAllExprents(true);
     lst.add(exp);
-    lst = lst.stream().filter(e -> e != this && e instanceof VarExprent &&
-      getVarVersionPair().equals(((VarExprent)e).getVarVersionPair()))
+    lst = lst.stream().filter(e -> e != this && e instanceof VarExprent var &&
+      getVarVersionPair().equals(var.getVarVersionPair()))
         .collect(Collectors.toList());
 
     for (Exprent var : lst) {

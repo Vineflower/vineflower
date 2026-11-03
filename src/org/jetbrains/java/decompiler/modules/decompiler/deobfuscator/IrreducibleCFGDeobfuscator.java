@@ -160,8 +160,8 @@ public final class IrreducibleCFGDeobfuscator {
 
     int res;
 
-    if (statement instanceof BasicBlockStatement) {
-      res = ((BasicBlockStatement)statement).getBlock().getSeq().length();
+    if (statement instanceof BasicBlockStatement basicBlockStat) {
+      res = basicBlockStat.getBlock().getSeq().length();
     }
     else {
       res = statement.getStats().stream().mapToInt(IrreducibleCFGDeobfuscator::getStatementSize).sum();

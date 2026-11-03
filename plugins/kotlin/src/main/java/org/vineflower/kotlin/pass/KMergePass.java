@@ -35,8 +35,8 @@ public class KMergePass extends MergeHelper implements Pass {
       }
     }
 
-    if (stat instanceof DoStatement) {
-      res |= enhanceLoop((DoStatement)stat);
+    if (stat instanceof DoStatement doStat) {
+      res |= enhanceLoop(doStat);
     }
 
     return res;
@@ -129,7 +129,7 @@ public class KMergePass extends MergeHelper implements Pass {
         }
 
         AssignmentExprent ass = firstDoExprent;
-        if ((!isNextCall(ass.getRight()) && !isNextUnboxing(ass.getRight())) || !(ass.getLeft() instanceof VarExprent)) {
+        if ((!isNextCall(ass.getRight()) && !isNextUnboxing(ass.getRight())) || !(ass.getLeft() instanceof VarExprent var)) {
           return false;
         }
 
@@ -137,9 +137,9 @@ public class KMergePass extends MergeHelper implements Pass {
         if (isNextUnboxing(next))
           next = (InvocationExprent)getUncast(next.getInstance());
         InvocationExprent hnext = (InvocationExprent)getUncast(drillNots(stat.getConditionExprent()));
-        if (!(next.getInstance() instanceof VarExprent) ||
-          !(hnext.getInstance() instanceof VarExprent) ||
-          ((VarExprent)initExprents[0].getLeft()).isVarReferenced(stat, (VarExprent)next.getInstance(), (VarExprent)hnext.getInstance())) {
+        if (!(next.getInstance() instanceof VarExprent nextVar) ||
+          !(hnext.getInstance() instanceof VarExprent hnextVar) ||
+          ((VarExprent)initExprents[0].getLeft()).isVarReferenced(stat, nextVar, hnextVar)) {
           return false;
         }
 
@@ -156,7 +156,7 @@ public class KMergePass extends MergeHelper implements Pass {
         }
 
         // Make sure this variable isn't used before
-        if (isVarUsedBefore((VarExprent) ass.getLeft(), stat)) {
+        if (isVarUsedBefore(var, stat)) {
           return false;
         }
 
@@ -198,13 +198,12 @@ public class KMergePass extends MergeHelper implements Pass {
         CheckTypesResult typeRes = ass.checkExprTypeBounds();
         if (typeRes != null && !typeRes.getLowerBounds().isEmpty()) {
           VarType boundType = typeRes.getLowerBounds().get(0).type;
-          VarExprent var = (VarExprent) ass.getLeft();
           var.setBoundType(boundType);
         }
 
         return true;
       } else if (initExprents[1] != null) {
-        if (!(firstDoExprent.getRight() instanceof ArrayExprent arr) || !(firstDoExprent.getLeft() instanceof VarExprent)) {
+        if (!(firstDoExprent.getRight() instanceof ArrayExprent arr) || !(firstDoExprent.getLeft() instanceof VarExprent var)) {
           return false;
         }
 
@@ -277,7 +276,6 @@ public class KMergePass extends MergeHelper implements Pass {
         CheckTypesResult typeRes = firstDoExprent.checkExprTypeBounds();
         if (typeRes != null && !typeRes.getLowerBounds().isEmpty()) {
           VarType boundType = typeRes.getLowerBounds().get(0).type;
-          VarExprent var = (VarExprent) firstDoExprent.getLeft();
           var.setBoundType(boundType);
         }
 

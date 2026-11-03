@@ -186,36 +186,31 @@ public class NestedClassProcessor {
       lst.add(exprent);
 
       for (Exprent expr : lst) {
-        if (expr instanceof NewExprent) {
-          NewExprent new_expr = (NewExprent)expr;
+        if (expr instanceof NewExprent new_expr &&
+          new_expr.isLambda() && lambda_class_type.equals(new_expr.getNewType())) {
+          InvocationExprent inv_dynamic = new_expr.getConstructor();
 
-          if (new_expr.isLambda() && lambda_class_type.equals(new_expr.getNewType())) {
-            InvocationExprent inv_dynamic = new_expr.getConstructor();
+          int param_index = is_static_lambda_content ? 0 : 1;
+          int varIndex = is_static_lambda_content ? 0 : 1;
 
-            int param_index = is_static_lambda_content ? 0 : 1;
-            int varIndex = is_static_lambda_content ? 0 : 1;
+          for (int i = 0; i < md_content.params.length; ++i) {
+            VarVersionPair varVersion = new VarVersionPair(varIndex, 0);
+            if (i < vars_count) {
 
-            for (int i = 0; i < md_content.params.length; ++i) {
-              VarVersionPair varVersion = new VarVersionPair(varIndex, 0);
-              if (i < vars_count) {
-                Exprent param = inv_dynamic.getLstParameters().get(param_index + i);
-
-                if (param instanceof VarExprent) {
-                  VarVersionPair paramVersion = new VarVersionPair((VarExprent) param);
-                  originalVersions.put(varVersion, paramVersion);
-                  mapNewNames.put(varVersion, enclosingVarProc.getVarName(paramVersion));
-                  lvts.put(varVersion, ((VarExprent)param).getLVT());
-                  if (enclosingVarProc.getVarFinal(paramVersion) == FinalType.NON_FINAL) {
-                    //DecompilerContext.getLogger().writeMessage("Lambda in " + parent.simpleName + "." + enclosingMethod.methodStruct.getName() + " given non-final var " + ((VarExprent)param).getName() + "!", IFernflowerLogger.Severity.ERROR);
-                  }
+              if (inv_dynamic.getLstParameters().get(param_index + i) instanceof VarExprent param) {
+                VarVersionPair paramVersion = new VarVersionPair(param);
+                originalVersions.put(varVersion, paramVersion);
+                mapNewNames.put(varVersion, enclosingVarProc.getVarName(paramVersion));
+                lvts.put(varVersion, param.getLVT());
+                if (enclosingVarProc.getVarFinal(paramVersion) == FinalType.NON_FINAL) {
+                  //DecompilerContext.getLogger().writeMessage("Lambda in " + parent.simpleName + "." + enclosingMethod.methodStruct.getName() + " given non-final var " + ((VarExprent)param).getName() + "!", IFernflowerLogger.Severity.ERROR);
                 }
               }
-              else if (!mapNewNames.containsKey(varVersion)) {
-                mapNewNames.put(varVersion, enclosingCollector.getFreeName(varProc.getVarName(varVersion)));
-              }
-
-              varIndex += md_content.params[i].stackSize;
+            } else if (!mapNewNames.containsKey(varVersion)) {
+              mapNewNames.put(varVersion, enclosingCollector.getFreeName(varProc.getVarName(varVersion)));
             }
+
+            varIndex += md_content.params[i].stackSize;
           }
         }
       }
@@ -245,8 +240,7 @@ public class NestedClassProcessor {
     }
 
     method.getOrBuildGraph().iterateExprentsDeep(exp -> {
-      if (exp instanceof VarExprent) {
-        VarExprent var = (VarExprent)exp;
+      if (exp instanceof VarExprent var) {
         LocalVariable lv = lvts.get(var.getVarVersionPair());
         if (lv != null)
           var.setLVT(lv);
@@ -382,8 +376,8 @@ public class NestedClassProcessor {
                       Exprent param = constructor.getLstParameters().get(i);
                       VarFieldPair pair = null;
 
-                      if (param instanceof VarExprent && mask.get(i) != null) {
-                        VarVersionPair varPair = new VarVersionPair((VarExprent)param);
+                      if (param instanceof VarExprent var && mask.get(i) != null) {
+                        VarVersionPair varPair = new VarVersionPair(var);
 
                         // FIXME: flags of variables are wrong! Correct the entire functionality.
                         // if(method.varproc.getVarFinal(varPair) != VarTypeProcessor.VAR_NON_FINAL) {
@@ -644,27 +638,22 @@ public class NestedClassProcessor {
         iterateExprents(method.getOrBuildGraph(), new ExprentIteratorWithReplace() {
           @Override
           public Exprent processExprent(Exprent exprent) {
-            if (exprent instanceof AssignmentExprent) {
-              AssignmentExprent assignExpr = (AssignmentExprent)exprent;
-              if (assignExpr.getLeft() instanceof FieldExprent) {
-                FieldExprent fExpr = (FieldExprent)assignExpr.getLeft();
-                String qName = child.classStruct.qualifiedName;
-                if (fExpr.getClassname().equals(qName) &&  // process this class only
-                    mapFieldsToNewVars.containsKey(InterpreterUtil.makeUniqueKey(qName, fExpr.getName(), fExpr.getDescriptor().descriptorString))) {
-                  return null;
-                }
+            if (exprent instanceof AssignmentExprent assignExpr &&
+              assignExpr.getLeft() instanceof FieldExprent fExpr) {
+              String qName = child.classStruct.qualifiedName;
+              if (fExpr.getClassname().equals(qName) &&  // process this class only
+                mapFieldsToNewVars.containsKey(InterpreterUtil.makeUniqueKey(qName, fExpr.getName(), fExpr.getDescriptor().descriptorString))) {
+                return null;
               }
             }
 
             if (child.type == ClassNode.Type.ANONYMOUS &&
-                CodeConstants.INIT_NAME.equals(method.methodStruct.getName()) &&
-                exprent instanceof InvocationExprent) {
-              InvocationExprent invokeExpr = (InvocationExprent)exprent;
-              if (invokeExpr.getFunctype() == InvocationExprent.Type.INIT) {
-                // invocation of the super constructor in an anonymous class
-                child.superInvocation = invokeExpr; // FIXME: save original names of parameters
-                return null;
-              }
+              CodeConstants.INIT_NAME.equals(method.methodStruct.getName()) &&
+              exprent instanceof InvocationExprent invokeExpr &&
+              invokeExpr.getFunctype() == InvocationExprent.Type.INIT) {
+              // invocation of the super constructor in an anonymous class
+              child.superInvocation = invokeExpr; // FIXME: save original names of parameters
+              return null;
             }
 
             if (CodeConstants.INIT_NAME.equals(method.methodStruct.getName())
@@ -684,8 +673,8 @@ public class NestedClassProcessor {
           }
 
           private Exprent replaceExprent(Exprent exprent) {
-            if (exprent instanceof VarExprent) {
-              int varIndex = ((VarExprent)exprent).getIndex();
+            if (exprent instanceof VarExprent varExp) {
+              int varIndex = varExp.getIndex();
               if (mapParamsToNewVars.containsKey(varIndex)) {
                 VarVersionPair newVar = mapParamsToNewVars.get(varIndex);
                 method.varproc.getExternalVars().add(newVar);
@@ -697,8 +686,7 @@ public class NestedClassProcessor {
                 return ret;
               }
             }
-            else if (exprent instanceof FieldExprent) {
-              FieldExprent fExpr = (FieldExprent)exprent;
+            else if (exprent instanceof FieldExprent fExpr) {
               String key = InterpreterUtil.makeUniqueKey(fExpr.getClassname(), fExpr.getName(), fExpr.getDescriptor().descriptorString);
               if (mapFieldsToNewVars.containsKey(key)) {
                 //if(fExpr.getClassname().equals(child.classStruct.qualifiedName) &&
@@ -796,21 +784,18 @@ public class NestedClassProcessor {
     if (!firstNode.hasPredecessors(DirectEdgeType.REGULAR)) {
       // assignment to a synthetic field?
       for (Exprent exprent : firstNode.exprents) {
-        if (exprent instanceof AssignmentExprent) {
-          AssignmentExprent assignExpr = (AssignmentExprent)exprent;
-          if (assignExpr.getRight() instanceof VarExprent &&
-              ((VarExprent)assignExpr.getRight()).getIndex() == index &&
-              assignExpr.getLeft() instanceof FieldExprent) {
-            FieldExprent left = (FieldExprent)assignExpr.getLeft();
-            StructField fd = cl.getField(left.getName(), left.getDescriptor().descriptorString);
-            if (fd != null &&
-                cl.qualifiedName.equals(left.getClassname()) &&
-                (fd.isSynthetic() || noSynthFlag && possiblySyntheticField(fd))) {
-              // local (== not inherited) field
-              field = InterpreterUtil.makeUniqueKey(left.getName(), left.getDescriptor().descriptorString);
-              assigned = true;
-              break;
-            }
+        if (exprent instanceof AssignmentExprent assignExpr &&
+          assignExpr.getRight() instanceof VarExprent right &&
+          right.getIndex() == index &&
+          assignExpr.getLeft() instanceof FieldExprent left) {
+          StructField fd = cl.getField(left.getName(), left.getDescriptor().descriptorString);
+          if (fd != null &&
+            cl.qualifiedName.equals(left.getClassname()) &&
+            (fd.isSynthetic() || noSynthFlag && possiblySyntheticField(fd))) {
+            // local (== not inherited) field
+            field = InterpreterUtil.makeUniqueKey(left.getName(), left.getDescriptor().descriptorString);
+            assigned = true;
+            break;
           }
         }
       }
@@ -1058,9 +1043,7 @@ public class NestedClassProcessor {
         }
 
         // TODO: is this needed?
-        if (st instanceof DoStatement) {
-          DoStatement dost = (DoStatement)st;
-
+        if (st instanceof DoStatement dost) {
           lst.addAll(dost.getInitExprentList());
           lst.addAll(dost.getConditionExprentList());
         }
@@ -1175,9 +1158,8 @@ public class NestedClassProcessor {
     @Override
     public boolean equals(Object o) {
       if (o == this) return true;
-      if (!(o instanceof VarFieldPair)) return false;
+      if (!(o instanceof VarFieldPair pair)) return false;
 
-      VarFieldPair pair = (VarFieldPair)o;
       return fieldKey.equals(pair.fieldKey) && varPair.equals(pair.varPair) && assigned == pair.assigned;
     }
 
@@ -1192,7 +1174,7 @@ public class NestedClassProcessor {
     }
   }
 
-  private static interface ExprentIteratorWithReplace {
+  private interface ExprentIteratorWithReplace {
     // null - remove exprent
     // ret != exprent - replace exprent with ret
     Exprent processExprent(Exprent exprent);

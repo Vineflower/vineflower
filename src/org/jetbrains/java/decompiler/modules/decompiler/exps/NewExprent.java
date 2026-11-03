@@ -45,7 +45,7 @@ public class NewExprent extends Exprent {
   private boolean methodReference = false;
 
   private boolean enumConst;
-  private List<VarType> genericArgs = new ArrayList<>();
+  private final List<VarType> genericArgs = new ArrayList<>();
   private VarType inferredLambdaType = null;
 
   public NewExprent(VarType newType, ListStack<Exprent> stack, int arrayDim, BitSet bytecodeOffsets) {
@@ -473,8 +473,8 @@ public class NewExprent extends Exprent {
 
         // new String[][]{{"abc"}, {"DEF"}} => new String[]{"abc"}, new String[]{"DEF"}
         Exprent element = lstArrayElements.get(i);
-        if (element instanceof NewExprent) {
-          ((NewExprent) element).setDirectArrayInit(false);
+        if (element instanceof NewExprent newExpr) {
+          newExpr.setDirectArrayInit(false);
         }
         ExprProcessor.getCastedExprent(element, leftType, buf, indent, false);
       }
@@ -545,10 +545,9 @@ public class NewExprent extends Exprent {
 
         boolean isQualifiedNew = false;
 
-        if (enclosing instanceof VarExprent) {
-          VarExprent varEnclosing = (VarExprent)enclosing;
+        if (enclosing instanceof VarExprent varEnclosing) {
 
-          StructClass current_class = ((ClassNode)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE)).classStruct;
+          StructClass current_class = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE).classStruct;
           String this_classname = varEnclosing.getProcessor().getThisVars().get(new VarVersionPair(varEnclosing));
 
           if (!current_class.qualifiedName.equals(this_classname)) {
@@ -608,17 +607,15 @@ public class NewExprent extends Exprent {
           Statement source = edge.getSource();
           List<Exprent> lstExpr = source.getExprents();
 
-          if (lstExpr != null && !lstExpr.isEmpty()) {
-            Exprent expr = lstExpr.get(lstExpr.size() - 1);
-            if (expr instanceof ExitExprent) {
-              ExitExprent ex = (ExitExprent)expr;
-              if (ex.getExitType() == ExitExprent.Type.RETURN) {
-                VarType realRetType = ex.getValue().getInferredExprType(upperBound);
-                if (realRetType.isGeneric()) {
-                  paramNames.forEach(inferredLambdaTypes::remove);
-                  return realRetType;
-                }
-              }
+          if (lstExpr != null &&
+            !lstExpr.isEmpty() &&
+            lstExpr.get(lstExpr.size() - 1) instanceof ExitExprent ex &&
+            ex.getExitType() == ExitExprent.Type.RETURN) {
+
+            VarType realRetType = ex.getValue().getInferredExprType(upperBound);
+            if (realRetType.isGeneric()) {
+              paramNames.forEach(inferredLambdaTypes::remove);
+              return realRetType;
             }
           }
         }
@@ -702,15 +699,13 @@ public class NewExprent extends Exprent {
                 Statement source = edge.getSource();
                 List<Exprent> lstExpr = source.getExprents();
 
-                if (lstExpr != null && !lstExpr.isEmpty()) {
-                  Exprent expr = lstExpr.get(lstExpr.size() - 1);
-                  if (expr instanceof ExitExprent) {
-                    ExitExprent ex = (ExitExprent)expr;
-                    if (ex.getExitType() == ExitExprent.Type.RETURN) {
-                      ex.getMethodDescriptor().genericInfo = genDesc;
-                      break; // desc var should be the same for all returns
-                    }
-                  }
+                if (lstExpr != null &&
+                  !lstExpr.isEmpty() &&
+                  lstExpr.get(lstExpr.size() - 1) instanceof ExitExprent ex &&
+                  ex.getExitType() == ExitExprent.Type.RETURN) {
+
+                  ex.getMethodDescriptor().genericInfo = genDesc;
+                  break; // desc var should be the same for all returns
                 }
               }
             }
@@ -774,9 +769,8 @@ public class NewExprent extends Exprent {
   @Override
   public boolean equals(Object o) {
     if (o == this) return true;
-    if (!(o instanceof NewExprent)) return false;
+    if (!(o instanceof NewExprent ne)) return false;
 
-    NewExprent ne = (NewExprent)o;
     return InterpreterUtil.equalObjects(newType, ne.getNewType()) &&
            InterpreterUtil.equalLists(lstDims, ne.getLstDims()) &&
            InterpreterUtil.equalObjects(constructor, ne.getConstructor()) &&

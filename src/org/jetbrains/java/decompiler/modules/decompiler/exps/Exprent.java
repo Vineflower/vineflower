@@ -96,8 +96,7 @@ public abstract class Exprent implements IMatchable {
   }
 
   public boolean containsVar(VarVersionPair var) {
-    if (this instanceof VarExprent) {
-      VarExprent varex = (VarExprent)this;
+    if (this instanceof VarExprent varex) {
       return varex.getVarVersionPair().equals(var);
     }
 
@@ -147,8 +146,8 @@ public abstract class Exprent implements IMatchable {
 
     Set<VarVersionPair> set = new HashSet<>();
     for (Exprent expr : lstAllExprents) {
-      if (expr instanceof VarExprent) {
-        set.add(new VarVersionPair((VarExprent)expr));
+      if (expr instanceof VarExprent var) {
+        set.add(new VarVersionPair(var));
       }
     }
     return set;
@@ -215,17 +214,15 @@ public abstract class Exprent implements IMatchable {
       };
 
       for (Exprent exp : lst) {
-        boolean isDef = exp instanceof VarExprent && ((VarExprent)exp).isDefinition();
-        if (!isDef) {
+        if (exp instanceof VarExprent var && var.isDefinition()) {
+          defs.add(var);
+        } else {
           if (defs.size() > 0) {
             Collections.sort(defs, comp);
             ret.addAll(defs);
             defs.clear();
           }
           ret.add(exp);
-        }
-        else {
-          defs.add((VarExprent)exp);
         }
       }
 
@@ -275,8 +272,8 @@ public abstract class Exprent implements IMatchable {
 
   public Map<VarType, List<VarType>> getNamedGenerics() {
     Map<VarType, List<VarType>> ret = new HashMap<>();
-    ClassNode class_ = (ClassNode)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
-    MethodWrapper method = (MethodWrapper)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
+    ClassNode class_ = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
+    MethodWrapper method = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
 
     while (true) {
       GenericClassDescriptor cls = class_ == null ? null : class_.classStruct.getSignature();

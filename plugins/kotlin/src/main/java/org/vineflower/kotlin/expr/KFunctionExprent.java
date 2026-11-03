@@ -53,8 +53,8 @@ public class KFunctionExprent extends FunctionExprent implements KExprent {
 
     if (getFuncType() == FunctionType.EQ) {
       // If one (or both) sides is null, Kotlin uses == instead of === for strict equality
-      Exprent left = (Exprent) getAllExprents().get(0);
-      Exprent right = (Exprent) getAllExprents().get(1);
+      Exprent left = getAllExprents().get(0);
+      Exprent right = getAllExprents().get(1);
 
       if (left.getExprType() != VarType.VARTYPE_NULL && right.getExprType() != VarType.VARTYPE_NULL) {
         setFuncType(KFunctionType.EQUALS3);
@@ -147,8 +147,8 @@ public class KFunctionExprent extends FunctionExprent implements KExprent {
         Exprent ifFalse = lstOperands.get(2);
 
         if (
-          condition instanceof KFunctionExprent && ((KFunctionExprent) condition).getFuncType() == FunctionType.INSTANCEOF
-            && ifTrue instanceof KFunctionExprent cast && ((KFunctionExprent) ifTrue).getFuncType() == FunctionType.CAST
+          condition instanceof KFunctionExprent funcExpr && funcExpr.getFuncType() == FunctionType.INSTANCEOF
+            && ifTrue instanceof KFunctionExprent cast && cast.getFuncType() == FunctionType.CAST
             && ifFalse.getExprType() == VarType.VARTYPE_NULL
         ) {
           // Safe cast
@@ -282,8 +282,8 @@ public class KFunctionExprent extends FunctionExprent implements KExprent {
             result.addExprLowerBound(param1, VarType.VARTYPE_BYTECHAR);
           }
           else { // both are booleans
-            boolean param1_false_boolean = (param1 instanceof ConstExprent && !((ConstExprent)param1).hasBooleanValue());
-            boolean param2_false_boolean = (param2 instanceof ConstExprent && !((ConstExprent)param2).hasBooleanValue());
+            boolean param1_false_boolean = (param1 instanceof ConstExprent const1 && !const1.hasBooleanValue());
+            boolean param2_false_boolean = (param2 instanceof ConstExprent const2 && !const2.hasBooleanValue());
 
             if (param1_false_boolean || param2_false_boolean) {
               result.addExprLowerBound(param1, VarType.VARTYPE_BYTECHAR);

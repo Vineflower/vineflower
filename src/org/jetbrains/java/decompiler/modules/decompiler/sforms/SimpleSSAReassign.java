@@ -107,8 +107,8 @@ public final class SimpleSSAReassign {
     List<Exprent> lst = exprent.getAllExprents(true, true);
 
     for (Exprent expr : lst) {
-      if (expr instanceof VarExprent) {
-        action.accept((VarExprent)expr);
+      if (expr instanceof VarExprent var) {
+        action.accept(var);
       }
     }
   }

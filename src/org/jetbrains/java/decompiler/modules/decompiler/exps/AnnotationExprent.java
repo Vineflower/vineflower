@@ -127,9 +127,8 @@ public class AnnotationExprent extends Exprent {
   @Override
   public boolean equals(Object o) {
     if (o == this) return true;
-    if (!(o instanceof AnnotationExprent)) return false;
+    if (!(o instanceof AnnotationExprent ann)) return false;
 
-    AnnotationExprent ann = (AnnotationExprent)o;
     return className.equals(ann.className) &&
            InterpreterUtil.equalLists(parNames, ann.parNames) &&
            InterpreterUtil.equalLists(parValues, ann.parValues);

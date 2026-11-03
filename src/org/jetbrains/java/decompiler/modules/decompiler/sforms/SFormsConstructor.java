@@ -377,8 +377,8 @@ public abstract class SFormsConstructor {
         if (parent.getFirst() == stat) {
           return parent;
         }
-      } else if (parent instanceof SynchronizedStatement) {
-        if (((SynchronizedStatement) parent).getBody() == stat) {
+      } else if (parent instanceof SynchronizedStatement syncStat) {
+        if (syncStat.getBody() == stat) {
           return parent;
         }
       }
@@ -399,8 +399,8 @@ public abstract class SFormsConstructor {
       case TRY_CATCH:
 
         List<VarExprent> lstVars;
-        if (stat instanceof CatchAllStatement) {
-          lstVars = ((CatchAllStatement) stat).getVars();
+        if (stat instanceof CatchAllStatement catchStat) {
+          lstVars = catchStat.getVars();
         } else {
           lstVars = ((CatchStatement) stat).getVars();
         }
