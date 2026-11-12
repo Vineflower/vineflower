@@ -43,6 +43,7 @@ public final class SwitchPatternMatchProcessor {
     }
 
     if (stat instanceof SwitchStatement) {
+      ValidationHelper.validateStatement((RootStatement) root);
       ret |= processStatement((SwitchStatement) stat, root, cl);
       ValidationHelper.validateStatement((RootStatement) root);
     }
@@ -256,13 +257,21 @@ public final class SwitchPatternMatchProcessor {
     for (int i = 0; i < value.getBootstrapArguments().size(); i++) {
       PooledConstant bsa = value.getBootstrapArguments().get(i);
       // replace the constant with the value of i, which may not be at index i
-      int replaceIndex = i;
+      int replaceIndex = -1;
+      int replaceIndexIndex = 0;
       for (List<Exprent> caseValueSet : stat.getCaseValues()) {
-        if (caseValueSet.get(0) instanceof ConstExprent constExpr) {
-          if (constExpr.getValue() instanceof Integer && (Integer) constExpr.getValue() == i) {
-            replaceIndex = stat.getCaseValues().indexOf(caseValueSet);
+        for (Exprent exprent : caseValueSet) {
+          if (exprent instanceof ConstExprent constExpr) {
+            if (constExpr.getValue() instanceof Integer && (Integer) constExpr.getValue() == i) {
+              replaceIndex = stat.getCaseValues().indexOf(caseValueSet);
+              replaceIndexIndex = caseValueSet.indexOf(exprent);
+            }
           }
         }
+      }
+
+      if (replaceIndex == -1) {
+        continue;
       }
 
       Exprent newValue = null;
@@ -287,7 +296,7 @@ public final class SwitchPatternMatchProcessor {
             break;
           case CodeConstants.CONSTANT_Class:
             // may happen if the switch head is a supertype of the pattern
-            if (stat.getCaseValues().get(replaceIndex).stream().allMatch(x -> x instanceof ConstExprent)) {
+            if (stat.getCaseValues().get(replaceIndex).stream().allMatch(x -> x instanceof ConstExprent || x instanceof FunctionExprent)) {
               VarType castType = new VarType(CodeType.OBJECT, 0, (String) p.value);
               List<Exprent> operands = new ArrayList<>();
               operands.add(realSelector); // checking var
@@ -315,11 +324,7 @@ public final class SwitchPatternMatchProcessor {
         int ix = i;
         Exprent nvx = newValue;
         // make sure we replace the right constant, null can be shared with anything
-        stat.getCaseValues().get(replaceIndex).replaceAll(u -> u instanceof ConstExprent
-            && u.getExprType().typeFamily == TypeFamily.INTEGER
-            && ((ConstExprent) u).getIntValue() == ix
-                ? nvx
-                : u);
+        stat.getCaseValues().get(replaceIndex).set(replaceIndexIndex, nvx);
       }
     }
 

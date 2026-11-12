@@ -7,6 +7,7 @@ import java.lang.classfile.MethodModel;
 import java.lang.classfile.Superclass;
 import java.lang.classfile.attribute.RecordAttribute;
 import java.lang.constant.ConstantDescs;
+import java.util.ArrayList;
 import java.util.function.Supplier;
 
 public class TestSwitchPatternMatchingJ25 {
@@ -101,6 +102,16 @@ public class TestSwitchPatternMatchingJ25 {
       case FieldModel _ -> {}
       case MethodModel method -> IO.println(builder + " " + method);
       default -> builder.with(element);
+    }
+  }
+
+  public void test10(Object element, StringBuilder builder) {
+    switch (element) {
+      case String load when load.length() == builder.length() -> builder.append("::").append(load);
+      case String[] arr when arr.length == builder.length() -> throw new IllegalStateException("Bad length! " + builder.substring(5));
+      case StringBuilder other when !other.isEmpty() -> other.append(builder);
+      case Integer _, ArrayList<?> _ -> {}
+      default -> builder.append(element);
     }
   }
 }
