@@ -359,9 +359,8 @@ public class ConstExprent extends Exprent {
         }
     }
 
-    // prevent gc without discarding
-    buf.convertToStringAndAllowDataDiscard();
-    throw new RuntimeException("invalid constant type: " + constType + " with value " + value);
+    buf.append("<UNEXPECTED CONST. TYPE: " + constType + " VALUE: " + value + ">");
+    return buf;
   }
 
   @Override
