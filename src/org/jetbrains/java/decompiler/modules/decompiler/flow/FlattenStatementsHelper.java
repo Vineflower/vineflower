@@ -5,6 +5,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.SwitchStatement.SwitchCase;
 import org.jetbrains.java.decompiler.util.DotExporter;
 import org.jetbrains.java.decompiler.util.collections.ListStack;
 import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
@@ -388,21 +389,12 @@ public class FlattenStatementsHelper {
         }
 
         // Try to intercept the edges leaving the switch head and replace with relevant case nodes
-        List<List<StatEdge>> caseEdges = switchSt.getCaseEdges();
-        List<List<Exprent>> caseValues = switchSt.getCaseValues();
-        List<Statement> caseStatements = switchSt.getCaseStatements();
+        List<SwitchCase> cases = switchSt.getCases();
 
-        if (caseEdges.size() != caseValues.size()) {
-          if (caseEdges.size() + 1 != caseValues.size() || caseValues.get(caseValues.size() - 1).size() != 1 || caseValues.get(caseValues.size() - 1).get(0) != null) {
-            throw new IllegalStateException("Case edges and case values do not match");
-          }
-        }
-
-        for (int i = 0; i < caseEdges.size(); i++) {
-
-          List<Exprent> values = caseValues.get(i);
-          List<StatEdge> thisCaseEdges = caseEdges.get(i);
-          Statement thisCaseStatement = caseStatements.get(i);
+        for (SwitchCase switchCase : cases) {
+          List<Exprent> values = switchCase.values();
+          List<StatEdge> thisCaseEdges = switchCase.edges();
+          Statement thisCaseStatement = switchCase.statement();
 
           // Default case val can be null
           List<Exprent> finalVals = null;
@@ -423,7 +415,7 @@ public class FlattenStatementsHelper {
           this.addEdges(caseNode, thisCaseEdges);
         }
 
-        if (caseEdges.size() < caseValues.size()) {
+        if (switchSt.isDefaultIsImplicit()) {
           // default case
           this.addEdge(outNode, switchSt.getDefaultEdge());
         }

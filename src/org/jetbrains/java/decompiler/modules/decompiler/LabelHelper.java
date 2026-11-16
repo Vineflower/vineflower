@@ -6,6 +6,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement.EdgeDirection;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.SwitchStatement.SwitchCase;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -464,14 +465,16 @@ public final class LabelHelper {
 
   public static boolean hideDefaultSwitchEdges(Statement stat) {
     boolean res = false;
-    if (stat instanceof SwitchStatement) {
-      SwitchStatement swst = (SwitchStatement)stat;
+    if (stat instanceof SwitchStatement switchStat) {
 
-      int last = swst.getCaseStatements().size() - 1;
+      int last = switchStat.getCases().size() - 1;
       if (last >= 0) { // empty switch possible
-        Statement stlast = swst.getCaseStatements().get(last);
 
-        boolean needsExhaustive = swst.getCaseValues().stream()
+        SwitchCase lastCase = switchStat.getCases().get(last);
+        Statement stlast = lastCase.statement();
+
+        boolean needsExhaustive = switchStat.getCases().stream()
+            .map(SwitchCase::values)
             .flatMap(List::stream)
             .filter(exp -> exp instanceof FunctionExprent)
             .map(exp -> (FunctionExprent) exp)
@@ -481,12 +484,12 @@ public final class LabelHelper {
           List<StatEdge> edges = stlast.getAllSuccessorEdges();
           // If we don't have an edge from this statement or if the edge that we have isn't explicit, delete the default edge
           if (edges.isEmpty() || !edges.get(0).explicit) {
-            List<StatEdge> lstEdges = swst.getCaseEdges().get(last);
-            lstEdges.remove(swst.getDefaultEdge());
+            List<StatEdge> lstEdges = lastCase.edges();
+            lstEdges.remove(switchStat.getDefaultEdge());
+            switchStat.setDefaultIsImplicit(true);
 
             if (lstEdges.isEmpty()) {
-              swst.getCaseStatements().remove(last);
-              swst.getCaseEdges().remove(last);
+              switchStat.getCases().remove(last);
             }
 
             res = true;

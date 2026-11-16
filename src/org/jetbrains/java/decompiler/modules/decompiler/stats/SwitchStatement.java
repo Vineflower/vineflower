@@ -2,6 +2,7 @@
 package org.jetbrains.java.decompiler.modules.decompiler.stats;
 
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 import org.jetbrains.java.decompiler.code.SwitchInstruction;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
@@ -19,22 +20,94 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class SwitchStatement extends Statement {
+  public static final class SwitchCase {
+    private Statement statement;
+    private List<StatEdge> edges;
+    private List<@Nullable Exprent> values;
+    private @Nullable Exprent guard;
+
+    public SwitchCase(
+      Statement statement,
+      List<StatEdge> edges,
+      List<@Nullable Exprent> values,
+      @Nullable Exprent guard
+    ) {
+      this.statement = statement;
+      this.edges = edges;
+      this.values = values;
+      this.guard = guard;
+    }
+
+    public Statement statement() {
+      return statement;
+    }
+
+    public List<StatEdge> edges() {
+      return edges;
+    }
+
+    public List<@Nullable Exprent> values() {
+      return values;
+    }
+
+    public @Nullable Exprent guard() {
+      return guard;
+    }
+
+    public void setStatement(Statement statement) {
+      this.statement = statement;
+    }
+
+    public void setEdges(List<StatEdge> edges) {
+      this.edges = edges;
+    }
+
+    public void setValues(List<@Nullable Exprent> values) {
+      this.values = values;
+    }
+
+    public void setGuard(@Nullable Exprent guard) {
+      this.guard = guard;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (obj == this) return true;
+      if (obj == null || obj.getClass() != this.getClass()) return false;
+      var that = (SwitchCase) obj;
+      return Objects.equals(this.statement, that.statement) &&
+        Objects.equals(this.edges, that.edges) &&
+        Objects.equals(this.values, that.values) &&
+        Objects.equals(this.guard, that.guard);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(statement, edges, values, guard);
+    }
+
+    @Override
+    public String toString() {
+      return "SwitchCase[" +
+        "statement=" + statement + ", " +
+        "edges=" + edges + ", " +
+        "values=" + values + ", " +
+        "guard=" + guard + ']';
+    }
+
+
+    }
 
   // *****************************************************************************
   // private fields
   // *****************************************************************************
 
-  private List<Statement> caseStatements = new ArrayList<>();
-
-  private List<List<StatEdge>> caseEdges = new ArrayList<>();
-
-  private List<List<@Nullable Exprent>> caseValues = new ArrayList<>();
-
-  private final List<@Nullable Exprent> caseGuards = new ArrayList<>();
+  private List<SwitchCase> cases = new ArrayList<>();
 
   private final Set<Statement> scopedCaseStatements = new HashSet<>();
 
   private @Nullable StatEdge defaultEdge;
+  private boolean defaultIsImplicit = false;
 
   private final List<@Nullable Exprent> headexprent = new ArrayList<>(1);
 
@@ -129,12 +202,11 @@ public class SwitchStatement extends Statement {
 
     VarType switch_type = getHeadexprent().getExprType();
 
-    for (int i = 0; i < caseStatements.size(); i++) {
-
-      Statement stat = caseStatements.get(i);
-      List<StatEdge> edges = caseEdges.get(i);
-      List<@Nullable Exprent> values = caseValues.get(i);
-      Exprent guard = caseGuards.size() > i ? caseGuards.get(i) : null;
+    for (SwitchCase entry : cases) {
+      Statement stat = entry.statement();
+      List<StatEdge> edges = entry.edges();
+      List<@Nullable Exprent> values = entry.values();
+      Exprent guard = entry.guard();
 
       for (int j = 0; j < edges.size(); j++) {
         if (edges.get(j) == defaultEdge) {
@@ -152,7 +224,8 @@ public class SwitchStatement extends Statement {
           if (value instanceof ConstExprent && !value.getExprType().equals(VarType.VARTYPE_NULL)) {
             value = value.copy();
             ((ConstExprent)value).setConstType(switch_type);
-          } if (value instanceof FieldExprent field && field.isStatic() && (!getTopParent().mt.getBytecodeVersion().hasSwitchPatternMatch() || switch_type.equals(field.getExprType()))) { // enum values
+            buf.append(value.toJava(indent));
+          } else if (value instanceof FieldExprent field && field.isStatic() && (!getTopParent().mt.getBytecodeVersion().hasSwitchPatternMatch() || switch_type.equals(field.getExprType()))) { // enum values
             buf.appendField(field.getName(), false, field.getClassname(), field.getName(), field.getDescriptor());
           } else if (value instanceof FieldExprent field) {
             buf.append(field.toJava(indent, false));
@@ -202,7 +275,7 @@ public class SwitchStatement extends Statement {
   @Override
   public void initExprents() {
     SwitchHeadExprent swexpr = (SwitchHeadExprent)getFirst().getExprents().remove(getFirst().getExprents().size() - 1);
-    swexpr.setCaseValues(caseValues);
+    swexpr.setCaseValues(this.getCaseValues());
 
     headexprent.set(0, swexpr);
   }
@@ -210,17 +283,16 @@ public class SwitchStatement extends Statement {
   @Override
   public List<Exprent> getStatExprents() {
     List<Exprent> lst = new ArrayList<>(headexprent);
-    // make sure guards can be simplified by other helpers
-    for (Exprent caseGuard : getCaseGuards()) {
-      if (caseGuard != null) {
-        lst.add(caseGuard);
-      }
-    }
 
-    for (List<Exprent> caseList : this.caseValues) {
-      for (Exprent exp : caseList) {
-        if (exp != null) {
-          lst.add(exp);
+    for (SwitchCase entry : this.cases) {
+      // make sure guards can be simplified by other helpers
+      if (entry.guard() != null) {
+        lst.add(entry.guard());
+      }
+
+      for (Exprent value : entry.values()) {
+        if (value != null) {
+          lst.add(value);
         }
       }
     }
@@ -230,13 +302,12 @@ public class SwitchStatement extends Statement {
 
   // Returns true if this switch is a pattern matching switch.
   public boolean isPattern() {
-    // Simple test, if there's a guard then it is for sure pattern matching
-    if (!this.caseGuards.isEmpty()) {
-      return true;
-    }
-
-    for (List<Exprent> l : this.caseValues) {
-      for (Exprent e : l) {
+    for (SwitchCase entry : this.cases) {
+      if (entry.guard() != null) {
+        // If there's a guard then it is for sure pattern matching
+        return true;
+      }
+      for (Exprent e : entry.values()) {
         // If we have instanceofs in our case values, we're a pattern matching switch
         if (e instanceof FunctionExprent && ((FunctionExprent)e).getFuncType() == FunctionType.INSTANCEOF) {
           return true;
@@ -251,11 +322,12 @@ public class SwitchStatement extends Statement {
   public List<VarExprent> getImplicitlyDefinedVars() {
     List<VarExprent> vars = new ArrayList<>();
 
-    List<@Nullable Exprent> caseList = this.caseValues.stream()
+    List<@Nullable Exprent> caseList = this.cases.stream()
+      .map(SwitchCase::values)
       .flatMap(List::stream) // List<List<Exprent>> -> List<Exprent>
       .collect(Collectors.toList());
     // guards can also contain pattern variables
-    caseList.addAll(this.caseGuards);
+    caseList.addAll(this.cases.stream().map(SwitchCase::guard).toList());
     // guards may also contain nested variables, like `a instanceof B b && b == ...`
     caseList = caseList.stream()
       .filter(Objects::nonNull)
@@ -284,9 +356,10 @@ public class SwitchStatement extends Statement {
     if (headexprent.get(0) == oldexpr) {
       headexprent.set(0, newexpr);
     } else {
-      int idx = caseGuards.indexOf(oldexpr);
-      if (idx > -1) {
-        caseGuards.set(idx, newexpr);
+      for (SwitchCase entry : this.cases) {
+        if (entry.guard() == oldexpr) {
+          entry.setGuard(newexpr);
+        }
       }
     }
   }
@@ -295,10 +368,10 @@ public class SwitchStatement extends Statement {
   public void replaceStatement(Statement oldstat, Statement newstat) {
 
     boolean changedAny = false;
-    for (int i = 0; i < caseStatements.size(); i++) {
-      if (caseStatements.get(i) == oldstat) {
-        caseStatements.set(i, newstat);
+    for (SwitchCase entry : this.cases) {
+      if (entry.statement() == oldstat) {
         changedAny = true;
+        entry.setStatement(newstat);
       }
     }
 
@@ -322,11 +395,11 @@ public class SwitchStatement extends Statement {
 
   @Override
   public StartEndPair getStartEndRange() {
-    StartEndPair[] sepairs = new StartEndPair[caseStatements.size() + 1];
+    StartEndPair[] sepairs = new StartEndPair[cases.size() + 1];
     int i = 0;
     sepairs[i++] = super.getStartEndRange();
-    for (Statement st : caseStatements) {
-      sepairs[i++] = st.getStartEndRange();
+    for (SwitchCase entry : cases) {
+      sepairs[i++] = entry.statement.getStartEndRange();
     }
     return StartEndPair.join(sepairs);
   }
@@ -339,8 +412,8 @@ public class SwitchStatement extends Statement {
     ValidationHelper.notNull(first);
 
     // skip for pattern switches
-    if (caseValues.stream().flatMap(Collection::stream).anyMatch(u -> !(u instanceof ConstExprent) || ((ConstExprent) u).isNull())
-      || caseGuards.stream().anyMatch(Objects::nonNull)) {
+    if (this.cases.stream().map(SwitchCase::values).flatMap(Collection::stream).anyMatch(u -> !(u instanceof ConstExprent) || ((ConstExprent) u).isNull())
+      || this.cases.stream().map(SwitchCase::guard).anyMatch(Objects::nonNull)) {
       return;
     }
 
@@ -480,10 +553,19 @@ public class SwitchStatement extends Statement {
       }
     }
 
-    //noinspection NullableProblems => null entries were replaced in last step.
-    caseStatements = nodes;
-    caseEdges = lstEdges;
-    caseValues = lstValues;
+
+    List<SwitchCase> cases = new ArrayList<>(nodes.size());
+    for (int i = 0; i < nodes.size(); i++) {
+      Statement node = nodes.get(i);
+      List<StatEdge> statEdges = lstEdges.get(i);
+      List<@Nullable Exprent> caseValues = lstValues.get(i);
+
+      ValidationHelper.notNull(node);
+
+      cases.add(new SwitchCase(node, statEdges, caseValues, null));
+    }
+
+    this.cases = cases;
   }
 
   @Override
@@ -507,29 +589,49 @@ public class SwitchStatement extends Statement {
     return ValidationHelper.notNull(headexprent.get(0));
   }
 
-  public List<List<StatEdge>> getCaseEdges() {
-    return caseEdges;
+  public List<SwitchCase> getCases() {
+    return this.cases;
   }
 
+  @Deprecated
+  @Unmodifiable
+  public List<List<StatEdge>> getCaseEdges() {
+    return cases.stream().map(SwitchCase::edges).toList();
+  }
+
+  @Deprecated
+  @Unmodifiable
   public List<Statement> getCaseStatements() {
-    return caseStatements;
+    return cases.stream().map(SwitchCase::statement).toList();
   }
 
   public @Nullable StatEdge getDefaultEdge() {
     return defaultEdge;
   }
 
+  @Deprecated
+  @Unmodifiable
   public List<List<@Nullable Exprent>> getCaseValues() {
-    return caseValues;
+    return cases.stream().map(SwitchCase::values).toList();
   }
 
+  @Deprecated
+  @Unmodifiable
   public List<@Nullable Exprent> getCaseGuards() {
-    return caseGuards;
+    return cases.stream().map(SwitchCase::guard).toList();
   }
 
   @Override
   public BasicBlockStatement getFirst() {
     return (BasicBlockStatement) ValidationHelper.notNull(first);
+  }
+
+  public boolean isDefaultIsImplicit() {
+    return defaultIsImplicit;
+  }
+
+  public void setDefaultIsImplicit(boolean defaultIsImplicit) {
+    this.defaultIsImplicit = defaultIsImplicit;
   }
 
   public void scopeCaseStatement(Statement stat) {
@@ -583,16 +685,17 @@ public class SwitchStatement extends Statement {
     this.addCaseInternal(index, values, stat);
   }
 
+  @Deprecated()
   private void addCaseInternal(int index, List<@Nullable Exprent> values, Statement stat) {
     // Basichead is always the first stat
     this.getStats().addWithKeyAndIndex(1 + index, stat, stat.id);
-    this.getCaseStatements().add(index, stat);
-    this.getCaseValues().add(index, values);
+
+    List<StatEdge> edges;
 
     // If it's a default case, or a regular case
     if (values.size() == 1 && values.get(0) == null) {
       StatEdge edge = new StatEdge(StatEdge.TYPE_REGULAR, this.getBasichead(), stat);
-      this.getCaseEdges().add(index, List.of(edge));
+      edges = List.of(edge);
       this.setDefaultEdge(edge);
     } else {
       ArrayList<StatEdge> newCaseEdgeLst = new ArrayList<>();
@@ -603,8 +706,10 @@ public class SwitchStatement extends Statement {
         this.getBasichead().addSuccessor(edge);
       }
 
-      this.getCaseEdges().add(index, newCaseEdgeLst);
+      edges = newCaseEdgeLst;
     }
+
+    this.cases.add(index, new SwitchCase(stat, edges, values, null));
 
     stat.setParent(this);
   }
@@ -615,12 +720,14 @@ public class SwitchStatement extends Statement {
    * @param stat the case statement to remove
    */
   public void removeCase(Statement stat) {
-    int index = this.caseStatements.indexOf(stat);
-    if (index == -1) {
-      throw new IllegalStateException("Tried to remove a case statement that isn't in the switch!");
+    for (int i = 0; i < cases.size(); i++) {
+      if (cases.get(i).statement() == stat){
+        this.removeCase(i);
+        return;
+      }
     }
 
-    this.removeCase(index);
+    throw new IllegalStateException("Tried to remove a case statement that isn't in the switch!");
   }
 
   /**
@@ -629,14 +736,12 @@ public class SwitchStatement extends Statement {
    * @param index the index of the case to remove
    */
   public void removeCase(int index) {
-    Statement stat = this.getCaseStatements().get(index);
+    SwitchCase entry = this.cases.remove(index);
+    Statement stat = entry.statement();
+
     stat.getAllPredecessorEdges().forEach(StatEdge::remove);
     stat.getAllSuccessorEdges().forEach(StatEdge::remove);
 
     this.getStats().removeWithKey(stat.id);
-    this.getCaseStatements().remove(index);
-    this.getCaseValues().remove(index);
-    this.getCaseEdges().get(index).forEach(StatEdge::remove);
-    this.getCaseEdges().remove(index);
   }
 }

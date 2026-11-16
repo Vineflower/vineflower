@@ -2,6 +2,7 @@
 package org.jetbrains.java.decompiler.modules.decompiler;
 
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnmodifiableView;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassesProcessor;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
@@ -11,6 +12,7 @@ import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.SwitchStatement.SwitchCase;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.struct.StructMethod;
@@ -48,7 +50,7 @@ public final class SwitchHelper {
     ArrayExprent array = getEnumArrayExprent(value, root);
     if (array != null) {
       List<List<Exprent>> caseValues = switchStatement.getCaseValues();
-      Map<Exprent, Exprent> mapping = new HashMap<>(caseValues.size());
+      Map<Exprent, Exprent> mapping = new HashMap<>(switchStatement.getCases().size());
       if (array.getArray() instanceof FieldExprent arrayField) {
         ClassesProcessor.ClassNode classNode = DecompilerContext.getClassProcessor().getMapRootClasses().get(arrayField.getClassname());
         if (classNode != null) {
@@ -127,12 +129,11 @@ public final class SwitchHelper {
       }
 
       boolean nullable = false;
-      List<List<Exprent>> realCaseValues = new ArrayList<>(caseValues.size());
-      for (List<Exprent> caseValue : caseValues) {
-        List<Exprent> values = new ArrayList<>(caseValue.size());
-        realCaseValues.add(values);
+      for (SwitchCase caseEntry : switchStatement.getCases()) {
+        List<Exprent> values = new ArrayList<>(caseEntry.values().size());
+
         cases:
-        for (Exprent exprent : caseValue) {
+        for (Exprent exprent : caseEntry.values()) {
           if (exprent == null) {
             values.add(null);
           }
@@ -170,9 +171,9 @@ public final class SwitchHelper {
             values.add(realConst.copy());
           }
         }
+        caseEntry.setValues(values);
       }
-      caseValues.clear();
-      caseValues.addAll(realCaseValues);
+
       Exprent newExpr = ((InvocationExprent)array.getIndex()).getInstance().copy();
       switchHeadExprent.replaceExprent(value, newExpr);
       newExpr.addBytecodeOffsets(value.bytecode);
@@ -243,8 +244,10 @@ public final class SwitchHelper {
     // Replace case values of target switch to the correct ones from first switch
     HashMap<Integer, List<Exprent>> caseMap = getStringSwitchCaseMap(switchInfo);
     List<List<Exprent>> realCaseValues = getStringSwitchRealCaseValues(switchInfo, caseMap);
-    switchInfo.target().getCaseValues().clear();
-    switchInfo.target().getCaseValues().addAll(realCaseValues);
+    for (int i = 0; i < switchInfo.target().getCases().size(); i++) {
+      SwitchCase caseEntry = switchInfo.target().getCases().get(i);
+      caseEntry.setValues(realCaseValues.get(i));
+    }
 
     // Remove lingering variable that is now unused. This is the intermediate variable shared between both switches.
     BasicBlockStatement firstBasic = switchStat.getBasichead();
@@ -307,9 +310,12 @@ public final class SwitchHelper {
   private static boolean unwrapMergedSwitchCases(StringSwitch switchInfo) {
     int processedCasesIdx = 0;
 
-    List<Statement> caseStats = switchInfo.first().getCaseStatements();
-    for (int i = 0; i < caseStats.size(); i++) {
-      Statement stat = caseStats.get(i);
+    List<SwitchCase> switchCases = switchInfo.first().getCases();
+
+    //noinspection ForLoopReplaceableByForEach  we modify this list during iteration
+    for (int i = 0; i < switchCases.size(); i++) {
+      SwitchCase caseEntry = switchCases.get(i);
+      Statement stat = caseEntry.statement();
       if (!(stat instanceof IfStatement rootIfStat)) {
         continue;
       }
@@ -373,29 +379,32 @@ public final class SwitchHelper {
    * @param switchInfo the switch info
    */
   private static void mergeDuplicateCaseStats(StringSwitch switchInfo) {
-    List<Statement> caseStats = switchInfo.first().getCaseStatements();
-    for (int i = 0; i < caseStats.size(); i++) {
-      Statement stat = caseStats.get(i);
+    List<SwitchCase> cases = switchInfo.first().getCases();
+    for (int i = 0; i < cases.size(); i++) {
+      SwitchCase caseEntry = cases.get(i);
+      Statement stat = caseEntry.statement();
 
       if (stat.getExprents() != null && stat.getExprents().size() != 1) {
         continue;
       }
 
       int j = i + 1;
-      while (j < caseStats.size()) {
-        Statement next = caseStats.get(j);
+      while (j < cases.size()) {
+        SwitchCase nextEntry = cases.get(j);
+        Statement next = nextEntry.statement();
         // If they contain the same exact exprent, merge the next's case value into the current stat's case list
         if (next.getExprents() != null
           && !next.getExprents().isEmpty()
           && stat.getExprents().get(0).equals(next.getExprents().get(0))) {
-          switchInfo.first().getCaseValues().get(i).addAll(switchInfo.first().getCaseValues().get(j));
+
+          caseEntry.values().addAll(nextEntry.values());
 
           // Move case edge from jth to ith case
-          StatEdge edge = switchInfo.first().getCaseEdges().get(j).get(0);
-          edge.setDestination(switchInfo.first().getCaseStatements().get(i));
-          List<StatEdge> newLst = new ArrayList<>(switchInfo.first().getCaseEdges().get(i));
+          StatEdge edge = nextEntry.edges().get(0);
+          edge.setDestination(stat);
+          List<StatEdge> newLst = new ArrayList<>(caseEntry.edges());
           newLst.add(edge);
-          switchInfo.first().getCaseEdges().set(i, newLst);
+          caseEntry.setEdges(newLst);
 
           switchInfo.first().removeCase(j);
         } else {
@@ -446,7 +455,9 @@ public final class SwitchHelper {
     //   then check all case statements that are ifs that are equals and see if they all use the dup var
     if (!tmpVar.equalsVersions(headVar) && tmpVar.isVarReferenced(switchInfo.first().getParent(), headVar)) {
       boolean isDupVarUsedInAllCaseIfs = true;
-      for (Statement stat : switchInfo.first().getCaseStatements()) {
+      for (SwitchCase caseEntry : switchInfo.first().getCases()) {
+        Statement stat = caseEntry.statement();
+
         if (!(stat instanceof IfStatement ifStat)) {
           continue;
         }

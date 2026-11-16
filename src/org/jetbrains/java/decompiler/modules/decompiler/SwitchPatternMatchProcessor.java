@@ -7,6 +7,7 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.SwitchStatement.SwitchCase;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.attr.StructBootstrapMethodsAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
@@ -120,13 +121,14 @@ public final class SwitchPatternMatchProcessor {
 
     int defaultCase = -1;
 
-    for (int i = 0; i < stat.getCaseStatements().size(); i++) {
-      if (stat.getCaseValues().get(i).contains(null)) {
+    for (int i = 0; i < stat.getCases().size(); i++) {
+      SwitchCase switchCase = stat.getCases().get(i);
+      if (switchCase.values().contains(null)) {
         defaultCase = i;
       }
-      Statement caseStat = stat.getCaseStatements().get(i);
+      Statement caseStat = switchCase.statement();
 
-      List<Exprent> allCases = stat.getCaseValues().get(i);
+      List<Exprent> allCases = switchCase.values();
       Exprent caseExpr = allCases.get(0);
 
       // null expression = default case, can't be shared with patterns
@@ -136,10 +138,8 @@ public final class SwitchPatternMatchProcessor {
 
       if (guards.containsKey(allCases)) {
         // add the guard to the same index as this case, padding the list with nulls as necessary
-        while (stat.getCaseGuards().size() <= i) {
-          stat.getCaseGuards().add(null);
-        }
-        stat.getCaseGuards().set(i, guards.get(allCases));
+
+        switchCase.setGuard(guards.get(allCases));
       }
       if (caseExpr instanceof ConstExprent) {
         int caseValue = ((ConstExprent) caseExpr).getIntValue();
@@ -170,10 +170,11 @@ public final class SwitchPatternMatchProcessor {
       }
 
       PatternExprent pattern;
-      if (stat.getCaseGuards().size() > i && stat.getCaseGuards().get(i) instanceof PatternExprent) {
-        pattern = (PatternExprent) stat.getCaseGuards().set(i, null);
+      if (switchCase.guard() instanceof PatternExprent) {
+        pattern = (PatternExprent) switchCase.guard();
+        switchCase.setGuard(null);
       } else {
-        pattern = identifySwitchRecordPatternMatch(stat, stat.getCaseStatements().get(i), false);
+        pattern = identifySwitchRecordPatternMatch(stat, switchCase.statement(), false);
       }
 
       if (pattern != null) {
@@ -209,7 +210,7 @@ public final class SwitchPatternMatchProcessor {
                       stat.setDefaultEdge(null);
                       int index = allCases.indexOf(null);
                       allCases.remove(index);
-                      stat.getCaseEdges().get(i).remove(index);
+                      switchCase.edges().remove(index);
                     }
                   }
                 } else if (assign.getRight() instanceof FunctionExprent cast) {
@@ -237,19 +238,7 @@ public final class SwitchPatternMatchProcessor {
 
     if (defaultCase != -1) {
       // Default case statements are required to be last
-      stat.getCaseValues().add(stat.getCaseValues().remove(defaultCase));
-      stat.getCaseStatements().add(stat.getCaseStatements().remove(defaultCase));
-      stat.getCaseEdges().add(stat.getCaseEdges().remove(defaultCase));
-      if (defaultCase < stat.getCaseGuards().size()) {
-        if (stat.getCaseGuards().get(defaultCase) != null) {
-          while (stat.getCaseGuards().size() < stat.getCaseStatements().size()) {
-            stat.getCaseGuards().add(null);
-          }
-          stat.getCaseGuards().add(stat.getCaseGuards().remove(defaultCase));
-        } else {
-          stat.getCaseGuards().remove(defaultCase);
-        }
-      }
+      stat.getCases().add(stat.getCases().remove(defaultCase));
     }
 
     // go through bootstrap arguments to ensure types are correct & add enum/integer/string constants
@@ -420,13 +409,14 @@ public final class SwitchPatternMatchProcessor {
 
       // If a record pattern contains an `instanceof` check then a guard is used so
       // attempt to eliminate it
-      for (int i = 0; i < stat.getCaseStatements().size(); i++) {
-        if (stat.getCaseStatements().get(i).containsStatement(assignStat)) {
-          Statement patternStat = stat.getCaseStatements().get(i);
+      for (int i = 0; i < stat.getCases().size(); i++) {
+        SwitchCase switchCase = stat.getCases().get(i);
+        if (switchCase.statement().containsStatement(assignStat)) {
+          Statement patternStat = switchCase.statement();
           PatternExprent pattern = identifySwitchRecordPatternMatch(stat, patternStat, simulate);
           if (pattern != null) {
             if (!simulate) {
-              guards.put(stat.getCaseValues().get(i), pattern);
+              guards.put(switchCase.values(), pattern);
             }
             return true;
           }
@@ -461,9 +451,10 @@ public final class SwitchPatternMatchProcessor {
           // the condition of the `if` is the guard condition (usually inverted)
           Exprent guardExprent = guardIf.getHeadexprent().getCondition();
           // find which case branch we're in (to assign the guard to)
-          List<Statement> caseStatements = stat.getCaseStatements();
-          for (int i = 0; i < caseStatements.size(); i++) {
-            if (caseStatements.get(i).containsStatement(reference.a)) {
+          List<SwitchCase> cases = stat.getCases();
+          for (int i = 0; i < cases.size(); i++) {
+            SwitchCase switchCase = cases.get(i);
+            if (switchCase.statement().containsStatement(reference.a)) {
               if (simulate) {
                 // we're not actually removing the guard yet
                 return true;
@@ -493,7 +484,7 @@ public final class SwitchPatternMatchProcessor {
                 guardIf.getParent().getStats().add(nextStat);
               }
 
-              guards.put(stat.getCaseValues().get(i), guardExprent);
+              guards.put(switchCase.values(), guardExprent);
               guardIf.getParent().setFirst(nextStat);
               for (StatEdge edge : nextStat.getAllPredecessorEdges()) {
                 edge.remove();
@@ -507,13 +498,14 @@ public final class SwitchPatternMatchProcessor {
       } else if (parent == stat) {
         // an `&& false` guard leaves us with nothing but an assignment and break
         // get the branch we're in
-        List<Statement> caseStatements = stat.getCaseStatements();
-        for (int i = 0; i < caseStatements.size(); i++) {
-          if (caseStatements.get(i).containsStatement(reference.a)) {
+        List<SwitchCase> cases = stat.getCases();
+        for (int i = 0; i < cases.size(); i++) {
+          SwitchCase switchCase = cases.get(i);
+          if (switchCase.statement().containsStatement(reference.a)) {
             if (simulate) {
               return true;
             }
-            guards.put(stat.getCaseValues().get(i), new ConstExprent(0, true, null));
+            guards.put(switchCase.values(), new ConstExprent(0, true, null));
             Statement replaced = reference.a.replaceWithEmpty();
             replaced.getFirstSuccessor().remove();
             Set<StatEdge> labelEdges = stat.getParent().getLabelEdges();
