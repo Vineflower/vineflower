@@ -715,8 +715,7 @@ public class FunctionExprent extends Exprent {
       return buf.append(ExprProcessor.getTypeName(funcType.castType)).encloseWithParens().append(wrapOperandString(lstOperands.get(0), true, indent));
     }
 
-    //        return "<unknown function>";
-    throw new RuntimeException("invalid function");
+    return buf.append("<UNKNOWN OPERATION: " + funcType + ">");
   }
 
   // Make sure that any boxing that is required is properly expressed
