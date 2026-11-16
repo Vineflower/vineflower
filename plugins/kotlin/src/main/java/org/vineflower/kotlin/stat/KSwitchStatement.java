@@ -19,11 +19,7 @@ import java.util.List;
 public class KSwitchStatement extends SwitchStatement {
   public KSwitchStatement(SwitchStatement statement) {
     super();
-    
-    getCaseStatements().addAll(statement.getCaseStatements());
-    getCaseEdges().addAll(statement.getCaseEdges());
-    getCaseValues().addAll(statement.getCaseValues());
-    getCaseGuards().addAll(statement.getCaseGuards());
+    getCases().addAll(statement.getCases());
     //TODO: check if scoped case statements are needed?
     getHeadexprentList().remove(0); // remove added null
     getHeadexprentList().addAll(statement.getHeadexprentList());
