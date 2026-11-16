@@ -135,22 +135,19 @@ public final class ClassReference14Processor {
           mt.hasModifier(CodeConstants.ACC_STATIC)) {
 
         RootStatement root = method.root;
-        if (root != null && root.getFirst() instanceof CatchStatement) {
-          CatchStatement cst = (CatchStatement)root.getFirst();
-          if (cst.getStats().size() == 2 && cst.getFirst() instanceof BasicBlockStatement &&
-              cst.getStats().get(1) instanceof BasicBlockStatement &&
-              cst.getVars().get(0).getVarType().equals(new VarType(CodeType.OBJECT, 0, "java/lang/ClassNotFoundException"))) {
-
-            BasicBlockStatement body = (BasicBlockStatement)cst.getFirst();
-            BasicBlockStatement handler = (BasicBlockStatement)cst.getStats().get(1);
-
-            if (body.getExprents().size() == 1 && handler.getExprents().size() == 1) {
-              if (BODY_EXPR.equals(body.getExprents().get(0)) &&
-                  HANDLER_EXPR.equals(handler.getExprents().get(0))) {
-                map.put(wrapper, method);
-                break;
-              }
-            }
+        if (root != null &&
+          root.getFirst() instanceof CatchStatement cst &&
+          cst.getCatchEntries().size() == 1 &&
+          cst.tryStat() instanceof BasicBlockStatement body) {
+          CatchStatement.CatchEntry entry = cst.getCatchEntries().get(0);
+          if (entry.stat() instanceof BasicBlockStatement handler &&
+            entry.var().getVarType().equals(new VarType(CodeType.OBJECT, 0, "java/lang/ClassNotFoundException")) &&
+            body.getExprents().size() == 1 &&
+            handler.getExprents().size() == 1 &&
+            BODY_EXPR.equals(body.getExprents().get(0)) &&
+            HANDLER_EXPR.equals(handler.getExprents().get(0))) {
+            map.put(wrapper, method);
+            break;
           }
         }
       }

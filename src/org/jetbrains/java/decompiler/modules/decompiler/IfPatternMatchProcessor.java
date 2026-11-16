@@ -369,24 +369,27 @@ public final class IfPatternMatchProcessor {
       }
 
       Statement next = branch.getStats().get(stIdx);
-      if (next instanceof CatchStatement catchSt && catchSt.getVars().size() == 1 && catchSt.getVars().get(0).getVarType().value.equals("java/lang/Throwable")) {
+      if (next instanceof CatchStatement catchSt &&
+        catchSt.getCatchEntries().size() == 1 &&
+        catchSt.getCatchEntries().get(0).var().getVarType().value.equals("java/lang/Throwable")) {
         // Check catch for "throw new MatchException"
         VarExprent foundVar = null;
-        if (catchSt.getStats().size() == 2 && isStatementMatchThrow(catchSt.getStats().get(1))) {
+
+
+        if (isStatementMatchThrow(catchSt.getCatchEntries().get(0).stat()) &&
           // Now make sure the inside of the try is ok
-          Statement inner = catchSt.getStats().get(0);
-          if (inner instanceof BasicBlockStatement) {
-            // var<x> = var10000.<comp>()
-            if (inner.getExprents().size() == 1 && inner.getExprents().get(0) instanceof AssignmentExprent assign) {
-              // Make sure the invocation matches the record component
-              if (assign.getLeft() instanceof VarExprent var && var.isStack() && assign.getRight() instanceof InvocationExprent invok && invok.getClassname().equals(type.value)) {
-                if (invok.getName().equals(c.getName())) {
-                  // Found one!
-                  foundVar = var;
-                }
-              }
-            }
-          }
+          catchSt.tryStat() instanceof BasicBlockStatement inner &&
+          // var<x> = var10000.<comp>()
+          inner.getExprents().size() == 1 &&
+          inner.getExprents().get(0) instanceof AssignmentExprent assign &&
+          // Make sure the invocation matches the record component
+          assign.getLeft() instanceof VarExprent var &&
+          var.isStack() &&
+          assign.getRight() instanceof InvocationExprent invok &&
+          invok.getClassname().equals(type.value) &&
+          invok.getName().equals(c.getName())) {
+          // Found one!
+          foundVar = var;
         }
 
         if (foundVar == null) {

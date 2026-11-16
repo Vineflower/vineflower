@@ -238,14 +238,26 @@ public final class ValidationHelper {
         validateIfStatement((IfStatement) stat);
         break;
       case TRY_CATCH:
-        validateTrycatchStatement((CatchStatement) stat);
+        validateCatchStatement((CatchStatement) stat);
         break;
     }
   }
 
-  public static void validateTrycatchStatement(CatchStatement catchStat) {
-    if (catchStat.getStats().size() == 1 && catchStat.getResources().isEmpty()) {
-      throw new IllegalStateException("Try statement with single statement: " + catchStat);
+  public static void validateCatchStatement(CatchStatement catchStat) {
+    if (catchStat.getStats().isEmpty()) {
+      throw new IllegalStateException("CatchStatement without any statements");
+    } else if (catchStat.getCatchEntries().isEmpty() && catchStat.getResources().isEmpty()) {
+      throw new IllegalStateException("CatchStatement with single statement: " + catchStat);
+    } else if (catchStat.getStats().size() - 1 != catchStat.getCatchEntries().size()){
+      throw new IllegalStateException("CatchEntries count does not match: got " + catchStat.getCatchEntries().size() + " but " + (catchStat.getStats().size() - 1) + " + 1 stats exist");
+    }
+
+    for (int i = 0; i < catchStat.getCatchEntries().size(); i++) {
+      CatchStatement.CatchEntry entry = catchStat.getCatchEntries().get(i);
+      Statement innerStat = catchStat.getStats().get(i + 1);
+      if (entry.stat() != innerStat){
+        throw new IllegalStateException("CatchEntry " + i + " statement mismatch: catchEntry: " + entry.stat().id + " vs stats: " + catchStat.getStats().get(i + 1) );
+      }
     }
   }
 

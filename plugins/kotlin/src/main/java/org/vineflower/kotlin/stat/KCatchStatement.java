@@ -17,11 +17,8 @@ import java.util.List;
 public class KCatchStatement extends CatchStatement {
   public KCatchStatement(CatchStatement statement) {
     super();
-    getExctStrings().addAll(statement.getExctStrings());
-    getVars().addAll(statement.getVars());
-    getResources().addAll(statement.getResources());
+    getCatchEntries().addAll(statement.getCatchEntries());
 
-    setFirst(statement.getFirst());
     stats.addAllWithKey(statement.getStats(), statement.getStats().getLstKeys());
     parent = statement.getParent();
     first = statement.getFirst();
@@ -61,8 +58,8 @@ public class KCatchStatement extends CatchStatement {
       buf.appendIndent(--indent).append("}");
     }
 
-    for (int i = 1; i < stats.size(); i++) {
-      Statement stat = stats.get(i);
+    for (CatchEntry entry : this.getCatchEntries()) {
+      Statement stat = entry.stat();
 
       BasicBlock block = stat.getBasichead().getBlock();
       if (!block.getSeq().isEmpty() && block.getInstruction(0).opcode == CodeConstants.opc_astore) {
@@ -71,7 +68,7 @@ public class KCatchStatement extends CatchStatement {
       }
 
       buf.append(" catch (");
-      buf.append(getVars().get(i - 1).toJava(indent));
+      buf.append(entry.var().toJava(indent));
       buf.append(") {").appendLineSeparator();
       buf.append(stat.toJava(indent + 1));
       buf.appendIndent(indent).append("}");

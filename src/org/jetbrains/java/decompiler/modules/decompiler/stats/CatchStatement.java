@@ -24,8 +24,39 @@ import java.util.List;
 import java.util.Set;
 
 public class CatchStatement extends Statement {
-  private final List<List<String>> exctstrings = new ArrayList<>();
-  private final List<VarExprent> vars = new ArrayList<>();
+  public static final class CatchEntry {
+    private final List<String> excStrings;
+    private VarExprent var;
+    private Statement stat;
+
+    public CatchEntry(List<String> excStrings, VarExprent var, Statement stat) {
+      this.excStrings = excStrings;
+      this.var = var;
+      this.stat = stat;
+    }
+
+    public List<String> excStrings() {
+      return excStrings;
+    }
+
+    public VarExprent var() {
+      return var;
+    }
+
+    public Statement stat() {
+      return stat;
+    }
+
+    public void setVar(VarExprent var) {
+      this.var = var;
+    }
+
+    public void setStat(Statement stat) {
+      this.stat = stat;
+    }
+  }
+
+  private final List<CatchEntry> catchEntries = new ArrayList<>();
   private final List<Exprent> resources = new ArrayList<>();
 
   // *****************************************************************************
@@ -42,17 +73,20 @@ public class CatchStatement extends Statement {
     first = head;
     stats.addWithKey(first, first.id);
 
+    // TODO: make setHandlers ordered
     for (StatEdge edge : head.getSuccessorEdges(StatEdge.TYPE_EXCEPTION)) {
       Statement stat = edge.getDestination();
 
       if (setHandlers.contains(stat)) {
         stats.addWithKey(stat, stat.id);
-        exctstrings.add(new ArrayList<>(edge.getExceptions()));
-        
-        vars.add(new VarExprent(DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.VAR_COUNTER),
-                                new VarType(CodeType.OBJECT, 0, edge.getExceptions().get(0)),
-                                // FIXME: for now simply the first type. Should get the first common superclass when possible.
-                                DecompilerContext.getVarProcessor()));
+        catchEntries.add(new CatchEntry(
+          new ArrayList<>(edge.getExceptions()),
+          new VarExprent(DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.VAR_COUNTER),
+            new VarType(CodeType.OBJECT, 0, edge.getExceptions().get(0)),
+            // FIXME: for now simply the first type. Should get the first common superclass when possible.
+            DecompilerContext.getVarProcessor()),
+          stat
+        ));
       }
     }
 
@@ -151,16 +185,14 @@ public class CatchStatement extends Statement {
 
     if (resources.isEmpty()) {
       buf.appendIndent(indent).append("try {").appendLineSeparator();
-    }
-    else {
+    } else {
       buf.appendIndent(indent).append("try (");
 
       if (resources.size() > 1) {
         buf.appendLineSeparator();
         buf.append(ExprProcessor.listToJava(resources, indent + 1));
         buf.appendIndent(indent);
-      }
-      else {
+      } else {
         buf.append(resources.get(0).toJava(indent + 1));
       }
       buf.append(") {").appendLineSeparator();
@@ -169,8 +201,11 @@ public class CatchStatement extends Statement {
     buf.append(ExprProcessor.jmpWrapper(first, indent + 1, true));
     buf.appendIndent(indent).append("}");
 
-    for (int i = 1; i < stats.size(); i++) {
-      Statement stat = stats.get(i);
+    for (CatchEntry entry : this.catchEntries) {
+      Statement stat = entry.stat();
+      List<String> exception_types = entry.excStrings();
+      VarExprent var = entry.var();
+
       // map first instruction storing the exception to the catch statement
       BasicBlock block = stat.getBasichead().getBlock();
       if (!block.getSeq().isEmpty() && block.getInstruction(0).opcode == CodeConstants.opc_astore) {
@@ -180,7 +215,6 @@ public class CatchStatement extends Statement {
 
       buf.append(" catch (");
 
-      List<String> exception_types = exctstrings.get(i - 1);
       for (int exc_index = 0; exc_index < exception_types.size(); ++exc_index) {
         String name = ExprProcessor.getCastTypeName(new VarType(CodeType.OBJECT, 0, exception_types.get(exc_index)));
         if (exception_types.size() > 1 && exc_index > 0) { // multi-catch, Java 7 style
@@ -190,8 +224,6 @@ public class CatchStatement extends Statement {
       }
 
       buf.append(" ");
-
-      VarExprent var = vars.get(i - 1);
 
       validateType(exception_types, var.getVarType());
 
@@ -221,22 +253,55 @@ public class CatchStatement extends Statement {
   @Override
   public List<Exprent> getStatExprents() {
     List<Exprent> lst = new ArrayList<>(resources);
-    lst.addAll(vars);
+    for (CatchEntry entry : this.catchEntries) {
+      lst.add(entry.var());
+    }
     return lst;
+  }
+
+  @Override
+  public List<VarExprent> getImplicitlyDefinedVars() {
+    List<VarExprent> vars = new ArrayList<>();
+
+    for (CatchEntry entry : this.catchEntries) {
+      vars.add(entry.var());
+    }
+    // resource vars must also be included
+    for (Exprent exp : getResources()) {
+      if (exp instanceof AssignmentExprent assignment) {
+        vars.add((VarExprent) assignment.getLeft());
+      }
+    }
+
+
+    return vars;
   }
 
   @Override
   public Statement getSimpleCopy() {
     CatchStatement cs = new CatchStatement();
 
-    for (List<String> exc : this.exctstrings) {
-      cs.exctstrings.add(new ArrayList<>(exc));
-      cs.vars.add(new VarExprent(DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.VAR_COUNTER),
-                                 new VarType(CodeType.OBJECT, 0, exc.get(0)),
-                                 DecompilerContext.getVarProcessor()));
+    for (CatchEntry entry : this.catchEntries) {
+      cs.catchEntries.add(new CatchEntry(
+        new ArrayList<>(entry.excStrings()),
+        new VarExprent(DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.VAR_COUNTER),
+          new VarType(CodeType.OBJECT, 0, entry.excStrings().get(0)),
+          DecompilerContext.getVarProcessor()),
+        entry.stat() // temp, will be replaced
+      ));
     }
 
     return cs;
+  }
+
+  @Override
+  public void initSimpleCopy() {
+    super.initSimpleCopy();
+
+    for (int i = 0; i < this.catchEntries.size(); i++) {
+      CatchEntry entry = this.catchEntries.get(i);
+      entry.setStat(this.getStats().get(i + 1));
+    }
   }
 
   public void getOffset(BitSet values) {
@@ -244,6 +309,23 @@ public class CatchStatement extends Statement {
 
     for (Exprent exp : this.getResources()) {
       exp.getBytecodeRange(values);
+    }
+  }
+
+  public void removeCatchEntry(CatchEntry entry) {
+    ValidationHelper.assertTrue(this.catchEntries.remove(entry), "Entry did not exist");
+    this.stats.removeWithKey(entry.stat().id);
+  }
+
+  @Override
+  public void replaceStatement(Statement oldStat, Statement newStat) {
+    super.replaceStatement(oldStat, newStat);
+
+    for (CatchEntry entry : this.catchEntries) {
+      if (entry.stat() == oldStat) {
+        entry.setStat(newStat);
+        break;
+      }
     }
   }
 
@@ -256,29 +338,16 @@ public class CatchStatement extends Statement {
     return ValidationHelper.notNull(super.getFirst());
   }
 
-  public List<List<String>> getExctStrings() {
-    return exctstrings;
-  }
-
-  public List<VarExprent> getVars() {
-    return vars;
-  }
-
   public List<Exprent> getResources() {
     return resources;
   }
 
-  @Override
-  public List<VarExprent> getImplicitlyDefinedVars() {
-    List<VarExprent> vars = new ArrayList<>(getVars());
+  public List<CatchEntry> getCatchEntries() {
+    return this.catchEntries;
+  }
 
-    // resource vars must also be included
-    for (Exprent exp : getResources()) {
-      if (exp instanceof AssignmentExprent assignment) {
-        vars.add((VarExprent) assignment.getLeft());
-      }
-    }
-
-    return vars;
+  public Statement tryStat() {
+    ValidationHelper.notNull(this.first);
+    return this.first;
   }
 }
