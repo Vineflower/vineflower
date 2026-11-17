@@ -593,13 +593,11 @@ public class SwitchStatement extends Statement {
     return this.cases;
   }
 
-  @Deprecated
   @Unmodifiable
   public List<List<StatEdge>> getCaseEdges() {
     return cases.stream().map(SwitchCase::edges).toList();
   }
 
-  @Deprecated
   @Unmodifiable
   public List<Statement> getCaseStatements() {
     return cases.stream().map(SwitchCase::statement).toList();
@@ -609,13 +607,11 @@ public class SwitchStatement extends Statement {
     return defaultEdge;
   }
 
-  @Deprecated
   @Unmodifiable
   public List<List<@Nullable Exprent>> getCaseValues() {
     return cases.stream().map(SwitchCase::values).toList();
   }
 
-  @Deprecated
   @Unmodifiable
   public List<@Nullable Exprent> getCaseGuards() {
     return cases.stream().map(SwitchCase::guard).toList();
