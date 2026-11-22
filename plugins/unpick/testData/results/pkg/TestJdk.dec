@@ -1,0 +1,29 @@
+package pkg;
+
+public class TestJdk {
+   public void test() {
+      System.out.println(Math.asin(Math.PI));// 5
+   }// 6
+}
+
+class 'pkg/TestJdk' {
+   method 'test ()V' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      5      4
+      6      4
+      7      4
+      8      4
+      9      4
+      a      4
+      b      4
+      c      5
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 6

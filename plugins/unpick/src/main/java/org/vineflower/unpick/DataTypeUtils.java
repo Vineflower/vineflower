@@ -2,12 +2,26 @@ package org.vineflower.unpick;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.vineflower.unpick.parser.tree.DataType;
 
 import java.util.Locale;
+import java.util.Map;
 import java.util.function.Function;
 
 public final class DataTypeUtils {
+  private static final Map<VarType, DataType> DATA_TYPE_BY_VAR_TYPE = Map.of(
+    VarType.VARTYPE_BYTE, DataType.BYTE,
+    VarType.VARTYPE_SHORT, DataType.SHORT,
+    VarType.VARTYPE_INT, DataType.INT,
+    VarType.VARTYPE_LONG, DataType.LONG,
+    VarType.VARTYPE_FLOAT, DataType.FLOAT,
+    VarType.VARTYPE_DOUBLE, DataType.DOUBLE,
+    VarType.VARTYPE_CHAR, DataType.CHAR,
+    VarType.VARTYPE_STRING, DataType.STRING,
+    VarType.VARTYPE_CLASS, DataType.CLASS
+  );
+
   private DataTypeUtils() {
   }
 
@@ -190,5 +204,10 @@ public final class DataTypeUtils {
       case CLASS -> "Class";
       default -> dataType.name().toLowerCase(Locale.ROOT);
     };
+  }
+
+  @Nullable
+  public static DataType fromVarType(VarType varType) {
+    return DATA_TYPE_BY_VAR_TYPE.get(varType);
   }
 }

@@ -19,7 +19,7 @@ public class UnpickPlugin implements Plugin {
 
   @Override
   public void registerJavaPasses(JavaPassRegistrar registrar) {
-    registrar.registerClassPass(ClassPassLocation.AFTER_PROCESSING, new UnpickPass());
+    registrar.registerClassPass(ClassPassLocation.BEFORE_WRITING, new UnpickPass());
   }
 
   @Override

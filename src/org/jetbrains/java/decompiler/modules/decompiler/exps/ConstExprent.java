@@ -134,6 +134,7 @@ public class ConstExprent extends Exprent {
   private final Object value;
   private final boolean boolPermitted;
   private boolean wasCondy = false;
+  private int radix = 10;
 
   public ConstExprent(int val, boolean boolPermitted, BitSet bytecodeOffsets) {
     this(guessType(val, boolPermitted), val, boolPermitted, bytecodeOffsets);
@@ -143,9 +144,10 @@ public class ConstExprent extends Exprent {
     this(constType, value, false, bytecodeOffsets);
   }
 
-  public ConstExprent(VarType constType, Object value, BitSet bytecodeOffsets, boolean wasCondy) {
+  public ConstExprent(VarType constType, Object value, BitSet bytecodeOffsets, boolean wasCondy, int radix) {
     this(constType, value, false, bytecodeOffsets);
     this.wasCondy = wasCondy;
+    this.radix = radix;
   }
 
   protected ConstExprent(VarType constType, Object value, boolean boolPermitted, BitSet bytecodeOffsets) {
@@ -193,7 +195,7 @@ public class ConstExprent extends Exprent {
 
   @Override
   public Exprent copy() {
-    return new ConstExprent(constType, value, bytecode, wasCondy);
+    return new ConstExprent(constType, value, bytecode, wasCondy, radix);
   }
 
   @Override
@@ -548,7 +550,8 @@ public class ConstExprent extends Exprent {
 
     ConstExprent cn = (ConstExprent)o;
     return InterpreterUtil.equalObjects(constType, cn.getConstType()) &&
-           InterpreterUtil.equalObjects(value, cn.getValue());
+           InterpreterUtil.equalObjects(value, cn.getValue()) &&
+           radix == cn.radix;
   }
 
   @Override
@@ -658,6 +661,14 @@ public class ConstExprent extends Exprent {
   public ConstExprent setWasCondy(boolean wasCondy) {
     this.wasCondy = wasCondy;
     return this;
+  }
+
+  public int getRadix() {
+    return radix;
+  }
+
+  public void setRadix(int radix) {
+    this.radix = radix;
   }
 
   @Override

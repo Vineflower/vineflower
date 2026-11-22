@@ -8,6 +8,7 @@ import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.struct.attr.StructConstantValueAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
+import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
 import org.vineflower.unpick.parser.tree.DataType;
 import org.vineflower.unpick.parser.tree.Literal;
 import org.vineflower.unpick.parser.tree.expr.BinaryExpression;
@@ -141,7 +142,9 @@ public class ExpressionEvaluator extends ExpressionVisitor {
       throw new EvaluationException("Staticness of resolved field " + ownerName + "." + fieldName + " does not match expected staticness");
     }
 
-    result = cast(ownerClass.getPool().getPrimitiveConstant(constant.getIndex()).value, actualFieldType);
+    PrimitiveConstant primitiveConstant = ownerClass.getPool().getPrimitiveConstant(constant.getIndex());
+    Object value = primitiveConstant.type == CodeConstants.CONSTANT_Class ? new ClassLiteral(primitiveConstant.getString()) : primitiveConstant.value;
+    result = cast(value, actualFieldType);
   }
 
   @Override
