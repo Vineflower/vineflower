@@ -7,6 +7,7 @@ import org.jetbrains.java.decompiler.api.java.JavaPassRegistrar;
 import org.jetbrains.java.decompiler.api.plugin.LanguageSpec;
 import org.jetbrains.java.decompiler.api.plugin.PluginOptions;
 import org.jetbrains.java.decompiler.api.plugin.PluginSource;
+import org.jetbrains.java.decompiler.api.plugin.pass.ClassPass;
 import org.jetbrains.java.decompiler.api.plugin.pass.NamedPass;
 import org.jetbrains.java.decompiler.api.plugin.pass.PassContext;
 import org.jetbrains.java.decompiler.main.ClassesProcessor;
@@ -25,7 +26,7 @@ public class PluginContext {
   private final Map<Plugin, PluginSource> bySource = new HashMap<>();
   private boolean initialized = false;
   private Map<JavaPassLocation, List<NamedPass>> passes = new HashMap<>();
-  private Map<ClassPassLocation, List<Consumer<ClassesProcessor.ClassNode>>> classPasses = new HashMap<>();
+  private Map<ClassPassLocation, List<ClassPass>> classPasses = new HashMap<>();
   private final Map<Plugin, LanguageSpec> languageSpecs = new HashMap<>();
   private final Set<String> ids = new HashSet<>();
 
@@ -107,8 +108,8 @@ public class PluginContext {
   }
 
   public void runClassPasses(ClassPassLocation location, ClassesProcessor.ClassNode node) {
-    for (Consumer<ClassesProcessor.ClassNode> pass : this.classPasses.getOrDefault(location, List.of())) {
-      pass.accept(node);
+    for (ClassPass pass : this.classPasses.getOrDefault(location, List.of())) {
+      pass.run(node);
     }
   }
 

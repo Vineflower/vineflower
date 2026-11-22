@@ -1,0 +1,85 @@
+package pkg;
+
+public class TestByteVarIntMerge {
+   static byte[] bytes = new byte[4];
+
+   public static int test(int[] var0) {
+      int var1;
+      if (var0[0] < bytes.length) {
+         var1 = bytes[var0[0]];
+      } else {
+         var1 = 15;
+      }
+
+      switch ((byte)var1) {
+         case 2:
+            var1 = var0[0];
+            return var1 + 6;
+         default:
+            return 0;
+      }
+   }
+}
+
+class 'pkg/TestByteVarIntMerge' {
+   method '<clinit> ()V' {
+      0      3
+   }
+
+   method 'test ([I)I' {
+      0      7
+      1      7
+      2      7
+      3      7
+      4      7
+      5      7
+      6      7
+      7      7
+      8      7
+      9      7
+      a      8
+      b      8
+      c      8
+      d      8
+      e      8
+      f      8
+      10      8
+      11      8
+      15      10
+      16      10
+      17      10
+      18      13
+      19      13
+      1a      13
+      1b      13
+      1c      13
+      1d      13
+      1e      13
+      1f      13
+      20      13
+      21      13
+      22      13
+      23      13
+      24      13
+      25      13
+      26      13
+      27      13
+      28      13
+      29      13
+      2a      13
+      2b      13
+      2c      15
+      2d      15
+      2e      15
+      2f      15
+      30      16
+      31      16
+      32      16
+      33      16
+      34      16
+      35      18
+      36      18
+   }
+}
+
+Lines mapping:

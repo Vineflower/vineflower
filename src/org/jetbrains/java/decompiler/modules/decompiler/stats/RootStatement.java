@@ -1,8 +1,10 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.stats;
 
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
+import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.util.StartEndPair;
 import org.jetbrains.java.decompiler.util.TextBuffer;
@@ -13,7 +15,7 @@ import java.util.Set;
 public final class RootStatement extends Statement {
   private final DummyExitStatement dummyExit;
   public final StructMethod mt;
-  public Set<String> commentLines = null;
+  public @Nullable Set<String> commentLines = null;
   public boolean addErrorComment = false;
   private final ContentFlags flags = new ContentFlags();
 
@@ -33,6 +35,7 @@ public final class RootStatement extends Statement {
 
   @Override
   public TextBuffer toJava(int indent) {
+    ValidationHelper.notNull(first);
     return ExprProcessor.listToJava(varDefinitions, indent).append(first.toJava(indent));
   }
 
@@ -104,8 +107,14 @@ public final class RootStatement extends Statement {
   }
 
   @Override
+  public Statement getFirst() {
+    return ValidationHelper.notNull(super.getFirst());
+  }
+
+  @Override
   public StartEndPair getStartEndRange() {
-    return StartEndPair.join(first.getStartEndRange(), dummyExit != null ? dummyExit.getStartEndRange() : null);
+    ValidationHelper.notNull(first);
+    return StartEndPair.join(first.getStartEndRange(), dummyExit.getStartEndRange());
   }
 
   private static class ContentFlags {

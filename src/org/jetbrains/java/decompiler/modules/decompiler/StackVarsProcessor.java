@@ -46,7 +46,6 @@ public class StackVarsProcessor {
   public static void simplifyStackVars(RootStatement root, StructMethod mt, StructClass cl, StackSimplifyOptions options) {
     Set<Integer> setReorderedIfs = new HashSet<>();
     SSAUConstructorSparseEx ssau = null;
-
     while (true) {
       boolean found = false;
       boolean first = ssau == null;
@@ -54,7 +53,7 @@ public class StackVarsProcessor {
       SSAConstructorSparseEx ssa = new SSAConstructorSparseEx();
       ssa.splitVariables(root, mt);
 
-      while (SimplifyExprentsHelper.simplifyStackVarsStatement(root, setReorderedIfs, ssa, cl, first)) {
+      while (SimplifyExprentsHelper.simplifyStackVarsStatement(root, setReorderedIfs, ssa, cl, first) || PPandMMHelper.inlinePPIandMMIIf(root)) {
         ValidationHelper.validateStatement(root);
         found = true;
       }
@@ -342,7 +341,20 @@ public class StackVarsProcessor {
       }
     }
 
-    // no var on the highest level, so no replacing
+    // Var can be found on high levels with the right hand side of foreach loops, try to replace those
+    if (exprent instanceof VarExprent) {
+      Exprent res = isReplaceableVar(exprent, mapVarValues);
+
+      if (res == null) {
+        setRet(ret, -1, 0);
+        return;
+      }
+
+      // Found something? Replace the current var.
+      lstExprents.set(index, res);
+      setRet(ret, index + 1, 1);
+      return;
+    }
 
     VarExprent left = null;
     Exprent right = null;
@@ -936,6 +948,11 @@ public class StackVarsProcessor {
                                                SSAUConstructorSparseEx ssau,
                                                VarVersionPair leftpaar) {
     VarVersionsGraph ssuversions = ssau.getSsuVersions();
+
+    // Does the target node have a phantom (i.e. it is part of a ppmm)? Don't replace it.
+    if (ssuversions.nodes.getWithKey(usedvar).phantomNode != null) {
+      return false;
+    }
 
     SFormsFastMapDirect mapLiveVars = ssau.getLiveVarVersionsMap(usedvar);
     if (mapLiveVars == null) {

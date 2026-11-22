@@ -411,6 +411,11 @@ public final class InstructionImpact {
               }
             }
             break;
+          case CodeConstants.CONSTANT_MethodType:
+            stack.push(new VarType(CodeType.OBJECT, 0, "java/lang/invoke/MethodType"));
+            break;
+          default:
+            throw new IllegalStateException("Unhandled constant type: " + constant.type);
         }
         break;
       case CodeConstants.opc_aload:

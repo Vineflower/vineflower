@@ -10,6 +10,7 @@ import org.jetbrains.java.decompiler.struct.consts.ConstantPool;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericFieldDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericMain;
 import org.jetbrains.java.decompiler.util.DataInputFullStream;
+import org.jetbrains.java.decompiler.util.Key;
 
 import java.io.IOException;
 import java.util.Map;
@@ -31,10 +32,10 @@ public class StructField extends StructMember {
 
     String[] values = pool.getClassElement(ConstantPool.FIELD, clQualifiedName, nameIndex, descriptorIndex);
 
-    Map<String, StructGeneralAttribute> attributes = readAttributes(in, pool, version);
+    Map<Key<?>, Object> attributes = readAttributes(in, pool, version);
     GenericFieldDescriptor signature = null;
     if (DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_GENERIC_SIGNATURES)) {
-      StructGenericSignatureAttribute signatureAttr = (StructGenericSignatureAttribute)attributes.get(StructGeneralAttribute.ATTRIBUTE_SIGNATURE.name);
+      StructGenericSignatureAttribute signatureAttr = (StructGenericSignatureAttribute)attributes.get(StructGeneralAttribute.ATTRIBUTE_SIGNATURE);
       if (signatureAttr != null) {
         signature = GenericMain.parseFieldSignature(signatureAttr.getSignature());
       }
@@ -48,11 +49,11 @@ public class StructField extends StructMember {
   private final GenericFieldDescriptor signature;
   private final BytecodeVersion version;
 
-  protected StructField(int accessFlags, Map<String, StructGeneralAttribute> attributes, String name, String descriptor, BytecodeVersion version) {
+  protected StructField(int accessFlags, Map<Key<?>, Object> attributes, String name, String descriptor, BytecodeVersion version) {
     this(accessFlags, attributes, name, descriptor, null, version);
   }
 
-  protected StructField(int accessFlags, Map<String, StructGeneralAttribute> attributes, String name, String descriptor, GenericFieldDescriptor signature, BytecodeVersion version) {
+  protected StructField(int accessFlags, Map<Key<?>, Object> attributes, String name, String descriptor, GenericFieldDescriptor signature, BytecodeVersion version) {
     super(accessFlags, attributes);
     this.name = name;
     this.descriptor = descriptor;

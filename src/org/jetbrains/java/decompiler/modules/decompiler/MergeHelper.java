@@ -17,9 +17,16 @@ import org.jetbrains.java.decompiler.struct.gen.VarType;
 import java.util.*;
 
 public class MergeHelper {
-  public static void enhanceLoops(Statement root) {
-    while (enhanceLoopsRec(root)) /**/;
-    SequenceHelper.condenseSequences(root);
+  public static boolean enhanceLoops(Statement root) {
+    boolean res = false;
+    while (enhanceLoopsRec(root)) {
+      res = true;
+    }
+
+    if (res) {
+      SequenceHelper.condenseSequences(root);
+    }
+    return res;
   }
 
   private static boolean enhanceLoopsRec(Statement stat) {
@@ -450,6 +457,13 @@ public class MergeHelper {
         }
       }
 
+      // Check if the init var is contained in the cond var or the inc var, otherwise don't make the loop
+      if (hasinit && preData.getExprents().get(preData.getExprents().size() - 1) instanceof AssignmentExprent assign) {
+        if (assign.getLeft() instanceof VarExprent var && !stat.getConditionExprent().containsVar(var.getVarVersionPair()) && !lastExp.containsVar(var.getVarVersionPair())) {
+          return;
+        }
+      }
+
       stat.setLooptype(DoStatement.Type.FOR);
       if (hasinit) {
         Exprent exp = preData.getExprents().remove(preData.getExprents().size() - 1);
@@ -675,6 +689,10 @@ public class MergeHelper {
           return false;
         }
 
+        if (isVarUsedAfter((VarExprent) initExprents[0].getLeft(), stat)) {
+          return false;
+        }
+
         InvocationExprent holder = (InvocationExprent)right;
         // base of the .iterator() call is null, so the iterator comes from a static method: cannot be a foreach
         if (holder.getInstance() == null) {
@@ -848,10 +866,8 @@ public class MergeHelper {
       // Try to find a var reference with the same index
       if (node.exprents != null) {
         for (Exprent exprent : node.exprents) {
-          for (Exprent ex : exprent.getAllExprents(true, true)) {
-            if (ex instanceof VarExprent && ((VarExprent) ex).getIndex() == var.getIndex()) {
-              return true;
-            }
+          if (containsVar(var, exprent)) {
+            return true;
           }
         }
       }
@@ -865,6 +881,56 @@ public class MergeHelper {
     }
 
     // Found nothing
+    return false;
+  }
+
+  // When encountering "iterator = iterable.iterator();", check if the iterator variable is used after loop.
+  private static boolean isVarUsedAfter(VarExprent var, DoStatement thisSt) {
+    Statement parent = thisSt.getParent();
+    if (!(parent instanceof SequenceStatement)) {
+      return false;
+    }
+    int idx = parent.getStats().indexOf(thisSt);
+    for (int i = idx + 1; i < parent.getStats().size(); i++) {
+      Statement st = parent.getStats().get(i);
+      if (isVarUsedIn(var, st)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  private static boolean isVarUsedIn(VarExprent var, Statement stat) {
+    for (Statement st : stat.getStats()) {
+      if (isVarUsedIn(var, st)) {
+        return true;
+      }
+    }
+
+    for (Exprent ex : stat.getStatExprents()) {
+      if (containsVar(var, ex)) {
+        return true;
+      }
+    }
+
+    if (stat.getExprents() != null) {
+      for (Exprent ex : stat.getExprents()) {
+        if (containsVar(var, ex)) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  private static boolean containsVar(VarExprent var, Exprent ex) {
+    for (Exprent e : ex.getAllExprents(true, true)) {
+      if (e instanceof VarExprent && ((VarExprent) e).getIndex() == var.getIndex()) {
+        return true;
+      }
+    }
     return false;
   }
 

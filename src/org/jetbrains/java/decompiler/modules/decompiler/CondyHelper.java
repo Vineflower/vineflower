@@ -26,6 +26,8 @@ public class CondyHelper {
 
   // TODO: handle other bootstraps (invoke, explicitCast)
   private static final String CONSTANT_BOOTSTRAPS_CLASS = "java/lang/invoke/ConstantBootstraps";
+  private static final String CONSTANT_ENUMDESC_CLASS = "java/lang/Enum$EnumDesc";
+  private static final String CONSTANT_CLASSDESC_CLASS = "java/lang/constant/ClassDesc";
 
   // converts a condy exprent into an equivalent "normal java" exprent
   public static Exprent simplifyCondy(InvocationExprent condyExpr) {
@@ -34,29 +36,38 @@ public class CondyHelper {
     }
 
     LinkConstant method = condyExpr.getBootstrapMethod();
-    if (!CONSTANT_BOOTSTRAPS_CLASS.equals(method.classname)) {
-      return condyExpr;
-    }
+    Exprent result = simplifyCondy(method, condyExpr.getName(), condyExpr.getExprType(), condyExpr.getBootstrapArguments());
+    return result != null ? result : condyExpr;
+  }
 
+  public static Exprent simplifyCondy(LinkConstant method, String name, VarType type, List<PooledConstant> constArgs) {
+    return switch (method.classname) {
+      case CONSTANT_BOOTSTRAPS_CLASS -> simplifyConstantBootstraps(method, name, type, constArgs);
+      case CONSTANT_ENUMDESC_CLASS -> simplifyEnumDesc(method, name, type, constArgs);
+      case CONSTANT_CLASSDESC_CLASS -> simplifyClassDesc(method, name, type, constArgs);
+      default -> null;
+    };
+  }
+
+  private static Exprent simplifyConstantBootstraps(LinkConstant method, String name, VarType type, List<PooledConstant> constArgs) {
     switch (method.elementname) {
       case "nullConstant": // -> null
         // TODO: include target type?
         return new ConstExprent(VarType.VARTYPE_NULL, null, null).setWasCondy(true);
       case "primitiveClass": // -> int.class
-        String desc = condyExpr.getName();
+        String desc = name;
         // the name of the constant is the descriptor of the primitive type, check that its valid
         if (desc.length() != 1 || !("ZCBSIJFDV".contains(desc))) {
           break;
         }
-        VarType type = new VarType(desc, false);
-        return new ConstExprent(VarType.VARTYPE_CLASS, ExprProcessor.getCastTypeName(type), null).setWasCondy(true);
+        VarType primitiveType = new VarType(desc, false);
+        return new ConstExprent(VarType.VARTYPE_CLASS, ExprProcessor.getCastTypeName(primitiveType), null).setWasCondy(true);
       case "enumConstant": // MyEnum.NAME
-        String typeName = condyExpr.getExprType().value;
-        return new FieldExprent(condyExpr.getName(), typeName, true, null, FieldDescriptor.parseDescriptor("L" + typeName + ";"), null, false, true);
+        String typeName = type.value;
+        return new FieldExprent(name, typeName, true, null, FieldDescriptor.parseDescriptor("L" + typeName + ";"), null, false, true);
       case "getStaticFinal": { // MyClass.fieldName
         // name of the constant is the field name
-        List<PooledConstant> constArgs = condyExpr.getBootstrapArguments();
-        String fieldType = condyExpr.getExprType().value;
+        String fieldType = type.value;
         String ownerClass;
         // if a constant argument is present, that argument must be a class that contains the field
         if (constArgs.size() == 1) {
@@ -64,45 +75,85 @@ public class CondyHelper {
           if (ownerName instanceof PrimitiveConstant) {
             ownerClass = ((PrimitiveConstant) ownerName).value.toString();
           } else {
-            return condyExpr;
+            return null;
           }
         // otherwise, the field is declared in the type of the field
         } else {
-          if (condyExpr.getExprType().type != VarType.VARTYPE_OBJECT.type) {
-            return condyExpr;
+          if (type.type != VarType.VARTYPE_OBJECT.type) {
+            return null;
           }
           ownerClass = fieldType;
         }
-        return new FieldExprent(condyExpr.getName(), ownerClass, true, null, FieldDescriptor.parseDescriptor(fieldType), null, false, true);
+        return new FieldExprent(name, ownerClass, true, null, FieldDescriptor.parseDescriptor(fieldType), null, false, true);
       }
       case "fieldVarHandle":
       case "staticFieldVarHandle": { // --> MethodHandles.lookup().find[Static]VarHandle(...)
         if (!DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_COMPLEX_CONDYS)) {
-          return condyExpr;
+          return null;
         }
         boolean isStatic = method.elementname.startsWith("static");
-        List<PooledConstant> constArgs = condyExpr.getBootstrapArguments();
-        String fieldName = condyExpr.getName();
+        String fieldName = name;
         // first argument is fieldname so should be primitive, second might be condy for primitive classes
         if (constArgs.size() != 2 || !(constArgs.get(0) instanceof PrimitiveConstant)) {
-          return condyExpr;
+          return null;
         }
         String ownerClass = ((PrimitiveConstant) constArgs.get(0)).getString();
         return constructVarHandle(fieldName, ownerClass, constArgs.get(1), isStatic);
       }
       case "arrayVarHandle": { // --> MethodHandles.arrayElementVarHandle(...)
         if (!DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_COMPLEX_CONDYS)) {
-          return condyExpr;
+          return null;
         }
         // argument is the array class
-        List<PooledConstant> constArgs = condyExpr.getBootstrapArguments();
         if (constArgs.size() != 1) {
-          return condyExpr;
+          return null;
         }
         return constructArrayVarHandleExprent(constArgs.get(0));
       }
+      case "invoke": {
+        // first argument is the method to invoke
+        // remaining arguments are used as arguments for the method
+        if (constArgs.size() < 1 || !(constArgs.get(0) instanceof LinkConstant other)) {
+          return null;
+        }
+        return simplifyCondy(other, name, type, constArgs.subList(1, constArgs.size()));
+      }
     }
-    return condyExpr;
+    return null;
+  }
+
+  private static Exprent simplifyEnumDesc(LinkConstant method, String name, VarType type, List<PooledConstant> constArgs) {
+    // First argument is a method call to get the class (which is wrapped with ConstantBootstraps.invoke)
+    // Second argument is the name of the enum value
+    if (constArgs.size() != 2
+        || !(constArgs.get(0) instanceof LinkConstant getClass)
+        || !(constArgs.get(1) instanceof PrimitiveConstant valueNameConstant)
+        || valueNameConstant.type != CodeConstants.TYPE_OBJECT
+        || !(valueNameConstant.value instanceof String valueName)) {
+      return null;
+    }
+    StructBootstrapMethodsAttribute bootstrap = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS).getAttribute(StructGeneralAttribute.ATTRIBUTE_BOOTSTRAP_METHODS);
+    LinkConstant getClassMethod = bootstrap.getMethodReference(getClass.index1);
+    List<PooledConstant> getClassArgs = bootstrap.getMethodArguments(getClass.index1);
+    Exprent enumType = simplifyCondy(getClassMethod, getClass.elementname, new VarType(getClass.descriptor), getClassArgs);
+    if (!(enumType instanceof ConstExprent constExp)
+        || !constExp.getExprType().equals(VarType.VARTYPE_CLASS)) {
+      return null;
+    }
+
+    String typeName = constExp.getValue().toString();
+    return new FieldExprent(valueName, typeName, true, null, FieldDescriptor.parseDescriptor("L" + typeName + ";"), null, false, true);
+  }
+
+  private static Exprent simplifyClassDesc(LinkConstant method, String name, VarType type, List<PooledConstant> constArgs) {
+    // Argument is the class name
+    if (constArgs.size() != 1
+        || !(constArgs.get(0) instanceof PrimitiveConstant classNameConstant)
+        || classNameConstant.type != CodeConstants.TYPE_OBJECT
+        || !(classNameConstant.value instanceof String className)) {
+      return null;
+    }
+    return new ConstExprent(VarType.VARTYPE_CLASS, className, null);
   }
 
   private static Exprent constructVarHandle(String fieldName, String fieldOwner, PooledConstant fieldType, boolean isStatic) {

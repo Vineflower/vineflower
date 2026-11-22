@@ -1,0 +1,118 @@
+package pkg;
+
+import java.util.ArrayList;
+
+public class TestForEachInSwitch {
+   private static final int GUEST_CHECKOUT = 1;
+   private static final int REGISTERED_USER = 2;
+   private static final int SUBSCRIPTION_RENEWAL = 3;
+   private static final int EXPRESS_DELIVERY = 4;
+   private static final int INTERNATIONAL_SHIPPING = 5;
+
+   public void processTransactionDetails(int param1, ArrayList<TestForEachInSwitch.OrderData> param2) {
+      // $VF: Couldn't be decompiled
+      // Bytecode:
+      // 00: aload 2
+      // 01: invokevirtual java/util/ArrayList.iterator ()Ljava/util/Iterator;
+      // 04: astore 3
+      // 05: aload 3
+      // 06: invokeinterface java/util/Iterator.hasNext ()Z 1
+      // 0b: ifeq c3
+      // 0e: aload 3
+      // 0f: invokeinterface java/util/Iterator.next ()Ljava/lang/Object; 1
+      // 14: checkcast pkg/TestForEachInSwitch$OrderData
+      // 17: astore 4
+      // 19: iload 1
+      // 1a: tableswitch 166 1 5 34 34 84 125 125
+      // 3c: new java/util/HashSet
+      // 3f: dup
+      // 40: invokespecial java/util/HashSet.<init> ()V
+      // 43: astore 5
+      // 45: aload 5
+      // 47: invokevirtual java/util/HashSet.iterator ()Ljava/util/Iterator;
+      // 4a: astore 6
+      // 4c: aload 6
+      // 4e: invokeinterface java/util/Iterator.hasNext ()Z 1
+      // 53: ifeq 6b
+      // 56: aload 6
+      // 58: invokeinterface java/util/Iterator.next ()Ljava/lang/Object; 1
+      // 5d: checkcast pkg/TestForEachInSwitch$ProductItem
+      // 60: astore 7
+      // 62: aload 0
+      // 63: aload 7
+      // 65: invokespecial pkg/TestForEachInSwitch.updateInventoryLog (Lpkg/TestForEachInSwitch$ProductItem;)V
+      // 68: goto 4c
+      // 6b: goto c0
+      // 6e: aload 4
+      // 70: invokevirtual pkg/TestForEachInSwitch$OrderData.getPurchasedItems ()[Lpkg/TestForEachInSwitch$ProductItem;
+      // 73: astore 5
+      // 75: aload 5
+      // 77: arraylength
+      // 78: istore 6
+      // 7a: bipush 0
+      // 7b: istore 7
+      // 7d: iload 7
+      // 7f: iload 6
+      // 81: if_icmpge 97
+      // 84: aload 5
+      // 86: iload 7
+      // 88: aaload
+      // 89: astore 8
+      // 8b: aload 0
+      // 8c: aload 8
+      // 8e: invokespecial pkg/TestForEachInSwitch.updateInventoryLog (Lpkg/TestForEachInSwitch$ProductItem;)V
+      // 91: iinc 7 1
+      // 94: goto 7d
+      // 97: aload 4
+      // 99: invokevirtual pkg/TestForEachInSwitch$OrderData.getPurchasedItems ()[Lpkg/TestForEachInSwitch$ProductItem;
+      // 9c: astore 5
+      // 9e: aload 5
+      // a0: arraylength
+      // a1: istore 6
+      // a3: bipush 0
+      // a4: istore 7
+      // a6: iload 7
+      // a8: iload 6
+      // aa: if_icmpge c0
+      // ad: aload 5
+      // af: iload 7
+      // b1: aaload
+      // b2: astore 8
+      // b4: aload 0
+      // b5: aload 8
+      // b7: invokespecial pkg/TestForEachInSwitch.updateInventoryLog (Lpkg/TestForEachInSwitch$ProductItem;)V
+      // ba: iinc 7 1
+      // bd: goto a6
+      // c0: goto 05
+      // c3: return
+   }
+
+   private void updateInventoryLog(TestForEachInSwitch.ProductItem item) {
+   }// 44
+
+   static class OrderData {
+      public TestForEachInSwitch.ProductItem[] getPurchasedItems() {
+         return null;// 51
+      }
+   }
+
+   static class ProductItem {
+   }
+}
+
+class 'pkg/TestForEachInSwitch' {
+   method 'updateInventoryLog (Lpkg/TestForEachInSwitch$ProductItem;)V' {
+      0      90
+   }
+}
+
+class 'pkg/TestForEachInSwitch$OrderData' {
+   method 'getPurchasedItems ()[Lpkg/TestForEachInSwitch$ProductItem;' {
+      0      94
+      1      94
+   }
+}
+
+Lines mapping:
+44 <-> 91
+51 <-> 95

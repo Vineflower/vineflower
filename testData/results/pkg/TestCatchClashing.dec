@@ -6,10 +6,10 @@ public class TestCatchClashing {
          System.out.println("Hello");// 6
       } catch (Error e) {// 7
          e.printStackTrace();// 8
-      } catch (Exception ex) {// 9
-         ex.printStackTrace();// 10
-      } catch (Throwable exx) {// 11
-         exx.printStackTrace();// 12
+      } catch (Exception e) {// 9
+         e.printStackTrace();// 10
+      } catch (Throwable e) {// 11
+         e.printStackTrace();// 12
       }
    }// 14
 }

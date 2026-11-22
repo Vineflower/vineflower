@@ -9,7 +9,7 @@ public class TestSwitchPatternMatching2 {
          case TestSwitchPatternMatching2.Triangle t when t.calculateArea() > 100.0:// 6
             System.out.println("Large triangle");// 7
             break;
-         case TestSwitchPatternMatching2.Triangle tx:// 8
+         case TestSwitchPatternMatching2.Triangle t:// 8
             System.out.println("Small triangle");// 9
             break;
          default:

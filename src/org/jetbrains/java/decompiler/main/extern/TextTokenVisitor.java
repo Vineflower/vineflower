@@ -73,6 +73,12 @@ public abstract class TextTokenVisitor {
     }
   }
 
+  public void visitLambda(TextRange range, String className, String name, MethodDescriptor descriptor) {
+    if (next != null) {
+      next.visitLambda(range, className, name, descriptor);
+    }
+  }
+
   public void visitParameter(TextRange range, boolean declaration, String className, String methodName, MethodDescriptor methodDescriptor, int index, String name) {
     if (next != null) {
       next.visitParameter(range, declaration, className, methodName, methodDescriptor, index, name);

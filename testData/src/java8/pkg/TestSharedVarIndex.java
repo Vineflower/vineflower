@@ -11,6 +11,32 @@ public class TestSharedVarIndex {
     String b = "lol";
   }
 
+  public static int ObjectVsInt(Object object, int value) {
+    {
+      Object alias = object;
+      alias.hashCode();
+    }
+    {
+      int alias = 0;
+      int result = alias + value;
+      return result;
+    }
+  }
+  public static void ObjectVsInt2(int value) {
+    {
+      Object alias = null;
+    }
+    {
+      int alias = value;
+      switch (alias) {
+        case 1:
+          return;
+        default:
+          return;
+      }
+    }
+  }
+
   public void lambda(List<Integer> l) {
     {
       int i = 0;

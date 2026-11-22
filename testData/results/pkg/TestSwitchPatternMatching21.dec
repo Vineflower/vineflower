@@ -12,11 +12,11 @@ public class TestSwitchPatternMatching21 {
          case String s when Math.random() > 0.0:// 8
             System.out.println(s + "!");// 9
             break;
-         case String sx when Math.random() > 0.0:// 10
-            System.out.println(sx + "!!");// 11
+         case String s when Math.random() > 0.0:// 10
+            System.out.println(s + "!!");// 11
             break;
-         case String sxx when sxx.startsWith("?"):// 12
-            System.out.println(sxx + "?");// 13
+         case String s when s.startsWith("?"):// 12
+            System.out.println(s + "?");// 13
             break;
          default:
             System.out.println("Default");// 14
@@ -34,11 +34,11 @@ public class TestSwitchPatternMatching21 {
          case String s when Math.random() > 0.0:// 22
             System.out.println(s + "!");// 23
             break;
-         case String sx when Math.random() > 0.0:// 24
-            System.out.println(sx + "!!");// 25
+         case String s when Math.random() > 0.0:// 24
+            System.out.println(s + "!!");// 25
             break;
-         case String sxx:// 26
-            System.out.println(sxx + "?");// 27
+         case String s:// 26
+            System.out.println(s + "?");// 27
       }
    }// 29
 

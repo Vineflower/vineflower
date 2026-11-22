@@ -347,7 +347,7 @@ public class FlattenStatementsHelper {
         this.addDestination(first, firstNode);
         this.addDestination(stat, firstNode);
 
-        if (tailexprlst != null && tailexprlst.get(0) != null) {
+        if (tailexprlst.get(0) != null) {
           DirectNode tail = this.createDirectNode(stat, DirectNodeType.TAIL, tailexprlst);
           firstNode.addSuccessor(DirectEdge.of(firstNode, tail));
 
@@ -373,7 +373,7 @@ public class FlattenStatementsHelper {
         this.addDestination(first, firstNode);
         this.addDestination(stat, firstNode);
 
-        if (tailexprlst != null && tailexprlst.get(0) != null) {
+        if (tailexprlst.get(0) != null) {
           DirectNode tail = this.createDirectNode(stat, DirectNodeType.TAIL, tailexprlst);
 
           firstNode.addSuccessor(DirectEdge.of(firstNode, tail));
@@ -441,7 +441,7 @@ public class FlattenStatementsHelper {
         this.addDestination(first, firstNode);
         this.addDestination(stat, firstNode);
 
-        if (tailexprlst != null && tailexprlst.get(0) != null) {
+        if (tailexprlst.get(0) != null) {
           DirectNode tail = this.createDirectNode(stat, DirectNodeType.TAIL, tailexprlst);
 
           firstNode.addSuccessor(DirectEdge.of(firstNode, tail));

@@ -3,7 +3,7 @@ package pkg;
 public class TestSwitchPatternMatching19 {
    static void test(TestSwitchPatternMatching19.XXX s) {
       switch (s) {// 5
-         case X1:
+         case TestSwitchPatternMatching19.E.X1:
             System.out.println("x1");// 6
             break;
          case TestSwitchPatternMatching19.A a when a != TestSwitchPatternMatching19.XXX.X1:// 7
@@ -25,11 +25,11 @@ public class TestSwitchPatternMatching19 {
 
    static void test2(TestSwitchPatternMatching19.XXX s) {
       switch (s) {// 16
-         case X2:
+         case TestSwitchPatternMatching19.F.X2:
          case null:
             System.out.println("maybe x2?");// 18
             break;
-         case X1:
+         case TestSwitchPatternMatching19.F.X1:
             System.out.println("x1");// 17
             break;
          case TestSwitchPatternMatching19.XXX var4 when Math.random() > 0.0:// 19

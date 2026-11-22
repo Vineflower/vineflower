@@ -11,6 +11,7 @@ import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericFieldDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericMain;
 import org.jetbrains.java.decompiler.util.DataInputFullStream;
+import org.jetbrains.java.decompiler.util.Key;
 
 import java.io.IOException;
 import java.util.Map;
@@ -31,10 +32,10 @@ public class StructRecordComponent extends StructField {
     String name = ((PrimitiveConstant)pool.getConstant(nameIndex)).getString();
     String descriptor = ((PrimitiveConstant)pool.getConstant(descriptorIndex)).getString();
 
-    Map<String, StructGeneralAttribute> attributes = readAttributes(in, pool, version);
+    Map<Key<?>, Object> attributes = readAttributes(in, pool, version);
     GenericFieldDescriptor signature = null;
     if (DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_GENERIC_SIGNATURES)) {
-      StructGenericSignatureAttribute signatureAttr = (StructGenericSignatureAttribute)attributes.get(StructGeneralAttribute.ATTRIBUTE_SIGNATURE.name);
+      StructGenericSignatureAttribute signatureAttr = (StructGenericSignatureAttribute)attributes.get(StructGeneralAttribute.ATTRIBUTE_SIGNATURE);
       if (signatureAttr != null) {
         signature = GenericMain.parseFieldSignature(signatureAttr.getSignature());
       }
@@ -43,7 +44,7 @@ public class StructRecordComponent extends StructField {
     return new StructRecordComponent(0, attributes, name, descriptor, signature, version);
   }
 
-  private StructRecordComponent(int flags, Map<String, StructGeneralAttribute> attributes, String name, String descriptor, GenericFieldDescriptor signature, BytecodeVersion version) {
+  private StructRecordComponent(int flags, Map<Key<?>, Object> attributes, String name, String descriptor, GenericFieldDescriptor signature, BytecodeVersion version) {
     super(flags, attributes, name, descriptor, signature, version);
   }
 }

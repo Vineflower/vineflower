@@ -31,6 +31,13 @@ public interface Plugin {
   }
 
   /**
+   * Called just before decompilation starts.
+   */
+  default void beforeDecompile() {
+
+  }
+
+  /**
    * Called after decompilation is done and the context is cleared.
    */
   default void close() {

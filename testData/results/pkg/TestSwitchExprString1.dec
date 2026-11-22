@@ -6,19 +6,10 @@ public class TestSwitchExprString1 {
          return TestSwitchExprString1.Type.B;// 10
       }
 
-      String var2 = s;
-      byte var3 = -1;
-      switch (var2.hashCode()) {
-         case 97:
-            if (var2.equals("a")) {
-               var3 = 0;
-            }
-         default:
-            return switch (var3) {// 13
-               case 0 -> TestSwitchExprString1.Type.A;// 14
-               default -> TestSwitchExprString1.Type.B;// 15
-            };
-      }
+      return switch (s) {// 13
+         case "a" -> TestSwitchExprString1.Type.A;// 14
+         default -> TestSwitchExprString1.Type.B;// 15
+      };
    }
 
    enum Type {
@@ -38,78 +29,41 @@ class 'pkg/TestSwitchExprString1' {
       6      5
       7      5
       8      8
-      9      8
-      a      9
-      b      9
-      c      10
-      d      10
-      e      10
-      f      10
-      10      10
-      11      10
-      12      10
-      13      10
-      14      10
-      15      10
-      16      10
-      17      10
-      18      10
-      19      10
-      1a      10
-      1b      10
-      1c      10
-      1d      10
-      1e      10
-      1f      10
-      20      10
-      21      10
-      22      10
-      23      10
-      24      12
-      25      12
-      26      12
-      27      12
-      28      12
-      29      12
-      2a      12
-      2b      12
-      2c      12
-      2d      13
-      2e      13
-      2f      16
-      30      16
-      31      16
-      32      16
-      33      16
-      34      16
-      35      16
-      36      16
-      37      16
-      38      16
-      39      16
-      3a      16
-      3b      16
-      3c      16
-      3d      16
-      3e      16
-      3f      16
-      40      16
-      41      16
-      42      16
-      43      16
-      44      17
-      45      17
-      46      17
-      4a      18
-      4b      18
-      4c      18
-      4d      16
+      25      9
+      26      9
+      30      8
+      31      8
+      32      8
+      33      8
+      34      8
+      35      8
+      36      8
+      37      8
+      38      8
+      39      8
+      3a      8
+      3b      8
+      3c      8
+      3d      8
+      3e      8
+      3f      8
+      40      8
+      41      8
+      42      8
+      43      8
+      44      9
+      45      9
+      46      9
+      4a      10
+      4b      10
+      4c      10
+      4d      8
    }
 }
 
 Lines mapping:
 9 <-> 5
 10 <-> 6
-13 <-> 17
-14 <-> 18
-15 <-> 19
+13 <-> 9
+14 <-> 10
+15 <-> 11

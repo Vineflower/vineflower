@@ -1,0 +1,48 @@
+package pkg;
+
+public class TestAssertInterface2 {
+   public void test() {
+      System.out.println();// 13
+   }// 14
+
+   public interface Interface {
+      void empty();
+
+      default void test(int x) {
+         assert x > 10;// 8
+      }// 9
+   }
+}
+
+class 'pkg/TestAssertInterface2' {
+   method 'test ()V' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      5      4
+      6      5
+   }
+}
+
+class 'pkg/TestAssertInterface2$Interface' {
+   method 'test (I)V' {
+      6      11
+      7      11
+      8      11
+      9      11
+      a      11
+      b      11
+      10      11
+      11      11
+      12      11
+      14      12
+   }
+}
+
+Lines mapping:
+8 <-> 12
+9 <-> 13
+13 <-> 5
+14 <-> 6

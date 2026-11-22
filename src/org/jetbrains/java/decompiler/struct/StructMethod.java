@@ -14,6 +14,7 @@ import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericMain;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericMethodDescriptor;
 import org.jetbrains.java.decompiler.util.DataInputFullStream;
+import org.jetbrains.java.decompiler.util.Key;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.jetbrains.java.decompiler.code.CodeConstants.*;
+import static org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences.DEBUG_MARKER_EXCEPTIONS;
 
 /*
   method_info {
@@ -40,15 +42,15 @@ public class StructMethod extends StructMember {
 
     String[] values = pool.getClassElement(ConstantPool.METHOD, clQualifiedName, nameIndex, descriptorIndex);
 
-    Map<String, StructGeneralAttribute> attributes = readAttributes(in, pool, own, bytecodeVersion);
-    StructCodeAttribute code = (StructCodeAttribute)attributes.remove(StructGeneralAttribute.ATTRIBUTE_CODE.name);
+    Map<Key<?>, Object> attributes = readAttributes(in, pool, own, bytecodeVersion);
+    StructCodeAttribute code = (StructCodeAttribute)attributes.remove(StructGeneralAttribute.ATTRIBUTE_CODE);
     if (code != null) {
       attributes.putAll(code.codeAttributes);
     }
 
     GenericMethodDescriptor signature = null;
     if (DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_GENERIC_SIGNATURES)) {
-      StructGenericSignatureAttribute signatureAttr = (StructGenericSignatureAttribute)attributes.get(StructGeneralAttribute.ATTRIBUTE_SIGNATURE.name);
+      StructGenericSignatureAttribute signatureAttr = (StructGenericSignatureAttribute)attributes.get(StructGeneralAttribute.ATTRIBUTE_SIGNATURE);
       if (signatureAttr != null) {
         signature = GenericMain.parseMethodSignature(signatureAttr.getSignature());
       }
@@ -74,7 +76,7 @@ public class StructMethod extends StructMember {
   private IVariableNameProvider renamer;
 
   private StructMethod(int accessFlags,
-                       Map<String, StructGeneralAttribute> attributes,
+                       Map<Key<?>, Object> attributes,
                        String name,
                        String descriptor,
                        BytecodeVersion bytecodeVersion,
@@ -342,9 +344,24 @@ public class StructMethod extends StructMember {
         exceptionClass = null;
       } else {
         exceptionClass = pool.getPrimitiveConstant(excClass).getString();
+        if (DecompilerContext.getOption(DEBUG_MARKER_EXCEPTIONS)) {
+          if ("org/vineflower/marker/CatchAllException".equals(exceptionClass)){
+            exceptionClass = null;
+          }
+        }
       }
 
       lstHandlers.add(new ExceptionHandler(from, to, handler, exceptionClass));
+    }
+
+    if (DecompilerContext.getOption(DEBUG_MARKER_EXCEPTIONS)) {
+      for (int i = 0; i < lstHandlers.size(); i++) {
+        ExceptionHandler range = lstHandlers.get(i);
+
+        if ("org/vineflower/marker/UnCatchException".equals(range.exceptionClass())) {
+          lstHandlers = filterOutRange(lstHandlers, i, range.from(), range.to());
+        }
+      }
     }
 
     FullInstructionSequence seq = new FullInstructionSequence(
@@ -357,6 +374,33 @@ public class StructMethod extends StructMember {
     }
 
     return seq;
+  }
+
+  private static List<ExceptionHandler> filterOutRange(List<ExceptionHandler> lstHandlers, int startIndex, int from, int to) {
+    // DEBUG ONLY: removes all handlers for a specific range
+    List<ExceptionHandler> newHandlers = new ArrayList<>();
+    for (int i = 0; i < lstHandlers.size(); i++) {
+      ExceptionHandler oldRange = lstHandlers.get(i);
+      if (i == startIndex) {
+        // skip marker exception
+        continue;
+      } else if (i < startIndex) {
+        // copy over inner ranges
+        newHandlers.add(oldRange);
+      } else if (oldRange.to() > from && to > oldRange.from()) {
+        // split/filter wrapping ranges
+        if (oldRange.from() < from) {
+          newHandlers.add(new ExceptionHandler(oldRange.from(), from, oldRange.handler(), oldRange.exceptionClass()));
+        }
+        if (oldRange.to() > to) {
+          newHandlers.add(new ExceptionHandler(to, oldRange.to(), oldRange.handler(), oldRange.exceptionClass()));
+        }
+      } else {
+        // copy over non overlapping ranges
+        newHandlers.add(oldRange);
+      }
+    }
+    return newHandlers;
   }
 
   public String getName() {

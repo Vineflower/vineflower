@@ -20,6 +20,7 @@ import org.jetbrains.java.decompiler.struct.gen.generics.GenericMain;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.util.token.ClassTextToken;
 import org.jetbrains.java.decompiler.util.token.FieldTextToken;
+import org.jetbrains.java.decompiler.util.token.LambdaTextToken;
 import org.jetbrains.java.decompiler.util.token.MethodTextToken;
 import org.jetbrains.java.decompiler.util.token.TextToken;
 import org.jetbrains.java.decompiler.util.token.VariableTextToken;
@@ -255,6 +256,10 @@ public class TextBuffer {
 
   private void addToken(TextToken token) {
     myCurrentGroup.myTokens.add(token);
+  }
+
+  public void addLambdaToken(int start, String className, String name, String descriptor) {
+    addToken(new LambdaTextToken(start, length() - start, className, name, MethodDescriptor.parseDescriptor(descriptor)));
   }
 
   /**
@@ -496,7 +501,11 @@ public class TextBuffer {
 
     for (TextToken token : group.myTokens) {
       if (token.getStart() < offsetMapping.size()) {
-        token.shift(offsetMapping.get(token.getStart()));
+        if (token instanceof LambdaTextToken lambda) {
+          lambda.shift(offsetMapping.get(token.getStart()), offsetMapping.get(token.getStart() + token.getLength()));
+        } else {
+          token.shift(offsetMapping.get(token.getStart()));
+        }
       }
     }
   }

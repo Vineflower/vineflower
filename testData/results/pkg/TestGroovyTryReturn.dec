@@ -1,0 +1,2041 @@
+package pkg;
+
+import groovy.lang.GroovyObject;
+import groovy.lang.MetaClass;
+import groovy.transform.Generated;
+import groovy.transform.Internal;
+import java.beans.Transient;
+import java.util.Random;
+import java.util.function.Supplier;
+import org.codehaus.groovy.runtime.BytecodeInterface8;
+import org.codehaus.groovy.runtime.callsite.CallSite;
+import org.codehaus.groovy.runtime.typehandling.DefaultTypeTransformation;
+
+public class TestGroovyTryReturn implements GroovyObject {
+   @Generated
+   public TestGroovyTryReturn() {
+      CallSite[] var1 = $getCallSiteArray();
+      super();
+      MetaClass var2 = this.$getStaticMetaClass();
+      this.metaClass = var2;
+   }
+
+   public boolean test(Supplier<Boolean> param1) {
+      // $VF: Couldn't be decompiled
+      // Bytecode:
+      // 00: nop
+      // 01: invokestatic pkg/TestGroovyTryReturn.$getCallSiteArray ()[Lorg/codehaus/groovy/runtime/callsite/CallSite;
+      // 04: astore 2
+      // 05: aload 2
+      // 06: ldc 0
+      // 08: aaload
+      // 09: aload 1
+      // 0a: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.call (Ljava/lang/Object;)Ljava/lang/Object; 2
+      // 0f: invokestatic org/codehaus/groovy/runtime/typehandling/DefaultTypeTransformation.booleanUnbox (Ljava/lang/Object;)Z
+      // 12: istore 3
+      // 13: nop
+      // 14: nop
+      // 15: iload 3
+      // 16: ireturn
+      // 17: nop
+      // 18: nop
+      // 19: athrow
+      // 1a: astore 4
+      // 1c: aload 2
+      // 1d: ldc 1
+      // 1f: aaload
+      // 20: ldc java/lang/RuntimeException
+      // 22: aload 4
+      // 24: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.callConstructor (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; 3
+      // 29: checkcast java/lang/Throwable
+      // 2c: athrow
+      // 2d: athrow
+      // 2e: nop
+      // 2f: nop
+      // 30: athrow
+      // 31: nop
+      // 32: nop
+      // 33: athrow
+      // 34: astore 5
+      // 36: aload 5
+      // 38: athrow
+      // 39: nop
+      // 3a: nop
+      // 3b: nop
+      // 3c: nop
+      // 3d: nop
+      // 3e: nop
+      // 3f: nop
+      // 40: nop
+      // 41: athrow
+      // try (3 -> 11): 17 java/lang/Exception
+      // try (12 -> 14): 17 java/lang/Exception
+      // try (3 -> 11): 33 null
+      // try (12 -> 14): 33 null
+      // try (17 -> 26): 33 null
+   }
+
+   // $VF: Duplicated exception handlers to handle obfuscated exceptions
+   // $VF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.
+   public boolean testFinally(Supplier<Boolean> supplier) {
+      CallSite[] var2 = $getCallSiteArray();
+      boolean var9 = false /* VF: Semaphore variable */;
+
+      boolean var3;
+      try {
+         var9 = true;
+         var3 = DefaultTypeTransformation.booleanUnbox(var2[2].call(supplier));// 16 17
+         var9 = false;
+      } finally {
+         if (var9) {
+            var2[7].call(var2[8].callGetProperty(System.class), "Finally");// 19
+         }
+      }
+
+      var2[3].call(var2[4].callGetProperty(System.class), "Finally");
+
+      try {
+         return var3;// 20
+      } finally {
+         var2[7].call(var2[8].callGetProperty(System.class), "Finally");
+      }
+   }
+
+   // $VF: Duplicated exception handlers to handle obfuscated exceptions
+   // $VF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.
+   public void testFinally1(Supplier<Boolean> supplier) {
+      CallSite[] var2 = $getCallSiteArray();
+      var2[9].call(var2[10].callGetProperty(System.class), "pred");// 24
+      boolean var8 = false /* VF: Semaphore variable */;
+
+      label60: {
+         try {
+            var8 = true;
+            if (!DefaultTypeTransformation.booleanUnbox(var2[11].call(supplier))) {// 26 27
+               var8 = false;
+               break label60;
+            }
+
+            var8 = false;
+         } finally {
+            if (var8) {
+               var2[16].call(var2[17].callGetProperty(System.class), "Finally");// 31
+            }
+         }
+
+         var2[12].call(var2[13].callGetProperty(System.class), "Finally");
+
+         try {
+            return;// 32
+         } finally {
+            var2[16].call(var2[17].callGetProperty(System.class), "Finally");
+         }
+      }
+
+      var2[14].call(var2[15].callGetProperty(System.class), "Finally");// 30
+      var2[18].call(var2[19].callGetProperty(System.class), "suc");// 34
+   }
+
+   // $VF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.
+   public boolean testFinally2(Supplier<Boolean> supplier) {
+      CallSite[] var2 = $getCallSiteArray();
+      boolean b = (boolean)0;// 38
+      boolean var7 = false /* VF: Semaphore variable */;
+
+      try {
+         var7 = true;
+         Object var4 = var2[20].call(supplier);// 39 40
+         var9 = DefaultTypeTransformation.booleanUnbox(var4);
+         var7 = false;
+      } finally {
+         if (var7) {
+            var2[23].call(var2[24].callGetProperty(System.class), "Finally");// 42
+         }
+      }
+
+      var2[21].call(var2[22].callGetProperty(System.class), "Finally");
+      return var9;// 45
+   }
+
+   // $VF: Duplicated exception handlers to handle obfuscated exceptions
+   // $VF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.
+   public boolean testFinally3(boolean b, boolean c, int a, Supplier<Boolean> supplier) {
+      CallSite[] var5 = $getCallSiteArray();
+      boolean var39 = false /* VF: Semaphore variable */;
+
+      boolean var6;
+      label381: {
+         try {
+            var39 = true;
+            if (b) {// 49 50
+               var6 = c && DefaultTypeTransformation.booleanUnbox(var5[25].call(supplier));// 51
+               var39 = false;
+               break label381;
+            }
+
+            var39 = false;
+         } finally {
+            if (var39) {
+               var5[37].call(var5[38].callGetProperty(System.class), "Finally");// 60
+            }
+         }
+
+         boolean var33 = false /* VF: Semaphore variable */;
+
+         boolean var7;
+         label367: {
+            boolean var8;
+            label383: {
+               label384: {
+                  try {
+                     var33 = true;
+                     if (!BytecodeInterface8.isOrigInt() || !BytecodeInterface8.isOrigZ() || __$stMC || BytecodeInterface8.disabledStandardMetaClass()) {// 52
+                        if (a > 0) {
+                           var7 = a == 1;
+                           var33 = false;
+                           break label367;
+                        }
+
+                        var33 = false;
+                        break label384;
+                     }
+
+                     var33 = false;
+                  } finally {
+                     if (var33) {
+                        var5[37].call(var5[38].callGetProperty(System.class), "Finally");
+                     }
+                  }
+
+                  boolean var27 = false /* VF: Semaphore variable */;
+
+                  try {
+                     var27 = true;
+                     if (a > 0) {// 54
+                        var8 = a == 1;// 55
+                        var27 = false;
+                        break label383;
+                     }
+
+                     var27 = false;
+                  } finally {
+                     if (var27) {
+                        var5[37].call(var5[38].callGetProperty(System.class), "Finally");
+                     }
+                  }
+               }
+
+               boolean var21 = false /* VF: Semaphore variable */;
+
+               boolean var9;
+               try {
+                  var21 = true;
+                  var9 = DefaultTypeTransformation.booleanUnbox(var5[32].call(supplier));// 56 58
+                  var21 = false;
+               } finally {
+                  if (var21) {
+                     var5[37].call(var5[38].callGetProperty(System.class), "Finally");
+                  }
+               }
+
+               var5[33].call(var5[34].callGetProperty(System.class), "Finally");
+
+               try {
+                  return var9;
+               } finally {
+                  var5[37].call(var5[38].callGetProperty(System.class), "Finally");
+               }
+            }
+
+            var5[30].call(var5[31].callGetProperty(System.class), "Finally");
+            return var8;
+         }
+
+         var5[28].call(var5[29].callGetProperty(System.class), "Finally");
+         return var7;
+      }
+
+      var5[26].call(var5[27].callGetProperty(System.class), "Finally");
+      return var6;// 61
+   }
+
+   // $VF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.
+   public boolean testFinally4(Supplier<Boolean> supplier) {
+      CallSite[] var2 = $getCallSiteArray();
+      boolean b = false;// 65
+      boolean var7 = false /* VF: Semaphore variable */;
+
+      try {
+         var7 = true;
+         Object var4 = var2[39].call(supplier);// 66 67
+         b = DefaultTypeTransformation.booleanUnbox(var4);
+         var7 = false;
+      } finally {
+         if (var7) {
+            var2[42].call(var2[43].callGetProperty(System.class), "Finally");// 69
+         }
+      }
+
+      var2[40].call(var2[41].callGetProperty(System.class), "Finally");
+      return b;// 72
+   }
+
+   // $VF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.
+   public boolean testFinally5(Supplier<Boolean> supplier) {
+      CallSite[] var2 = $getCallSiteArray();
+      boolean b = false;// 76
+      boolean var10 = false /* VF: Semaphore variable */;
+
+      try {
+         var10 = true;
+         Object var4 = var2[44].call(supplier);// 77 78
+         b = DefaultTypeTransformation.booleanUnbox(var4);
+         var10 = false;
+      } catch (Exception e) {// 79
+         var2[45].call(var2[46].callGetProperty(System.class), "Catch");// 80
+         Object var6 = var2[47].call(supplier);// 81
+         b = DefaultTypeTransformation.booleanUnbox(var6);
+         var10 = false;
+      } finally {
+         if (var10) {
+            var2[50].call(var2[51].callGetProperty(System.class), "Finally");// 83
+         }
+      }
+
+      var2[48].call(var2[49].callGetProperty(System.class), "Finally");
+      return b;// 86
+   }
+
+   // $VF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.
+   public boolean testFinally6(boolean a, Supplier<Boolean> supplier) {
+      CallSite[] var3 = $getCallSiteArray();
+      boolean b = false;// 90
+      boolean var12 = false /* VF: Semaphore variable */;
+
+      try {
+         var12 = true;
+         if (a) {// 91 92
+            boolean var5 = true;// 93
+            var3[52].call(var3[53].callGetProperty(System.class), "If");// 94
+         }
+
+         Object var6 = var3[54].call(supplier);// 95 97
+         b = DefaultTypeTransformation.booleanUnbox(var6);
+         var12 = false;
+      } catch (Exception e) {// 98
+         var3[55].call(var3[56].callGetProperty(System.class), "Catch");// 99
+         Object var8 = var3[57].call(supplier);// 100
+         b = DefaultTypeTransformation.booleanUnbox(var8);
+         var12 = false;
+      } finally {
+         if (var12) {
+            var3[60].call(var3[61].callGetProperty(System.class), "Finally");// 102
+         }
+      }
+
+      var3[58].call(var3[59].callGetProperty(System.class), "Finally");
+      return b;// 105
+   }
+
+   // $VF: Duplicated exception handlers to handle obfuscated exceptions
+   // $VF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.
+   public void testLoopFinally() {
+      CallSite[] var1 = $getCallSiteArray();
+      boolean a = true;// 109
+
+      while (true) {
+         boolean var8 = false /* VF: Semaphore variable */;
+
+         try {
+            var8 = true;
+            if (a) {// 111 112 113
+               var8 = false;
+               break;
+            }
+
+            var8 = false;
+         } finally {
+            if (var8) {
+               var1[66].call(var1[67].callGetProperty(System.class), "Finally");// 117
+            }
+         }
+
+         var1[64].call(var1[65].callGetProperty(System.class), "Finally");// 116
+      }
+
+      var1[62].call(var1[63].callGetProperty(System.class), "Finally");
+
+      try {
+         ;
+      } finally {
+         var1[66].call(var1[67].callGetProperty(System.class), "Finally");
+      }
+   }// 118
+
+   public void testParsingFailureSimple() {
+      // $VF: Couldn't be decompiled
+      // Bytecode:
+      // 00: nop
+      // 01: invokestatic pkg/TestGroovyTryReturn.$getCallSiteArray ()[Lorg/codehaus/groovy/runtime/callsite/CallSite;
+      // 04: astore 1
+      // 05: aload 1
+      // 06: ldc 68
+      // 08: aaload
+      // 09: aload 1
+      // 0a: ldc 69
+      // 0c: aaload
+      // 0d: ldc java/lang/System
+      // 0f: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.callGetProperty (Ljava/lang/Object;)Ljava/lang/Object; 2
+      // 14: ldc "inner"
+      // 16: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.call (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; 3
+      // 1b: pop
+      // 1c: goto 1f
+      // 1f: nop
+      // 20: aload 1
+      // 21: ldc 70
+      // 23: aaload
+      // 24: aload 1
+      // 25: ldc 71
+      // 27: aaload
+      // 28: ldc java/lang/System
+      // 2a: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.callGetProperty (Ljava/lang/Object;)Ljava/lang/Object; 2
+      // 2f: ldc "fin"
+      // 31: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.call (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; 3
+      // 36: pop
+      // 37: nop
+      // 38: return
+      // 39: nop
+      // 3a: nop
+      // 3b: athrow
+      // 3c: astore 2
+      // 3d: nop
+      // 3e: aload 1
+      // 3f: ldc 72
+      // 41: aaload
+      // 42: aload 1
+      // 43: ldc 73
+      // 45: aaload
+      // 46: ldc java/lang/System
+      // 48: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.callGetProperty (Ljava/lang/Object;)Ljava/lang/Object; 2
+      // 4d: ldc "fin"
+      // 4f: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.call (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; 3
+      // 54: pop
+      // 55: nop
+      // 56: return
+      // 57: nop
+      // 58: athrow
+      // 59: nop
+      // 5a: nop
+      // 5b: athrow
+      // 5c: nop
+      // 5d: nop
+      // 5e: nop
+      // 5f: nop
+      // 60: nop
+      // 61: nop
+      // 62: nop
+      // 63: nop
+      // 64: nop
+      // 65: nop
+      // 66: nop
+      // 67: nop
+      // 68: nop
+      // 69: nop
+      // 6a: nop
+      // 6b: nop
+      // 6c: nop
+      // 6d: nop
+      // 6e: nop
+      // 6f: nop
+      // 70: nop
+      // 71: nop
+      // 72: athrow
+      // 73: nop
+      // 74: nop
+      // 75: athrow
+      // 76: astore 3
+      // 77: aload 1
+      // 78: ldc 76
+      // 7a: aaload
+      // 7b: aload 1
+      // 7c: ldc 77
+      // 7e: aaload
+      // 7f: ldc java/lang/System
+      // 81: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.callGetProperty (Ljava/lang/Object;)Ljava/lang/Object; 2
+      // 86: ldc "fin"
+      // 88: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.call (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; 3
+      // 8d: pop
+      // 8e: aload 3
+      // 8f: athrow
+      // 90: athrow
+      // try (3 -> 15): 32 null
+      // try (3 -> 16): 78 null
+      // try (28 -> 29): 78 null
+      // try (32 -> 34): 78 null
+      // try (46 -> 47): 78 null
+   }
+
+   public void testPostdomFailure() {
+      CallSite[] var1 = $getCallSiteArray();
+      String var1x = null;// 154
+      var1[78].call(var1[79].callGetProperty(System.class), 1);// 155
+
+      while (DefaultTypeTransformation.booleanUnbox(var1[80].call(var1[81].callConstructor(Random.class)))) {// 157
+         try {
+            try {
+               var1[82].call(var1[83].callGetProperty(System.class), 2);// 158 159 160
+            } catch (Exception var9) {// 161
+               var1[84].call(var1[85].callGetProperty(System.class), 3);// 162
+            } finally {
+               continue;// 165
+            }
+         } finally {
+            byte var10 = (byte)28;// 168
+         }
+      }
+   }// 170
+
+   public void testVarWrong() {
+      // $VF: Couldn't be decompiled
+      // Bytecode:
+      // 00: nop
+      // 01: invokestatic pkg/TestGroovyTryReturn.$getCallSiteArray ()[Lorg/codehaus/groovy/runtime/callsite/CallSite;
+      // 04: astore 1
+      // 05: ldc 0
+      // 07: istore 2
+      // 08: iload 2
+      // 09: pop
+      // 0a: aload 1
+      // 0b: ldc 86
+      // 0d: aaload
+      // 0e: aload 1
+      // 0f: ldc 87
+      // 11: aaload
+      // 12: ldc java/lang/System
+      // 14: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.callGetProperty (Ljava/lang/Object;)Ljava/lang/Object; 2
+      // 19: ldc "Hi"
+      // 1b: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.call (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; 3
+      // 20: pop
+      // 21: goto 60
+      // 24: astore 3
+      // 25: aload 3
+      // 26: aconst_null
+      // 27: invokestatic org/codehaus/groovy/runtime/ScriptBytecodeAdapter.compareNotEqual (Ljava/lang/Object;Ljava/lang/Object;)Z
+      // 2a: ifeq 3b
+      // 2d: nop
+      // 2e: getstatic pkg/TestGroovyTryReturn.$const$0 F
+      // 31: fstore 4
+      // 33: fload 4
+      // 35: pop
+      // 36: nop
+      // 37: return
+      // 38: nop
+      // 39: nop
+      // 3a: athrow
+      // 3b: aload 1
+      // 3c: ldc 88
+      // 3e: aaload
+      // 3f: aload 1
+      // 40: ldc 89
+      // 42: aaload
+      // 43: ldc java/lang/System
+      // 45: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.callGetProperty (Ljava/lang/Object;)Ljava/lang/Object; 2
+      // 4a: aload 3
+      // 4b: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.call (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; 3
+      // 50: pop
+      // 51: nop
+      // 52: getstatic pkg/TestGroovyTryReturn.$const$0 F
+      // 55: fstore 5
+      // 57: fload 5
+      // 59: pop
+      // 5a: nop
+      // 5b: return
+      // 5c: athrow
+      // 5d: nop
+      // 5e: nop
+      // 5f: athrow
+      // 60: getstatic pkg/TestGroovyTryReturn.$const$0 F
+      // 63: fstore 6
+      // 65: fload 6
+      // 67: pop
+      // 68: goto 78
+      // 6b: astore 7
+      // 6d: getstatic pkg/TestGroovyTryReturn.$const$0 F
+      // 70: fstore 8
+      // 72: fload 8
+      // 74: pop
+      // 75: aload 7
+      // 77: athrow
+      // 78: return
+      // try (7 -> 19): 19 java/lang/Exception
+      // try (7 -> 19): 61 null
+      // try (19 -> 25): 61 null
+      // try (30 -> 31): 61 null
+      // try (34 -> 46): 61 null
+      // try (51 -> 52): 61 null
+   }
+
+   public void testInvalidUse() {
+      // $VF: Couldn't be decompiled
+      // Bytecode:
+      // 000: nop
+      // 001: invokestatic pkg/TestGroovyTryReturn.$getCallSiteArray ()[Lorg/codehaus/groovy/runtime/callsite/CallSite;
+      // 004: astore 1
+      // 005: bipush 0
+      // 006: istore 2
+      // 007: iload 2
+      // 008: pop
+      // 009: ldc "Hi!"
+      // 00b: astore 3
+      // 00c: aload 3
+      // 00d: pop
+      // 00e: aload 1
+      // 00f: ldc 90
+      // 011: aaload
+      // 012: aload 1
+      // 013: ldc 91
+      // 015: aaload
+      // 016: ldc java/lang/System
+      // 018: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.callGetProperty (Ljava/lang/Object;)Ljava/lang/Object; 2
+      // 01d: iload 2
+      // 01e: invokestatic java/lang/Boolean.valueOf (Z)Ljava/lang/Boolean;
+      // 021: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.call (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; 3
+      // 026: pop
+      // 027: nop
+      // 028: aload 1
+      // 029: ldc 92
+      // 02b: aaload
+      // 02c: aload 1
+      // 02d: ldc 93
+      // 02f: aaload
+      // 030: ldc java/lang/System
+      // 032: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.callGetProperty (Ljava/lang/Object;)Ljava/lang/Object; 2
+      // 037: aload 3
+      // 038: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.call (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; 3
+      // 03d: pop
+      // 03e: nop
+      // 03f: return
+      // 040: nop
+      // 041: nop
+      // 042: athrow
+      // 043: astore 4
+      // 045: aload 1
+      // 046: ldc 94
+      // 048: aaload
+      // 049: aload 1
+      // 04a: ldc 95
+      // 04c: aaload
+      // 04d: ldc java/lang/System
+      // 04f: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.callGetProperty (Ljava/lang/Object;)Ljava/lang/Object; 2
+      // 054: aload 4
+      // 056: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.call (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; 3
+      // 05b: pop
+      // 05c: goto 097
+      // 05f: astore 5
+      // 061: nop
+      // 062: aload 1
+      // 063: ldc 96
+      // 065: aaload
+      // 066: aload 1
+      // 067: ldc 97
+      // 069: aaload
+      // 06a: ldc java/lang/System
+      // 06c: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.callGetProperty (Ljava/lang/Object;)Ljava/lang/Object; 2
+      // 071: aload 4
+      // 073: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.call (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; 3
+      // 078: pop
+      // 079: nop
+      // 07a: aload 1
+      // 07b: ldc 98
+      // 07d: aaload
+      // 07e: aload 1
+      // 07f: ldc_w 99
+      // 082: aaload
+      // 083: ldc java/lang/System
+      // 085: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.callGetProperty (Ljava/lang/Object;)Ljava/lang/Object; 2
+      // 08a: aload 3
+      // 08b: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.call (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; 3
+      // 090: pop
+      // 091: nop
+      // 092: return
+      // 093: athrow
+      // 094: nop
+      // 095: nop
+      // 096: athrow
+      // 097: aload 1
+      // 098: ldc_w 100
+      // 09b: aaload
+      // 09c: aload 1
+      // 09d: ldc_w 101
+      // 0a0: aaload
+      // 0a1: ldc java/lang/System
+      // 0a3: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.callGetProperty (Ljava/lang/Object;)Ljava/lang/Object; 2
+      // 0a8: aload 4
+      // 0aa: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.call (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; 3
+      // 0af: pop
+      // 0b0: goto 0d1
+      // 0b3: astore 6
+      // 0b5: aload 1
+      // 0b6: ldc_w 102
+      // 0b9: aaload
+      // 0ba: aload 1
+      // 0bb: ldc_w 103
+      // 0be: aaload
+      // 0bf: ldc java/lang/System
+      // 0c1: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.callGetProperty (Ljava/lang/Object;)Ljava/lang/Object; 2
+      // 0c6: aload 4
+      // 0c8: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.call (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; 3
+      // 0cd: pop
+      // 0ce: aload 6
+      // 0d0: athrow
+      // 0d1: nop
+      // 0d2: goto 0d5
+      // 0d5: aload 1
+      // 0d6: ldc_w 104
+      // 0d9: aaload
+      // 0da: aload 1
+      // 0db: ldc_w 105
+      // 0de: aaload
+      // 0df: ldc java/lang/System
+      // 0e1: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.callGetProperty (Ljava/lang/Object;)Ljava/lang/Object; 2
+      // 0e6: aload 3
+      // 0e7: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.call (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; 3
+      // 0ec: pop
+      // 0ed: goto 10d
+      // 0f0: astore 7
+      // 0f2: aload 1
+      // 0f3: ldc_w 106
+      // 0f6: aaload
+      // 0f7: aload 1
+      // 0f8: ldc_w 107
+      // 0fb: aaload
+      // 0fc: ldc java/lang/System
+      // 0fe: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.callGetProperty (Ljava/lang/Object;)Ljava/lang/Object; 2
+      // 103: aload 3
+      // 104: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.call (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; 3
+      // 109: pop
+      // 10a: aload 7
+      // 10c: athrow
+      // 10d: return
+      // try (41 -> 53): 53 java/lang/Exception
+      // try (41 -> 53): 96 null
+      // try (53 -> 55): 96 null
+      // try (79 -> 80): 96 null
+      // try (11 -> 24): 40 java/lang/Exception
+      // try (36 -> 37): 40 java/lang/Exception
+      // try (11 -> 24): 124 null
+      // try (36 -> 37): 124 null
+      // try (40 -> 67): 124 null
+      // try (79 -> 80): 124 null
+      // try (84 -> 111): 124 null
+   }
+
+   public void returnInCatch() {
+      // $VF: Couldn't be decompiled
+      // Bytecode:
+      // 00: nop
+      // 01: invokestatic pkg/TestGroovyTryReturn.$getCallSiteArray ()[Lorg/codehaus/groovy/runtime/callsite/CallSite;
+      // 04: astore 1
+      // 05: aload 1
+      // 06: ldc_w 108
+      // 09: aaload
+      // 0a: aload 1
+      // 0b: ldc_w 109
+      // 0e: aaload
+      // 0f: ldc java/lang/System
+      // 11: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.callGetProperty (Ljava/lang/Object;)Ljava/lang/Object; 2
+      // 16: ldc "Hi!"
+      // 18: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.call (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; 3
+      // 1d: pop
+      // 1e: goto 5d
+      // 21: astore 2
+      // 22: aload 1
+      // 23: ldc_w 110
+      // 26: aaload
+      // 27: aload 1
+      // 28: ldc_w 111
+      // 2b: aaload
+      // 2c: ldc java/lang/System
+      // 2e: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.callGetProperty (Ljava/lang/Object;)Ljava/lang/Object; 2
+      // 33: ldc_w "hello"
+      // 36: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.call (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; 3
+      // 3b: pop
+      // 3c: nop
+      // 3d: aload 1
+      // 3e: ldc_w 112
+      // 41: aaload
+      // 42: aload 1
+      // 43: ldc_w 113
+      // 46: aaload
+      // 47: ldc java/lang/System
+      // 49: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.callGetProperty (Ljava/lang/Object;)Ljava/lang/Object; 2
+      // 4e: ldc_w "finally"
+      // 51: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.call (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; 3
+      // 56: pop
+      // 57: nop
+      // 58: return
+      // 59: athrow
+      // 5a: nop
+      // 5b: nop
+      // 5c: athrow
+      // 5d: aload 1
+      // 5e: ldc_w 114
+      // 61: aaload
+      // 62: aload 1
+      // 63: ldc_w 115
+      // 66: aaload
+      // 67: ldc java/lang/System
+      // 69: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.callGetProperty (Ljava/lang/Object;)Ljava/lang/Object; 2
+      // 6e: ldc_w "finally"
+      // 71: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.call (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; 3
+      // 76: pop
+      // 77: goto 97
+      // 7a: astore 3
+      // 7b: aload 1
+      // 7c: ldc_w 116
+      // 7f: aaload
+      // 80: aload 1
+      // 81: ldc_w 117
+      // 84: aaload
+      // 85: ldc java/lang/System
+      // 87: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.callGetProperty (Ljava/lang/Object;)Ljava/lang/Object; 2
+      // 8c: ldc_w "finally"
+      // 8f: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.call (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; 3
+      // 94: pop
+      // 95: aload 3
+      // 96: athrow
+      // 97: aload 1
+      // 98: ldc_w 118
+      // 9b: aaload
+      // 9c: aload 1
+      // 9d: ldc_w 119
+      // a0: aaload
+      // a1: ldc java/lang/System
+      // a3: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.callGetProperty (Ljava/lang/Object;)Ljava/lang/Object; 2
+      // a8: ldc_w "post"
+      // ab: invokeinterface org/codehaus/groovy/runtime/callsite/CallSite.call (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; 3
+      // b0: pop
+      // b1: return
+      // try (3 -> 15): 15 java/lang/Exception
+      // try (3 -> 15): 57 null
+      // try (15 -> 28): 57 null
+      // try (40 -> 41): 57 null
+   }
+
+   @Generated
+   @Internal
+   @Transient
+   public MetaClass getMetaClass() {
+      if (this.metaClass != null) {
+         return this.metaClass;
+      }
+
+      this.metaClass = this.$getStaticMetaClass();
+      return this.metaClass;
+   }
+
+   @Generated
+   @Internal
+   public void setMetaClass(MetaClass var1) {
+      this.metaClass = var1;
+   }
+
+   static {
+      __$swapInit();
+   }
+}
+
+class 'pkg/TestGroovyTryReturn' {
+   method '<init> ()V' {
+      1      16
+      2      16
+      3      16
+      4      16
+      6      17
+      7      17
+      8      17
+      9      18
+      a      18
+      b      18
+      c      18
+      d      18
+      e      19
+      f      19
+      11      19
+      12      19
+      13      19
+      16      20
+   }
+
+   method 'testFinally (Ljava/util/function/Supplier;)Z' {
+      1      80
+      2      80
+      3      80
+      4      80
+      5      86
+      6      86
+      7      86
+      8      86
+      9      86
+      a      86
+      b      86
+      c      86
+      d      86
+      e      86
+      f      86
+      10      86
+      11      86
+      12      86
+      14      94
+      15      94
+      16      94
+      17      94
+      18      94
+      19      94
+      1a      94
+      1b      94
+      1c      94
+      1d      94
+      1e      94
+      1f      94
+      20      94
+      21      94
+      22      94
+      23      94
+      24      94
+      25      94
+      26      94
+      27      94
+      28      94
+      29      94
+      2c      97
+      2d      97
+      4d      90
+      4e      90
+      4f      90
+      50      90
+      51      90
+      52      90
+      53      90
+      54      90
+      55      90
+      56      90
+      57      90
+      58      90
+      59      90
+      5a      90
+      5b      90
+      5c      90
+      5d      90
+      5e      90
+      5f      90
+      60      90
+      61      90
+      62      90
+   }
+
+   method 'testFinally1 (Ljava/util/function/Supplier;)V' {
+      1      106
+      2      106
+      3      106
+      4      106
+      5      107
+      6      107
+      7      107
+      8      107
+      9      107
+      a      107
+      b      107
+      c      107
+      d      107
+      e      107
+      f      107
+      10      107
+      11      107
+      12      107
+      13      107
+      14      107
+      15      107
+      16      107
+      17      107
+      18      107
+      19      107
+      1a      107
+      1c      113
+      1d      113
+      1e      113
+      1f      113
+      20      113
+      21      113
+      22      113
+      23      113
+      24      113
+      25      113
+      26      113
+      27      113
+      28      113
+      29      113
+      2a      113
+      2b      113
+      2d      125
+      2e      125
+      2f      125
+      30      125
+      31      125
+      32      125
+      33      125
+      34      125
+      35      125
+      36      125
+      37      125
+      38      125
+      39      125
+      3a      125
+      3b      125
+      3c      125
+      3d      125
+      3e      125
+      3f      125
+      40      125
+      41      125
+      42      125
+      45      128
+      49      134
+      4a      134
+      4b      134
+      4c      134
+      4d      134
+      4e      134
+      4f      134
+      50      134
+      51      134
+      52      134
+      53      134
+      54      134
+      55      134
+      56      134
+      57      134
+      58      134
+      59      134
+      5a      134
+      5b      134
+      5c      134
+      5d      134
+      5e      134
+      64      121
+      65      121
+      66      121
+      67      121
+      68      121
+      69      121
+      6a      121
+      6b      121
+      6c      121
+      6d      121
+      6e      121
+      6f      121
+      70      121
+      71      121
+      72      121
+      73      121
+      74      121
+      75      121
+      76      121
+      77      121
+      78      121
+      79      121
+      7d      135
+      7e      135
+      7f      135
+      80      135
+      81      135
+      82      135
+      83      135
+      84      135
+      85      135
+      86      135
+      87      135
+      88      135
+      89      135
+      8a      135
+      8b      135
+      8c      135
+      8d      135
+      8e      135
+      8f      135
+      90      135
+      91      135
+      92      135
+      94      136
+   }
+
+   method 'testFinally2 (Ljava/util/function/Supplier;)Z' {
+      1      140
+      2      140
+      3      140
+      4      140
+      5      141
+      6      141
+      7      141
+      a      146
+      b      146
+      c      146
+      d      146
+      e      146
+      f      146
+      10      146
+      11      146
+      12      146
+      13      146
+      14      146
+      15      146
+      16      147
+      17      147
+      18      147
+      19      147
+      1a      147
+      1b      147
+      22      155
+      23      155
+      24      155
+      25      155
+      26      155
+      27      155
+      28      155
+      29      155
+      2a      155
+      2b      155
+      2c      155
+      2d      155
+      2e      155
+      2f      155
+      30      155
+      31      155
+      32      155
+      33      155
+      34      155
+      35      155
+      36      155
+      37      155
+      3e      151
+      3f      151
+      40      151
+      41      151
+      42      151
+      43      151
+      44      151
+      45      151
+      46      151
+      47      151
+      48      151
+      49      151
+      4a      151
+      4b      151
+      4c      151
+      4d      151
+      4e      151
+      4f      151
+      50      151
+      51      151
+      52      151
+      53      151
+      58      156
+      59      156
+   }
+
+   method 'testFinally3 (ZZILjava/util/function/Supplier;)Z' {
+      1      162
+      2      162
+      3      162
+      4      162
+      5      162
+      6      169
+      7      169
+      8      169
+      9      169
+      a      170
+      b      170
+      c      170
+      d      170
+      e      170
+      f      170
+      10      170
+      11      170
+      12      170
+      13      170
+      14      170
+      15      170
+      16      170
+      17      170
+      18      170
+      19      170
+      1a      170
+      1b      170
+      1c      170
+      1d      170
+      1e      170
+      1f      170
+      25      170
+      26      170
+      28      257
+      29      257
+      2a      257
+      2b      257
+      2c      257
+      2d      257
+      2e      257
+      2f      257
+      30      257
+      31      257
+      32      257
+      33      257
+      34      257
+      35      257
+      36      257
+      37      257
+      38      257
+      39      257
+      3a      257
+      3b      257
+      3c      257
+      3d      257
+      3e      257
+      3f      257
+      42      258
+      43      258
+      44      258
+      45      191
+      46      191
+      47      191
+      48      191
+      49      191
+      4a      191
+      4b      191
+      4c      191
+      4d      191
+      4e      191
+      4f      191
+      50      191
+      51      191
+      52      191
+      53      191
+      54      191
+      55      191
+      56      191
+      57      191
+      58      191
+      59      191
+      5a      191
+      5b      191
+      5c      191
+      60      192
+      61      192
+      62      192
+      63      192
+      64      192
+      6a      192
+      6b      192
+      6c      192
+      6d      193
+      6e      193
+      6f      193
+      70      193
+      71      193
+      77      193
+      78      193
+      7a      253
+      7b      253
+      7c      253
+      7d      253
+      7e      253
+      7f      253
+      80      253
+      81      253
+      82      253
+      83      253
+      84      253
+      85      253
+      86      253
+      87      253
+      88      253
+      89      253
+      8a      253
+      8b      253
+      8c      253
+      8d      253
+      8e      253
+      8f      253
+      90      253
+      91      253
+      94      254
+      95      254
+      96      254
+      9a      213
+      9b      213
+      9c      213
+      9d      213
+      9e      213
+      a4      213
+      a5      213
+      a6      213
+      a7      214
+      a8      214
+      a9      214
+      aa      214
+      ab      214
+      b1      214
+      b2      214
+      b4      249
+      b5      249
+      b6      249
+      b7      249
+      b8      249
+      b9      249
+      ba      249
+      bb      249
+      bc      249
+      bd      249
+      be      249
+      bf      249
+      c0      249
+      c1      249
+      c2      249
+      c3      249
+      c4      249
+      c5      249
+      c6      249
+      c7      249
+      c8      249
+      c9      249
+      ca      249
+      cb      249
+      ce      250
+      cf      250
+      d0      250
+      d1      232
+      d2      232
+      d3      232
+      d4      232
+      d5      232
+      d6      232
+      d7      232
+      d8      232
+      d9      232
+      da      232
+      db      232
+      dc      232
+      dd      232
+      de      232
+      df      232
+      e0      232
+      e1      232
+      e3      240
+      e4      240
+      e5      240
+      e6      240
+      e7      240
+      e8      240
+      e9      240
+      ea      240
+      eb      240
+      ec      240
+      ed      240
+      ee      240
+      ef      240
+      f0      240
+      f1      240
+      f2      240
+      f3      240
+      f4      240
+      f5      240
+      f6      240
+      f7      240
+      f8      240
+      f9      240
+      fa      240
+      fd      243
+      fe      243
+      ff      243
+      121      178
+      122      178
+      123      178
+      124      178
+      125      178
+      126      178
+      127      178
+      128      178
+      129      178
+      12a      178
+      12b      178
+      12c      178
+      12d      178
+      12e      178
+      12f      178
+      130      178
+      131      178
+      132      178
+      133      178
+      134      178
+      135      178
+      136      178
+      137      178
+      138      178
+   }
+
+   method 'testFinally4 (Ljava/util/function/Supplier;)Z' {
+      1      263
+      2      263
+      3      263
+      4      263
+      5      264
+      6      264
+      9      269
+      a      269
+      b      269
+      c      269
+      d      269
+      e      269
+      f      269
+      10      269
+      11      269
+      12      269
+      13      269
+      14      269
+      15      270
+      16      270
+      17      270
+      18      270
+      19      270
+      1a      270
+      21      278
+      22      278
+      23      278
+      24      278
+      25      278
+      26      278
+      27      278
+      28      278
+      29      278
+      2a      278
+      2b      278
+      2c      278
+      2d      278
+      2e      278
+      2f      278
+      30      278
+      31      278
+      32      278
+      33      278
+      34      278
+      35      278
+      36      278
+      3d      274
+      3e      274
+      3f      274
+      40      274
+      41      274
+      42      274
+      43      274
+      44      274
+      45      274
+      46      274
+      47      274
+      48      274
+      49      274
+      4a      274
+      4b      274
+      4c      274
+      4d      274
+      4e      274
+      4f      274
+      50      274
+      51      274
+      52      274
+      57      279
+      58      279
+   }
+
+   method 'testFinally5 (Ljava/util/function/Supplier;)Z' {
+      1      284
+      2      284
+      3      284
+      4      284
+      5      285
+      6      285
+      9      290
+      a      290
+      b      290
+      c      290
+      d      290
+      e      290
+      f      290
+      10      290
+      11      290
+      12      290
+      13      290
+      14      290
+      15      291
+      16      291
+      17      291
+      18      291
+      19      291
+      1a      291
+      21      293
+      23      294
+      24      294
+      25      294
+      26      294
+      27      294
+      28      294
+      29      294
+      2a      294
+      2b      294
+      2c      294
+      2d      294
+      2e      294
+      2f      294
+      30      294
+      31      294
+      32      294
+      33      294
+      34      294
+      35      294
+      36      294
+      37      294
+      38      294
+      3a      295
+      3b      295
+      3c      295
+      3d      295
+      3e      295
+      3f      295
+      40      295
+      41      295
+      42      295
+      43      295
+      44      295
+      45      295
+      46      296
+      47      296
+      48      296
+      49      296
+      4a      296
+      4b      296
+      53      304
+      54      304
+      55      304
+      56      304
+      57      304
+      58      304
+      59      304
+      5a      304
+      5b      304
+      5c      304
+      5d      304
+      5e      304
+      5f      304
+      60      304
+      61      304
+      62      304
+      63      304
+      64      304
+      65      304
+      66      304
+      67      304
+      68      304
+      6f      300
+      70      300
+      71      300
+      72      300
+      73      300
+      74      300
+      75      300
+      76      300
+      77      300
+      78      300
+      79      300
+      7a      300
+      7b      300
+      7c      300
+      7d      300
+      7e      300
+      7f      300
+      80      300
+      81      300
+      82      300
+      83      300
+      84      300
+      89      305
+      8a      305
+   }
+
+   method 'testFinally6 (ZLjava/util/function/Supplier;)Z' {
+      1      310
+      2      310
+      3      310
+      4      310
+      5      311
+      6      311
+      7      311
+      b      316
+      c      316
+      d      316
+      e      316
+      f      317
+      10      317
+      11      317
+      19      318
+      1a      318
+      1b      318
+      1c      318
+      1d      318
+      1e      318
+      1f      318
+      20      318
+      21      318
+      22      318
+      23      318
+      24      318
+      25      318
+      26      318
+      27      318
+      28      318
+      29      318
+      2a      318
+      2b      318
+      2c      318
+      2d      318
+      2e      318
+      30      321
+      31      321
+      32      321
+      33      321
+      34      321
+      35      321
+      36      321
+      37      321
+      38      321
+      39      321
+      3a      321
+      3b      321
+      3c      322
+      3d      322
+      3e      322
+      3f      322
+      40      322
+      41      322
+      42      322
+      49      324
+      4b      325
+      4c      325
+      4d      325
+      4e      325
+      4f      325
+      50      325
+      51      325
+      52      325
+      53      325
+      54      325
+      55      325
+      56      325
+      57      325
+      58      325
+      59      325
+      5a      325
+      5b      325
+      5c      325
+      5d      325
+      5e      325
+      5f      325
+      60      325
+      62      326
+      63      326
+      64      326
+      65      326
+      66      326
+      67      326
+      68      326
+      69      326
+      6a      326
+      6b      326
+      6c      326
+      6d      326
+      6e      327
+      6f      327
+      70      327
+      71      327
+      72      327
+      73      327
+      74      327
+      7c      335
+      7d      335
+      7e      335
+      7f      335
+      80      335
+      81      335
+      82      335
+      83      335
+      84      335
+      85      335
+      86      335
+      87      335
+      88      335
+      89      335
+      8a      335
+      8b      335
+      8c      335
+      8d      335
+      8e      335
+      8f      335
+      90      335
+      91      335
+      98      331
+      99      331
+      9a      331
+      9b      331
+      9c      331
+      9d      331
+      9e      331
+      9f      331
+      a0      331
+      a1      331
+      a2      331
+      a3      331
+      a4      331
+      a5      331
+      a6      331
+      a7      331
+      a8      331
+      a9      331
+      aa      331
+      ab      331
+      ac      331
+      ad      331
+      b2      336
+      b3      336
+      b4      336
+   }
+
+   method 'testLoopFinally ()V' {
+      1      342
+      2      342
+      3      342
+      4      342
+      5      343
+      6      343
+      9      350
+      a      350
+      b      350
+      c      350
+      e      365
+      f      365
+      10      365
+      11      365
+      12      365
+      13      365
+      14      365
+      15      365
+      16      365
+      17      365
+      18      365
+      19      365
+      1a      365
+      1b      365
+      1c      365
+      1d      365
+      1e      365
+      1f      365
+      20      365
+      21      365
+      22      365
+      23      365
+      26      372
+      2a      362
+      2b      362
+      2c      362
+      2d      362
+      2e      362
+      2f      362
+      30      362
+      31      362
+      32      362
+      33      362
+      34      362
+      35      362
+      36      362
+      37      362
+      38      362
+      39      362
+      3a      362
+      3b      362
+      3c      362
+      3d      362
+      3e      362
+      3f      362
+      45      358
+      46      358
+      47      358
+      48      358
+      49      358
+      4a      358
+      4b      358
+      4c      358
+      4d      358
+      4e      358
+      4f      358
+      50      358
+      51      358
+      52      358
+      53      358
+      54      358
+      55      358
+      56      358
+      57      358
+      58      358
+      59      358
+      5a      358
+   }
+
+   method 'testPostdomFailure ()V' {
+      1      478
+      2      478
+      3      478
+      4      478
+      5      479
+      6      479
+      9      480
+      a      480
+      b      480
+      c      480
+      d      480
+      e      480
+      f      480
+      10      480
+      11      480
+      12      480
+      13      480
+      14      480
+      15      480
+      16      480
+      17      480
+      18      480
+      19      480
+      1a      480
+      1b      480
+      1c      480
+      1d      480
+      1e      480
+      1f      480
+      20      480
+      22      482
+      23      482
+      24      482
+      25      482
+      26      482
+      27      482
+      28      482
+      29      482
+      2a      482
+      2b      482
+      2c      482
+      2d      482
+      2e      482
+      2f      482
+      30      482
+      31      482
+      32      482
+      33      482
+      34      482
+      35      482
+      36      482
+      37      482
+      38      482
+      3c      485
+      3d      485
+      3e      485
+      3f      485
+      40      485
+      41      485
+      42      485
+      43      485
+      44      485
+      45      485
+      46      485
+      47      485
+      48      485
+      49      485
+      4a      485
+      4b      485
+      4c      485
+      4d      485
+      4e      485
+      4f      485
+      50      485
+      51      485
+      52      485
+      53      485
+      58      486
+      59      487
+      5a      487
+      5b      487
+      5c      487
+      5d      487
+      5e      487
+      5f      487
+      60      487
+      61      487
+      62      487
+      63      487
+      64      487
+      65      487
+      66      487
+      67      487
+      68      487
+      69      487
+      6a      487
+      6b      487
+      6c      487
+      6d      487
+      6e      487
+      6f      487
+      70      487
+      a1      489
+      c1      492
+      c2      492
+      c3      492
+      c4      492
+      c5      492
+      cf      495
+   }
+
+   method 'getMetaClass ()Lgroovy/lang/MetaClass;' {
+      0      828
+      1      828
+      2      828
+      3      828
+      5      828
+      6      828
+      7      828
+      8      829
+      a      832
+      c      832
+      d      832
+      e      832
+      f      832
+      10      832
+      11      832
+      12      833
+      13      833
+      14      833
+      15      833
+      16      833
+   }
+
+   method 'setMetaClass (Lgroovy/lang/MetaClass;)V' {
+      0      839
+      1      839
+      2      839
+      3      839
+      4      839
+      5      840
+   }
+
+   method '<clinit> ()V' {
+      0      843
+      1      843
+      2      843
+      3      844
+   }
+}
+
+Lines mapping:
+16 <-> 87
+17 <-> 87
+19 <-> 91
+20 <-> 98
+24 <-> 108
+26 <-> 114
+27 <-> 114
+30 <-> 135
+31 <-> 122
+32 <-> 129
+34 <-> 136
+38 <-> 142
+39 <-> 147
+40 <-> 147
+42 <-> 152
+45 <-> 157
+49 <-> 170
+50 <-> 170
+51 <-> 171
+52 <-> 192
+54 <-> 214
+55 <-> 215
+56 <-> 233
+58 <-> 233
+60 <-> 179
+61 <-> 259
+65 <-> 265
+66 <-> 270
+67 <-> 270
+69 <-> 275
+72 <-> 280
+76 <-> 286
+77 <-> 291
+78 <-> 291
+79 <-> 294
+80 <-> 295
+81 <-> 296
+83 <-> 301
+86 <-> 306
+90 <-> 312
+91 <-> 317
+92 <-> 317
+93 <-> 318
+94 <-> 319
+95 <-> 322
+97 <-> 322
+98 <-> 325
+99 <-> 326
+100 <-> 327
+102 <-> 332
+105 <-> 337
+109 <-> 344
+111 <-> 351
+112 <-> 351
+113 <-> 351
+116 <-> 363
+117 <-> 359
+118 <-> 373
+154 <-> 480
+155 <-> 481
+157 <-> 483
+158 <-> 486
+159 <-> 486
+160 <-> 486
+161 <-> 487
+162 <-> 488
+165 <-> 490
+168 <-> 493
+170 <-> 496
+Not mapped:
+18
+28
+29
+41
+43
+59
+68
+70
+82
+84
+101
+103
+114
+115
+119
+163
+164
+166
+167
+169

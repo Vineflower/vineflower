@@ -22,7 +22,7 @@ public class TestRecordPatterns7 {
                default -> 0;// 13
             }
          );
-   }
+   }// 15
 
    record A(TestRecordPatterns7.C c, int i, TestRecordPatterns7.B b2) {
    }
@@ -115,24 +115,28 @@ class 'pkg/TestRecordPatterns7' {
       99      15
       a3      15
       a4      15
-      a5      15
-      a6      15
-      ad      16
-      ae      16
-      af      15
-      b1      17
-      b2      15
-      b4      18
-      b5      15
-      b7      19
-      b8      15
-      ba      20
-      bb      15
+      ad      15
+      ae      15
+      af      16
+      b0      16
+      b1      15
+      b2      17
+      b3      17
+      b4      15
+      b5      18
+      b6      18
+      b7      15
+      b8      19
+      b9      19
+      ba      15
+      bb      20
+      bc      20
+      bd      15
       c1      21
       c5      13
       c6      13
       c7      13
-      c8      24
+      d9      24
    }
 }
 
@@ -143,5 +147,4 @@ Lines mapping:
 11 <-> 14
 12 <-> 16
 13 <-> 22
-Not mapped:
-15
+15 <-> 25

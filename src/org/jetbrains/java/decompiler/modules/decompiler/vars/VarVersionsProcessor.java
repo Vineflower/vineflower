@@ -61,7 +61,7 @@ public class VarVersionsProcessor {
     FlattenStatementsHelper flattenHelper = new FlattenStatementsHelper();
     DirectGraph graph = flattenHelper.buildDirectGraph(root);
 
-    DotExporter.toDotFile(graph, method, "setVarVersions");
+    // DotExporter.toDotFile(graph, method, "setVarVersions");
 
     mergePhiVersions(ssa, graph);
 

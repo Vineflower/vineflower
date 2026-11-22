@@ -20,13 +20,13 @@ public class TestIfRange {
    }// 20
 
    public fun testIntStep(x: Int) {
-      if (CollectionsKt.contains(RangesKt.step((new IntRange(1, 100)) as IntProgression, 2) as java.lang.Iterable, x)) {// 23
+      if (CollectionsKt.contains(RangesKt.step(IntRange(1, 100) as IntProgression, 2) as java.lang.Iterable, x)) {// 23
          System.out.println(x)// 24
       }
    }// 26
 
    public fun testIntStepY(x: Int, y: Int) {
-      if (CollectionsKt.contains(RangesKt.step((new IntRange(1, 100)) as IntProgression, y) as java.lang.Iterable, x)) {// 28
+      if (CollectionsKt.contains(RangesKt.step(IntRange(1, 100) as IntProgression, y) as java.lang.Iterable, x)) {// 28
          System.out.println(x)// 29
       }
    }// 31

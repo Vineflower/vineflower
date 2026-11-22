@@ -1,6 +1,7 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler;
 
+import net.fabricmc.fernflower.api.FabricJavadocStyle;
 import net.fabricmc.fernflower.api.IFabricJavadocProvider;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.struct.StructClass;
@@ -21,7 +22,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "0",
       IFernflowerPreferences.TERNARY_CONDITIONS, "1",
       IFernflowerPreferences.FORCE_JSR_INLINE, "1",
-      IFernflowerPreferences.VERIFY_PRE_POST_VARIABLE_MERGES, "1"
+      IFernflowerPreferences.VERIFY_PRE_POST_VARIABLE_MERGES, "1",
+      IFernflowerPreferences.DEBUG_MARKER_EXCEPTIONS, "1"
     );
     registerSet("Entire Classpath", this::registerEntireClassPath,
       IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
@@ -98,6 +100,29 @@ public class SingleClassesTest extends SingleClassesTestBase {
         return "Method javadoc for '" + structMethod.getName() + "'";
       }
     });
+    registerSet("Markdown Javadoc", () -> {
+      register(JAVA_8, "TestMarkdownJavadoc");
+    }, IFabricJavadocProvider.PROPERTY_NAME, new IFabricJavadocProvider() {
+      @Override
+      public String getClassDoc(StructClass structClass) {
+        return "Class javadoc for '" + structClass.qualifiedName + "'";
+      }
+
+      @Override
+      public String getFieldDoc(StructClass structClass, StructField structField) {
+        return "Field javadoc for '" + structField.getName() + "'";
+      }
+
+      @Override
+      public String getMethodDoc(StructClass structClass, StructMethod structMethod) {
+        return "Method javadoc for '" + structMethod.getName() + "'";
+      }
+
+      @Override
+      public FabricJavadocStyle getClassJavadocStyle(StructClass structClass) {
+        return FabricJavadocStyle.MARKDOWN;
+      }
+    });
     // TODO: converter renaming different on different platforms?
     registerSet("Renaming", () -> registerFailable(JAVA_8, "TestRenameEntities"),
       IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
@@ -154,6 +179,26 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.LAMBDA_TO_ANONYMOUS_CLASS, "1",
       IFernflowerPreferences.VERIFY_PRE_POST_VARIABLE_MERGES, "1"
     );
+    registerSet("Single method", this::registerSingleMethod,
+      IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
+      IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
+      IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
+      IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
+      IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
+      IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "1",
+      IFernflowerPreferences.VERIFY_PRE_POST_VARIABLE_MERGES, "1",
+      IFernflowerPreferences.METHOD_TO_DECOMPILE, "test()V"
+    );
+    registerSet("Single method in inner class", this::registerSingleMethodInInnerClass,
+      IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
+      IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
+      IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
+      IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
+      IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
+      IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "1",
+      IFernflowerPreferences.VERIFY_PRE_POST_VARIABLE_MERGES, "1",
+      IFernflowerPreferences.METHOD_TO_DECOMPILE, "pkg/TestSingleMethodInInnerClass$Inner.test()V"
+    );
     // TODO: user renamer class test
   }
 
@@ -181,7 +226,10 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestInnerClassConstructor");
     register(CUSTOM, "v11/TestInnerClassConstructor");
     register(JAVA_8, "TestTryCatchFinally");
+    register(JAVA_8, "TestTryCatchThrowable");
     register(JAVA_8, "TestTryFinally");
+    register(JAVA_8, "TestTryFinallyMarkerExceptions");
+    register(JAVA_8, "TestTryFinallyMarkerExceptionsInvalid");
     register(JAVA_8, "TestAmbiguousCall");
     register(JAVA_8, "TestSynchronizedMapping");
     register(JAVA_8, "TestAbstractMethods");
@@ -242,8 +290,17 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestInUse");
 
     register(GROOVY, "TestGroovyClass");
+    register(GROOVY, "TestGroovyFinallyBlockVariableUse");
+    register(GROOVY, "TestGroovyFinallyThrow");
+    register(GROOVY, "TestGroovyFinallyVarDef");
     register(GROOVY, "TestGroovyTrait");
     register(GROOVY, "TestGroovyTryCatch");
+    register(GROOVY, "TestGroovyTryCatchFinally");
+    register(GROOVY, "TestGroovyTryFinally");
+    register(GROOVY, "TestGroovyTryLoopReturnFinally");
+    register(GROOVY, "TestGroovyTryLoopSimpleFinally");
+    register(GROOVY, "TestGroovyTryReturn");
+    register(GROOVY, "TestGroovyTrySplit");
     register(JAVA_8, "TestPrivateClasses");
     register(KOTLIN, "TestSuspendLambdaKt");
     register(KOTLIN, "TestRunSuspend");
@@ -261,7 +318,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestNestedLambdas");
     register(JAVA_8, "TestSwitchAssign");
     register(JAVA_8, "TestSwitchReturn");
-    // TODO: Turned into for loops
     register(JAVA_8, "TestWhileCondition");
     register(JAVA_8, "TestLocalScopes");
     register(JAVA_8, "TestInterfaceSubclass");
@@ -276,7 +332,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestArrayCopy");
     register(JAVA_8, "TestArrayDoWhile");
     register(JAVA_8_NODEBUG, "TestArrayNull1");
-    // TODO: Object should be int[], cast where there shouldn't be
     register(JAVA_8_NODEBUG, "TestArrayNull2");
     register(JAVA_8, "TestArrayNullAccess");
     register(JAVA_8, "TestArrayTernary");
@@ -403,6 +458,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestSwitchExpressionPPMM");
     register(JAVA_16, "TestSwitchExpressionNested1");
     register(JAVA_16, "TestSwitchExprInvoc");
+    // TODO: Wrong variable analysis
+    register(JAVA_16, "TestSwitchExpressionAssignmentOrder");
 
     register(JAVA_16, "TestAccidentalSwitchExpression");
 
@@ -524,7 +581,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     registerRaw(CUSTOM, "TestHotjava");
     registerRaw(CUSTOM, "TestJava1Synchronized");
     register(JAVA_8, "TestLabeledBreaks");
-    // TODO: the super() call ends up inside the labeled block
     register(JAVA_8, "TestLabeledBlockInConstructor");
     // TODO: test9&10- for loop not created, loop extractor needs another pass
     register(JAVA_8, "TestSwitchLoop");
@@ -543,6 +599,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestWhile1");
     registerRaw(CUSTOM, "TestEclipseSwitchEnum");
     registerRaw(CUSTOM, "TestEclipseSwitchString");
+    registerRaw(CUSTOM, "TestEclipseSwitchString2");
     registerRaw(CUSTOM, "TestStringConcatJ19");
     register(JAVA_8, "TestNestedAnonymousClass");
     // TODO: ppmm not created in test4-5
@@ -592,7 +649,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_17, "TestDefiniteAssignment");
 
     register(JAVA_8_NODEBUG, "TestNoUse");
-    // TODO: var5 is never defined!
     register(JAVA_8_NODEBUG, "TestTryReturnNoDebug");
     register(JAVA_8, "TestArrayAssign2");
     register(JAVA_8, "TestTryLoopNoCatch");
@@ -614,6 +670,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     //   seems also is a bug in stack vars processing, disable main loop stackvars to replicate
     register(JAVA_8_NODEBUG, "TestCompoundAssignmentReplace");
 
+    // TODO: types are merged; issue #574
     register(JAVA_8, "TestSharedVarIndex");
 
     // NOTE: regular fernflower fails to merge the variables here, leading to incorrect results in both
@@ -634,6 +691,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestForCyclicVarDef");
     // TODO: merging of trycatch incorrect
     register(JAVA_8, "TestTryCatchNested");
+    register(JAVA_8, "TestTryCatchNoIncrement"); // Issue #568
     register(JAVA_8, "TestSwitchTernary");
     register(JAVA_8, "TestBooleanExpressions");
     register(JAVA_8, "TestObjectBitwise");
@@ -657,6 +715,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: foreach array index increment is added into default branch of switch statement
     // TODO: clashing names processor wrongly uses catch's vars in try block
     register(JAVA_8, "TestForeachMultiDimensionalArray");
+    // TODO: incorrect placement of yield
     register(JAVA_17_PREVIEW, "TestUnknownCastJ17");
     // TODO: These variables shouldn't be merged, and should be split because each version is used once and has a different type use
     register(JAVA_8_NODEBUG, "TestVarIndex");
@@ -673,7 +732,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestVarMergeSupertype");
     register(JAVA_8, "TestAmbiguousArraylen");
     register(JAVA_17, "TestSwitchDefaultCaseReturn");
-    // TODO: switch (s) decompiled as switch (s.hashCode())
     register(JAVA_17, "TestSingleCaseStrSwitch");
     register(JAVA_16, "TestIfPatternMatchMethod");
     register(JAVA_16, "TestPatternMatchingInvoke");
@@ -700,12 +758,12 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_21_PREVIEW, "TestCustomProcessor");
     register(JAVA_16, "TestMissingLambdaBody");
     register(JAVA_25, "TestUnnamedVar1");
-    // TODO: if (true) construction prevents record pattern matching
     register(JAVA_25, "TestRecordPatterns1J25");
     register(JAVA_25, "TestSwitchPatternMatchingJ25");
     register(JAVA_8, "TestNumberCasts");
     // TODO: Disambiguate only the required parameters
     register(JAVA_8, "TestNumberDisambiguation");
+    // TODO: Dangling unboxing calls are still elided; issue #575
     register(JAVA_8, "TestDanglingBoxingCall");
     register(JAVA_21, "TestSwitchOnEnumJ21", "ext/TestEnum2");
     // Test switch-on-enum decompilation when enum does not exist in the classpath
@@ -721,10 +779,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_21, "TestCastIntersectionJ21");
     register(JAVA_16, "TestRecordLocal");
     register(JAVA_8, "TestAnonymousClassToLambda");
-    // TODO: broken stack processing, deleted ternary!
     register(JAVA_17, "TestPatternMatchingLoops");
     register(JAVA_8, "TestBoxingSuperclass");
-    // TODO: shouldBeOne is completely deleted
     register(JAVA_8, "TestLVTReassignment");
     register(JAVA_8, "TestCatchVariable");
     register(JAVA_8, "TestExtraneousImports");
@@ -736,7 +792,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
 
     registerRaw(CUSTOM, "TestCorruptedSignatures").setExpectedFileName("Signatures.java");
 
-    // TODO: for loop shouldn't be made here
     register(JAVA_8, "TestWhileLoopPromotion");
 
     register(JAVA_21, "TestTypeAnnotations");
@@ -773,6 +828,44 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestTryLoopSimpleFinally");
     register(JAVA_8, "TestTryLoopReturnFinally");
     register(JASM, "TestNumberCompareToBoolean");
+
+    // TODO: this.ref() turned into rec$
+    register(JAVA_21, "TestMethodReferenceJ21", "ext/RefsExt");
+    register(JAVA_25, "TestMethodReferenceJ25", "ext/RefsExt");
+
+    register(JAVA_16_NODEBUG, "TestObjectLambda");
+    register(JAVA_25, "TestAnonymousClassJ25");
+    register(JAVA_25, "TestAssertInterface1");
+    register(JAVA_25, "TestAssertInterface2");
+    register(JAVA_25, "TestAssertInterface3");
+    register(JAVA_25, "TestAssertsEnabled");
+    register(JAVA_8, "TestFloatPiAdd");
+    register(JAVA_25, "TestAssertPatternMatching");
+    // TODO: incorrect var splitting!
+    register(JAVA_8, "TestFinallyVarDef");
+    // TODO: fails to decompile
+    register(JAVA_25, "TestPatternMatchSwitchString");
+    register(JAVA_16, "TestPatternMatchingVariableScope");
+
+    register(JAVA_17, "TestStringSwitchTypes");
+
+    // TODO: Fix issue #543
+    register(JAVA_8, "TestForEachInSwitch");
+
+    register(JAVA_16, "TestSwitchExpressionIfBlocks");
+
+    // TODO: String type info is lost; does not recompile; issue #573
+    register(JAVA_8_NODEBUG, "TestStringConcatObjectAppend");
+    register(JAVA_25, "TestStringConcatObjectAppendJ25");
+
+    register(JAVA_25, "/TestCompactSourceFile");
+    register(JAVA_25, "/TestCompactSourceFileArgs");
+    register(JAVA_25, "/TestCompactSourceFileOtherMembers");
+    register(JAVA_25, "/TestCompactSourceFileOtherMembersStatic");
+    register(JAVA_8_NODEBUG, "TestByteArrayMerge");
+    register(JAVA_8_NODEBUG, "TestByteVarIntMerge");
+    register(JAVA_8, "TestFloatDupStoreTernary");
+    register(JAVA_16, "TestRecordFakeSyntheticConstructor");
   }
 
   private void registerEntireClassPath() {
@@ -868,6 +961,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: wrong cast in lambda for array
     register(JAVA_8, "TestArrayGenerics");
     register(JAVA_8, "TestEmptyLambda");
+    // TODO: test5b is missing a required cast in the output; issue #582
     register(JAVA_8, "TestArrayArg");
     register(JAVA_8, "TestGenericLattice");
     // TODO: parsing failure
@@ -915,5 +1009,13 @@ public class SingleClassesTest extends SingleClassesTestBase {
   private void registerLambdaToAnonymousClass() {
     register(JAVA_8, "TestLambdaToAnonymousClass");
     register(JAVA_8, "TestLambdaToAnonymousClass2");
+  }
+
+  private void registerSingleMethod() {
+    register(JAVA_8, "TestSingleMethod");
+  }
+
+  private void registerSingleMethodInInnerClass() {
+    register(JAVA_8, "TestSingleMethodInInnerClass");
   }
 }

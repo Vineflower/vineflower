@@ -7,7 +7,6 @@ import org.jetbrains.java.decompiler.api.plugin.pass.PassContext;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.FullInstructionSequence;
 import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
-import org.jetbrains.java.decompiler.code.cfg.ExceptionRangeCFG;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.main.decompiler.CancelationManager;
@@ -17,7 +16,7 @@ import org.jetbrains.java.decompiler.main.plugins.PluginContext;
 import org.jetbrains.java.decompiler.modules.code.DeadCodeHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.*;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.DomHelper;
-import org.jetbrains.java.decompiler.modules.decompiler.deobfuscator.ExceptionDeobfuscator;
+import org.jetbrains.java.decompiler.modules.code.ExceptionDeobfuscator;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
@@ -122,10 +121,10 @@ public class MethodProcessor implements Runnable {
 
       RootStatement root = spec.graphParser.createStatement(graph, mt);
 
-      pctx = new PassContext(root, graph, mt, cl, varProc, decompileRecord);
+      pctx.setRoot(root);
       spec.pass.run(pctx);
 
-      return root;
+      return pctx.getRoot();
     }
 
     PassContext pctx = new PassContext(null, graph, mt, cl, varProc, decompileRecord);
@@ -245,19 +244,20 @@ public class MethodProcessor implements Runnable {
 
     pctx = new PassContext(root, graph, mt, cl, varProc, decompileRecord);
 
-    // Inline ppi/mmi that we may have missed
-    if (PPandMMHelper.inlinePPIandMMIIf(root)) {
-      decompileRecord.add("InlinePPIandMMI", root);
-    }
-
     // Process invokedynamic string concat
     if (cl.getVersion().hasIndyStringConcat()) {
       ConcatenationHelper.simplifyStringConcat(root);
       decompileRecord.add("SimplifyStringConcat", root);
     }
 
+    if (AssertProcessor.buildAssertions(root)) {
+      decompileRecord.add("BuildAsserts", root);
+    }
+
     // Plugin passes to run before the main decompilation loop
     pluginContext.runPasses(JavaPassLocation.BEFORE_MAIN, pctx);
+    root = pctx.getRoot();
+    debugCurrentlyDecompiling.set(root);
 
     // Main loop
     while (true) {
@@ -279,8 +279,9 @@ public class MethodProcessor implements Runnable {
             continue;
           }
 
-          MergeHelper.enhanceLoops(root);
-          decompileRecord.add("EnhanceLoops", root);
+          if (MergeHelper.enhanceLoops(root)) {
+            decompileRecord.add("EnhanceLoops", root);
+          }
 
           if (LoopExtractHelper.extractLoops(root)) {
             decompileRecord.add("ExtractLoops", root);
@@ -289,8 +290,12 @@ public class MethodProcessor implements Runnable {
 
           // Plugin passes to run inside the merge loop
           if (pluginContext.runPasses(JavaPassLocation.IN_LOOP_DECOMP, pctx)) {
+            root = pctx.getRoot();
+            debugCurrentlyDecompiling.set(root);
             continue;
           }
+          root = pctx.getRoot();
+          debugCurrentlyDecompiling.set(root);
 
           if (IfHelper.mergeAllIfs(root)) {
             decompileRecord.add("MergeAllIfs", root);
@@ -335,7 +340,7 @@ public class MethodProcessor implements Runnable {
 
       if (root.hasSwitch()) {
         boolean changed = false;
-        if (SwitchPatternMatchProcessor.hasPatternMatch(root) && SwitchPatternMatchProcessor.processPatternMatching(root)) {
+        if (SwitchPatternMatchProcessor.hasPatternMatch(root) && SwitchPatternMatchProcessor.processPatternMatching(root, cl)) {
           decompileRecord.add("ProcessSwitchPatternMatch", root);
           changed = true;
         }
@@ -370,11 +375,22 @@ public class MethodProcessor implements Runnable {
         decompileRecord.add("CondenseDo", root);
         continue;
       }
-  
-      // Apply main loop plugin passes
-      if (pluginContext.runPasses(JavaPassLocation.MAIN_LOOP, pctx)) {
+
+      if (root.hasSwitch() && SwitchHelper.simplifySwitches(root, mt, root)) {
+        SequenceHelper.condenseSequences(root); // remove empty blocks
+        decompileRecord.add("SimplifySwitches", root);
+
         continue;
       }
+
+      // Apply main loop plugin passes
+      if (pluginContext.runPasses(JavaPassLocation.MAIN_LOOP, pctx)) {
+        root = pctx.getRoot();
+        debugCurrentlyDecompiling.set(root);
+        continue;
+      }
+      root = pctx.getRoot();
+      debugCurrentlyDecompiling.set(root);
 
       // initializer may have at most one return point, so no transformation of method exits permitted
       if (!isInitializer && ExitHelper.condenseExits(root)) {
@@ -391,26 +407,6 @@ public class MethodProcessor implements Runnable {
     }
     decompileRecord.resetMainLoop();
     decompileRecord.add("MainLoopEnd", root);
-
-    // this has to be done after all inlining is done so the case values do not get reverted
-    if (root.hasSwitch() && SwitchHelper.simplifySwitches(root, mt, root)) {
-      SequenceHelper.condenseSequences(root); // remove empty blocks
-      decompileRecord.add("SimplifySwitches", root);
-
-      // If we have simplified switches, try to make switch expressions
-      if (SwitchExpressionHelper.hasSwitchExpressions(root)) {
-        if (SwitchExpressionHelper.processSwitchExpressions(root)) {
-          decompileRecord.add("ProcessSwitchExpr_SS", root);
-
-          // Simplify stack vars to integrate and inline switch expressions
-          StackVarsProcessor.simplifyStackVars(root, mt, cl);
-          decompileRecord.add("SimplifyStackVars_SS", root);
-
-          varProc.setVarVersions(root);
-          decompileRecord.add("SetVarVersions_SS", root);
-        }
-      }
-    }
 
     // Makes constant returns the same type as the method descriptor
     if (ExitHelper.adjustReturnType(root, md)) {
@@ -438,6 +434,8 @@ public class MethodProcessor implements Runnable {
 
     // Apply plugin passes before setting variable definitions
     pluginContext.runPasses(JavaPassLocation.AFTER_MAIN, pctx);
+    root = pctx.getRoot();
+    debugCurrentlyDecompiling.set(root);
 
     varProc.setVarDefinitions(root);
     decompileRecord.add("SetVarDefinitions", root);
@@ -462,6 +460,8 @@ public class MethodProcessor implements Runnable {
 
     // Apply plugin passes after setting variable definitions
     pluginContext.runPasses(JavaPassLocation.AT_END, pctx);
+    root = pctx.getRoot();
+    debugCurrentlyDecompiling.set(root);
 
     // must be the last invocation, because it makes the statement structure inconsistent
     // FIXME: new edge type needed

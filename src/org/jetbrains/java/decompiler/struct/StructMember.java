@@ -19,9 +19,9 @@ import static org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute.*
 
 public abstract class StructMember {
   protected int accessFlags;
-  protected Map<String, StructGeneralAttribute> attributes;
+  protected Map<Key<?>, Object> attributes;
 
-  protected StructMember(int accessFlags, Map<String, StructGeneralAttribute> attributes) {
+  protected StructMember(int accessFlags, Map<Key<?>, Object> attributes) {
     this.accessFlags = accessFlags;
     this.attributes = attributes;
   }
@@ -30,16 +30,16 @@ public abstract class StructMember {
     return accessFlags;
   }
 
-  public <T extends StructGeneralAttribute> T getAttribute(Key<T> attribute) {
-    @SuppressWarnings("unchecked") T t = (T)attributes.get(attribute.name);
+  public <T> T getAttribute(Key<T> attribute) {
+    @SuppressWarnings("unchecked") T t = (T)attributes.get(attribute);
     return t;
   }
 
   public boolean hasAttribute(Key<?> attribute) {
-    return attributes.containsKey(attribute.name);
+    return attributes.containsKey(attribute);
   }
 
-  public Map<String, StructGeneralAttribute> getAttributes() {
+  public Map<Key<?>, Object> getAttributes() {
     return attributes;
   }
 
@@ -51,17 +51,17 @@ public abstract class StructMember {
     return hasModifier(CodeConstants.ACC_SYNTHETIC) || hasAttribute(StructGeneralAttribute.ATTRIBUTE_SYNTHETIC);
   }
 
-  public static Map<String, StructGeneralAttribute> readAttributes(DataInputFullStream in, ConstantPool pool, BytecodeVersion version) throws IOException {
+  public static Map<Key<?>, Object> readAttributes(DataInputFullStream in, ConstantPool pool, BytecodeVersion version) throws IOException {
     return readAttributes(in, pool, true, version);
   }
 
-  public static Map<String, StructGeneralAttribute> readAttributes(DataInputFullStream in, ConstantPool pool, boolean readCode, BytecodeVersion version) throws IOException {
+  public static Map<Key<?>, Object> readAttributes(DataInputFullStream in, ConstantPool pool, boolean readCode, BytecodeVersion version) throws IOException {
     int length = in.readUnsignedShort();
-    Map<String, StructGeneralAttribute> attributes = new HashMap<>(length);
+    Map<Key<?>, Object> attributes = new HashMap<>(length);
 
     for (int i = 0; i < length; i++) {
       int nameIndex = in.readUnsignedShort();
-      String name = pool.getPrimitiveConstant(nameIndex).getString();
+      Key<? extends StructGeneralAttribute> name = Key.of(pool.getPrimitiveConstant(nameIndex).getString());
 
       StructGeneralAttribute attribute = StructGeneralAttribute.createAttribute(name);
       int attLength = in.readInt();
@@ -70,12 +70,12 @@ public abstract class StructMember {
       }
       else {
         attribute.initContent(in, pool, version);
-        if (StructGeneralAttribute.ATTRIBUTE_LOCAL_VARIABLE_TABLE.name.equals(name) && attributes.containsKey(name)) {
+        if (StructGeneralAttribute.ATTRIBUTE_LOCAL_VARIABLE_TABLE.equals(name) && attributes.containsKey(name)) {
           // merge all variable tables
           StructLocalVariableTableAttribute table = (StructLocalVariableTableAttribute)attributes.get(name);
           table.add((StructLocalVariableTableAttribute)attribute);
         }
-        else if (StructGeneralAttribute.ATTRIBUTE_LOCAL_VARIABLE_TYPE_TABLE.name.equals(name) && attributes.containsKey(name)) {
+        else if (StructGeneralAttribute.ATTRIBUTE_LOCAL_VARIABLE_TYPE_TABLE.equals(name) && attributes.containsKey(name)) {
           // merge all variable tables
           StructLocalVariableTypeTableAttribute table = (StructLocalVariableTypeTableAttribute)attributes.get(name);
           table.add((StructLocalVariableTypeTableAttribute)attribute);
@@ -86,15 +86,15 @@ public abstract class StructMember {
       }
     }
 
-    if (attributes.containsKey(ATTRIBUTE_LOCAL_VARIABLE_TABLE.name) && attributes.containsKey(ATTRIBUTE_LOCAL_VARIABLE_TYPE_TABLE.name))
-      ((StructLocalVariableTableAttribute)attributes.get(ATTRIBUTE_LOCAL_VARIABLE_TABLE.name)).mergeSignatures((StructLocalVariableTypeTableAttribute)attributes.get(ATTRIBUTE_LOCAL_VARIABLE_TYPE_TABLE.name));
+    if (attributes.containsKey(ATTRIBUTE_LOCAL_VARIABLE_TABLE) && attributes.containsKey(ATTRIBUTE_LOCAL_VARIABLE_TYPE_TABLE))
+      ((StructLocalVariableTableAttribute)attributes.get(ATTRIBUTE_LOCAL_VARIABLE_TABLE)).mergeSignatures((StructLocalVariableTypeTableAttribute)attributes.get(ATTRIBUTE_LOCAL_VARIABLE_TYPE_TABLE));
     return attributes;
   }
 
   protected abstract BytecodeVersion getVersion();
 
   protected StructGeneralAttribute readAttribute(DataInputFullStream in, ConstantPool pool, String name) throws IOException {
-    StructGeneralAttribute attribute = StructGeneralAttribute.createAttribute(name);
+    StructGeneralAttribute attribute = StructGeneralAttribute.createAttribute(Key.of(name));
     int length = in.readInt();
     if (attribute == null) {
       in.discard(length);

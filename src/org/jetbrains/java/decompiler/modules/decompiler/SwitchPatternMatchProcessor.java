@@ -8,6 +8,9 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.struct.StructClass;
+import org.jetbrains.java.decompiler.struct.attr.StructBootstrapMethodsAttribute;
+import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
+import org.jetbrains.java.decompiler.struct.consts.LinkConstant;
 import org.jetbrains.java.decompiler.struct.consts.PooledConstant;
 import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
 import org.jetbrains.java.decompiler.struct.gen.CodeType;
@@ -20,8 +23,8 @@ import java.util.*;
 import java.util.stream.Stream;
 
 public final class SwitchPatternMatchProcessor {
-  public static boolean processPatternMatching(Statement root) {
-    boolean ret = processPatternMatchingRec(root, root);
+  public static boolean processPatternMatching(Statement root, StructClass cl) {
+    boolean ret = processPatternMatchingRec(root, root, cl);
 
     if (ret) {
       SequenceHelper.condenseSequences(root);
@@ -30,24 +33,24 @@ public final class SwitchPatternMatchProcessor {
     return ret;
   }
 
-  private static boolean processPatternMatchingRec(Statement stat, Statement root) {
+  private static boolean processPatternMatchingRec(Statement stat, Statement root, StructClass cl) {
     ValidationHelper.validateStatement((RootStatement) root);
 
     boolean ret = false;
     for (Statement st : new ArrayList<>(stat.getStats())) {
-      ret |= processPatternMatchingRec(st, root);
+      ret |= processPatternMatchingRec(st, root, cl);
       ValidationHelper.validateStatement((RootStatement) root);
     }
 
     if (stat instanceof SwitchStatement) {
-      ret |= processStatement((SwitchStatement) stat, root);
+      ret |= processStatement((SwitchStatement) stat, root, cl);
       ValidationHelper.validateStatement((RootStatement) root);
     }
 
     return ret;
   }
 
-  private static boolean processStatement(SwitchStatement stat, Statement root) {
+  private static boolean processStatement(SwitchStatement stat, Statement root, StructClass cl) {
     if (stat.isPhantom()) {
       return false;
     }
@@ -255,17 +258,17 @@ public final class SwitchPatternMatchProcessor {
       // replace the constant with the value of i, which may not be at index i
       int replaceIndex = i;
       for (List<Exprent> caseValueSet : stat.getCaseValues()) {
-        if (caseValueSet.get(0) instanceof ConstExprent) {
-          ConstExprent constExpr = (ConstExprent) caseValueSet.get(0);
+        if (caseValueSet.get(0) instanceof ConstExprent constExpr) {
           if (constExpr.getValue() instanceof Integer && (Integer) constExpr.getValue() == i) {
             replaceIndex = stat.getCaseValues().indexOf(caseValueSet);
           }
         }
       }
-      // either an integer, String, or Class
+
+      Exprent newValue = null;
       if (bsa instanceof PrimitiveConstant) {
+        // either an integer, String, or Class
         PrimitiveConstant p = (PrimitiveConstant) bsa;
-        Exprent newValue = null;
         switch (p.type) {
           case CodeConstants.CONSTANT_Integer:
             newValue = new ConstExprent((Integer) p.value, false, null);
@@ -277,6 +280,10 @@ public final class SwitchPatternMatchProcessor {
             } else {
               newValue = new ConstExprent(VarType.VARTYPE_STRING, p.value, null);
             }
+
+            // Switch on string that's a pattern match (e.g. has a null case) is structured as a pattern match where each string in the bootstrap index maps to case value with the index as the matched value.
+            // See TestPatternMatchSwitchString for context.
+            replaceIndex = getIndex(i, stat.getCaseValues());
             break;
           case CodeConstants.CONSTANT_Class:
             // may happen if the switch head is a supertype of the pattern
@@ -291,23 +298,46 @@ public final class SwitchPatternMatchProcessor {
               newValue = new FunctionExprent(FunctionExprent.FunctionType.INSTANCEOF, operands, null);
             }
             break;
+          default:
+            ValidationHelper.assertTrue(false, "unexpected case");
         }
-        if (newValue != null) {
-          int ix = i;
-          Exprent nvx = newValue;
-          // make sure we replace the right constant, null can be shared with anything
-          stat.getCaseValues().get(replaceIndex).replaceAll(u ->
-            u instanceof ConstExprent
+      } else if (bsa instanceof LinkConstant link) {
+        // Enum
+        StructBootstrapMethodsAttribute bootstrap = cl.getAttribute(StructGeneralAttribute.ATTRIBUTE_BOOTSTRAP_METHODS);
+        if (link.type == CodeConstants.CONSTANT_Dynamic && bootstrap != null) {
+          List<PooledConstant> constants = bootstrap.getMethodArguments(link.index1);
+          LinkConstant other = bootstrap.getMethodReference(link.index1);
+          newValue = CondyHelper.simplifyCondy(other, link.elementname, new VarType(link.descriptor), constants);
+        }
+      }
+
+      if (newValue != null) {
+        int ix = i;
+        Exprent nvx = newValue;
+        // make sure we replace the right constant, null can be shared with anything
+        stat.getCaseValues().get(replaceIndex).replaceAll(u -> u instanceof ConstExprent
             && u.getExprType().typeFamily == TypeFamily.INTEGER
             && ((ConstExprent) u).getIntValue() == ix
-              ? nvx : u);
-        }
+                ? nvx
+                : u);
       }
     }
 
-    if (guarded && stat.getParent() instanceof DoStatement) {
+    Statement replaceWith = stat;
+    Statement parent = stat.getParent();
+    if (parent instanceof SequenceStatement seq
+        && seq.getStats().size() == 2
+        && seq.getStats().get(0) == stat
+        && seq.getStats().get(1) instanceof BasicBlockStatement block
+        && block.getExprents().size() == 1
+        && block.getExprents().get(0) instanceof ExitExprent exit
+        && exit.getValue() != null) {
+      replaceWith = parent;
+      parent = parent.getParent();
+    }
+    if (guarded && parent instanceof DoStatement) {
       // remove the enclosing while(true) loop of a guarded switch
-      stat.getParent().replaceWith(stat);
+      parent.replaceWith(replaceWith);
       // FIXME: this replacement code looks wrong,
       //  doesn't get any coverage in tests
       // update continue-loops into break-switches
@@ -329,7 +359,7 @@ public final class SwitchPatternMatchProcessor {
     List<Exprent> basicHead = stat.getBasichead().getExprents();
     // In the case of a guarded switch the synthetic variable assignment and requireNonNull is in the previous statement
     if (basicHead.isEmpty()) {
-      List<StatEdge> edges = stat.getPredecessorEdges(StatEdge.TYPE_REGULAR);
+      List<StatEdge> edges = replaceWith.getPredecessorEdges(StatEdge.TYPE_REGULAR);
       if (edges.size() == 1 && edges.get(0).getSource() instanceof BasicBlockStatement block) {
         basicHead = block.getExprents();
       }
@@ -351,32 +381,6 @@ public final class SwitchPatternMatchProcessor {
       }
     }
 
-    // Check for non null
-    if (basicHead != null && basicHead.size() >= 1 && realSelector instanceof VarExprent var && !nullCase) {
-      Exprent last = basicHead.get(basicHead.size() - 1);
-      AssignmentExprent stackAssignment = null;
-      if (last instanceof InvocationExprent inv && inv.isStatic() && inv.getClassname().equals("java/util/Objects") && inv.getName().equals("requireNonNull") && inv.getStringDescriptor().equals("(Ljava/lang/Object;)Ljava/lang/Object;")) {
-        VarExprent requireNonNullStackVar = null;
-        if (inv.getLstParameters().get(0) instanceof VarExprent varExprent) {
-          requireNonNullStackVar = varExprent;
-        }
-        if (basicHead.size() >= 2 && var.isStack() && !nullCase && basicHead.get(basicHead.size() - 2) instanceof AssignmentExprent assignment && assignment.getLeft() instanceof VarExprent assigned && var.equals(assigned) && !var.isVarReferenced(root, assigned, requireNonNullStackVar)) {
-          stackAssignment = assignment;
-        }
-        if (var.equals(inv.getLstParameters().get(0)) || (inv.getLstParameters().get(0).getExprentUse() & Exprent.MULTIPLE_USES) != 0 && inv.getLstParameters().get(0).equals(stackAssignment.getRight())) {
-          basicHead.remove(basicHead.size() - 1);
-          // Check for other assignment
-          if (basicHead.size() >= 1 && var.isStack() && !nullCase) {
-            last = basicHead.get(basicHead.size() - 1);
-            if (stackAssignment != null) {
-              realSelector = stackAssignment.getRight();
-              basicHead.remove(basicHead.size() - 1);
-            }
-          }
-        }
-      }
-    }
-
     if (oldSelector != realSelector) {
       Exprent finalSelector = realSelector;
       // Replace the original selector with the new selector in instanceof check in case values
@@ -390,6 +394,20 @@ public final class SwitchPatternMatchProcessor {
     head.setValue(realSelector); // SwitchBootstraps.typeSwitch(o, var1) -> o
 
     return true;
+  }
+
+  private static int getIndex(int check, List<List<Exprent>> values) {
+    for (int i = 0; i < values.size(); i++) {
+      List<Exprent> list = values.get(i);
+
+      for (Exprent exp : list) {
+        if (exp instanceof ConstExprent cons && cons.getValue() instanceof Integer val && val == check) {
+          return i;
+        }
+      }
+    }
+
+    throw new IllegalStateException("Unexpected case in switch pattern matching");
   }
 
   private static boolean eliminateGuardRef(SwitchStatement stat, Map<List<Exprent>, Exprent> guards, Pair<Statement, Exprent> reference, boolean simulate) {

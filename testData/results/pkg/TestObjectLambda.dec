@@ -1,0 +1,58 @@
+package pkg;
+
+public class TestObjectLambda {
+   public void test() {
+      Object var1 = new Object();
+      Runnable var2 = () -> {
+         Runnable var1x = () -> System.out.println(var1);
+      };
+   }
+
+   public void test2() {
+      Object var1 = new Object();
+      Runnable var2 = () -> System.out.println(var1);
+   }
+}
+
+class 'pkg/TestObjectLambda' {
+   method 'test ()V' {
+      7      4
+      e      5
+      f      8
+   }
+
+   method 'lambda$test$1 (Ljava/lang/Object;)V' {
+      6      6
+      7      7
+   }
+
+   method 'lambda$test$0 (Ljava/lang/Object;)V' {
+      0      6
+      1      6
+      2      6
+      3      6
+      4      6
+      5      6
+      6      6
+      7      6
+   }
+
+   method 'test2 ()V' {
+      7      11
+      e      12
+      f      13
+   }
+
+   method 'lambda$test2$2 (Ljava/lang/Object;)V' {
+      0      12
+      1      12
+      2      12
+      3      12
+      4      12
+      5      12
+      6      12
+      7      12
+   }
+}
+
+Lines mapping:

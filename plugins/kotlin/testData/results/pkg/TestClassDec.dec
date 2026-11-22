@@ -2,14 +2,14 @@ package pkg
 
 public class TestClassDec {
    public fun pkg.TestClassDec.Vec2iVal.dot(v: pkg.TestClassDec.Vec2iVal): Int {
-      return `$this$dot`.getX() * v.getX() + `$this$dot`.getY() * v.getY()// 11
+      return `$this$dot`.x * v.x + `$this$dot`.y * v.y// 11
    }
 
    public fun test() {
-      new TestClassDec.EmptyDec()
-      val vec: TestClassDec.Vec2iVal = new TestClassDec.Vec2iVal(1, 2)// 16
-      val vec1: TestClassDec.Vec2iVal = new TestClassDec.Vec2iVal(2, 4)// 17
-      System.out.println(vec.getX())// 19
+      TestClassDec.EmptyDec()
+      val vec: TestClassDec.Vec2iVal = TestClassDec.Vec2iVal(1, 2)// 16
+      val vec1: TestClassDec.Vec2iVal = TestClassDec.Vec2iVal(2, 4)// 17
+      System.out.println(vec.x)// 19
       System.out.println(this.dot(vec, vec1))// 20
    }// 21
 

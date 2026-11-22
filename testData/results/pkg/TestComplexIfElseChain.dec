@@ -52,7 +52,7 @@ public class TestComplexIfElseChain {
          } else if (result != 6 && result != 7) {// 52
             if (result == 8 || result == 9) {// 54
                System.out.println("e");// 55
-               return;// 56
+               return;// 59
             }
          } else {
             System.out.println("d");// 53
@@ -614,7 +614,7 @@ class 'pkg/TestComplexIfElseChain' {
       75      53
       76      53
       77      53
-      78      54
+      7e      54
    }
 
    method 'testInLoop2 ()V' {
@@ -1757,7 +1757,7 @@ Lines mapping:
 53 <-> 58
 54 <-> 53
 55 <-> 54
-56 <-> 55
+59 <-> 55
 62 <-> 64
 65 <-> 67
 67 <-> 68
@@ -1898,8 +1898,8 @@ Lines mapping:
 277 <-> 286
 281 <-> 290
 Not mapped:
+56
 58
-59
 81
 95
 97

@@ -1,0 +1,27 @@
+package pkg;
+
+public class TestSingleMethodInInnerClass {
+   static class Inner {
+      void test() {
+         System.out.println("Hello from inner class");// 10
+      }// 11
+   }
+}
+
+class 'pkg/TestSingleMethodInInnerClass$Inner' {
+   method 'test ()V' {
+      0      5
+      1      5
+      2      5
+      3      5
+      4      5
+      5      5
+      6      5
+      7      5
+      8      6
+   }
+}
+
+Lines mapping:
+10 <-> 6
+11 <-> 7

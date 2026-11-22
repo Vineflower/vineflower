@@ -394,6 +394,35 @@ public class FunctionExprent extends Exprent {
         result.addExprLowerBound(param1, implicitType);
         result.addExprUpperBound(param1, implicitType);
         break;
+      case LCMP:
+        result.addExprLowerBound(param1, VarType.VARTYPE_LONG);
+        result.addExprLowerBound(param2, VarType.VARTYPE_LONG);
+      case FCMPL:
+      case FCMPG:
+        result.addExprLowerBound(param1, VarType.VARTYPE_FLOAT);
+        result.addExprLowerBound(param2, VarType.VARTYPE_FLOAT);
+        break;
+      case DCMPL:
+      case DCMPG:
+        result.addExprLowerBound(param1, VarType.VARTYPE_DOUBLE);
+        result.addExprLowerBound(param2, VarType.VARTYPE_DOUBLE);
+        break;
+      case LT:
+      case GE:
+      case GT:
+      case LE:
+        // After secondary functions are identified, float and double comparisons (fcmp* and dcmp*) become regular comparisons.
+        // Without special handling here, we might introduce incorrect bounds and turn variables that should be floats/doubles into ints.
+        if (type1.equals(VarType.VARTYPE_FLOAT) && type2.equals(VarType.VARTYPE_FLOAT)) {
+          result.addExprLowerBound(param1, VarType.VARTYPE_FLOAT);
+          result.addExprLowerBound(param2, VarType.VARTYPE_FLOAT);
+          break;
+        }
+        if (type1.equals(VarType.VARTYPE_DOUBLE) && type2.equals(VarType.VARTYPE_DOUBLE)) {
+          result.addExprLowerBound(param1, VarType.VARTYPE_DOUBLE);
+          result.addExprLowerBound(param2, VarType.VARTYPE_DOUBLE);
+          break;
+        }
       case ADD:
       case SUB:
       case MUL:
@@ -402,10 +431,6 @@ public class FunctionExprent extends Exprent {
       case SHL:
       case SHR:
       case USHR:
-      case LT:
-      case GE:
-      case GT:
-      case LE:
         result.addExprLowerBound(param2, VarType.VARTYPE_BYTECHAR);
       case BIT_NOT:
         // case BOOL_NOT:

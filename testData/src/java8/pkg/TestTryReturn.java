@@ -137,6 +137,18 @@ public class TestTryReturn {
     }
   }
 
+  public void testParsingFailureSimple() {
+    try {
+      try {
+        System.out.println("inner");
+      } finally {
+        return;
+      }
+    } finally {
+      System.out.println("fin");
+    }
+  }
+
   public void testPostdomFailure() {
     // Load bearing useless string- removing this makes vf emit a parsing error???
     String var1;

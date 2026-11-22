@@ -3,13 +3,16 @@ package org.jetbrains.java.decompiler.main.rels;
 
 import org.jetbrains.java.decompiler.api.plugin.LanguageSpec;
 import org.jetbrains.java.decompiler.code.CodeConstants;
+import org.jetbrains.java.decompiler.code.MethodProperties;
 import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
+import org.jetbrains.java.decompiler.main.ClassesProcessor;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.main.collectors.VarNamesCollector;
 import org.jetbrains.java.decompiler.main.decompiler.CancelationManager;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
+import org.jetbrains.java.decompiler.modules.code.MethodPropertiesProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
@@ -23,7 +26,9 @@ import org.jetbrains.java.decompiler.util.DotExporter;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
@@ -32,22 +37,33 @@ public class ClassWrapper {
   // When not null, this skips processing of every method except the one with the name specified.
   private static final String DEBUG_METHOD_FILTER = null;
   private final StructClass classStruct;
+  private final ClassesProcessor.ClassNode node;
   private final Set<String> hiddenMembers = new HashSet<>();
   private final VBStyleCollection<Exprent, String> staticFieldInitializers = new VBStyleCollection<>();
   private final VBStyleCollection<Exprent, String> dynamicFieldInitializers = new VBStyleCollection<>();
   private final VBStyleCollection<MethodWrapper, String> methods = new VBStyleCollection<>();
+  private final Map<String, MethodProperties> methodProperties = new HashMap<>();
 
-  public ClassWrapper(StructClass classStruct) {
-    this.classStruct = classStruct;
+  public ClassWrapper(ClassesProcessor.ClassNode node) {
+    this.classStruct = node.classStruct;
+    this.node = node;
   }
 
   public void init(LanguageSpec spec) {
     DecompilerContext.setProperty(DecompilerContext.CURRENT_CLASS, classStruct);
     DecompilerContext.setProperty(DecompilerContext.CURRENT_CLASS_WRAPPER, this);
+    DecompilerContext.setProperty(DecompilerContext.CURRENT_CLASS_NODE, node);
     DecompilerContext.getLogger().startClass(classStruct.qualifiedName);
 
     int maxSec = Integer.parseInt(DecompilerContext.getProperty(IFernflowerPreferences.MAX_PROCESSING_METHOD).toString());
     boolean testMode = DecompilerContext.getOption(IFernflowerPreferences.UNIT_TEST_MODE);
+
+    // Pre-process
+    for (StructMethod mt : classStruct.getMethods()) {
+      MethodProperties props = new MethodProperties(mt);
+      MethodPropertiesProcessor.parse(mt, classStruct, props);
+      methodProperties.put(InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor()), props);
+    }
 
     for (StructMethod mt : classStruct.getMethods()) {
       DecompilerContext.getLogger().startMethod(mt.getName() + " " + mt.getDescriptor());
@@ -220,6 +236,10 @@ public class ClassWrapper {
     return methods.getWithKey(InterpreterUtil.makeUniqueKey(name, descriptor));
   }
 
+  public MethodProperties getMethodProperties(String name, String descriptor) {
+    return methodProperties.get(InterpreterUtil.makeUniqueKey(name, descriptor));
+  }
+
   public MethodWrapper getMethodWrapper(int index) {
     return methods.get(index);
   }
@@ -230,6 +250,10 @@ public class ClassWrapper {
 
   public VBStyleCollection<MethodWrapper, String> getMethods() {
     return methods;
+  }
+
+  public Map<String, MethodProperties> getMethodProperties() {
+    return methodProperties;
   }
 
   public Set<String> getHiddenMembers() {

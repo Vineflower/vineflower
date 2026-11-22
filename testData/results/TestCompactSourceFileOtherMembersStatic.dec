@@ -1,0 +1,56 @@
+final class TestCompactSourceFileOtherMembersStatic {
+   static String GREETING = "Hello";// 1
+
+   static String createGreeting(String name) {
+      return GREETING + " " + name + "!";// 4
+   }
+
+   static void main() {
+      String name = IO.readln("Name: ");// 8
+      IO.println(createGreeting(name));// 9
+   }// 10
+}
+
+class 'TestCompactSourceFileOtherMembersStatic' {
+   method '<clinit> ()V' {
+      0      1
+      1      1
+   }
+
+   method 'createGreeting (Ljava/lang/String;)Ljava/lang/String;' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      5      4
+      6      4
+      7      4
+      8      4
+      9      4
+   }
+
+   method 'main ()V' {
+      0      8
+      1      8
+      2      8
+      3      8
+      4      8
+      5      8
+      6      9
+      7      9
+      8      9
+      9      9
+      a      9
+      b      9
+      c      9
+      d      10
+   }
+}
+
+Lines mapping:
+1 <-> 2
+4 <-> 5
+8 <-> 9
+9 <-> 10
+10 <-> 11

@@ -1,0 +1,25 @@
+package pkg;
+
+public record TestRecordFakeSyntheticConstructor(int x, int y) {
+   public TestRecordFakeSyntheticConstructor(int x, int y) {
+      this.y = y;// 6
+   }// 7
+}
+
+class 'pkg/TestRecordFakeSyntheticConstructor' {
+   method '<init> (II)V' {
+      9      4
+      a      4
+      b      4
+      c      4
+      d      4
+      e      5
+   }
+}
+
+Lines mapping:
+6 <-> 5
+7 <-> 6
+Not mapped:
+4
+5

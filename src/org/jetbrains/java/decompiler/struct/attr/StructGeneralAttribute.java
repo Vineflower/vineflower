@@ -8,6 +8,7 @@ import org.jetbrains.java.decompiler.struct.consts.ConstantPool;
 import org.jetbrains.java.decompiler.util.DataInputFullStream;
 
 import java.io.IOException;
+import java.util.function.Supplier;
 
 /*
   attribute_info {
@@ -44,15 +45,14 @@ public class StructGeneralAttribute {
   public static final Key<StructNestHostAttribute> ATTRIBUTE_NEST_HOST = Key.of("NestHost");
   // TODO: NestMembers
 
-  public static StructGeneralAttribute createAttribute(String name) {
-    for (Key<? extends StructGeneralAttribute> key : ClassAttributeRegistry.getRegistry().keySet()) {
-      if (key.name.equals(name)) {
-        return ClassAttributeRegistry.get(key);
-      }
+  public static <T extends StructGeneralAttribute> StructGeneralAttribute createAttribute(Key<T> key) {
+    Supplier<T> supplier = ClassAttributeRegistry.get(key);
+    if (supplier == null) {
+      // Unknown attribute
+      return  null;
     }
 
-    // Unknown attribute
-    return null;
+    return supplier.get();
   }
 
   // Not placed in static intializer to avoid class loading issues

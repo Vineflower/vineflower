@@ -324,6 +324,7 @@ public interface IFernflowerPreferences {
 
   String DUMP_ORIGINAL_LINES = "__dump_original_lines__";
   String UNIT_TEST_MODE = "__unit_test_mode__";
+  String DEBUG_MARKER_EXCEPTIONS = "__debug_marker_exceptions__";
 
   String LINE_SEPARATOR_WIN = "\r\n";
   String LINE_SEPARATOR_UNX = "\n";
@@ -398,6 +399,11 @@ public interface IFernflowerPreferences {
   @Type(DecompilerOption.Type.STRING)
   String EXCLUDED_CLASSES = "excluded-classes";
 
+  @Name("Included Classes")
+  @Description("Include classes in decompilation only if their fully qualified names match the specified regular expression.")
+  @Type(DecompilerOption.Type.STRING)
+  String INCLUDED_CLASSES = "included-classes";
+
   @Name("Validate inner classes names")
   @Description("Validates that the inner class name is correct (if it is separated using \"$\" for example BaseClass$InnerClass). If not then inner class won't be processed.")
   @Type(DecompilerOption.Type.BOOLEAN)
@@ -407,6 +413,11 @@ public interface IFernflowerPreferences {
   @Description("Use heuristics to restructure if statements to make them clearer to read.")
   @Type(DecompilerOption.Type.BOOLEAN)
   String PRETTIFY_IFS = "prettify-ifs";
+
+  @Name("Method to decompile")
+  @Description("Option to decompile a single method. Set to owner + \".\" + name + descriptor, e.g. foo/Bar.baz()V, or simply name + descriptor if you're only decompiling a single file and the method belongs to the root class.")
+  @Type(DecompilerOption.Type.STRING)
+  String METHOD_TO_DECOMPILE = "method-to-decompile";
 
   Map<String, Object> DEFAULTS = getDefaults();
 
@@ -453,7 +464,7 @@ public interface IFernflowerPreferences {
     defaults.put(DECOMPILE_PREVIEW, "1"); // Preview features are useful to decompile in almost all cases
 
     defaults.put(INCLUDE_ENTIRE_CLASSPATH, "0");
-    defaults.put(INCLUDE_JAVA_RUNTIME, "");
+    defaults.put(INCLUDE_JAVA_RUNTIME, "1");
     defaults.put(EXPLICIT_GENERIC_ARGUMENTS, "0");
     defaults.put(INLINE_SIMPLE_LAMBDAS, "1");
 
@@ -468,6 +479,7 @@ public interface IFernflowerPreferences {
     defaults.put(ERROR_MESSAGE, "Please report this to the Vineflower issue tracker, at https://github.com/Vineflower/vineflower/issues with a copy of the class file (if you have the rights to distribute it!)");
     defaults.put(UNIT_TEST_MODE, "0");
     defaults.put(DUMP_ORIGINAL_LINES, "0");
+    defaults.put(DEBUG_MARKER_EXCEPTIONS, "0");
     defaults.put(THREADS, String.valueOf(Runtime.getRuntime().availableProcessors()));
     defaults.put(SKIP_EXTRA_FILES, "0");
     defaults.put(WARN_INCONSISTENT_INNER_CLASSES, "1");
@@ -481,8 +493,10 @@ public interface IFernflowerPreferences {
     defaults.put(REMOVE_IMPORTS, "0");
     defaults.put(MARK_CORRESPONDING_SYNTHETICS, "0");
     defaults.put(EXCLUDED_CLASSES, "");
+    defaults.put(INCLUDED_CLASSES, "");
     defaults.put(VALIDATE_INNER_CLASSES_NAMES, "1");
     defaults.put(PRETTIFY_IFS, "1");
+    defaults.put(METHOD_TO_DECOMPILE, "");
 
     return Collections.unmodifiableMap(defaults);
   }

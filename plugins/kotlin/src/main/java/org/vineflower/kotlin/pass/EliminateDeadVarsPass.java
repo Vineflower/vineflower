@@ -11,6 +11,8 @@ import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionsGraph;
 import org.jetbrains.java.decompiler.struct.StructMethod;
+import org.jetbrains.java.decompiler.struct.gen.VarType;
+import org.vineflower.kotlin.util.KTypes;
 
 import java.util.List;
 
@@ -68,12 +70,12 @@ public class EliminateDeadVarsPass implements Pass {
   }
 
   private static boolean isPureToReplace(Exprent expr) {
-    if (expr instanceof ConstExprent) {
+    if (expr instanceof ConstExprent con && (con.getValue() == null || (con.getValue() instanceof Integer && con.getIntValue() == 0))) {
       return true;
     }
 
     if (expr instanceof FieldExprent field) {
-      return field.isStatic() && field.getClassname().equals("kotlin/Unit");
+      return field.isStatic() && field.getClassname().equals(KTypes.UNIT);
     }
 
     return false;

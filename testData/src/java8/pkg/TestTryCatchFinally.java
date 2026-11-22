@@ -56,4 +56,13 @@ public class TestTryCatchFinally {
     }
     return -1;
   }
+
+  void testEmptyCatch(String msg) {
+    try {
+      System.out.println(msg);
+    } catch (RuntimeException ignored){
+    } finally {
+      System.out.println("Bye");
+    }
+  }
 }

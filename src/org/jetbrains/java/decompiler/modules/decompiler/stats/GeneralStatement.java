@@ -1,6 +1,7 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.stats;
 
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
 import java.util.Collection;
@@ -15,7 +16,7 @@ public final class GeneralStatement extends Statement {
   // constructors
   // *****************************************************************************
 
-  public GeneralStatement(Statement head, Collection<? extends Statement> statements, Statement post) {
+  public GeneralStatement(Statement head, Collection<? extends Statement> statements, @Nullable Statement post) {
 
     super(StatementType.GENERAL);
 

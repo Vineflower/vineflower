@@ -1,0 +1,77 @@
+package pkg;
+
+import java.util.Vector;
+
+public class TestStringConcatObjectAppendJ25 {
+   public static void store(Vector values) {
+      String text = "";// 7
+
+      for (int i = 0; i < values.size(); i++) {// 8
+         text = text + values.elementAt(i) + ";";// 9
+      }
+
+      sink(text);// 11
+      sink(String.valueOf(text));// 12
+   }// 13
+
+   private static void sink(String value) {
+   }// 18
+}
+
+class 'pkg/TestStringConcatObjectAppendJ25' {
+   method 'store (Ljava/util/Vector;)V' {
+      0      6
+      1      6
+      2      6
+      3      8
+      4      8
+      5      8
+      6      8
+      7      8
+      8      8
+      9      8
+      a      8
+      b      8
+      c      8
+      d      9
+      e      9
+      f      9
+      10      9
+      11      9
+      12      9
+      16      9
+      17      9
+      18      9
+      19      9
+      1a      9
+      1b      9
+      1c      8
+      1d      8
+      1e      8
+      22      12
+      23      12
+      24      12
+      25      12
+      26      13
+      27      13
+      28      13
+      29      13
+      2a      13
+      2b      13
+      2c      13
+      2d      14
+   }
+
+   method 'sink (Ljava/lang/String;)V' {
+      0      17
+   }
+}
+
+Lines mapping:
+7 <-> 7
+8 <-> 9
+9 <-> 10
+11 <-> 13
+12 <-> 14
+13 <-> 15
+18 <-> 18

@@ -9,7 +9,7 @@ import org.jetbrains.java.decompiler.struct.StructMethod;
  * Provides (optional) javadoc for Classes/Methods/Fields encountered by
  *  {@link org.jetbrains.java.decompiler.main.ClassWriter}.
  *
- * May be set as a property in the constructor of {@link org.jetbrains.java.decompiler.main.Fernflower} by using
+ * <p>May be set as a property in the constructor of {@link org.jetbrains.java.decompiler.main.Fernflower} by using
  *  the key {@code IFabricJavadocProvider.PROPERTY_NAME}
  */
 public interface IFabricJavadocProvider {
@@ -20,4 +20,16 @@ public interface IFabricJavadocProvider {
   String getFieldDoc(StructClass structClass, StructField structField);
 
   String getMethodDoc(StructClass structClass, StructMethod structMethod);
+
+  default FabricJavadocStyle getClassJavadocStyle(StructClass structClass) {
+    return FabricJavadocStyle.HTML;
+  }
+
+  default FabricJavadocStyle getFieldJavadocStyle(StructClass structClass, StructField structField) {
+    return getClassJavadocStyle(structClass);
+  }
+
+  default FabricJavadocStyle getMethodJavadocStyle(StructClass structClass, StructMethod structMethod) {
+    return getClassJavadocStyle(structClass);
+  }
 }

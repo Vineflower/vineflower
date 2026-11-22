@@ -42,3 +42,6 @@ Fernflower is a very complex and involved bit of software, and there's a lot goi
 
 ## License
 * Vineflower is licensed under Apache Version 2.0. By submitting a patch you are agreeing to license your code under it. Please do not submit pull requests containing code you do not have the rights to!
+
+## AI Policy
+* Vineflower does not accept contributions that are AI-generated in whole or part. Please do not use Large Language Models or other AI generation tools when submitting contributions to Vineflower.

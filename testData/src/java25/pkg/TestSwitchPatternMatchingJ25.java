@@ -1,5 +1,12 @@
 package pkg;
 
+import java.lang.classfile.ClassBuilder;
+import java.lang.classfile.ClassElement;
+import java.lang.classfile.FieldModel;
+import java.lang.classfile.MethodModel;
+import java.lang.classfile.Superclass;
+import java.lang.classfile.attribute.RecordAttribute;
+import java.lang.constant.ConstantDescs;
 import java.util.function.Supplier;
 
 public class TestSwitchPatternMatchingJ25 {
@@ -44,6 +51,56 @@ public class TestSwitchPatternMatchingJ25 {
         System.out.println(s);
         break;
       default:
+    }
+  }
+  
+  record Test5(Object o) {}
+  public String test5(Object o) {
+    return switch (o) {
+      case Test5(Test5(Test5 t)) -> t.toString();
+      default -> null;
+    };
+  }
+  
+  record Test6a(int i) {}
+  record Test6b(int i) {}
+  public String test6(Object o) {
+    return switch (o) {
+      case Test6a(int i) -> Integer.toString(i);
+      case Test6b(int i) -> Integer.toString(i);
+      default -> throw new RuntimeException();
+    };
+  }
+
+  enum Test7 {
+    VALUE1,
+    VALUE2;
+  }
+  public String test7(Object o) {
+    return switch (o) {
+      case Integer i -> Integer.toString(i);
+      case Test7.VALUE1 -> "1";
+      case Test7.VALUE2 -> "2";
+      default -> "";
+    };
+  }
+
+  public String test8(Object o, boolean b) {
+    return switch (o) {
+      case Integer i when b -> Integer.toString(i);
+      case Test7.VALUE1 -> "1";
+      case Test7.VALUE2 -> "2";
+      default -> "";
+    };
+  }
+
+  public void test9(ClassBuilder builder, ClassElement element) {
+    switch (element) {
+      case RecordAttribute _ -> {}
+      case Superclass _ -> builder.withSuperclass(ConstantDescs.CD_Enum);
+      case FieldModel _ -> {}
+      case MethodModel method -> IO.println(builder + " " + method);
+      default -> builder.with(element);
     }
   }
 }

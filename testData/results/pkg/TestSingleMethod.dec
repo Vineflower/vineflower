@@ -1,0 +1,71 @@
+package pkg;
+
+public class TestSingleMethod {
+   public void test() {
+      System.out.println("Hello from test");// 15
+      new Object() {
+         void foo() {
+            System.out.println("Hello from anonymous class");// 18
+         }// 19
+      };
+
+      class Local {
+         void foo() {
+            System.out.println("Hello from local class");// 24
+         }// 25
+      }
+
+   }// 27
+}
+
+class 'pkg/TestSingleMethod' {
+   method 'test ()V' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      5      4
+      6      4
+      7      4
+      11      17
+   }
+}
+
+class 'pkg/TestSingleMethod$1' {
+   method 'foo ()V' {
+      0      7
+      1      7
+      2      7
+      3      7
+      4      7
+      5      7
+      6      7
+      7      7
+      8      8
+   }
+}
+
+class 'pkg/TestSingleMethod$1Local' {
+   method 'foo ()V' {
+      0      13
+      1      13
+      2      13
+      3      13
+      4      13
+      5      13
+      6      13
+      7      13
+      8      14
+   }
+}
+
+Lines mapping:
+15 <-> 5
+18 <-> 8
+19 <-> 9
+24 <-> 14
+25 <-> 15
+27 <-> 18
+Not mapped:
+16

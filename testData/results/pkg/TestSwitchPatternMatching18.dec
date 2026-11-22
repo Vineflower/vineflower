@@ -9,7 +9,7 @@ public class TestSwitchPatternMatching18 {
          case Integer i when i < 50:// 8
             System.out.println("small");
             break;
-         case Comparable<Integer> ix when ix.compareTo(17) > 0:// 9
+         case Comparable<Integer> i when i.compareTo(17) > 0:// 9
             System.out.println("comparable");// 10
             break;
          default:

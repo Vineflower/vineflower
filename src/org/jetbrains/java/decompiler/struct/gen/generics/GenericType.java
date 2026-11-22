@@ -642,10 +642,14 @@ public class GenericType extends VarType {
         GenericType parent = this.parent != null && this.parent.isGeneric() ? (GenericType)this.parent : null;
         if (parent == null) {
           StructClass cls = DecompilerContext.getStructContext().getClass(other.parent.value);
-          parent = cls.getSignature().genericType;
+          if (cls != null) {
+            parent = cls.getSignature().genericType;
+          }
         }
 
-        parent.mapGenVarsTo((GenericType)other.parent, map);
+        if (parent != null) {
+          parent.mapGenVarsTo((GenericType)other.parent, map);
+        }
       }
     }
   }

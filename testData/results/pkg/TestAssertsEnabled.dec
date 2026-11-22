@@ -1,0 +1,539 @@
+package pkg;
+
+public class TestAssertsEnabled {
+   private boolean field;
+
+   public void test() {
+      boolean enabled;
+      assert enabled = true;// 7
+      System.out.println(enabled);// 8
+   }// 9
+
+   public void test1(int x) {
+      boolean enabled;
+      enabled = false;// 12
+      label12:
+      if (x > 5) {// 13
+         System.out.println("a");// 14
+      } else {
+         assert enabled = true;// 16
+      }
+
+      System.out.println(enabled);// 18
+   }// 19
+
+   public void test2(int x) {
+      boolean enabled = false;// 22
+      if (x > 5) {// 23
+         assert enabled = true;// 24
+         System.out.println("a");// 25
+      }
+
+      System.out.println(enabled);// 27
+   }// 28
+
+   public void test3() {
+      boolean enabled;
+      assert enabled = true : "Test";// 32
+      System.out.println(enabled);// 33
+   }// 34
+
+   public void test4() {
+      boolean enabled;
+      assert enabled = true : "Test " + enabled;// 38
+      System.out.println(enabled);// 39
+   }// 40
+
+   public void test5(boolean b) {
+      boolean enabled;
+      assert enabled = b;// 44
+      System.out.println(enabled);// 45
+   }// 46
+
+   public void test6() {
+      boolean enabled = false;// 49
+      boolean enabledx;
+      assert enabledx = enabled;// 50
+      System.out.println(enabledx);// 51
+   }// 52
+
+   // $VF: Could not resugar all assert statements!
+   public void test7() {
+      boolean enabled = false;// 55
+      String s = "a";// 56
+      System.out.println(s);// 57
+      if (!$assertionsDisabled) {// 58
+         enabled = true;
+         if (false) {
+            s = "Test";
+            throw new AssertionError("Test");
+         }
+      }
+
+      System.out.println(enabled + s);// 59
+   }// 60
+
+   // $VF: Could not resugar all assert statements!
+   public void test8() {
+      boolean enabled = false;// 63
+      String s = "a";// 64
+      System.out.println(s);// 65
+      if (!$assertionsDisabled && !enabled) {// 66
+         s = "Test";
+         throw new AssertionError("Test");
+      }
+
+      System.out.println(enabled + s);// 67
+   }// 68
+
+   public void test9() {
+      boolean enabled = false;// 71
+      String s = "a";// 72
+      System.out.println(s);// 73
+      assert enabled : "Test " + enabled;// 74
+      System.out.println(enabled + s);// 75
+   }// 76
+
+   // $VF: Could not resugar all assert statements!
+   public void test10(boolean b) {
+      label14: {
+         boolean enabled;
+         enabled = false;// 79
+         label13:
+         if (!$assertionsDisabled) {// 80
+            assert enabled = true;
+         }
+
+         System.out.println(enabled);// 81
+         return;// 82
+      }
+
+      throw new AssertionError();
+   }
+
+   // $VF: Could not resugar all assert statements!
+   public void test11(boolean b) {
+      boolean enabled = false;// 85
+      if (!$assertionsDisabled) {// 86
+         enabled = true;
+         if (false || !b) {
+            throw new AssertionError();
+         }
+      }
+
+      System.out.println(enabled);// 87
+   }// 88
+
+   public void test12() {
+      assert this.field = true;// 91
+      System.out.println(this.field);// 92
+   }// 93
+}
+
+class 'pkg/TestAssertsEnabled' {
+   method 'test ()V' {
+      8      7
+      a      7
+      16      8
+      17      8
+      18      8
+      19      8
+      1a      8
+      1b      8
+      1c      8
+      1d      9
+   }
+
+   method 'test1 (I)V' {
+      0      13
+      1      13
+      2      15
+      3      15
+      4      15
+      5      15
+      6      15
+      7      16
+      8      16
+      9      16
+      a      16
+      b      16
+      c      16
+      d      16
+      e      16
+      18      18
+      1a      18
+      26      21
+      27      21
+      28      21
+      29      21
+      2a      21
+      2b      21
+      2c      21
+      2d      22
+   }
+
+   method 'test2 (I)V' {
+      0      25
+      1      25
+      2      26
+      3      26
+      4      26
+      5      26
+      6      26
+      d      27
+      f      27
+      1b      28
+      1c      28
+      1d      28
+      1e      28
+      1f      28
+      20      28
+      21      28
+      22      28
+      23      31
+      24      31
+      25      31
+      26      31
+      27      31
+      28      31
+      29      31
+      2a      32
+   }
+
+   method 'test3 ()V' {
+      8      36
+      a      36
+      12      36
+      13      36
+      18      37
+      19      37
+      1a      37
+      1b      37
+      1c      37
+      1d      37
+      1e      37
+      1f      38
+   }
+
+   method 'test4 ()V' {
+      8      42
+      a      42
+      12      42
+      13      42
+      14      42
+      15      42
+      16      42
+      17      42
+      1c      43
+      1d      43
+      1e      43
+      1f      43
+      20      43
+      21      43
+      22      43
+      23      44
+   }
+
+   method 'test5 (Z)V' {
+      8      48
+      a      48
+      16      49
+      17      49
+      18      49
+      19      49
+      1a      49
+      1b      49
+      1c      49
+      1d      50
+   }
+
+   method 'test6 ()V' {
+      0      53
+      1      53
+      8      55
+      a      55
+      b      55
+      c      55
+      d      55
+      12      55
+      13      55
+      14      55
+      16      56
+      17      56
+      18      56
+      19      56
+      1a      56
+      1b      56
+      1c      56
+      1d      57
+   }
+
+   method 'test7 ()V' {
+      0      61
+      1      61
+      2      62
+      3      62
+      4      62
+      5      63
+      6      63
+      7      63
+      8      63
+      9      63
+      a      63
+      b      63
+      c      64
+      d      64
+      e      64
+      f      64
+      10      64
+      11      64
+      12      65
+      14      65
+      15      66
+      16      66
+      17      66
+      1c      67
+      1d      67
+      1f      67
+      23      68
+      24      72
+      25      72
+      26      72
+      27      72
+      28      72
+      29      72
+      2a      72
+      2b      72
+      2c      72
+      2d      72
+      2e      72
+      2f      72
+      30      72
+      31      73
+   }
+
+   method 'test8 ()V' {
+      0      77
+      1      77
+      2      78
+      3      78
+      4      78
+      5      79
+      6      79
+      7      79
+      8      79
+      9      79
+      a      79
+      b      79
+      c      80
+      d      80
+      e      80
+      f      80
+      10      80
+      11      80
+      12      80
+      13      80
+      14      80
+      15      80
+      1a      81
+      1b      81
+      1d      81
+      21      82
+      22      85
+      23      85
+      24      85
+      25      85
+      26      85
+      27      85
+      28      85
+      29      85
+      2a      85
+      2b      85
+      2c      85
+      2d      85
+      2e      85
+      2f      86
+   }
+
+   method 'test9 ()V' {
+      0      89
+      1      89
+      2      90
+      3      90
+      4      90
+      5      91
+      6      91
+      7      91
+      8      91
+      9      91
+      a      91
+      b      91
+      12      92
+      13      92
+      14      92
+      15      92
+      1a      92
+      1b      92
+      1c      92
+      1d      92
+      1e      92
+      1f      92
+      22      92
+      23      92
+      24      92
+      26      93
+      27      93
+      28      93
+      29      93
+      2a      93
+      2b      93
+      2c      93
+      2d      93
+      2e      93
+      2f      93
+      30      93
+      31      93
+      32      93
+      33      94
+   }
+
+   method 'test10 (Z)V' {
+      0      100
+      1      100
+      2      102
+      3      102
+      4      102
+      5      102
+      6      102
+      7      102
+      c      103
+      e      103
+      19      110
+      1a      106
+      1b      106
+      1c      106
+      1d      106
+      1e      106
+      1f      106
+      20      106
+      21      107
+   }
+
+   method 'test11 (Z)V' {
+      0      115
+      1      115
+      2      116
+      3      116
+      4      116
+      5      116
+      6      116
+      7      116
+      8      117
+      a      117
+      b      118
+      c      118
+      d      118
+      e      118
+      f      118
+      10      118
+      11      118
+      19      119
+      1a      123
+      1b      123
+      1c      123
+      1d      123
+      1e      123
+      1f      123
+      20      123
+      21      124
+   }
+
+   method 'test12 ()V' {
+      6      127
+      7      127
+      9      127
+      a      127
+      b      127
+      c      127
+      d      127
+      e      127
+      13      127
+      14      127
+      15      127
+      17      128
+      18      128
+      19      128
+      1a      128
+      1b      128
+      1c      128
+      1d      128
+      1e      128
+      1f      128
+      20      128
+      21      129
+   }
+}
+
+Lines mapping:
+7 <-> 8
+8 <-> 9
+9 <-> 10
+12 <-> 14
+13 <-> 16
+14 <-> 17
+16 <-> 19
+18 <-> 22
+19 <-> 23
+22 <-> 26
+23 <-> 27
+24 <-> 28
+25 <-> 29
+27 <-> 32
+28 <-> 33
+32 <-> 37
+33 <-> 38
+34 <-> 39
+38 <-> 43
+39 <-> 44
+40 <-> 45
+44 <-> 49
+45 <-> 50
+46 <-> 51
+49 <-> 54
+50 <-> 56
+51 <-> 57
+52 <-> 58
+55 <-> 62
+56 <-> 63
+57 <-> 64
+58 <-> 65
+59 <-> 73
+60 <-> 74
+63 <-> 78
+64 <-> 79
+65 <-> 80
+66 <-> 81
+67 <-> 86
+68 <-> 87
+71 <-> 90
+72 <-> 91
+73 <-> 92
+74 <-> 93
+75 <-> 94
+76 <-> 95
+79 <-> 101
+80 <-> 103
+81 <-> 107
+82 <-> 108
+85 <-> 116
+86 <-> 117
+87 <-> 124
+88 <-> 125
+91 <-> 128
+92 <-> 129
+93 <-> 130
+Not mapped:
+6
+31
+37
+43

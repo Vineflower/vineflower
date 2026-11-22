@@ -18,6 +18,10 @@ public class VarVersionPair {
     this.version = var.getVersion();
   }
 
+  public boolean is(int var, int version) {
+    return this.var == var && this.version == version;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (o == this) return true;

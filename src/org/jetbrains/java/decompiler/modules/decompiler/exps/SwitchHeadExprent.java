@@ -3,6 +3,7 @@
  */
 package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
+import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
@@ -46,10 +47,6 @@ public class SwitchHeadExprent extends Exprent {
   public CheckTypesResult checkExprTypeBounds() {
     CheckTypesResult result = new CheckTypesResult();
 
-    // TODO: this surely can't be right with switch on enum and string?
-    result.addExprLowerBound(value, VarType.VARTYPE_BYTECHAR);
-    result.addExprUpperBound(value, VarType.VARTYPE_INT);
-
     VarType valType = value.getExprType();
     for (List<Exprent> lst : caseValues) {
       for (Exprent expr : lst) {
@@ -60,7 +57,10 @@ public class SwitchHeadExprent extends Exprent {
             : expr.getExprType();
           if (!caseType.equals(valType)) {
             if (valType == null) {
-              throw new IllegalStateException("Invalid switch case set: " + caseValues + " for selector of type " + value.getExprType());
+              ValidationHelper.validateTrue(false, "Couldn't generate a valid merged switch set!");
+              // TODO: should this add a bound of unknown to value?
+              return result;
+//              throw new IllegalStateException("Invalid switch case set: " + caseValues + " for selector of type " + value.getExprType());
             }
             // allow coercion of primitive -> boxes [see TestSwitchPatternMatching18]
             // e.g. `switch(o) { case 40 -> ...; case Integer i -> ...; }`

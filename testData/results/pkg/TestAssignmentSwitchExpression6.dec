@@ -2,17 +2,14 @@ package pkg;
 
 public class TestAssignmentSwitchExpression6 {
    public void test(String directionStr, int i) {
-      String axis = directionStr;// 5
-
-      while (i > 0) {// 6
+      String axis;
+      for (axis = directionStr; i > 0; axis = switch (directionStr.toLowerCase()) {// 5 6 8
+         case "north", "south" -> "y";// 11
+         case "east", "west" -> "x";// 14
+         case "up", "down" -> "z";// 17
+         default -> throw new IllegalStateException("Unexpected value: " + directionStr);// 19
+      }) {
          i--;// 7
-
-         axis = switch (directionStr.toLowerCase()) {// 8
-            case "north", "south" -> "y";// 11
-            case "east", "west" -> "x";// 14
-            case "up", "down" -> "z";// 17
-            default -> throw new IllegalStateException("Unexpected value: " + directionStr);// 19
-         };
       }
 
       System.out.println(axis);// 23
@@ -21,101 +18,101 @@ public class TestAssignmentSwitchExpression6 {
 
 class 'pkg/TestAssignmentSwitchExpression6' {
    method 'test (Ljava/lang/String;I)V' {
-      0      4
-      1      4
-      2      6
-      3      6
-      4      6
-      5      6
-      6      7
-      7      7
-      8      7
-      9      9
-      a      9
-      b      9
-      c      9
-      52      10
-      53      10
-      62      10
-      63      10
-      72      11
-      73      11
-      82      11
-      83      11
-      92      12
-      93      12
-      a2      12
-      a3      12
-      af      9
-      b0      9
-      b1      9
-      b2      9
-      b3      9
-      b4      9
-      b5      9
-      b6      9
-      b7      9
-      b8      9
-      b9      9
-      ba      9
-      bb      9
-      bc      9
-      bd      9
-      be      9
-      bf      9
-      c0      9
-      c1      9
-      c2      9
-      c3      9
-      c4      9
-      c5      9
-      c6      9
-      c7      9
-      c8      9
-      c9      9
-      ca      9
-      cb      9
-      cc      9
-      cd      9
-      ce      9
-      cf      9
-      d0      9
-      d1      9
-      d2      9
-      d3      9
-      d4      10
-      d5      10
-      d9      11
-      da      11
-      de      12
-      df      12
-      e7      13
-      e8      13
-      e9      13
-      ea      13
-      eb      13
-      ec      13
-      f0      13
-      f1      9
-      f5      17
-      f6      17
-      f7      17
-      f8      17
-      f9      17
-      fa      17
-      fb      17
-      fc      18
+      0      5
+      1      5
+      2      5
+      3      5
+      4      5
+      5      5
+      6      11
+      7      11
+      8      11
+      9      5
+      a      5
+      b      5
+      c      5
+      52      6
+      53      6
+      62      6
+      63      6
+      72      7
+      73      7
+      82      7
+      83      7
+      92      8
+      93      8
+      a2      8
+      a3      8
+      af      5
+      b0      5
+      b1      5
+      b2      5
+      b3      5
+      b4      5
+      b5      5
+      b6      5
+      b7      5
+      b8      5
+      b9      5
+      ba      5
+      bb      5
+      bc      5
+      bd      5
+      be      5
+      bf      5
+      c0      5
+      c1      5
+      c2      5
+      c3      5
+      c4      5
+      c5      5
+      c6      5
+      c7      5
+      c8      5
+      c9      5
+      ca      5
+      cb      5
+      cc      5
+      cd      5
+      ce      5
+      cf      5
+      d0      5
+      d1      5
+      d2      5
+      d3      5
+      d4      6
+      d5      6
+      d9      7
+      da      7
+      de      8
+      df      8
+      e7      9
+      e8      9
+      e9      9
+      ea      9
+      eb      9
+      ec      9
+      f0      9
+      f1      5
+      f5      14
+      f6      14
+      f7      14
+      f8      14
+      f9      14
+      fa      14
+      fb      14
+      fc      15
    }
 }
 
 Lines mapping:
-5 <-> 5
-6 <-> 7
-7 <-> 8
-8 <-> 10
-11 <-> 11
-14 <-> 12
-17 <-> 13
-19 <-> 14
-23 <-> 18
-24 <-> 19
+5 <-> 6
+6 <-> 6
+7 <-> 12
+8 <-> 6
+11 <-> 7
+14 <-> 8
+17 <-> 9
+19 <-> 10
+23 <-> 15
+24 <-> 16

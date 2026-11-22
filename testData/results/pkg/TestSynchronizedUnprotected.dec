@@ -18,7 +18,7 @@ public final class TestSynchronizedUnprotected {
          System.out.println("Boom");// 6
          Unit var4 = Unit.INSTANCE;// 5 7
       }
-   }
+   }// 8
 }
 
 class 'pkg/TestSynchronizedUnprotected' {
@@ -40,7 +40,7 @@ class 'pkg/TestSynchronizedUnprotected' {
       12      18
       13      18
       14      18
-      17      20
+      1f      20
    }
 }
 
@@ -48,5 +48,4 @@ Lines mapping:
 5 <-> 19
 6 <-> 18
 7 <-> 19
-Not mapped:
-8
+8 <-> 21

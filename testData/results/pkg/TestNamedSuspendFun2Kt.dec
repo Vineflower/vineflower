@@ -134,8 +134,8 @@ public final class TestNamedSuspendFun2Kt {
             }
 
             try {
-               int var22 = ((Number)var23).intValue();
-               if (var22 == 0) {
+               int x = ((Number)var23).intValue();
+               if (x == 0) {
                   break;
                }
             } catch (Throwable var20) {
@@ -334,7 +334,6 @@ class 'pkg/TestNamedSuspendFun2Kt' {
       98      103
       99      103
       9a      103
-      9d      104
       a0      98
       a1      97
       a2      97
@@ -356,25 +355,25 @@ class 'pkg/TestNamedSuspendFun2Kt' {
       b3      106
       b4      106
       b5      106
-      bc      124
-      bd      122
-      be      122
-      bf      122
-      c0      122
-      c1      122
-      c2      123
-      c3      123
-      c4      123
-      c5      123
-      c6      123
-      c7      124
-      c8      124
-      c9      124
-      cb      124
-      cc      124
-      cd      124
-      ce      124
-      cf      124
+      bc      75
+      bd      73
+      be      73
+      bf      73
+      c0      73
+      c1      73
+      c2      74
+      c3      74
+      c4      74
+      c5      74
+      c6      74
+      c7      75
+      c8      75
+      c9      75
+      cb      75
+      cc      75
+      cd      75
+      ce      75
+      cf      75
       d0      76
       d1      76
       d2      76
@@ -395,6 +394,8 @@ class 'pkg/TestNamedSuspendFun2Kt' {
       e3      104
       e4      104
       e5      104
+      e6      104
+      e7      104
       ec      113
       ed      113
       f1      113

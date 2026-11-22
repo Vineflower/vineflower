@@ -9,13 +9,13 @@ public class TestSwitchPatternMatching5 {
          case TestSwitchPatternMatching5.Triangle t when t.calculateArea() > 150.0:// 6
             System.out.println("Larger triangle");// 7
             break;
-         case TestSwitchPatternMatching5.Triangle tx when tx.calculateArea() > 50.0:// 8
+         case TestSwitchPatternMatching5.Triangle t when t.calculateArea() > 50.0:// 8
             System.out.println("Smaller triangle");// 9
             break;
-         case TestSwitchPatternMatching5.Triangle txx when txx.calculateArea() > 100.0:// 10
+         case TestSwitchPatternMatching5.Triangle t when t.calculateArea() > 100.0:// 10
             System.out.println("Large triangle");// 11
             break;
-         case TestSwitchPatternMatching5.Triangle txxx:// 12
+         case TestSwitchPatternMatching5.Triangle t:// 12
             System.out.println("Small triangle");// 13
             break;
          default:

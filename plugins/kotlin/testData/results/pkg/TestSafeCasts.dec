@@ -2,29 +2,11 @@ package pkg
 
 public class TestSafeCasts {
    public fun test(obj: Any): Boolean {
-      val t: Int = obj as? Int// 5
-      if ((obj as? Int) != null) {// 7
-         if (t == 1) {
-            return true
-         }
-      }
-
-      return false
+      return (obj as? Int) != null && obj as? Int == 1// 5 7
    }
 
    public fun testTestBefore(obj: Any): Boolean? {
-      if (obj !is Int) {// 11
-         return null// 12
-      } else {
-         val t: Int = obj as? Int// 15
-         if ((obj as? Int) != null) {// 17
-            if (t == 1) {
-               return true
-            }
-         }
-
-         return false
-      }
+      return if (obj !is Int) null else (obj as? Int) != null && obj as? Int == 1// 11 12 15 17
    }
 
    public fun testHardIncompatible(obj: Int): Boolean {
@@ -36,55 +18,19 @@ public class TestSafeCasts {
    }
 
    public fun testCastNonNullToNullable(obj: Any): Boolean {
-      val t: Int = obj as? Int// 37
-      if ((obj as? Int) != null) {// 39
-         if (t == 1) {
-            return true
-         }
-      }
-
-      return false
+      return (obj as? Int) != null && obj as? Int == 1// 37 39
    }
 
    public fun testBeforeNonNullToNullable(obj: Any): Boolean? {
-      if (obj !is Int) {// 43
-         return null// 44
-      } else {
-         val t: Int = obj as? Int// 47
-         if ((obj as? Int) != null) {// 49
-            if (t == 1) {
-               return true
-            }
-         }
-
-         return false
-      }
+      return if (obj !is Int) null else (obj as? Int) != null && obj as? Int == 1// 43 44 47 49
    }
 
    public fun testCastNullableToNullable(obj: Any?): Boolean {
-      val t: Int = obj as? Int// 53
-      if ((obj as? Int) != null) {// 55
-         if (t == 1) {
-            return true
-         }
-      }
-
-      return false
+      return (obj as? Int) != null && obj as? Int == 1// 53 55
    }
 
    public fun testBeforeNullableToNullable(obj: Any?): Boolean? {
-      if (obj != null && obj !is Int) {// 59
-         return null// 60
-      } else {
-         val t: Int = obj as? Int// 63
-         if ((obj as? Int) != null) {// 65
-            if (t == 1) {
-               return true
-            }
-         }
-
-         return false
-      }
+      return if (obj != null && obj !is Int) null else (obj as? Int) != null && obj as? Int == 1// 59 60 63 65
    }
 }
 
@@ -94,231 +40,207 @@ class 'pkg/TestSafeCasts' {
       b      4
       c      4
       d      4
-      15      4
-      16      5
-      17      6
-      1a      5
-      1b      5
-      1c      5
-      21      6
-      22      6
-      23      6
-      24      6
-      25      6
-      26      6
-      27      6
-      28      7
-      2c      11
-      2d      7
+      16      4
+      17      4
+      1a      4
+      1b      4
+      1c      4
+      21      4
+      22      4
+      23      4
+      24      4
+      25      4
+      26      4
+      27      4
+      2d      4
    }
 
    method 'testTestBefore (Ljava/lang/Object;)Ljava/lang/Boolean;' {
-      6      15
-      a      15
-      b      15
-      c      15
-      d      16
-      e      16
-      f      18
-      15      18
-      16      18
-      17      18
-      18      18
-      20      18
-      21      19
-      22      20
-      25      19
-      26      19
-      27      19
-      2c      20
-      2d      20
-      2e      20
-      2f      20
-      30      20
-      31      20
-      32      20
-      33      21
-      37      25
-      38      21
-      39      21
-      3a      21
-      3b      21
+      6      8
+      a      8
+      b      8
+      c      8
+      d      8
+      f      8
+      15      8
+      16      8
+      17      8
+      18      8
+      21      8
+      22      8
+      25      8
+      26      8
+      27      8
+      2c      8
+      2d      8
+      2e      8
+      2f      8
+      30      8
+      31      8
+      32      8
+      38      8
+      39      8
+      3a      8
    }
 
    method 'testHardIncompatible (I)Z' {
-      7      30
-      8      30
-      9      30
-      a      30
-      b      30
-      c      30
-      d      30
-      16      30
-      17      30
-      18      30
-      1c      30
+      7      12
+      8      12
+      9      12
+      a      12
+      b      12
+      c      12
+      d      12
+      16      12
+      17      12
+      18      12
+      1c      12
    }
 
    method 'testSmartCastIncompatible (Ljava/lang/Object;)Z' {
-      6      34
-      7      34
-      8      34
-      9      34
-      a      34
-      b      34
-      c      34
-      f      34
-      15      34
-      16      34
-      17      34
-      18      34
-      21      34
-      22      34
-      23      34
+      6      16
+      7      16
+      8      16
+      9      16
+      a      16
+      b      16
+      c      16
+      f      16
+      15      16
+      16      16
+      17      16
+      18      16
+      21      16
+      22      16
+      23      16
    }
 
    method 'testCastNonNullToNullable (Ljava/lang/Object;)Z' {
-      a      38
-      b      38
-      c      38
-      d      38
-      15      38
-      16      39
-      17      40
-      1a      39
-      1b      39
-      1c      39
-      21      40
-      22      40
-      23      40
-      24      40
-      25      40
-      26      40
-      27      40
-      28      41
-      2c      45
-      2d      41
+      a      20
+      b      20
+      c      20
+      d      20
+      16      20
+      17      20
+      1a      20
+      1b      20
+      1c      20
+      21      20
+      22      20
+      23      20
+      24      20
+      25      20
+      26      20
+      27      20
+      2d      20
    }
 
    method 'testBeforeNonNullToNullable (Ljava/lang/Object;)Ljava/lang/Boolean;' {
-      6      49
-      a      49
-      b      49
-      c      49
-      d      50
-      e      50
-      f      52
-      15      52
-      16      52
-      17      52
-      18      52
-      20      52
-      21      53
-      22      54
-      25      53
-      26      53
-      27      53
-      2c      54
-      2d      54
-      2e      54
-      2f      54
-      30      54
-      31      54
-      32      54
-      33      55
-      37      59
-      38      55
-      39      55
-      3a      55
-      3b      55
+      6      24
+      a      24
+      b      24
+      c      24
+      d      24
+      f      24
+      15      24
+      16      24
+      17      24
+      18      24
+      21      24
+      22      24
+      25      24
+      26      24
+      27      24
+      2c      24
+      2d      24
+      2e      24
+      2f      24
+      30      24
+      31      24
+      32      24
+      38      24
+      39      24
+      3a      24
    }
 
    method 'testCastNullableToNullable (Ljava/lang/Object;)Z' {
-      4      64
-      5      64
-      6      64
-      7      64
-      f      64
-      10      65
-      11      66
-      14      65
-      15      65
-      16      65
-      1b      66
-      1c      66
-      1d      66
-      1e      66
-      1f      66
-      20      66
-      21      66
-      22      67
-      26      71
-      27      67
+      4      28
+      5      28
+      6      28
+      7      28
+      10      28
+      11      28
+      14      28
+      15      28
+      16      28
+      1b      28
+      1c      28
+      1d      28
+      1e      28
+      1f      28
+      20      28
+      21      28
+      27      28
    }
 
    method 'testBeforeNullableToNullable (Ljava/lang/Object;)Ljava/lang/Boolean;' {
-      0      75
-      2      75
-      3      75
-      4      75
-      a      75
-      b      75
-      c      75
-      d      75
-      e      75
-      f      75
-      10      76
-      11      76
-      12      78
-      18      78
-      19      78
-      1a      78
-      1b      78
-      23      78
-      24      79
-      25      80
-      28      79
-      29      79
-      2a      79
-      2f      80
-      30      80
-      31      80
-      32      80
-      33      80
-      34      80
-      35      80
-      36      81
-      3a      85
-      3b      81
-      3c      81
-      3d      81
-      3e      81
+      0      32
+      2      32
+      3      32
+      4      32
+      a      32
+      b      32
+      c      32
+      d      32
+      e      32
+      f      32
+      10      32
+      12      32
+      18      32
+      19      32
+      1a      32
+      1b      32
+      24      32
+      25      32
+      28      32
+      29      32
+      2a      32
+      2f      32
+      30      32
+      31      32
+      32      32
+      33      32
+      34      32
+      35      32
+      3b      32
+      3c      32
+      3d      32
    }
 }
 
 Lines mapping:
 5 <-> 5
-7 <-> 6
-11 <-> 16
-12 <-> 17
-15 <-> 19
-17 <-> 20
-21 <-> 31
-23 <-> 31
-27 <-> 35
-31 <-> 35
-33 <-> 35
-37 <-> 39
-39 <-> 40
-43 <-> 50
-44 <-> 51
-47 <-> 53
-49 <-> 54
-53 <-> 65
-55 <-> 66
-59 <-> 76
-60 <-> 77
-63 <-> 79
-65 <-> 80
+7 <-> 5
+11 <-> 9
+12 <-> 9
+15 <-> 9
+17 <-> 9
+21 <-> 13
+23 <-> 13
+27 <-> 17
+31 <-> 17
+33 <-> 17
+37 <-> 21
+39 <-> 21
+43 <-> 25
+44 <-> 25
+47 <-> 25
+49 <-> 25
+53 <-> 29
+55 <-> 29
+59 <-> 33
+60 <-> 33
+63 <-> 33
+65 <-> 33
 Not mapped:
 28

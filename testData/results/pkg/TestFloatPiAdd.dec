@@ -1,0 +1,24 @@
+package pkg;
+
+public class TestFloatPiAdd {
+   public static void test() {
+      float i = 1.0F;// 5
+      i += 1.5707964F;// 6
+   }// 7
+}
+
+class 'pkg/TestFloatPiAdd' {
+   method 'test ()V' {
+      0      4
+      1      4
+      3      5
+      4      5
+      6      5
+      7      6
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 6
+7 <-> 7
