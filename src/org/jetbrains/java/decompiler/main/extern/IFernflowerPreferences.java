@@ -87,12 +87,6 @@ public interface IFernflowerPreferences {
   @Type(DecompilerOption.Type.BOOLEAN)
   String REMOVE_GET_CLASS_NEW = "remove-getclass";
 
-  @Name("Keep Literals As Is")
-  @Description("Keep NaN, infinities, and pi values as is without resugaring them.")
-  @ShortName("lit")
-  @Type(DecompilerOption.Type.BOOLEAN)
-  String LITERALS_AS_IS = "keep-literals";
-
   @Name("Represent boolean as 0/1")
   @Description("Represent integers 0 and 1 as booleans.")
   @ShortName("bto")
@@ -436,7 +430,6 @@ public interface IFernflowerPreferences {
     defaults.put(ENSURE_SYNCHRONIZED_MONITOR, "1");
     defaults.put(DECOMPILE_ENUM, "1");
     defaults.put(REMOVE_GET_CLASS_NEW, "1");
-    defaults.put(LITERALS_AS_IS, "0");
     defaults.put(BOOLEAN_TRUE_ONE, "1");
     defaults.put(ASCII_STRING_CHARACTERS, "0");
     defaults.put(SYNTHETIC_NOT_SET, "0");

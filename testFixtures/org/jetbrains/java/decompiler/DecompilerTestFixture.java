@@ -52,7 +52,6 @@ public class DecompilerTestFixture {
     options.put(IFernflowerPreferences.DECOMPILE_GENERIC_SIGNATURES, "1");
     options.put(IFernflowerPreferences.REMOVE_SYNTHETIC, "1");
     options.put(IFernflowerPreferences.REMOVE_BRIDGE, "1");
-    options.put(IFernflowerPreferences.LITERALS_AS_IS, "1");
     options.put(IFernflowerPreferences.UNIT_TEST_MODE, "1");
     options.put(IFernflowerPreferences.NEW_LINE_SEPARATOR, "1");
     options.put(IFernflowerPreferences.ERROR_MESSAGE, "");

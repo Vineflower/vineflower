@@ -1,6 +1,26 @@
 unpick v4
 
+group int
+  java.lang.Integer.MAX_VALUE
+  java.lang.Integer.MIN_VALUE
+
+group long
+  java.lang.Long.MAX_VALUE
+  java.lang.Long.MIN_VALUE
+
 group double
+  java.lang.Double.NaN
+  java.lang.Double.POSITIVE_INFINITY
+  java.lang.Double.NEGATIVE_INFINITY
+
+  # Min and max values
+  java.lang.Double.MAX_VALUE
+  java.lang.Double.MIN_NORMAL
+  java.lang.Double.MIN_VALUE
+  -java.lang.Double.MAX_VALUE
+  -java.lang.Double.MIN_NORMAL
+  -java.lang.Double.MIN_VALUE
+
   # Positive and negative e
   java.lang.Math.E
   -java.lang.Math.E
@@ -235,15 +255,19 @@ group double
   java.lang.Math.PI / 180
   -java.lang.Math.PI / 180
 
-  # Min and max values
-  java.lang.Double.MAX_VALUE
-  java.lang.Double.MIN_NORMAL
-  java.lang.Double.MIN_VALUE
-  -java.lang.Double.MAX_VALUE
-  -java.lang.Double.MIN_NORMAL
-  -java.lang.Double.MIN_VALUE
-
 group float
+  java.lang.Float.NaN
+  java.lang.Float.POSITIVE_INFINITY
+  java.lang.Float.NEGATIVE_INFINITY
+
+  # Min and max values
+  java.lang.Float.MAX_VALUE
+  java.lang.Float.MIN_NORMAL
+  java.lang.Float.MIN_VALUE
+  -java.lang.Float.MAX_VALUE
+  -java.lang.Float.MIN_NORMAL
+  -java.lang.Float.MIN_VALUE
+
   # Positive and negative e
   (float) java.lang.Math.E
   (float) -java.lang.Math.E
@@ -477,11 +501,3 @@ group float
   # Positive and negative pi / 180
   java.lang.Math.PI / 180.0F
   -java.lang.Math.PI / 180.0F
-
-  # Min and max values
-  java.lang.Float.MAX_VALUE
-  java.lang.Float.MIN_NORMAL
-  java.lang.Float.MIN_VALUE
-  -java.lang.Float.MAX_VALUE
-  -java.lang.Float.MIN_NORMAL
-  -java.lang.Float.MIN_VALUE
