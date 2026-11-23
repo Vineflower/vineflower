@@ -21,12 +21,9 @@ import java.io.InputStream;
 
 public class TestAnonymousParams {
   void foo(InputStream in, int a) throws IOException {
-    System.out.println(a);
     FilterInputStream filterInputStream = new FilterInputStream(in) {
       @Override
       public int read() throws IOException {
-        int b = 0;
-        int c = 0;
         return a;
       }
     };
