@@ -3,21 +3,42 @@ package org.vineflower.unpick;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.api.plugin.pass.ClassPass;
+import org.jetbrains.java.decompiler.code.CodeConstants;
+import org.jetbrains.java.decompiler.main.ClassWriter;
 import org.jetbrains.java.decompiler.main.ClassesProcessor;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.AnnotationExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.ConstExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.ExitExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FieldExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.InvocationExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.NewExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.TypeAnnotation;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
+import org.jetbrains.java.decompiler.struct.StructClass;
+import org.jetbrains.java.decompiler.struct.StructField;
+import org.jetbrains.java.decompiler.struct.StructMember;
 import org.jetbrains.java.decompiler.struct.StructMethod;
+import org.jetbrains.java.decompiler.struct.attr.StructAnnotationAttribute;
+import org.jetbrains.java.decompiler.struct.attr.StructAnnotationParameterAttribute;
+import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
+import org.jetbrains.java.decompiler.struct.attr.StructMethodParametersAttribute;
+import org.jetbrains.java.decompiler.struct.attr.StructTypeAnnotationAttribute;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.Key;
+import org.jetbrains.java.decompiler.util.MutableObject;
 import org.jetbrains.java.decompiler.util.Pair;
+import org.jetbrains.java.decompiler.util.StatementIterator;
 import org.vineflower.unpick.parser.UnpickV3Reader;
 import org.vineflower.unpick.parser.tree.DataType;
 import org.vineflower.unpick.parser.tree.GroupFormat;
+import org.vineflower.unpick.parser.tree.TargetAnnotation;
+import org.vineflower.unpick.parser.tree.TargetField;
+import org.vineflower.unpick.parser.tree.TargetMethod;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,8 +51,10 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -62,7 +85,248 @@ public class UnpickPass implements ClassPass {
     Map<Integer, String> exprentGroups,
     Map<Pair<String, VarVersionPair>, String> varGroups
   ) {
-    // TODO
+    for (MethodWrapper method : classNode.getWrapper().getMethods()) {
+      String returnGroup = identifyContainingMethodTargets(defs, classNode, method, varGroups);
+
+      StatementIterator.iterate(method.root, exprent -> {
+        if (exprent instanceof ExitExprent exitExprent) {
+          if (exitExprent.getExitType() == ExitExprent.Type.RETURN) {
+            if (exitExprent.getValue() != null) {
+              exprentGroups.putIfAbsent(exitExprent.getValue().id, returnGroup);
+            }
+          }
+        } else if (exprent instanceof FieldExprent fieldExprent) {
+          identifyFieldTarget(defs, exprentGroups, fieldExprent);
+        } else if (exprent instanceof InvocationExprent invocationExprent) {
+          identifyInvocationTargets(defs, exprentGroups, invocationExprent, invocationExprent);
+        } else if (exprent instanceof NewExprent newExprent) {
+          if (newExprent.getConstructor() != null) {
+            identifyInvocationTargets(defs, exprentGroups, newExprent.getConstructor(), newExprent);
+          }
+        }
+        return 0;
+      });
+    }
+
+    for (ClassesProcessor.ClassNode nestedClass : classNode.nested) {
+      identifyTargets(defs, nestedClass, exprentGroups, varGroups);
+    }
+  }
+
+  @Nullable
+  private static String identifyContainingMethodTargets(
+    UnpickDefinitions defs,
+    ClassesProcessor.ClassNode classNode,
+    MethodWrapper method,
+    Map<Pair<String, VarVersionPair>, String> varGroups
+  ) {
+    String methodKey = InterpreterUtil.makeUniqueKey(classNode.classStruct.qualifiedName, method.methodStruct.getName(), method.methodStruct.getDescriptor());
+    MutableObject<String> returnGroup = MutableObject.of(null);
+    processSuperMethods(classNode.classStruct, method.methodStruct, mt -> {
+      String superMethodKey = InterpreterUtil.makeUniqueKey(mt.getClassQualifiedName(), mt.getName(), mt.getDescriptor());
+      List<List<AnnotationExprent>> paramAnnotations = getParameterAnnotations(mt);
+      TargetMethod targetMethod = defs.targetMethods.get(superMethodKey);
+      int varIndex = mt.hasModifier(CodeConstants.ACC_STATIC) ? 0 : 1;
+      VarType[] params = mt.methodDescriptor().params;
+      for (int paramIndex = 0; paramIndex < params.length; paramIndex++) {
+        if (targetMethod != null) {
+          String paramGroup = targetMethod.paramGroups().get(paramIndex);
+          if (paramGroup != null) {
+            varGroups.putIfAbsent(Pair.of(methodKey, new VarVersionPair(varIndex, 0)), paramGroup);
+          }
+        }
+        if (paramIndex < paramAnnotations.size()) {
+          for (AnnotationExprent ann : paramAnnotations.get(paramIndex)) {
+            TargetAnnotation targetAnnotation = defs.targetAnnotations.get(ann.getClassName());
+            if (targetAnnotation != null) {
+              varGroups.putIfAbsent(Pair.of(methodKey, new VarVersionPair(varIndex, 0)), targetAnnotation.groupName());
+            }
+          }
+        }
+        varIndex += params[paramIndex].stackSize;
+      }
+
+      if (targetMethod != null && targetMethod.returnGroup() != null && returnGroup.get() == null) {
+        returnGroup.set(targetMethod.returnGroup());
+      }
+
+      if (returnGroup.get() == null) {
+        for (AnnotationExprent ann : getMemberAnnotations(mt, TypeAnnotation.METHOD_RETURN_TYPE)) {
+          TargetAnnotation targetAnnotation = defs.targetAnnotations.get(ann.getClassName());
+          if (targetAnnotation != null) {
+            returnGroup.set(targetAnnotation.groupName());
+            break;
+          }
+        }
+      }
+    });
+
+    return returnGroup.get();
+  }
+
+  private static void identifyFieldTarget(UnpickDefinitions defs, Map<Integer, String> exprentGroups, FieldExprent fieldExprent) {
+    StructField resolvedField = null;
+    StructClass ownerClass = DecompilerContext.getStructContext().getClass(fieldExprent.getClassname());
+    while (ownerClass != null) {
+      resolvedField = ownerClass.getField(fieldExprent.getName(), fieldExprent.getDescriptor().descriptorString);
+      if (resolvedField != null) {
+        break;
+      }
+      ownerClass = ownerClass.superClass == null ? null : DecompilerContext.getStructContext().getClass(ownerClass.superClass.getString());
+    }
+
+    if (resolvedField != null) {
+      TargetField targetField = defs.targetFields.get(InterpreterUtil.makeUniqueKey(ownerClass.qualifiedName, resolvedField.getName(), resolvedField.getDescriptor()));
+      if (targetField != null) {
+        exprentGroups.putIfAbsent(fieldExprent.id, targetField.groupName());
+      } else {
+        for (AnnotationExprent ann : getMemberAnnotations(resolvedField, TypeAnnotation.FIELD)) {
+          TargetAnnotation targetAnnotation = defs.targetAnnotations.get(ann.getClassName());
+          if (targetAnnotation != null) {
+            exprentGroups.putIfAbsent(fieldExprent.id, targetAnnotation.groupName());
+          }
+        }
+      }
+    }
+  }
+
+  private static void identifyInvocationTargets(UnpickDefinitions defs, Map<Integer, String> exprentGroups, InvocationExprent invocationExprent, Exprent treeExprent) {
+    StructClass resolvedClass = DecompilerContext.getStructContext().getClass(invocationExprent.getClassname());
+    if (resolvedClass != null) {
+      processSuperMethods(resolvedClass, InterpreterUtil.makeUniqueKey(invocationExprent.getName(), invocationExprent.getStringDescriptor()), mt -> {
+        String targetMethodKey = InterpreterUtil.makeUniqueKey(mt.getClassQualifiedName(), mt.getName(), mt.getDescriptor());
+        TargetMethod targetMethod = defs.targetMethods.get(targetMethodKey);
+        if (targetMethod != null) {
+          targetMethod.paramGroups().forEach((paramIndex, groupName) -> {
+            if (paramIndex < invocationExprent.getLstParameters().size()) {
+              exprentGroups.putIfAbsent(invocationExprent.getLstParameters().get(paramIndex).id, groupName);
+            }
+          });
+          if (targetMethod.returnGroup() != null) {
+            exprentGroups.putIfAbsent(treeExprent.id, targetMethod.returnGroup());
+          }
+        }
+
+        List<List<AnnotationExprent>> parameterAnnotations = getParameterAnnotations(mt);
+        for (int paramIndex = 0; paramIndex < Math.min(parameterAnnotations.size(), invocationExprent.getLstParameters().size()); paramIndex++) {
+          for (AnnotationExprent ann : parameterAnnotations.get(paramIndex)) {
+            TargetAnnotation targetAnnotation = defs.targetAnnotations.get(ann.getClassName());
+            if (targetAnnotation != null) {
+              exprentGroups.putIfAbsent(invocationExprent.getLstParameters().get(paramIndex).id, targetAnnotation.groupName());
+            }
+          }
+        }
+
+        for (AnnotationExprent ann : getMemberAnnotations(mt, TypeAnnotation.METHOD_RETURN_TYPE)) {
+          TargetAnnotation targetAnnotation = defs.targetAnnotations.get(ann.getClassName());
+          if (targetAnnotation != null) {
+            exprentGroups.putIfAbsent(treeExprent.id, targetAnnotation.groupName());
+          }
+        }
+      }, new HashSet<>());
+    }
+  }
+
+  private static void processSuperMethods(StructClass cl, StructMethod mt, Consumer<StructMethod> processor) {
+    String methodKey = InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor());
+    processSuperMethods(cl, methodKey, processor, new HashSet<>());
+  }
+
+  // TODO: handle bridges?
+  private static void processSuperMethods(StructClass cl, String methodKey, Consumer<StructMethod> processor, Set<String> visitedClasses) {
+    if (!visitedClasses.add(cl.qualifiedName)) {
+      return;
+    }
+
+    StructMethod mt = cl.getMethod(methodKey);
+    if (mt != null) {
+      processor.accept(mt);
+      if (mt.getName().startsWith("<") || mt.hasModifier(CodeConstants.ACC_PRIVATE) || mt.hasModifier(CodeConstants.ACC_STATIC)) {
+        return;
+      }
+    }
+
+    if (cl.superClass != null) {
+      StructClass superclass = DecompilerContext.getStructContext().getClass(cl.superClass.getString());
+      if (superclass != null) {
+        processSuperMethods(superclass, methodKey, processor, visitedClasses);
+      }
+    }
+
+    for (String interfaceName : cl.getInterfaceNames()) {
+      StructClass itf = DecompilerContext.getStructContext().getClass(interfaceName);
+      if (itf != null) {
+        processSuperMethods(itf, methodKey, processor, visitedClasses);
+      }
+    }
+  }
+
+  private static List<List<AnnotationExprent>> getParameterAnnotations(StructMethod mt) {
+    List<List<AnnotationExprent>> result = new ArrayList<>();
+
+    for (Key<?> paramAnnotationKey : ClassWriter.PARAMETER_ANNOTATION_ATTRIBUTES) {
+      var paramAnnAttribute = (StructAnnotationParameterAttribute) mt.getAttribute(paramAnnotationKey);
+      if (paramAnnAttribute != null) {
+        List<List<AnnotationExprent>> paramAnnotations = paramAnnAttribute.getParamAnnotations();
+        while (result.size() < paramAnnotations.size()) {
+          result.add(new ArrayList<>());
+        }
+        for (int i = 0; i < paramAnnotations.size(); i++) {
+          result.get(i).addAll(paramAnnotations.get(i));
+        }
+      }
+    }
+
+    for (Key<?> typeAnnotationKey : ClassWriter.TYPE_ANNOTATION_ATTRIBUTES) {
+      var typeAnnAttribute = (StructTypeAnnotationAttribute) mt.getAttribute(typeAnnotationKey);
+      if (typeAnnAttribute != null) {
+        for (TypeAnnotation typeAnnotation : typeAnnAttribute.getAnnotations()) {
+          if (typeAnnotation.getTargetType() == TypeAnnotation.METHOD_PARAMETER && typeAnnotation.path.length == 0) {
+            while (result.size() <= typeAnnotation.getIndex()) {
+              result.add(new ArrayList<>());
+            }
+            result.get(typeAnnotation.getIndex()).add(typeAnnotation.getAnnotation());
+          }
+        }
+      }
+    }
+
+    // add indexes for synthetic params
+    StructMethodParametersAttribute methodParams = mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_METHOD_PARAMETERS);
+    if (methodParams != null) {
+      List<StructMethodParametersAttribute.Entry> entries = methodParams.getEntries();
+      for (int i = 0; i < entries.size(); i++) {
+        if ((entries.get(i).myAccessFlags & CodeConstants.ACC_SYNTHETIC) != 0) {
+          result.add(i, new ArrayList<>());
+        }
+      }
+    }
+
+    return result;
+  }
+
+  private static List<AnnotationExprent> getMemberAnnotations(StructMember member, int typeAnnotationTarget) {
+    List<AnnotationExprent> result = new ArrayList<>();
+
+    for (Key<?> annotationKey : ClassWriter.ANNOTATION_ATTRIBUTES) {
+      var annAttribute = (StructAnnotationAttribute) member.getAttribute(annotationKey);
+      if (annAttribute != null) {
+        result.addAll(annAttribute.getAnnotations());
+      }
+    }
+
+    for (Key<?> typeAnnotationKey : ClassWriter.TYPE_ANNOTATION_ATTRIBUTES) {
+      var typeAnnAttribute = (StructTypeAnnotationAttribute) member.getAttribute(typeAnnotationKey);
+      if (typeAnnAttribute != null) {
+        for (TypeAnnotation typeAnnotation : typeAnnAttribute.getAnnotations()) {
+          if (typeAnnotation.getTargetType() == typeAnnotationTarget && typeAnnotation.path.length == 0) {
+            result.add(typeAnnotation.getAnnotation());
+          }
+        }
+      }
+    }
+
+    return result;
   }
 
   private static boolean propagateGroups(

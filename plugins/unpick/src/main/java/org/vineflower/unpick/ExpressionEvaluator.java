@@ -118,12 +118,15 @@ public class ExpressionEvaluator extends ExpressionVisitor {
     }
 
     StructField field = null;
-    for (StructField candidate : ownerClass.getFields()) {
-      if (candidate.getName().equals(fieldName)) {
-        field = candidate;
-        break;
+    resolveField: do {
+      for (StructField candidate : ownerClass.getFields()) {
+        if (candidate.getName().equals(fieldName)) {
+          field = candidate;
+          break resolveField;
+        }
       }
-    }
+      ownerClass = ownerClass.superClass == null ? null : DecompilerContext.getStructContext().getClass(ownerClass.superClass.getString());
+    } while (ownerClass != null);
     if (field == null) {
       throw new EvaluationException("Cannot resolve field " + ownerName + "." + fieldName);
     }
