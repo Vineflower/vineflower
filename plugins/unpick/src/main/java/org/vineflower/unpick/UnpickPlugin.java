@@ -19,7 +19,8 @@ public class UnpickPlugin implements Plugin {
 
   @Override
   public void registerJavaPasses(JavaPassRegistrar registrar) {
-    registrar.registerClassPass(ClassPassLocation.BEFORE_WRITING, new UnpickPass());
+    // important that it's after switch processing and before initializer merging
+    registrar.registerClassPass(ClassPassLocation.AFTER_LATE_METHOD_PROCESSING, new UnpickPass());
   }
 
   @Override

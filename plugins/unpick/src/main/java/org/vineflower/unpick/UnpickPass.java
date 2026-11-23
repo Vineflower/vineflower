@@ -43,7 +43,7 @@ public class UnpickPass implements ClassPass {
   public boolean run(ClassesProcessor.ClassNode classNode) {
     UnpickDefinitions defs = loadDefinitions();
     if (defs.isEmpty()) {
-      return true;
+      return false;
     }
 
     Map<Integer, String> exprentGroups = new HashMap<>();
@@ -53,9 +53,7 @@ public class UnpickPass implements ClassPass {
     while (propagateGroups(defs, classNode, exprentGroups, varGroups)) {
       // keep propagating while changed
     }
-    substituteConstants(defs, classNode, exprentGroups);
-
-    return true;
+    return substituteConstants(defs, classNode, exprentGroups);
   }
 
   private static void identifyTargets(
@@ -77,50 +75,60 @@ public class UnpickPass implements ClassPass {
     return false;
   }
 
-  private static void substituteConstants(
+  private static boolean substituteConstants(
     UnpickDefinitions defs,
     ClassesProcessor.ClassNode classNode,
     Map<Integer, String> exprentGroups
   ) {
+    boolean res = false;
+
     for (MethodWrapper method : classNode.getWrapper().getMethods()) {
-      substituteConstants(defs, method, method.root, exprentGroups);
+      res |= substituteConstants(defs, method, method.root, exprentGroups);
     }
     for (ClassesProcessor.ClassNode nested : classNode.nested) {
-      substituteConstants(defs, nested, exprentGroups);
+      res |= substituteConstants(defs, nested, exprentGroups);
     }
+
+    return res;
   }
 
-  private static void substituteConstants(
+  private static boolean substituteConstants(
     UnpickDefinitions defs,
     MethodWrapper method,
     Statement stat,
     Map<Integer, String> exprentGroups
   ) {
+    boolean res = false;
+
     if (stat.getExprents() == null) {
       for (Exprent exprent : stat.getStatExprents()) {
-        substituteConstants(defs, method, exprent, newExprent -> stat.replaceExprent(exprent, newExprent), exprentGroups);
+        res |= substituteConstants(defs, method, exprent, newExprent -> stat.replaceExprent(exprent, newExprent), exprentGroups);
       }
 
       for (Statement st : stat.getStats()) {
-        substituteConstants(defs, method, st, exprentGroups);
+        res |= substituteConstants(defs, method, st, exprentGroups);
       }
     } else {
       for (Exprent exprent : stat.getExprents()) {
-        substituteConstants(defs, method, exprent, newExprent -> stat.replaceExprent(exprent, newExprent), exprentGroups);
+        res |= substituteConstants(defs, method, exprent, newExprent -> stat.replaceExprent(exprent, newExprent), exprentGroups);
       }
     }
+
+    return res;
   }
 
   // TODO: handle casting to the right type when overload resolution is affected
-  private static void substituteConstants(
+  private static boolean substituteConstants(
     UnpickDefinitions defs,
     MethodWrapper method,
     Exprent exprent,
     Consumer<Exprent> replace,
     Map<Integer, String> exprentGroups
   ) {
+    boolean res = false;
+
     for (Exprent subExprent : exprent.getAllExprents()) {
-      substituteConstants(defs, method, subExprent, newExprent -> exprent.replaceExprent(subExprent, newExprent), exprentGroups);
+      res |= substituteConstants(defs, method, subExprent, newExprent -> exprent.replaceExprent(subExprent, newExprent), exprentGroups);
     }
 
     Object constantValue = computeConstantValue(exprent);
@@ -144,7 +152,7 @@ public class UnpickPass implements ClassPass {
             ExpressionToExprent converter = new ExpressionToExprent(method, exprent.bytecode);
             replacementData.replacementExpr().accept(converter);
             replace.accept(converter.result);
-            return;
+            return true;
           }
         }
       }
@@ -152,8 +160,9 @@ public class UnpickPass implements ClassPass {
 
     if (bestFormat != null && exprent instanceof ConstExprent constExprent) {
       if (bestFormat == GroupFormat.CHAR) {
-        if (constantType == DataType.INT) {
+        if (constantType == DataType.INT && !constExprent.getConstType().equals(VarType.VARTYPE_CHAR)) {
           constExprent.setConstType(VarType.VARTYPE_CHAR);
+          res = true;
         }
       } else {
         int radix = switch (bestFormat) {
@@ -165,10 +174,16 @@ public class UnpickPass implements ClassPass {
         };
         if (constExprent.getConstType().equals(VarType.VARTYPE_CHAR)) {
           constExprent.setConstType(VarType.VARTYPE_INT);
+          res = true;
         }
-        constExprent.setRadix(radix);
+        if (constExprent.getRadix() != radix) {
+          constExprent.setRadix(radix);
+          res = true;
+        }
       }
     }
+
+    return res;
   }
 
   // TODO: other types of exprent listed in the spec, including unary minus
