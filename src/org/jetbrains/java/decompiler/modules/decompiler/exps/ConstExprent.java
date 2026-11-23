@@ -264,7 +264,14 @@ public class ConstExprent extends Exprent {
             return buf.append(new FieldExprent("MIN_VALUE", "java/lang/Integer", true, null, FieldDescriptor.INTEGER_DESCRIPTOR, bytecode).toJava(0));
           }
         }
-        return buf.append(value.toString());
+
+        switch (radix) {
+          case 2 -> buf.append("0b").append(Integer.toUnsignedString(intVal, 2));
+          case 8 -> buf.append("0").append(Integer.toUnsignedString(intVal, 8));
+          case 16 -> buf.append("0x").append(Integer.toUnsignedString(intVal, 16).toUpperCase(Locale.ROOT));
+          default -> buf.append(Integer.toString(intVal));
+        }
+        return buf;
 
       case LONG:
 
@@ -278,7 +285,14 @@ public class ConstExprent extends Exprent {
             return buf.append(new FieldExprent("MIN_VALUE", "java/lang/Long", true, null, FieldDescriptor.LONG_DESCRIPTOR, bytecode).toJava(0));
           }
         }
-        return buf.append(value.toString()).append('L');
+
+        switch (radix) {
+          case 2 -> buf.append("0b").append(Long.toUnsignedString(longVal, 2));
+          case 8 -> buf.append("0").append(Long.toUnsignedString(longVal, 8));
+          case 16 -> buf.append("0x").append(Long.toUnsignedString(longVal, 16).toUpperCase(Locale.ROOT));
+          default -> buf.append(Long.toString(longVal));
+        }
+        return buf.append('L');
 
       case FLOAT:
         float floatVal = (Float)value;
@@ -303,7 +317,12 @@ public class ConstExprent extends Exprent {
             return buf.append("-1.0F / 0.0F");
           }
         }
-        return buf.append(trimFloat(Float.toString(floatVal), floatVal)).append('F');
+
+        if (radix == 16) {
+          return buf.append(Float.toHexString(floatVal).toUpperCase(Locale.ROOT).replace('P', 'p')).append('F');
+        } else {
+          return buf.append(trimFloat(Float.toString(floatVal), floatVal)).append('F');
+        }
 
       case DOUBLE:
         double doubleVal = (Double)value;
@@ -339,7 +358,12 @@ public class ConstExprent extends Exprent {
         else if (doubleVal == Double.NEGATIVE_INFINITY) {
           return buf.append("-1.0 / 0.0");
         }
-        return buf.append(trimDouble(Double.toString(doubleVal), doubleVal));
+
+        if (radix == 16) {
+          buf.append(Double.toHexString(doubleVal).toUpperCase(Locale.ROOT).replace('P', 'p'));
+        } else {
+          return buf.append(trimDouble(Double.toString(doubleVal), doubleVal));
+        }
 
       case NULL:
         return buf.append("null");
