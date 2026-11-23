@@ -9,14 +9,21 @@ import org.jetbrains.java.decompiler.main.ClassesProcessor;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.AnnotationExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.AssignmentExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.ConstExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.ExitExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FieldExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.InvocationExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.NewExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.SwitchExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.SwitchHeadExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.TypeAnnotation;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.YieldExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.SwitchStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructField;
@@ -73,7 +80,8 @@ public class UnpickPass implements ClassPass {
     Map<Pair<String, VarVersionPair>, String> varGroups = new HashMap<>();
 
     identifyTargets(defs, classNode, exprentGroups, varGroups);
-    while (propagateGroups(defs, classNode, exprentGroups, varGroups)) {
+    List<ClassesProcessor.ClassNode> classStack = new ArrayList<>(1);
+    while (propagateGroups(classNode, classStack, exprentGroups, varGroups)) {
       // keep propagating while changed
     }
     return substituteConstants(defs, classNode, exprentGroups);
@@ -104,6 +112,7 @@ public class UnpickPass implements ClassPass {
             identifyInvocationTargets(defs, exprentGroups, newExprent.getConstructor(), newExprent);
           }
         }
+        // TODO: pattern exprents
         return 0;
       });
     }
@@ -330,13 +339,210 @@ public class UnpickPass implements ClassPass {
   }
 
   private static boolean propagateGroups(
-    UnpickDefinitions defs,
     ClassesProcessor.ClassNode classNode,
+    List<ClassesProcessor.ClassNode> classStack,
     Map<Integer, String> exprentGroups,
     Map<Pair<String, VarVersionPair>, String> varGroups
   ) {
-    // TODO
-    return false;
+    boolean res = false;
+    classStack.add(classNode);
+
+    for (MethodWrapper method : classNode.getWrapper().getMethods()) {
+      res |= propagateGroups(method, classStack, exprentGroups, varGroups);
+    }
+
+    for (ClassesProcessor.ClassNode nestedClass : classNode.nested) {
+      res |= propagateGroups(nestedClass, classStack, exprentGroups, varGroups);
+    }
+
+    classStack.remove(classStack.size() - 1);
+    return res;
+  }
+
+  private static boolean propagateGroups(
+    MethodWrapper method,
+    List<ClassesProcessor.ClassNode> classStack,
+    Map<Integer, String> exprentGroups,
+    Map<Pair<String, VarVersionPair>, String> varGroups
+  ) {
+    MutableObject<Boolean> changed = MutableObject.of(false);
+
+    StatementIterator.iterate(method.root, exprent -> {
+      if (exprent instanceof VarExprent varExprent) {
+        VarVersionPair var = varExprent.getVarVersionPair();
+        MethodWrapper md = method;
+        Pair<String, VarVersionPair> globalVarId = null;
+        int classStackIndex = classStack.size() - 1;
+        while (true) {
+          var varSource = md.varproc.getVarSource(var);
+          if (varSource == null) {
+            globalVarId = Pair.of(InterpreterUtil.makeUniqueKey(md.classStruct.qualifiedName, md.methodStruct.getName(), md.methodStruct.getDescriptor()), var);
+            break;
+          }
+
+          classStackIndex--;
+          if (classStackIndex < 0) {
+            break;
+          }
+
+          var = varSource.b;
+          String[] nameAndDesc = varSource.a.split(" ", 2);
+          md = classStack.get(classStackIndex).getWrapper().getMethodWrapper(nameAndDesc[0], nameAndDesc[1]);
+        }
+
+        if (globalVarId != null) {
+          String groupName = varGroups.get(globalVarId);
+          if (groupName == null) {
+            groupName = exprentGroups.get(varExprent.id);
+          }
+          if (groupName != null) {
+            tryAssignGroup(changed, exprentGroups, varExprent, groupName);
+            if (!groupName.equals(varGroups.putIfAbsent(globalVarId, groupName))) {
+              changed.set(true);
+            }
+          }
+        }
+      } else if (exprent instanceof FunctionExprent functionExprent) {
+        switch (functionExprent.getFuncType()) {
+          case ADD, SUB, MUL, AND, OR, XOR, STR_CONCAT -> {
+            String groupName = firstGroupOf(exprentGroups, functionExprent, functionExprent.getLstOperands().get(0), functionExprent.getLstOperands().get(1));
+            if (groupName != null) {
+              tryAssignGroup(changed, exprentGroups, functionExprent, groupName);
+              tryAssignGroup(changed, exprentGroups, functionExprent.getLstOperands().get(0), groupName);
+              tryAssignGroup(changed, exprentGroups, functionExprent.getLstOperands().get(1), groupName);
+            }
+          }
+          case DIV, REM, NEG, BIT_NOT, PPI, IPP, MMI, IMM -> {
+            String groupName = firstGroupOf(exprentGroups, functionExprent, functionExprent.getLstOperands().get(0));
+            if (groupName != null) {
+              tryAssignGroup(changed, exprentGroups, functionExprent, groupName);
+              tryAssignGroup(changed, exprentGroups, functionExprent.getLstOperands().get(0), groupName);
+            }
+          }
+          case EQ, NE, GT, LT, GE, LE -> {
+            String groupName = firstGroupOf(exprentGroups, functionExprent.getLstOperands().get(0), functionExprent.getLstOperands().get(1));
+            if (groupName != null) {
+              tryAssignGroup(changed, exprentGroups, functionExprent.getLstOperands().get(0), groupName);
+              tryAssignGroup(changed, exprentGroups, functionExprent.getLstOperands().get(1), groupName);
+            }
+          }
+          case TERNARY -> {
+            String groupName = firstGroupOf(exprentGroups, functionExprent, functionExprent.getLstOperands().get(1), functionExprent.getLstOperands().get(2));
+            if (groupName != null) {
+              tryAssignGroup(changed, exprentGroups, functionExprent, groupName);
+              tryAssignGroup(changed, exprentGroups, functionExprent.getLstOperands().get(1), groupName);
+              tryAssignGroup(changed, exprentGroups, functionExprent.getLstOperands().get(2), groupName);
+            }
+          }
+        }
+      } else if (exprent instanceof AssignmentExprent assignmentExprent) {
+        boolean propagate;
+        boolean propagateToRight;
+        if (assignmentExprent.getCondType() == null) {
+          propagate = true;
+          propagateToRight = true;
+        } else {
+          switch (assignmentExprent.getCondType()) {
+            case ADD, SUB, MUL, AND, OR, XOR, STR_CONCAT -> {
+              propagate = true;
+              propagateToRight = true;
+            }
+            case DIV, REM, SHR, USHR, SHL -> {
+              propagate = true;
+              propagateToRight = false;
+            }
+            default -> {
+              propagate = false;
+              propagateToRight = false;
+            }
+          }
+        }
+
+        if (propagate) {
+          String groupName;
+          if (propagateToRight) {
+            groupName = firstGroupOf(exprentGroups, assignmentExprent, assignmentExprent.getLeft(), assignmentExprent.getRight());
+          } else {
+            groupName = firstGroupOf(exprentGroups, assignmentExprent, assignmentExprent.getLeft());
+          }
+          if (groupName != null) {
+            tryAssignGroup(changed, exprentGroups, assignmentExprent, groupName);
+            tryAssignGroup(changed, exprentGroups, assignmentExprent.getLeft(), groupName);
+            if (propagateToRight) {
+              tryAssignGroup(changed, exprentGroups, assignmentExprent.getRight(), groupName);
+            }
+          }
+        }
+      } else if (exprent instanceof SwitchHeadExprent switchHeadExprent) {
+        List<Exprent> subjectAndCases = new ArrayList<>();
+        subjectAndCases.add(switchHeadExprent.getValue());
+        for (List<Exprent> caze : switchHeadExprent.getCaseValues()) {
+          subjectAndCases.addAll(caze);
+        }
+        String groupName = firstGroupOf(exprentGroups, subjectAndCases.toArray(Exprent[]::new));
+        if (groupName != null) {
+          for (Exprent expr : subjectAndCases) {
+            tryAssignGroup(changed, exprentGroups, expr, groupName);
+          }
+        }
+      } else if (exprent instanceof SwitchExprent switchExprent) {
+        List<Exprent> switchAndYields = new ArrayList<>();
+        collectYieldExprents(switchExprent.getBacking(), switchAndYields);
+        String groupName = firstGroupOf(exprentGroups, switchAndYields.toArray(Exprent[]::new));
+        if (groupName != null) {
+          for (Exprent expr : switchAndYields) {
+            tryAssignGroup(changed, exprentGroups, expr, groupName);
+          }
+        }
+      }
+      return 0;
+    });
+
+    return changed.get();
+  }
+
+  private static void collectYieldExprents(Statement stat, List<? super YieldExprent> yields) {
+    if (stat.getExprents() == null) {
+      for (Statement childStat : stat.getStats()) {
+        if (!(childStat instanceof SwitchStatement)) {
+          collectYieldExprents(childStat, yields);
+        }
+      }
+
+      for (Exprent exprent : stat.getStatExprents()) {
+        for (Exprent expr : exprent.getAllExprents(true, true)) {
+          if (expr instanceof YieldExprent yield) {
+            yields.add(yield);
+          }
+        }
+      }
+    } else {
+      for (Exprent exprent : stat.getExprents()) {
+        for (Exprent expr : exprent.getAllExprents(true, true)) {
+          if (expr instanceof YieldExprent yield) {
+            yields.add(yield);
+          }
+        }
+      }
+    }
+  }
+
+  @Nullable
+  private static String firstGroupOf(Map<Integer, String> exprentGroups, Exprent... exprents) {
+    for (Exprent exprent : exprents) {
+      String groupName = exprentGroups.get(exprent.id);
+      if (groupName != null) {
+        return groupName;
+      }
+    }
+
+    return null;
+  }
+
+  private static void tryAssignGroup(MutableObject<Boolean> changed, Map<Integer, String> exprentGroups, Exprent exprent, String groupName) {
+    if (!groupName.equals(exprentGroups.putIfAbsent(exprent.id, groupName))) {
+      changed.set(true);
+    }
   }
 
   private static boolean substituteConstants(

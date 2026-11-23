@@ -25,7 +25,7 @@ testClasses.dependsOn(testDataClasses)
 
 def testJavaRuntimes = [:]
 
-[8].forEach { version ->
+[8, 17].forEach { version ->
   rootProject.createJavaTestDataSet(project, version)
   testJavaRuntimes[version] = javaToolchains.launcherFor {
     languageVersion = JavaLanguageVersion.of(version)

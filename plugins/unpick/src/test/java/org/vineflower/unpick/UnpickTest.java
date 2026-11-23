@@ -18,5 +18,6 @@ public class UnpickTest extends SingleClassesTestBase {
 
   private void registerUnpick() {
     register(JAVA_8, "TestJdk");
+    register(JAVA_17, "TestJdk17");
   }
 }
