@@ -1,5 +1,6 @@
 package org.vineflower.unpick;
 
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.ConstExprent;
@@ -25,12 +26,14 @@ import java.util.BitSet;
 import java.util.List;
 
 public class ExpressionToExprent extends ExpressionVisitor {
-  private final MethodWrapper methodWrapper;
+  @Nullable
+  private final MethodWrapper nonStaticMethodWrapper;
+  @Nullable
   private final BitSet bytecodeOffsets;
   public Exprent result;
 
-  public ExpressionToExprent(MethodWrapper methodWrapper, BitSet bytecodeOffsets) {
-    this.methodWrapper = methodWrapper;
+  public ExpressionToExprent(@Nullable MethodWrapper nonStaticMethodWrapper, @Nullable BitSet bytecodeOffsets) {
+    this.nonStaticMethodWrapper = nonStaticMethodWrapper;
     this.bytecodeOffsets = bytecodeOffsets;
   }
 
@@ -130,11 +133,14 @@ public class ExpressionToExprent extends ExpressionVisitor {
     if (fieldExpression.fieldName == null) {
       throw new UnsupportedOperationException("Cannot convert wildcard field expression to exprent");
     }
+    if (!fieldExpression.isStatic && nonStaticMethodWrapper == null) {
+      throw new UnsupportedOperationException("Cannot substitute non-static field without a method wrapper");
+    }
 
     String internalClassName = fieldExpression.className.replace('.', '/');
     StructClass fieldClass = DecompilerContext.getStructContext().getClass(internalClassName);
     StructField field = fieldClass == null ? null : fieldClass.getFields().stream().filter(fd -> fd.getName().equals(fieldExpression.fieldName)).findFirst().orElse(null);
-    Exprent instance = fieldExpression.isStatic ? null : new VarExprent(0, new VarType(methodWrapper.methodStruct.getClassQualifiedName(), true), methodWrapper.varproc, bytecodeOffsets);
+    Exprent instance = fieldExpression.isStatic ? null : new VarExprent(0, new VarType(nonStaticMethodWrapper.methodStruct.getClassQualifiedName(), true), nonStaticMethodWrapper.varproc, bytecodeOffsets);
     FieldDescriptor fieldDesc = FieldDescriptor.parseDescriptor(field == null ? "I" : field.getDescriptor());
     result = new FieldExprent(fieldExpression.fieldName, internalClassName, fieldExpression.isStatic, instance, fieldDesc, bytecodeOffsets);
   }

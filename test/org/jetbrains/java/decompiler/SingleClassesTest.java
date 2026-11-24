@@ -958,13 +958,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_21, "TestTryWithResourcesJ21");
   }
 
-  private void registerLiterals() {
-    register(JAVA_8, "TestFloatPrecision");
-    register(JAVA_8, "TestNotFloatPrecision");
-    register(JAVA_8, "TestConstantUninlining");
-    register(JAVA_8, "TestPiDivision");
-  }
-
   private void registerTernaryConstantSimplification() {
     register(JAVA_8, "TestReturnTernaryConstantSimplification");
     // TODO: ifOr, redundantIf, nestedIf and nestedIfs aren't reduced to a ternary that would be simplified

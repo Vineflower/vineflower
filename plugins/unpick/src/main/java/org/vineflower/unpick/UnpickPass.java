@@ -31,9 +31,11 @@ import org.jetbrains.java.decompiler.struct.StructMember;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.attr.StructAnnotationAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructAnnotationParameterAttribute;
+import org.jetbrains.java.decompiler.struct.attr.StructConstantValueAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructMethodParametersAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructTypeAnnotationAttribute;
+import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.Key;
@@ -46,6 +48,9 @@ import org.vineflower.unpick.parser.tree.GroupFormat;
 import org.vineflower.unpick.parser.tree.TargetAnnotation;
 import org.vineflower.unpick.parser.tree.TargetField;
 import org.vineflower.unpick.parser.tree.TargetMethod;
+import org.vineflower.unpick.parser.tree.expr.Expression;
+import org.vineflower.unpick.parser.tree.expr.ExpressionVisitor;
+import org.vineflower.unpick.parser.tree.expr.FieldExpression;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -63,6 +68,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -84,7 +90,38 @@ public class UnpickPass implements ClassPass {
     while (propagateGroups(classNode, classStack, exprentGroups, varGroups)) {
       // keep propagating while changed
     }
-    return substituteConstants(defs, classNode, exprentGroups);
+    boolean res = substituteConstants(defs, classNode, exprentGroups);
+
+    // handle ConstantValue fields
+    for (StructField fd : classNode.classStruct.getFields()) {
+      if (getFieldValueSubstitution(defs, classNode.classStruct, fd) instanceof SubstitutionResult.Expr expr) {
+        if (!detectInterClassFieldReferenceCycle(defs, classNode.classStruct, fd, expr.expr(), new HashSet<>())) {
+          if (fd.hasModifier(CodeConstants.ACC_STATIC)) {
+            ExpressionToExprent converter = new ExpressionToExprent(null, null);
+            expr.expr().accept(converter);
+            classNode.getWrapper().getStaticFieldInitializers().addWithKey(converter.result, InterpreterUtil.makeUniqueKey(fd.getName(), fd.getDescriptor()));
+            res = true;
+          } else {
+            MethodWrapper constructor = null;
+            for (MethodWrapper method : classNode.getWrapper().getMethods()) {
+              if (method.methodStruct.getName().equals("<init>")) {
+                constructor = method;
+                break;
+              }
+            }
+
+            if (constructor != null) {
+              ExpressionToExprent converter = new ExpressionToExprent(constructor, null);
+              expr.expr().accept(converter);
+              classNode.getWrapper().getDynamicFieldInitializers().addWithKey(converter.result, InterpreterUtil.makeUniqueKey(fd.getName(), fd.getDescriptor()));
+              res = true;
+            }
+          }
+        }
+      }
+    }
+
+    return res;
   }
 
   private static void identifyTargets(
@@ -572,7 +609,7 @@ public class UnpickPass implements ClassPass {
 
     if (stat.getExprents() == null) {
       for (Exprent exprent : stat.getStatExprents()) {
-        res |= substituteConstants(defs, method, exprent, newExprent -> stat.replaceExprent(exprent, newExprent), exprentGroups);
+        res |= substituteConstants(defs, method, Set.of(), null, exprent, newExprent -> stat.replaceExprent(exprent, newExprent), exprentGroups);
       }
 
       for (Statement st : stat.getStats()) {
@@ -580,7 +617,7 @@ public class UnpickPass implements ClassPass {
       }
     } else {
       for (Exprent exprent : stat.getExprents()) {
-        res |= substituteConstants(defs, method, exprent, newExprent -> stat.replaceExprent(exprent, newExprent), exprentGroups);
+        res |= substituteConstants(defs, method, Set.of(), null, exprent, newExprent -> stat.replaceExprent(exprent, newExprent), exprentGroups);
       }
     }
 
@@ -591,69 +628,261 @@ public class UnpickPass implements ClassPass {
   private static boolean substituteConstants(
     UnpickDefinitions defs,
     MethodWrapper method,
+    Set<String> disallowedFieldRefs,
+    @Nullable StructField fieldAssignment,
     Exprent exprent,
     Consumer<Exprent> replace,
     Map<Integer, String> exprentGroups
   ) {
     boolean res = false;
 
+    if (exprent instanceof AssignmentExprent assignmentExprent && assignmentExprent.getLeft() instanceof FieldExprent fieldExprent) {
+      if (fieldExprent.getClassname().equals(method.classStruct.qualifiedName)) {
+        StructField fd = method.classStruct.getField(fieldExprent.getName(), fieldExprent.getDescriptor().descriptorString);
+        if (fd != null && fd.hasModifier(CodeConstants.ACC_FINAL)) {
+          disallowedFieldRefs = method.classStruct.getFields().stream()
+            .dropWhile(f -> f != fd)
+            .map(StructField::getName)
+            .collect(Collectors.toSet());
+          fieldAssignment = fd;
+        }
+      }
+    }
+
     for (Exprent subExprent : exprent.getAllExprents()) {
-      res |= substituteConstants(defs, method, subExprent, newExprent -> exprent.replaceExprent(subExprent, newExprent), exprentGroups);
+      res |= substituteConstants(defs, method, disallowedFieldRefs, fieldAssignment, subExprent, newExprent -> exprent.replaceExprent(subExprent, newExprent), exprentGroups);
     }
 
     Object constantValue = computeConstantValue(exprent);
+    if (constantValue == null) {
+      return res;
+    }
+
     DataType constantType = DataTypeUtils.getDataType(constantValue);
-
     String groupName = exprentGroups.get(exprent.id);
-    List<UnpickDefinitions.GroupData> groupDatas = getGroupData(defs, groupName, getExprType(exprent));
 
+    SubstitutionResult substitution = getBestSubstitution(
+      defs,
+      method.classStruct.qualifiedName,
+      method.methodStruct.getName(),
+      method.methodStruct.getDescriptor(),
+      method.methodStruct.hasModifier(CodeConstants.ACC_STATIC),
+      disallowedFieldRefs,
+      groupName,
+      getExprType(exprent),
+      constantValue
+    );
+
+    if (substitution instanceof SubstitutionResult.Expr expr) {
+      if (fieldAssignment != null && detectInterClassFieldReferenceCycle(defs, method.classStruct, fieldAssignment, expr.expr(), new HashSet<>())) {
+        return res;
+      }
+
+      ExpressionToExprent converter = new ExpressionToExprent(method.methodStruct.hasModifier(CodeConstants.ACC_STATIC) ? null : method, exprent.bytecode);
+      expr.expr().accept(converter);
+      replace.accept(converter.result);
+      return true;
+    } else if (substitution instanceof SubstitutionResult.Format format) {
+      if (exprent instanceof ConstExprent constExprent) {
+        if (format.format() == GroupFormat.CHAR) {
+          if (constantType == DataType.INT && !constExprent.getConstType().equals(VarType.VARTYPE_CHAR)) {
+            constExprent.setConstType(VarType.VARTYPE_CHAR);
+            res = true;
+          }
+        } else {
+          int radix = switch (format.format()) {
+            case BINARY -> 2;
+            case OCTAL -> 8;
+            case DECIMAL -> 10;
+            case HEX -> 16;
+            default -> throw new IllegalStateException("Unknown group format");
+          };
+          if (constExprent.getConstType().equals(VarType.VARTYPE_CHAR)) {
+            constExprent.setConstType(VarType.VARTYPE_INT);
+            res = true;
+          }
+          if (constExprent.getRadix() != radix) {
+            constExprent.setRadix(radix);
+            res = true;
+          }
+        }
+      }
+
+      return res;
+    } else {
+      return res;
+    }
+  }
+
+  private sealed interface SubstitutionResult {
+    record Expr(Expression expr) implements SubstitutionResult {
+    }
+
+    record Format(GroupFormat format) implements SubstitutionResult {
+    }
+  }
+
+  @Nullable
+  private static SubstitutionResult getBestSubstitution(
+    UnpickDefinitions defs,
+    String containingClass,
+    String containingMethodName,
+    String containingMethodDesc,
+    boolean isStatic,
+    Set<String> disallowedFieldRefs,
+    @Nullable String groupName,
+    VarType type,
+    Object constantValue
+  ) {
+    DataType constantType = DataTypeUtils.getDataType(constantValue);
     GroupFormat bestFormat = null;
-    for (UnpickDefinitions.GroupData groupData : groupDatas) {
-      for (UnpickDefinitions.ScopedData scopedData : getScopedData(groupData, method.methodStruct)) {
+    for (UnpickDefinitions.GroupData groupData : getGroupData(defs, groupName, type)) {
+      for (UnpickDefinitions.ScopedData scopedData : getScopedData(groupData, containingClass, containingMethodName, containingMethodDesc)) {
         if (bestFormat == null) {
           bestFormat = scopedData.format;
         }
 
         // TODO: flags
         UnpickDefinitions.ConstantReplacementData replacementData = scopedData.constantReplacementMap.get(constantValue);
-        if (replacementData != null) {
-          boolean compatibleTypes = replacementData.strict() ? groupData.dataType == constantType : DataTypeUtils.isAssignable(constantType, groupData.dataType);
-          if (compatibleTypes) {
-            ExpressionToExprent converter = new ExpressionToExprent(method, exprent.bytecode);
-            replacementData.replacementExpr().accept(converter);
-            replace.accept(converter.result);
-            return true;
+        if (replacementData != null && !referencesDisallowedField(replacementData.replacementExpr(), containingClass, disallowedFieldRefs)) {
+          if (!isStatic || !referencesInstanceField(replacementData.replacementExpr())) {
+            boolean compatibleTypes = replacementData.strict() ? groupData.dataType == constantType : DataTypeUtils.isAssignable(constantType, groupData.dataType);
+            if (compatibleTypes) {
+              return new SubstitutionResult.Expr(replacementData.replacementExpr());
+            }
           }
         }
       }
     }
 
-    if (bestFormat != null && exprent instanceof ConstExprent constExprent) {
-      if (bestFormat == GroupFormat.CHAR) {
-        if (constantType == DataType.INT && !constExprent.getConstType().equals(VarType.VARTYPE_CHAR)) {
-          constExprent.setConstType(VarType.VARTYPE_CHAR);
-          res = true;
-        }
-      } else {
-        int radix = switch (bestFormat) {
-          case BINARY -> 2;
-          case OCTAL -> 8;
-          case DECIMAL -> 10;
-          case HEX -> 16;
-          default -> throw new IllegalStateException("Unknown group format");
-        };
-        if (constExprent.getConstType().equals(VarType.VARTYPE_CHAR)) {
-          constExprent.setConstType(VarType.VARTYPE_INT);
-          res = true;
-        }
-        if (constExprent.getRadix() != radix) {
-          constExprent.setRadix(radix);
-          res = true;
+    return bestFormat == null ? null : new SubstitutionResult.Format(bestFormat);
+  }
+
+  @Nullable
+  private static SubstitutionResult getFieldValueSubstitution(UnpickDefinitions defs, StructClass cl, StructField fd) {
+    StructConstantValueAttribute constantValueAttr = fd.getAttribute(StructGeneralAttribute.ATTRIBUTE_CONSTANT_VALUE);
+    if (constantValueAttr == null) {
+      return null;
+    }
+
+    PrimitiveConstant primitiveConstant = cl.getPool().getPrimitiveConstant(constantValueAttr.getIndex());
+    Object constantValue = primitiveConstant.type == CodeConstants.CONSTANT_Class ? new ClassLiteral(primitiveConstant.getString()) : primitiveConstant.value;
+    boolean isStatic = fd.hasModifier(CodeConstants.ACC_STATIC);
+
+    String containingMethodName = isStatic ? "<clinit>" : "<init>";
+    String containingMethodDesc = "()V";
+    if (!isStatic) {
+      for (StructMethod method : cl.getMethods()) {
+        if (method.getName().equals("<init>")) {
+          containingMethodDesc = method.getDescriptor();
+          break;
         }
       }
     }
 
-    return res;
+    String groupName = null;
+    TargetField targetField = defs.targetFields.get(InterpreterUtil.makeUniqueKey(cl.qualifiedName, fd.getName(), fd.getDescriptor()));
+    if (targetField != null) {
+      groupName = targetField.groupName();
+    } else {
+      for (AnnotationExprent ann : getMemberAnnotations(fd, TypeAnnotation.FIELD)) {
+        TargetAnnotation targetAnnotation = defs.targetAnnotations.get(ann.getClassName());
+        if (targetAnnotation != null) {
+          groupName = targetAnnotation.groupName();
+          break;
+        }
+      }
+    }
+
+    Set<String> disallowedFieldRefs = cl.getFields().stream()
+      .dropWhile(f -> f != fd)
+      .map(StructField::getName)
+      .collect(Collectors.toSet());
+
+    return getBestSubstitution(
+      defs,
+      cl.qualifiedName,
+      containingMethodName,
+      containingMethodDesc,
+      isStatic,
+      disallowedFieldRefs,
+      groupName,
+      new VarType(fd.getDescriptor()),
+      constantValue
+    );
+  }
+
+  private static boolean detectInterClassFieldReferenceCycle(
+    UnpickDefinitions defs,
+    StructClass cl,
+    StructField fd,
+    Expression expression,
+    Set<String> seenFields
+  ) {
+    String fieldKey = InterpreterUtil.makeUniqueKey(cl.qualifiedName, fd.getName(), fd.getDescriptor());
+    if (!seenFields.add(fieldKey)) {
+      return true;
+    }
+
+    MutableObject<Boolean> result = MutableObject.of(false);
+    expression.accept(new ExpressionVisitor() {
+      @Override
+      public void visitFieldExpression(FieldExpression fieldExpression) {
+        if (result.get()) {
+          // we already know the result, stop checking
+          return;
+        }
+
+        StructClass resolvedClass = DecompilerContext.getStructContext().getClass(fieldExpression.className);
+        StructField resolvedField = null;
+        resolveLoop: while (resolvedClass != null) {
+          for (StructField field : resolvedClass.getFields()) {
+            if (field.getName().equals(fieldExpression.fieldName)) {
+              resolvedField = field;
+              break resolveLoop;
+            }
+          }
+          resolvedClass = resolvedClass.superClass == null ? null : DecompilerContext.getStructContext().getClass(resolvedClass.superClass.getString());
+        }
+
+        if (resolvedField != null) {
+          if (getFieldValueSubstitution(defs, resolvedClass, resolvedField) instanceof SubstitutionResult.Expr expr) {
+            if (detectInterClassFieldReferenceCycle(defs, resolvedClass, resolvedField, expr.expr(), seenFields)) {
+              result.set(true);
+            }
+          }
+        }
+      }
+    });
+
+    seenFields.remove(fieldKey);
+    return result.get();
+  }
+
+  private static boolean referencesDisallowedField(Expression expression, String className, Set<String> unreferenceableFields) {
+    MutableObject<Boolean> result = MutableObject.of(false);
+    expression.accept(new ExpressionVisitor() {
+      @Override
+      public void visitFieldExpression(FieldExpression fieldExpression) {
+        if (fieldExpression.className.equals(className) && unreferenceableFields.contains(fieldExpression.fieldName)) {
+          result.set(true);
+        }
+      }
+    });
+    return result.get();
+  }
+
+  private static boolean referencesInstanceField(Expression expression) {
+    MutableObject<Boolean> result = MutableObject.of(false);
+    expression.accept(new ExpressionVisitor() {
+      @Override
+      public void visitFieldExpression(FieldExpression fieldExpression) {
+        if (!fieldExpression.isStatic) {
+          result.set(true);
+        }
+      }
+    });
+    return result.get();
   }
 
   // TODO: other types of exprent listed in the spec, including unary minus
@@ -704,21 +933,21 @@ public class UnpickPass implements ClassPass {
   }
 
   // TODO: handle lambdas and anonymous classes
-  private static List<UnpickDefinitions.ScopedData> getScopedData(UnpickDefinitions.GroupData groupData, StructMethod mt) {
+  private static List<UnpickDefinitions.ScopedData> getScopedData(UnpickDefinitions.GroupData groupData, String owner, String name, String desc) {
     List<UnpickDefinitions.ScopedData> result = new ArrayList<>(4);
 
-    UnpickDefinitions.ScopedData methodData = groupData.methodScopes.get(InterpreterUtil.makeUniqueKey(mt.getClassQualifiedName(), mt.getName(), mt.getDescriptor()));
+    UnpickDefinitions.ScopedData methodData = groupData.methodScopes.get(InterpreterUtil.makeUniqueKey(owner, name, desc));
     if (methodData != null) {
       result.add(methodData);
     }
 
-    UnpickDefinitions.ScopedData classData = groupData.classScopes.get(mt.getClassQualifiedName());
+    UnpickDefinitions.ScopedData classData = groupData.classScopes.get(owner);
     if (classData != null) {
       result.add(classData);
     }
 
-    if (mt.getClassQualifiedName().contains("/")) {
-      UnpickDefinitions.ScopedData packageData = groupData.packageScopes.get(mt.getClassQualifiedName().substring(0, mt.getClassQualifiedName().lastIndexOf('/')));
+    if (owner.contains("/")) {
+      UnpickDefinitions.ScopedData packageData = groupData.packageScopes.get(owner.substring(0, owner.lastIndexOf('/')));
       if (packageData != null) {
         result.add(packageData);
       }
