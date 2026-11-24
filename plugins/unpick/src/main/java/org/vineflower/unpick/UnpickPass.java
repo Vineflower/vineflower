@@ -47,12 +47,16 @@ import org.vineflower.unpick.parser.UnpickParseException;
 import org.vineflower.unpick.parser.UnpickV3Reader;
 import org.vineflower.unpick.parser.tree.DataType;
 import org.vineflower.unpick.parser.tree.GroupFormat;
+import org.vineflower.unpick.parser.tree.Literal;
 import org.vineflower.unpick.parser.tree.TargetAnnotation;
 import org.vineflower.unpick.parser.tree.TargetField;
 import org.vineflower.unpick.parser.tree.TargetMethod;
+import org.vineflower.unpick.parser.tree.expr.BinaryExpression;
 import org.vineflower.unpick.parser.tree.expr.Expression;
 import org.vineflower.unpick.parser.tree.expr.ExpressionVisitor;
 import org.vineflower.unpick.parser.tree.expr.FieldExpression;
+import org.vineflower.unpick.parser.tree.expr.LiteralExpression;
+import org.vineflower.unpick.parser.tree.expr.UnaryExpression;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -63,9 +67,11 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -768,12 +774,16 @@ public class UnpickPass implements ClassPass {
     DataType constantType = DataTypeUtils.getDataType(constantValue);
     GroupFormat bestFormat = null;
     for (UnpickDefinitions.GroupData groupData : getGroupData(defs, groupName, type)) {
+      Long targetFlags;
+      if (groupData.isFlags && (targetFlags = (Long) DataTypeUtils.tryCastExact(constantValue, DataType.LONG)) != null && targetFlags != 0 && targetFlags != -1) {
+        return getBestFlagsSubstitution(containingClass, containingMethodName, containingMethodDesc, isStatic, disallowedFieldRefs, groupData, constantType, targetFlags);
+      }
+
       for (UnpickDefinitions.ScopedData scopedData : getScopedData(groupData, containingClass, containingMethodName, containingMethodDesc)) {
         if (bestFormat == null) {
           bestFormat = scopedData.format;
         }
 
-        // TODO: flags
         UnpickDefinitions.ConstantReplacementData replacementData = scopedData.constantReplacementMap.get(DataTypeUtils.tryCastExact(constantValue, groupData.dataType));
         if (replacementData != null && !referencesDisallowedField(replacementData.replacementExpr(), containingClass, disallowedFieldRefs)) {
           if (!isStatic || !referencesInstanceField(replacementData.replacementExpr())) {
@@ -787,6 +797,118 @@ public class UnpickPass implements ClassPass {
     }
 
     return bestFormat == null ? null : new SubstitutionResult.Format(bestFormat);
+  }
+
+  @Nullable
+  private static SubstitutionResult getBestFlagsSubstitution(
+    String containingClass,
+    String containingMethodName,
+    String containingMethodDesc,
+    boolean isStatic,
+    Set<String> disallowedFieldRefs,
+    UnpickDefinitions.GroupData groupData,
+    DataType constantType,
+    long targetFlags
+  ) {
+    long flagsMask = constantType == DataType.LONG ? 0xffff_ffff_ffff_ffffL : 0xffff_ffffL;
+    targetFlags &= flagsMask;
+
+    GroupFormat bestFormat = null;
+    Map<Long, Expression> replacementData = new LinkedHashMap<>();
+    for (UnpickDefinitions.ScopedData scopedData : getScopedData(groupData, containingClass, containingMethodName, containingMethodDesc)) {
+      if (bestFormat == null) {
+        bestFormat = scopedData.format;
+      }
+
+      scopedData.constantReplacementMap.forEach((value, data) -> {
+        Long flag = (Long) DataTypeUtils.tryCastExact(value, DataType.LONG);
+        if (flag != null) {
+          if (!referencesDisallowedField(data.replacementExpr(), containingClass, disallowedFieldRefs)) {
+            if (!isStatic || !referencesInstanceField(data.replacementExpr())) {
+              if (!data.strict() || groupData.dataType == constantType) {
+                flag &= flagsMask;
+                replacementData.putIfAbsent(flag, data.replacementExpr());
+              }
+            }
+          }
+        }
+      });
+    }
+
+    List<Expression> positiveSet = new ArrayList<>();
+    long positiveResidual = getMinimalFlags(targetFlags, replacementData, positiveSet);
+    List<Expression> negativeSet = new ArrayList<>();
+    long negativeResidual = getMinimalFlags(~targetFlags & flagsMask, replacementData, negativeSet);
+
+    if (negativeResidual == 0 && (positiveResidual != 0 || negativeSet.size() < positiveSet.size())) {
+      Expression resultExpression = negativeSet.get(0);
+      for (int i = 1; i < negativeSet.size(); i++) {
+        resultExpression = new BinaryExpression(resultExpression, negativeSet.get(i), BinaryExpression.Operator.BIT_OR);
+      }
+      resultExpression = new UnaryExpression(resultExpression, UnaryExpression.Operator.BIT_NOT);
+      return new SubstitutionResult.Expr(resultExpression);
+    } else {
+      if (positiveSet.isEmpty()) {
+        return bestFormat == null ? null : new SubstitutionResult.Format(bestFormat);
+      }
+
+      Expression resultExpression = positiveSet.get(0);
+      for (int i = 1; i < positiveSet.size(); i++) {
+        resultExpression = new BinaryExpression(resultExpression, positiveSet.get(i), BinaryExpression.Operator.BIT_OR);
+      }
+
+      if (positiveResidual != 0) {
+        Expression residualExpr;
+        if (Long.compareUnsigned(positiveResidual, Character.MAX_VALUE) < 0 && bestFormat == GroupFormat.CHAR) {
+          residualExpr = new LiteralExpression(new Literal.Character((char) positiveResidual));
+        } else {
+          int radix;
+          if (bestFormat == null) {
+            radix = 10;
+          } else {
+            radix = switch (bestFormat) {
+              case BINARY -> 2;
+              case OCTAL -> 8;
+              case HEX -> 16;
+              default -> 10;
+            };
+          }
+          if (constantType == DataType.LONG) {
+            residualExpr = new LiteralExpression(new Literal.Long(positiveResidual, radix));
+          } else {
+            residualExpr = new LiteralExpression(new Literal.Integer((int) positiveResidual, radix));
+          }
+        }
+        resultExpression = new BinaryExpression(resultExpression, residualExpr, BinaryExpression.Operator.BIT_OR);
+      }
+
+      return new SubstitutionResult.Expr(resultExpression);
+    }
+  }
+
+  // outputs to flags, returns any unset bits
+  private static long getMinimalFlags(long targetValue, Map<Long, Expression> replacementData, List<Expression> flags) {
+    List<Pair<Long, Expression>> candidates = new ArrayList<>(replacementData.size());
+    replacementData.forEach((flag, expr) -> {
+      // remove flags that set bits that are not in the target value
+      if ((flag & ~targetValue) == 0) {
+        candidates.add(Pair.of(flag, expr));
+      }
+    });
+    // sort into reverse order of bit count, so that flags that set the most bits are added first
+    candidates.sort(Comparator.comparing(candidate -> -Long.bitCount(candidate.a)));
+
+    long residual = targetValue;
+    for (Pair<Long, Expression> candidate : candidates) {
+      // check that the candidate contributes any bits to the remaining bits that need setting
+      if ((candidate.a & residual) != 0) {
+        flags.add(candidate.b);
+        // unset the bits in the residual that are set by this flag
+        residual &= ~candidate.a;
+      }
+    }
+
+    return residual;
   }
 
   @Nullable

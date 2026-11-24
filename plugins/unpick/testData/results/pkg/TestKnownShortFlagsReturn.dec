@@ -6,15 +6,15 @@ public class TestKnownShortFlagsReturn {
    }
 
    public short test2() {
-      return 12;// 9
+      return (short)(Constants.SHORT_FLAG_BIT_2 | Constants.SHORT_FLAG_BIT_3);// 9
    }
 
    public short test3() {
-      return 10;// 13
+      return (short)(Constants.SHORT_FLAG_BIT_1 | Constants.SHORT_FLAG_BIT_3);// 13
    }
 
    public short test4() {
-      return 7;// 17
+      return (short)(Constants.SHORT_FLAG_BIT_0 | Constants.SHORT_FLAG_BIT_1 | Constants.SHORT_FLAG_BIT_2);// 17
    }
 }
 

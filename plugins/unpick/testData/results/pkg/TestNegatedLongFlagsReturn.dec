@@ -2,19 +2,19 @@ package pkg;
 
 public class TestNegatedLongFlagsReturn {
    public long test1() {
-      return -5L;// 5
+      return ~Constants.LONG_FLAG_BIT_2;// 5
    }
 
    public long test2() {
-      return -13L;// 9
+      return ~(Constants.LONG_FLAG_BIT_2 | Constants.LONG_FLAG_BIT_3);// 9
    }
 
    public long test3() {
-      return -11L;// 13
+      return ~(Constants.LONG_FLAG_BIT_1 | Constants.LONG_FLAG_BIT_3);// 13
    }
 
    public long test4() {
-      return -8L;// 17
+      return ~(Constants.LONG_FLAG_BIT_0 | Constants.LONG_FLAG_BIT_1 | Constants.LONG_FLAG_BIT_2);// 17
    }
 }
 

@@ -2,19 +2,19 @@ package pkg;
 
 public class TestNegatedLongFlagsParameter {
    public void test1() {
-      Constants.consumeLong(-5L);// 5
+      Constants.consumeLong(~Constants.LONG_FLAG_BIT_2);// 5
    }// 6
 
    public void test2() {
-      Constants.consumeLong(-13L);// 9
+      Constants.consumeLong(~(Constants.LONG_FLAG_BIT_2 | Constants.LONG_FLAG_BIT_3));// 9
    }// 10
 
    public void test3() {
-      Constants.consumeLong(-11L);// 13
+      Constants.consumeLong(~(Constants.LONG_FLAG_BIT_1 | Constants.LONG_FLAG_BIT_3));// 13
    }// 14
 
    public void test4() {
-      Constants.consumeLong(-8L);// 17
+      Constants.consumeLong(~(Constants.LONG_FLAG_BIT_0 | Constants.LONG_FLAG_BIT_1 | Constants.LONG_FLAG_BIT_2));// 17
    }// 18
 }
 

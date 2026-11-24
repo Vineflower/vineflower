@@ -2,19 +2,19 @@ package pkg;
 
 public class TestNegatedIntFlagsReturn {
    public int test1() {
-      return -5;// 5
+      return ~Constants.INT_FLAG_BIT_2;// 5
    }
 
    public int test2() {
-      return -13;// 9
+      return ~(Constants.INT_FLAG_BIT_2 | Constants.INT_FLAG_BIT_3);// 9
    }
 
    public int test3() {
-      return -11;// 13
+      return ~(Constants.INT_FLAG_BIT_1 | Constants.INT_FLAG_BIT_3);// 13
    }
 
    public int test4() {
-      return -8;// 17
+      return ~(Constants.INT_FLAG_BIT_0 | Constants.INT_FLAG_BIT_1 | Constants.INT_FLAG_BIT_2);// 17
    }
 }
 

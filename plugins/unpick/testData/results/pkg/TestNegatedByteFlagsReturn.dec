@@ -2,19 +2,19 @@ package pkg;
 
 public class TestNegatedByteFlagsReturn {
    public byte test1() {
-      return -5;// 5
+      return (byte)(~Constants.BYTE_FLAG_BIT_2);// 5
    }
 
    public byte test2() {
-      return -13;// 9
+      return (byte)(~(Constants.BYTE_FLAG_BIT_2 | Constants.BYTE_FLAG_BIT_3));// 9
    }
 
    public byte test3() {
-      return -11;// 13
+      return (byte)(~(Constants.BYTE_FLAG_BIT_1 | Constants.BYTE_FLAG_BIT_3));// 13
    }
 
    public byte test4() {
-      return -8;// 17
+      return (byte)(~(Constants.BYTE_FLAG_BIT_0 | Constants.BYTE_FLAG_BIT_1 | Constants.BYTE_FLAG_BIT_2));// 17
    }
 }
 

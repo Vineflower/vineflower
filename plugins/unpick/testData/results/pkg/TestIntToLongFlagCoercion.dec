@@ -2,7 +2,7 @@ package pkg;
 
 public class TestIntToLongFlagCoercion {
    public long test1() {
-      return 3L;// 5
+      return (long)(Constants.INT_FLAG_BIT_0 | Constants.INT_FLAG_BIT_1);// 5
    }
 }
 

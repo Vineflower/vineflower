@@ -6,15 +6,15 @@ public class TestKnownLongFlagsReturn {
    }
 
    public long test2() {
-      return 12L;// 9
+      return Constants.LONG_FLAG_BIT_2 | Constants.LONG_FLAG_BIT_3;// 9
    }
 
    public long test3() {
-      return 10L;// 13
+      return Constants.LONG_FLAG_BIT_1 | Constants.LONG_FLAG_BIT_3;// 13
    }
 
    public long test4() {
-      return 7L;// 17
+      return Constants.LONG_FLAG_BIT_0 | Constants.LONG_FLAG_BIT_1 | Constants.LONG_FLAG_BIT_2;// 17
    }
 }
 
