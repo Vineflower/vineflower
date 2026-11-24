@@ -1,0 +1,55 @@
+package pkg;
+
+public class TestNegatedLongFlagsReturn {
+   public long test1() {
+      return -5L;// 5
+   }
+
+   public long test2() {
+      return -13L;// 9
+   }
+
+   public long test3() {
+      return -11L;// 13
+   }
+
+   public long test4() {
+      return -8L;// 17
+   }
+}
+
+class 'pkg/TestNegatedLongFlagsReturn' {
+   method 'test1 ()J' {
+      0      4
+      1      4
+      2      4
+      3      4
+   }
+
+   method 'test2 ()J' {
+      0      8
+      1      8
+      2      8
+      3      8
+   }
+
+   method 'test3 ()J' {
+      0      12
+      1      12
+      2      12
+      3      12
+   }
+
+   method 'test4 ()J' {
+      0      16
+      1      16
+      2      16
+      3      16
+   }
+}
+
+Lines mapping:
+5 <-> 5
+9 <-> 9
+13 <-> 13
+17 <-> 17

@@ -92,7 +92,7 @@ public class UnpickDefinitions extends UnpickV3Visitor {
           nonWildcardExpression.accept(evaluator);
           value = ExpressionEvaluator.cast(evaluator.result, groupDefinition.dataType());
         } catch (ExpressionEvaluator.EvaluationException e) {
-          DecompilerContext.getLogger().writeMessage("Could not evaluate expression " + nonWildcardExpression + " in group " + groupDisplayName + ": " + e.getMessage(), IFernflowerLogger.Severity.WARN);
+          DecompilerContext.getLogger().writeMessage("Could not evaluate expression " + UnpickUtils.expressionToString(nonWildcardExpression) + " in group " + groupDisplayName + ": " + e.getMessage(), IFernflowerLogger.Severity.WARN);
           continue;
         }
 

@@ -1,0 +1,9 @@
+unpick v4
+
+group Class
+	pkg.Constants.CLASS_CONST_STRING
+	pkg.Constants.CLASS_CONST_INTEGER
+	pkg.Constants.CLASS_CONST_NULL
+
+group String
+	pkg.Constants.STRING_CONST_NULL

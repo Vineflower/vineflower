@@ -1,0 +1,87 @@
+unpick v4
+
+group int byteConsts
+	pkg.Constants.BYTE_CONST_M1:byte
+	pkg.Constants.BYTE_CONST_0:byte
+	pkg.Constants.BYTE_CONST_1:byte
+	pkg.Constants.BYTE_CONST_2:byte
+	pkg.Constants.BYTE_CONST_3:byte
+	pkg.Constants.BYTE_CONST_4:byte
+	pkg.Constants.BYTE_CONST_5:byte
+	pkg.Constants.BYTE_CONST:byte
+
+group int shortConsts
+	pkg.Constants.SHORT_CONST_M1:short
+	pkg.Constants.SHORT_CONST_0:short
+	pkg.Constants.SHORT_CONST_1:short
+	pkg.Constants.SHORT_CONST_2:short
+	pkg.Constants.SHORT_CONST_3:short
+	pkg.Constants.SHORT_CONST_4:short
+	pkg.Constants.SHORT_CONST_5:short
+	pkg.Constants.SHORT_CONST:short
+
+group int charConsts
+	pkg.Constants.CHAR_CONST_0:char
+	pkg.Constants.CHAR_CONST_1:char
+	pkg.Constants.CHAR_CONST_2:char
+	pkg.Constants.CHAR_CONST_3:char
+	pkg.Constants.CHAR_CONST_4:char
+	pkg.Constants.CHAR_CONST_5:char
+	pkg.Constants.CHAR_CONST:char
+
+group int intConsts
+	pkg.Constants.INT_CONST_M1
+	pkg.Constants.INT_CONST_0
+	pkg.Constants.INT_CONST_1
+	pkg.Constants.INT_CONST_2
+	pkg.Constants.INT_CONST_3
+	pkg.Constants.INT_CONST_4
+	pkg.Constants.INT_CONST_5
+	pkg.Constants.INT_CONST
+
+group long longConsts
+	pkg.Constants.LONG_CONST_0
+	pkg.Constants.LONG_CONST_1
+	pkg.Constants.LONG_CONST
+
+group float floatConsts
+	pkg.Constants.FLOAT_CONST_0
+	pkg.Constants.FLOAT_CONST_1
+	pkg.Constants.FLOAT_CONST_2
+	pkg.Constants.FLOAT_CONST
+
+group double doubleConsts
+	pkg.Constants.DOUBLE_CONST_0
+	pkg.Constants.DOUBLE_CONST_1
+	pkg.Constants.DOUBLE_CONST
+
+group String stringConsts
+	pkg.Constants.STRING_CONST_FOO
+	pkg.Constants.STRING_CONST_BAR
+	pkg.Constants.STRING_CONST_NULL
+
+group Class classConsts
+	pkg.Constants.CLASS_CONST_STRING
+	pkg.Constants.CLASS_CONST_INTEGER
+	pkg.Constants.CLASS_CONST_NULL
+
+target_method pkg.TestKnownCharConstantsReturn test1 ()C
+	return charConsts
+
+target_method pkg.TestKnownCharConstantsReturn test2 ()C
+	return charConsts
+
+target_method pkg.TestKnownCharConstantsReturn test3 ()C
+	return charConsts
+
+target_method pkg.TestKnownCharConstantsReturn test4 ()C
+	return charConsts
+
+target_method pkg.TestKnownCharConstantsReturn test5 ()C
+	return charConsts
+
+target_method pkg.TestKnownCharConstantsReturn test6 ()C
+	return charConsts
+
+target_method pkg.TestKnownCharConstantsReturn test7 ()C
+	return charConsts

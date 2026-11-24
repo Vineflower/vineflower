@@ -150,7 +150,10 @@ public final class DataTypeUtils {
     }
     if (value instanceof Number n) {
       T result = castFunction.apply(n);
-      return result.doubleValue() == n.doubleValue() ? result : null;
+      double a = result.doubleValue();
+      double b = n.doubleValue();
+      boolean doublesEqual = Double.isNaN(a) ? Double.isNaN(b) : a == b;
+      return doublesEqual ? result : null;
     }
     return null;
   }

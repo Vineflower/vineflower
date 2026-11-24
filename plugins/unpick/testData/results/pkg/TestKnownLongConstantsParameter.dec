@@ -1,0 +1,51 @@
+package pkg;
+
+public class TestKnownLongConstantsParameter {
+   public void test2() {
+      Constants.consumeLong(Constants.LONG_CONST_0);// 5
+   }// 6
+
+   public void test3() {
+      Constants.consumeLong(Constants.LONG_CONST_1);// 9
+   }// 10
+
+   public void test8() {
+      Constants.consumeLong(Constants.LONG_CONST);// 13
+   }// 14
+}
+
+class 'pkg/TestKnownLongConstantsParameter' {
+   method 'test2 ()V' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      5
+   }
+
+   method 'test3 ()V' {
+      0      8
+      1      8
+      2      8
+      3      8
+      4      9
+   }
+
+   method 'test8 ()V' {
+      0      12
+      1      12
+      2      12
+      3      12
+      4      12
+      5      12
+      6      13
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 6
+9 <-> 9
+10 <-> 10
+13 <-> 13
+14 <-> 14

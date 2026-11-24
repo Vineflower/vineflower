@@ -1,0 +1,32 @@
+package pkg;
+
+import java.util.function.IntConsumer;
+
+public class TestLambdaInsideToOutsideCapture {
+   private static void test() {
+      int n = Constants.INT_CONST_1;// 7
+      IntConsumer ic = i -> Constants.consumeInt(n);// 8
+   }// 9
+}
+
+class 'pkg/TestLambdaInsideToOutsideCapture' {
+   method 'test ()V' {
+      0      6
+      1      6
+      8      7
+      9      8
+   }
+
+   method 'lambda$test$0 (II)V' {
+      0      7
+      1      7
+      2      7
+      3      7
+      4      7
+   }
+}
+
+Lines mapping:
+7 <-> 7
+8 <-> 8
+9 <-> 9

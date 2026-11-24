@@ -1,0 +1,22 @@
+unpick v4
+
+group int flags
+	@flags
+	pkg.Constants.INT_FLAG_BIT_0:int
+	pkg.Constants.INT_FLAG_BIT_1:int
+	pkg.Constants.INT_FLAG_BIT_2:int
+	pkg.Constants.INT_FLAG_BIT_3:int
+	pkg.Constants.INT_FLAG_0:int
+	pkg.Constants.INT_FLAG_M1:int
+
+target_method pkg.TestNegatedIntFlagsReturn test1 ()I
+	return flags
+
+target_method pkg.TestNegatedIntFlagsReturn test2 ()I
+	return flags
+
+target_method pkg.TestNegatedIntFlagsReturn test3 ()I
+	return flags
+
+target_method pkg.TestNegatedIntFlagsReturn test4 ()I
+	return flags

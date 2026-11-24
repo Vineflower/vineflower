@@ -1,0 +1,6 @@
+unpick v4
+
+group int g
+	pkg.Constants.INT_CONST_1
+
+target_annotation pkg.TestAnnotation g

@@ -1,0 +1,4 @@
+unpick v4
+
+group Class
+	pkg.TestConstantDeclaration.FOO

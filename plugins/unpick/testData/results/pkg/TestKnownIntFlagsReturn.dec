@@ -1,0 +1,50 @@
+package pkg;
+
+public class TestKnownIntFlagsReturn {
+   public int test1() {
+      return Constants.INT_FLAG_BIT_2;// 5
+   }
+
+   public int test2() {
+      return 12;// 9
+   }
+
+   public int test3() {
+      return 10;// 13
+   }
+
+   public int test4() {
+      return 7;// 17
+   }
+}
+
+class 'pkg/TestKnownIntFlagsReturn' {
+   method 'test1 ()I' {
+      0      4
+      1      4
+   }
+
+   method 'test2 ()I' {
+      0      8
+      1      8
+      2      8
+   }
+
+   method 'test3 ()I' {
+      0      12
+      1      12
+      2      12
+   }
+
+   method 'test4 ()I' {
+      0      16
+      1      16
+      2      16
+   }
+}
+
+Lines mapping:
+5 <-> 5
+9 <-> 9
+13 <-> 13
+17 <-> 17

@@ -1,0 +1,51 @@
+package pkg;
+
+public class TestNegatedShortFlagsReturn {
+   public short test1() {
+      return -5;// 5
+   }
+
+   public short test2() {
+      return -13;// 9
+   }
+
+   public short test3() {
+      return -11;// 13
+   }
+
+   public short test4() {
+      return -8;// 17
+   }
+}
+
+class 'pkg/TestNegatedShortFlagsReturn' {
+   method 'test1 ()S' {
+      0      4
+      1      4
+      2      4
+   }
+
+   method 'test2 ()S' {
+      0      8
+      1      8
+      2      8
+   }
+
+   method 'test3 ()S' {
+      0      12
+      1      12
+      2      12
+   }
+
+   method 'test4 ()S' {
+      0      16
+      1      16
+      2      16
+   }
+}
+
+Lines mapping:
+5 <-> 5
+9 <-> 9
+13 <-> 13
+17 <-> 17

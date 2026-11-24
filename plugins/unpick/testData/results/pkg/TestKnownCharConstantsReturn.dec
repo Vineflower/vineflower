@@ -1,0 +1,79 @@
+package pkg;
+
+public class TestKnownCharConstantsReturn {
+   public char test1() {
+      return Constants.CHAR_CONST_0;// 5
+   }
+
+   public char test2() {
+      return Constants.CHAR_CONST_1;// 9
+   }
+
+   public char test3() {
+      return Constants.CHAR_CONST_2;// 13
+   }
+
+   public char test4() {
+      return Constants.CHAR_CONST_3;// 17
+   }
+
+   public char test5() {
+      return Constants.CHAR_CONST_4;// 21
+   }
+
+   public char test6() {
+      return Constants.CHAR_CONST_5;// 25
+   }
+
+   public char test7() {
+      return Constants.CHAR_CONST;// 29
+   }
+}
+
+class 'pkg/TestKnownCharConstantsReturn' {
+   method 'test1 ()C' {
+      0      4
+      1      4
+   }
+
+   method 'test2 ()C' {
+      0      8
+      1      8
+   }
+
+   method 'test3 ()C' {
+      0      12
+      1      12
+   }
+
+   method 'test4 ()C' {
+      0      16
+      1      16
+   }
+
+   method 'test5 ()C' {
+      0      20
+      1      20
+   }
+
+   method 'test6 ()C' {
+      0      24
+      1      24
+   }
+
+   method 'test7 ()C' {
+      0      28
+      1      28
+      2      28
+      3      28
+   }
+}
+
+Lines mapping:
+5 <-> 5
+9 <-> 9
+13 <-> 13
+17 <-> 17
+21 <-> 21
+25 <-> 25
+29 <-> 29

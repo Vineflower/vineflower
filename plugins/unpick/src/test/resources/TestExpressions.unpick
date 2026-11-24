@@ -1,0 +1,42 @@
+unpick v4
+
+group int
+	pkg.Constants.INT_CONST_5 + 1
+	pkg.Constants.INT_CONST_M1 - 1
+	pkg.Constants.INT_CONST_5 * 2
+	pkg.Constants.INT_CONST_5 / 2
+	pkg.Constants.INT_CONST_5 % 2
+	pkg.Constants.INT_CONST_5 << 2
+	pkg.Constants.INT_CONST_5 >> 3
+	pkg.Constants.INT_CONST >>> 1
+	-pkg.Constants.INT_CONST_5
+	~pkg.Constants.INT_CONST_5
+	(int) pkg.Constants.LONG_CONST:long
+
+group long
+	pkg.Constants.LONG_CONST_1 + 4
+	pkg.Constants.LONG_CONST_0 - 3
+	pkg.Constants.LONG_CONST_1 * 10
+	pkg.Constants.LONG_CONST / 10
+	pkg.Constants.LONG_CONST % 127
+	pkg.Constants.LONG_CONST_1 << 3
+	pkg.Constants.LONG_CONST_1 >> 1
+	pkg.Constants.LONG_CONST >>> 1
+	-pkg.Constants.LONG_CONST_1
+	~pkg.Constants.LONG_CONST_1
+
+group float
+	pkg.Constants.FLOAT_CONST_1 + 2
+	pkg.Constants.FLOAT_CONST_0 - 2
+	pkg.Constants.FLOAT_CONST_1 * 2
+	pkg.Constants.FLOAT_CONST_1 / 2
+	pkg.Constants.FLOAT_CONST_1 % 2
+	-pkg.Constants.FLOAT_CONST_1
+
+group double
+	pkg.Constants.DOUBLE_CONST_1 + 2
+	pkg.Constants.DOUBLE_CONST_0 - 2
+	pkg.Constants.DOUBLE_CONST_1 * 2
+	pkg.Constants.DOUBLE_CONST_1 / 2
+	pkg.Constants.DOUBLE_CONST_1 % 2
+	-pkg.Constants.DOUBLE_CONST_1

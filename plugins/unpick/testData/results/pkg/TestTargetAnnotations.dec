@@ -1,0 +1,84 @@
+package pkg;
+
+public class TestTargetAnnotations {
+   @TestAnnotation
+   int field;
+
+   boolean testField() {
+      return this.field == Constants.INT_CONST_1;// 8
+   }
+
+   @TestAnnotation
+   int testReturn() {
+      return Constants.INT_CONST_1;// 13
+   }
+
+   boolean testParam(@TestAnnotation int i) {
+      return i == Constants.INT_CONST_1;// 17
+   }
+
+   boolean testReturnRef() {
+      return this.testReturn() == Constants.INT_CONST_1;// 21
+   }
+
+   void testParamRef() {
+      this.testParam(Constants.INT_CONST_1);// 25
+   }// 26
+}
+
+class 'pkg/TestTargetAnnotations' {
+   method 'testField ()Z' {
+      0      7
+      1      7
+      2      7
+      3      7
+      4      7
+      5      7
+      6      7
+      7      7
+      d      7
+   }
+
+   method 'testReturn ()I' {
+      0      12
+      1      12
+   }
+
+   method 'testParam (I)Z' {
+      0      16
+      1      16
+      2      16
+      3      16
+      4      16
+      a      16
+   }
+
+   method 'testReturnRef ()Z' {
+      0      20
+      1      20
+      2      20
+      3      20
+      4      20
+      5      20
+      6      20
+      7      20
+      d      20
+   }
+
+   method 'testParamRef ()V' {
+      0      24
+      1      24
+      2      24
+      3      24
+      4      24
+      6      25
+   }
+}
+
+Lines mapping:
+8 <-> 8
+13 <-> 13
+17 <-> 17
+21 <-> 21
+25 <-> 25
+26 <-> 26

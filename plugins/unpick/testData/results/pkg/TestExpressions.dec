@@ -1,0 +1,376 @@
+package pkg;
+
+public class TestExpressions {
+   public int testAdd() {
+      return Constants.INT_CONST_5 + 1;// 5
+   }
+
+   public int testSub() {
+      return Constants.INT_CONST_M1 - 1;// 9
+   }
+
+   public int testMul() {
+      return Constants.INT_CONST_5 * 2;// 13
+   }
+
+   public int testDiv() {
+      return Constants.INT_CONST_5 / 2;// 17
+   }
+
+   public int testMod() {
+      return Constants.INT_CONST_5 % 2;// 21
+   }
+
+   public int testShiftLeft() {
+      return Constants.INT_CONST_5 << 2;// 25
+   }
+
+   public int testShiftRight() {
+      return Constants.INT_CONST_5 >> 3;// 29
+   }
+
+   public int testShiftRightUnsigned() {
+      return Constants.INT_CONST >>> 1;// 33
+   }
+
+   public int testNeg() {
+      return -Constants.INT_CONST_5;// 37
+   }
+
+   public int testBitInverse() {
+      return ~Constants.INT_CONST_5;// 41
+   }
+
+   public int testIntCast() {
+      return (int)Constants.LONG_CONST;// 45
+   }
+
+   public long testAddLong() {
+      return Constants.LONG_CONST_1 + 4;// 49
+   }
+
+   public long testSubLong() {
+      return Constants.LONG_CONST_0 - 3;// 53
+   }
+
+   public long testMulLong() {
+      return Constants.LONG_CONST_1 * 10;// 57
+   }
+
+   public long testDivLong() {
+      return Constants.LONG_CONST / 10;// 61
+   }
+
+   public long testModLong() {
+      return Constants.LONG_CONST % 127;// 65
+   }
+
+   public long testShiftLeftLong() {
+      return Constants.LONG_CONST_1 << 3;// 69
+   }
+
+   public long testShiftRightLong() {
+      return Constants.LONG_CONST_1 >> 1;// 73
+   }
+
+   public long testShiftRightUnsignedLong() {
+      return Constants.LONG_CONST >>> 1;// 77
+   }
+
+   public long testNegLong() {
+      return -Constants.LONG_CONST_1;// 81
+   }
+
+   public long testBitInverseLong() {
+      return ~Constants.LONG_CONST_1;// 85
+   }
+
+   public float testAddFloat() {
+      return Constants.FLOAT_CONST_1 + 2;// 89
+   }
+
+   public float testSubFloat() {
+      return Constants.FLOAT_CONST_0 - 2;// 93
+   }
+
+   public float testMulFloat() {
+      return Constants.FLOAT_CONST_1 * 2;// 97
+   }
+
+   public float testDivFloat() {
+      return Constants.FLOAT_CONST_1 / 2;// 101
+   }
+
+   public float testModFloat() {
+      return Constants.FLOAT_CONST_1 % 2;// 105
+   }
+
+   public float testNegFloat() {
+      return -Constants.FLOAT_CONST_1;// 109
+   }
+
+   public double testAddDouble() {
+      return Constants.DOUBLE_CONST_1 + 2;// 113
+   }
+
+   public double testSubDouble() {
+      return Constants.DOUBLE_CONST_0 - 2;// 117
+   }
+
+   public double testMulDouble() {
+      return Constants.DOUBLE_CONST_1 * 2;// 121
+   }
+
+   public double testDivDouble() {
+      return Constants.DOUBLE_CONST_1 / 2;// 125
+   }
+
+   public double testModDouble() {
+      return Constants.DOUBLE_CONST_1 % 2;// 129
+   }
+
+   public double testNegDouble() {
+      return -Constants.DOUBLE_CONST_1;// 133
+   }
+}
+
+class 'pkg/TestExpressions' {
+   method 'testAdd ()I' {
+      0      4
+      1      4
+      2      4
+   }
+
+   method 'testSub ()I' {
+      0      8
+      1      8
+      2      8
+   }
+
+   method 'testMul ()I' {
+      0      12
+      1      12
+      2      12
+   }
+
+   method 'testDiv ()I' {
+      0      16
+      1      16
+   }
+
+   method 'testMod ()I' {
+      0      20
+      1      20
+   }
+
+   method 'testShiftLeft ()I' {
+      0      24
+      1      24
+      2      24
+   }
+
+   method 'testShiftRight ()I' {
+      0      28
+      1      28
+   }
+
+   method 'testShiftRightUnsigned ()I' {
+      0      32
+      1      32
+      2      32
+      3      32
+   }
+
+   method 'testNeg ()I' {
+      0      36
+      1      36
+      2      36
+   }
+
+   method 'testBitInverse ()I' {
+      0      40
+      1      40
+      2      40
+   }
+
+   method 'testIntCast ()I' {
+      0      44
+      1      44
+      2      44
+   }
+
+   method 'testAddLong ()J' {
+      0      48
+      1      48
+      2      48
+      3      48
+   }
+
+   method 'testSubLong ()J' {
+      0      52
+      1      52
+      2      52
+      3      52
+   }
+
+   method 'testMulLong ()J' {
+      0      56
+      1      56
+      2      56
+      3      56
+   }
+
+   method 'testDivLong ()J' {
+      0      60
+      1      60
+      2      60
+      3      60
+   }
+
+   method 'testModLong ()J' {
+      0      64
+      1      64
+   }
+
+   method 'testShiftLeftLong ()J' {
+      0      68
+      1      68
+      2      68
+      3      68
+   }
+
+   method 'testShiftRightLong ()J' {
+      0      72
+      1      72
+   }
+
+   method 'testShiftRightUnsignedLong ()J' {
+      0      76
+      1      76
+      2      76
+      3      76
+   }
+
+   method 'testNegLong ()J' {
+      0      80
+      1      80
+      2      80
+      3      80
+   }
+
+   method 'testBitInverseLong ()J' {
+      0      84
+      1      84
+      2      84
+      3      84
+   }
+
+   method 'testAddFloat ()F' {
+      0      88
+      1      88
+      2      88
+   }
+
+   method 'testSubFloat ()F' {
+      0      92
+      1      92
+      2      92
+   }
+
+   method 'testMulFloat ()F' {
+      0      96
+      1      96
+   }
+
+   method 'testDivFloat ()F' {
+      0      100
+      1      100
+      2      100
+   }
+
+   method 'testModFloat ()F' {
+      0      104
+      1      104
+   }
+
+   method 'testNegFloat ()F' {
+      0      108
+      1      108
+      2      108
+   }
+
+   method 'testAddDouble ()D' {
+      0      112
+      1      112
+      2      112
+      3      112
+   }
+
+   method 'testSubDouble ()D' {
+      0      116
+      1      116
+      2      116
+      3      116
+   }
+
+   method 'testMulDouble ()D' {
+      0      120
+      1      120
+      2      120
+      3      120
+   }
+
+   method 'testDivDouble ()D' {
+      0      124
+      1      124
+      2      124
+      3      124
+   }
+
+   method 'testModDouble ()D' {
+      0      128
+      1      128
+   }
+
+   method 'testNegDouble ()D' {
+      0      132
+      1      132
+      2      132
+      3      132
+   }
+}
+
+Lines mapping:
+5 <-> 5
+9 <-> 9
+13 <-> 13
+17 <-> 17
+21 <-> 21
+25 <-> 25
+29 <-> 29
+33 <-> 33
+37 <-> 37
+41 <-> 41
+45 <-> 45
+49 <-> 49
+53 <-> 53
+57 <-> 57
+61 <-> 61
+65 <-> 65
+69 <-> 69
+73 <-> 73
+77 <-> 77
+81 <-> 81
+85 <-> 85
+89 <-> 89
+93 <-> 93
+97 <-> 97
+101 <-> 101
+105 <-> 105
+109 <-> 109
+113 <-> 113
+117 <-> 117
+121 <-> 121
+125 <-> 125
+129 <-> 129
+133 <-> 133

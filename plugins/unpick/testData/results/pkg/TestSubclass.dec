@@ -1,0 +1,38 @@
+package pkg;
+
+public class TestSubclass {
+   void test(int x) {
+   }// 5
+
+   static class Subclass extends TestSubclass {
+      @Override
+      void test(int x) {
+         boolean b = x == Constants.INT_CONST;// 10
+      }// 11
+   }
+}
+
+class 'pkg/TestSubclass' {
+   method 'test (I)V' {
+      0      4
+   }
+}
+
+class 'pkg/TestSubclass$Subclass' {
+   method 'test (I)V' {
+      0      9
+      1      9
+      2      9
+      3      9
+      4      9
+      5      9
+      6      9
+      c      9
+      d      10
+   }
+}
+
+Lines mapping:
+5 <-> 5
+10 <-> 10
+11 <-> 11

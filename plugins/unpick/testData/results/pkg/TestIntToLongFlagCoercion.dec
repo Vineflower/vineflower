@@ -1,0 +1,19 @@
+package pkg;
+
+public class TestIntToLongFlagCoercion {
+   public long test1() {
+      return 3L;// 5
+   }
+}
+
+class 'pkg/TestIntToLongFlagCoercion' {
+   method 'test1 ()J' {
+      0      4
+      1      4
+      2      4
+      3      4
+   }
+}
+
+Lines mapping:
+5 <-> 5

@@ -1,0 +1,17 @@
+package pkg;
+
+public class TestByteToIntFlagCoercion {
+   public int test1() {
+      return 3;// 5
+   }
+}
+
+class 'pkg/TestByteToIntFlagCoercion' {
+   method 'test1 ()I' {
+      0      4
+      1      4
+   }
+}
+
+Lines mapping:
+5 <-> 5

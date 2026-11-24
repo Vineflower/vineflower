@@ -1,0 +1,9 @@
+unpick v4
+
+group long group
+	@flags
+	pkg.Constants.INT_FLAG_BIT_0:int
+	pkg.Constants.INT_FLAG_BIT_1:int
+
+target_method pkg.TestIntToLongFlagImplicitCast test1 ()J
+	return group

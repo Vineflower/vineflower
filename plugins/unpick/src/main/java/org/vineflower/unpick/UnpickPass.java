@@ -7,6 +7,7 @@ import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassWriter;
 import org.jetbrains.java.decompiler.main.ClassesProcessor;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.AnnotationExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.AssignmentExprent;
@@ -42,6 +43,7 @@ import org.jetbrains.java.decompiler.util.Key;
 import org.jetbrains.java.decompiler.util.MutableObject;
 import org.jetbrains.java.decompiler.util.Pair;
 import org.jetbrains.java.decompiler.util.StatementIterator;
+import org.vineflower.unpick.parser.UnpickParseException;
 import org.vineflower.unpick.parser.UnpickV3Reader;
 import org.vineflower.unpick.parser.tree.DataType;
 import org.vineflower.unpick.parser.tree.GroupFormat;
@@ -82,7 +84,7 @@ public class UnpickPass implements ClassPass {
       return false;
     }
 
-    Map<Integer, String> exprentGroups = new HashMap<>();
+    Map<Pair<String, Integer>, String> exprentGroups = new HashMap<>();
     Map<Pair<String, VarVersionPair>, String> varGroups = new HashMap<>();
 
     identifyTargets(defs, classNode, exprentGroups, varGroups);
@@ -91,62 +93,34 @@ public class UnpickPass implements ClassPass {
       // keep propagating while changed
     }
     boolean res = substituteConstants(defs, classNode, exprentGroups);
-
-    // handle ConstantValue fields
-    for (StructField fd : classNode.classStruct.getFields()) {
-      if (getFieldValueSubstitution(defs, classNode.classStruct, fd) instanceof SubstitutionResult.Expr expr) {
-        if (!detectInterClassFieldReferenceCycle(defs, classNode.classStruct, fd, expr.expr(), new HashSet<>())) {
-          if (fd.hasModifier(CodeConstants.ACC_STATIC)) {
-            ExpressionToExprent converter = new ExpressionToExprent(null, null);
-            expr.expr().accept(converter);
-            classNode.getWrapper().getStaticFieldInitializers().addWithKey(converter.result, InterpreterUtil.makeUniqueKey(fd.getName(), fd.getDescriptor()));
-            res = true;
-          } else {
-            MethodWrapper constructor = null;
-            for (MethodWrapper method : classNode.getWrapper().getMethods()) {
-              if (method.methodStruct.getName().equals("<init>")) {
-                constructor = method;
-                break;
-              }
-            }
-
-            if (constructor != null) {
-              ExpressionToExprent converter = new ExpressionToExprent(constructor, null);
-              expr.expr().accept(converter);
-              classNode.getWrapper().getDynamicFieldInitializers().addWithKey(converter.result, InterpreterUtil.makeUniqueKey(fd.getName(), fd.getDescriptor()));
-              res = true;
-            }
-          }
-        }
-      }
-    }
-
+    res |= substituteConstantFieldInitializers(classNode, defs);
     return res;
   }
 
   private static void identifyTargets(
     UnpickDefinitions defs,
     ClassesProcessor.ClassNode classNode,
-    Map<Integer, String> exprentGroups,
+    Map<Pair<String, Integer>, String> exprentGroups,
     Map<Pair<String, VarVersionPair>, String> varGroups
   ) {
     for (MethodWrapper method : classNode.getWrapper().getMethods()) {
       String returnGroup = identifyContainingMethodTargets(defs, classNode, method, varGroups);
+      String methodKey = InterpreterUtil.makeUniqueKey(classNode.classStruct.qualifiedName, method.methodStruct.getName(), method.methodStruct.getDescriptor());
 
       StatementIterator.iterate(method.root, exprent -> {
         if (exprent instanceof ExitExprent exitExprent) {
           if (exitExprent.getExitType() == ExitExprent.Type.RETURN) {
             if (exitExprent.getValue() != null) {
-              exprentGroups.putIfAbsent(exitExprent.getValue().id, returnGroup);
+              exprentGroups.putIfAbsent(Pair.of(methodKey, exitExprent.getValue().id), returnGroup);
             }
           }
         } else if (exprent instanceof FieldExprent fieldExprent) {
-          identifyFieldTarget(defs, exprentGroups, fieldExprent);
+          identifyFieldTarget(defs, methodKey, exprentGroups, fieldExprent);
         } else if (exprent instanceof InvocationExprent invocationExprent) {
-          identifyInvocationTargets(defs, exprentGroups, invocationExprent, invocationExprent);
+          identifyInvocationTargets(defs, methodKey, exprentGroups, invocationExprent, invocationExprent);
         } else if (exprent instanceof NewExprent newExprent) {
           if (newExprent.getConstructor() != null) {
-            identifyInvocationTargets(defs, exprentGroups, newExprent.getConstructor(), newExprent);
+            identifyInvocationTargets(defs, methodKey, exprentGroups, newExprent.getConstructor(), newExprent);
           }
         }
         // TODO: pattern exprents
@@ -210,7 +184,7 @@ public class UnpickPass implements ClassPass {
     return returnGroup.get();
   }
 
-  private static void identifyFieldTarget(UnpickDefinitions defs, Map<Integer, String> exprentGroups, FieldExprent fieldExprent) {
+  private static void identifyFieldTarget(UnpickDefinitions defs, String methodKey, Map<Pair<String, Integer>, String> exprentGroups, FieldExprent fieldExprent) {
     StructField resolvedField = null;
     StructClass ownerClass = DecompilerContext.getStructContext().getClass(fieldExprent.getClassname());
     while (ownerClass != null) {
@@ -224,19 +198,19 @@ public class UnpickPass implements ClassPass {
     if (resolvedField != null) {
       TargetField targetField = defs.targetFields.get(InterpreterUtil.makeUniqueKey(ownerClass.qualifiedName, resolvedField.getName(), resolvedField.getDescriptor()));
       if (targetField != null) {
-        exprentGroups.putIfAbsent(fieldExprent.id, targetField.groupName());
+        exprentGroups.putIfAbsent(Pair.of(methodKey, fieldExprent.id), targetField.groupName());
       } else {
         for (AnnotationExprent ann : getMemberAnnotations(resolvedField, TypeAnnotation.FIELD)) {
           TargetAnnotation targetAnnotation = defs.targetAnnotations.get(ann.getClassName());
           if (targetAnnotation != null) {
-            exprentGroups.putIfAbsent(fieldExprent.id, targetAnnotation.groupName());
+            exprentGroups.putIfAbsent(Pair.of(methodKey, fieldExprent.id), targetAnnotation.groupName());
           }
         }
       }
     }
   }
 
-  private static void identifyInvocationTargets(UnpickDefinitions defs, Map<Integer, String> exprentGroups, InvocationExprent invocationExprent, Exprent treeExprent) {
+  private static void identifyInvocationTargets(UnpickDefinitions defs, String methodKey, Map<Pair<String, Integer>, String> exprentGroups, InvocationExprent invocationExprent, Exprent treeExprent) {
     StructClass resolvedClass = DecompilerContext.getStructContext().getClass(invocationExprent.getClassname());
     if (resolvedClass != null) {
       processSuperMethods(resolvedClass, InterpreterUtil.makeUniqueKey(invocationExprent.getName(), invocationExprent.getStringDescriptor()), mt -> {
@@ -245,11 +219,11 @@ public class UnpickPass implements ClassPass {
         if (targetMethod != null) {
           targetMethod.paramGroups().forEach((paramIndex, groupName) -> {
             if (paramIndex < invocationExprent.getLstParameters().size()) {
-              exprentGroups.putIfAbsent(invocationExprent.getLstParameters().get(paramIndex).id, groupName);
+              exprentGroups.putIfAbsent(Pair.of(methodKey, invocationExprent.getLstParameters().get(paramIndex).id), groupName);
             }
           });
           if (targetMethod.returnGroup() != null) {
-            exprentGroups.putIfAbsent(treeExprent.id, targetMethod.returnGroup());
+            exprentGroups.putIfAbsent(Pair.of(methodKey, treeExprent.id), targetMethod.returnGroup());
           }
         }
 
@@ -258,7 +232,7 @@ public class UnpickPass implements ClassPass {
           for (AnnotationExprent ann : parameterAnnotations.get(paramIndex)) {
             TargetAnnotation targetAnnotation = defs.targetAnnotations.get(ann.getClassName());
             if (targetAnnotation != null) {
-              exprentGroups.putIfAbsent(invocationExprent.getLstParameters().get(paramIndex).id, targetAnnotation.groupName());
+              exprentGroups.putIfAbsent(Pair.of(methodKey, invocationExprent.getLstParameters().get(paramIndex).id), targetAnnotation.groupName());
             }
           }
         }
@@ -266,7 +240,7 @@ public class UnpickPass implements ClassPass {
         for (AnnotationExprent ann : getMemberAnnotations(mt, TypeAnnotation.METHOD_RETURN_TYPE)) {
           TargetAnnotation targetAnnotation = defs.targetAnnotations.get(ann.getClassName());
           if (targetAnnotation != null) {
-            exprentGroups.putIfAbsent(treeExprent.id, targetAnnotation.groupName());
+            exprentGroups.putIfAbsent(Pair.of(methodKey, treeExprent.id), targetAnnotation.groupName());
           }
         }
       }, new HashSet<>());
@@ -378,7 +352,7 @@ public class UnpickPass implements ClassPass {
   private static boolean propagateGroups(
     ClassesProcessor.ClassNode classNode,
     List<ClassesProcessor.ClassNode> classStack,
-    Map<Integer, String> exprentGroups,
+    Map<Pair<String, Integer>, String> exprentGroups,
     Map<Pair<String, VarVersionPair>, String> varGroups
   ) {
     boolean res = false;
@@ -399,10 +373,11 @@ public class UnpickPass implements ClassPass {
   private static boolean propagateGroups(
     MethodWrapper method,
     List<ClassesProcessor.ClassNode> classStack,
-    Map<Integer, String> exprentGroups,
+    Map<Pair<String, Integer>, String> exprentGroups,
     Map<Pair<String, VarVersionPair>, String> varGroups
   ) {
     MutableObject<Boolean> changed = MutableObject.of(false);
+    String methodKey = InterpreterUtil.makeUniqueKey(method.classStruct.qualifiedName, method.methodStruct.getName(), method.methodStruct.getDescriptor());
 
     StatementIterator.iterate(method.root, exprent -> {
       if (exprent instanceof VarExprent varExprent) {
@@ -430,11 +405,11 @@ public class UnpickPass implements ClassPass {
         if (globalVarId != null) {
           String groupName = varGroups.get(globalVarId);
           if (groupName == null) {
-            groupName = exprentGroups.get(varExprent.id);
+            groupName = exprentGroups.get(Pair.of(methodKey, varExprent.id));
           }
           if (groupName != null) {
-            tryAssignGroup(changed, exprentGroups, varExprent, groupName);
-            if (!groupName.equals(varGroups.putIfAbsent(globalVarId, groupName))) {
+            tryAssignGroup(changed, exprentGroups, methodKey, varExprent, groupName);
+            if (varGroups.putIfAbsent(globalVarId, groupName) == null) {
               changed.set(true);
             }
           }
@@ -442,33 +417,33 @@ public class UnpickPass implements ClassPass {
       } else if (exprent instanceof FunctionExprent functionExprent) {
         switch (functionExprent.getFuncType()) {
           case ADD, SUB, MUL, AND, OR, XOR, STR_CONCAT -> {
-            String groupName = firstGroupOf(exprentGroups, functionExprent, functionExprent.getLstOperands().get(0), functionExprent.getLstOperands().get(1));
+            String groupName = firstGroupOf(exprentGroups, methodKey, functionExprent, functionExprent.getLstOperands().get(0), functionExprent.getLstOperands().get(1));
             if (groupName != null) {
-              tryAssignGroup(changed, exprentGroups, functionExprent, groupName);
-              tryAssignGroup(changed, exprentGroups, functionExprent.getLstOperands().get(0), groupName);
-              tryAssignGroup(changed, exprentGroups, functionExprent.getLstOperands().get(1), groupName);
+              tryAssignGroup(changed, exprentGroups, methodKey, functionExprent, groupName);
+              tryAssignGroup(changed, exprentGroups, methodKey, functionExprent.getLstOperands().get(0), groupName);
+              tryAssignGroup(changed, exprentGroups, methodKey, functionExprent.getLstOperands().get(1), groupName);
             }
           }
           case DIV, REM, NEG, BIT_NOT, PPI, IPP, MMI, IMM -> {
-            String groupName = firstGroupOf(exprentGroups, functionExprent, functionExprent.getLstOperands().get(0));
+            String groupName = firstGroupOf(exprentGroups, methodKey, functionExprent, functionExprent.getLstOperands().get(0));
             if (groupName != null) {
-              tryAssignGroup(changed, exprentGroups, functionExprent, groupName);
-              tryAssignGroup(changed, exprentGroups, functionExprent.getLstOperands().get(0), groupName);
+              tryAssignGroup(changed, exprentGroups, methodKey, functionExprent, groupName);
+              tryAssignGroup(changed, exprentGroups, methodKey, functionExprent.getLstOperands().get(0), groupName);
             }
           }
           case EQ, NE, GT, LT, GE, LE -> {
-            String groupName = firstGroupOf(exprentGroups, functionExprent.getLstOperands().get(0), functionExprent.getLstOperands().get(1));
+            String groupName = firstGroupOf(exprentGroups, methodKey, functionExprent.getLstOperands().get(0), functionExprent.getLstOperands().get(1));
             if (groupName != null) {
-              tryAssignGroup(changed, exprentGroups, functionExprent.getLstOperands().get(0), groupName);
-              tryAssignGroup(changed, exprentGroups, functionExprent.getLstOperands().get(1), groupName);
+              tryAssignGroup(changed, exprentGroups, methodKey, functionExprent.getLstOperands().get(0), groupName);
+              tryAssignGroup(changed, exprentGroups, methodKey, functionExprent.getLstOperands().get(1), groupName);
             }
           }
           case TERNARY -> {
-            String groupName = firstGroupOf(exprentGroups, functionExprent, functionExprent.getLstOperands().get(1), functionExprent.getLstOperands().get(2));
+            String groupName = firstGroupOf(exprentGroups, methodKey, functionExprent, functionExprent.getLstOperands().get(1), functionExprent.getLstOperands().get(2));
             if (groupName != null) {
-              tryAssignGroup(changed, exprentGroups, functionExprent, groupName);
-              tryAssignGroup(changed, exprentGroups, functionExprent.getLstOperands().get(1), groupName);
-              tryAssignGroup(changed, exprentGroups, functionExprent.getLstOperands().get(2), groupName);
+              tryAssignGroup(changed, exprentGroups, methodKey, functionExprent, groupName);
+              tryAssignGroup(changed, exprentGroups, methodKey, functionExprent.getLstOperands().get(1), groupName);
+              tryAssignGroup(changed, exprentGroups, methodKey, functionExprent.getLstOperands().get(2), groupName);
             }
           }
         }
@@ -498,15 +473,15 @@ public class UnpickPass implements ClassPass {
         if (propagate) {
           String groupName;
           if (propagateToRight) {
-            groupName = firstGroupOf(exprentGroups, assignmentExprent, assignmentExprent.getLeft(), assignmentExprent.getRight());
+            groupName = firstGroupOf(exprentGroups, methodKey, assignmentExprent, assignmentExprent.getLeft(), assignmentExprent.getRight());
           } else {
-            groupName = firstGroupOf(exprentGroups, assignmentExprent, assignmentExprent.getLeft());
+            groupName = firstGroupOf(exprentGroups, methodKey, assignmentExprent, assignmentExprent.getLeft());
           }
           if (groupName != null) {
-            tryAssignGroup(changed, exprentGroups, assignmentExprent, groupName);
-            tryAssignGroup(changed, exprentGroups, assignmentExprent.getLeft(), groupName);
+            tryAssignGroup(changed, exprentGroups, methodKey, assignmentExprent, groupName);
+            tryAssignGroup(changed, exprentGroups, methodKey, assignmentExprent.getLeft(), groupName);
             if (propagateToRight) {
-              tryAssignGroup(changed, exprentGroups, assignmentExprent.getRight(), groupName);
+              tryAssignGroup(changed, exprentGroups, methodKey, assignmentExprent.getRight(), groupName);
             }
           }
         }
@@ -516,19 +491,19 @@ public class UnpickPass implements ClassPass {
         for (List<Exprent> caze : switchHeadExprent.getCaseValues()) {
           subjectAndCases.addAll(caze);
         }
-        String groupName = firstGroupOf(exprentGroups, subjectAndCases.toArray(Exprent[]::new));
+        String groupName = firstGroupOf(exprentGroups, methodKey, subjectAndCases.toArray(Exprent[]::new));
         if (groupName != null) {
           for (Exprent expr : subjectAndCases) {
-            tryAssignGroup(changed, exprentGroups, expr, groupName);
+            tryAssignGroup(changed, exprentGroups, methodKey, expr, groupName);
           }
         }
       } else if (exprent instanceof SwitchExprent switchExprent) {
         List<Exprent> switchAndYields = new ArrayList<>();
         collectYieldExprents(switchExprent.getBacking(), switchAndYields);
-        String groupName = firstGroupOf(exprentGroups, switchAndYields.toArray(Exprent[]::new));
+        String groupName = firstGroupOf(exprentGroups, methodKey, switchAndYields.toArray(Exprent[]::new));
         if (groupName != null) {
           for (Exprent expr : switchAndYields) {
-            tryAssignGroup(changed, exprentGroups, expr, groupName);
+            tryAssignGroup(changed, exprentGroups, methodKey, expr, groupName);
           }
         }
       }
@@ -565,9 +540,9 @@ public class UnpickPass implements ClassPass {
   }
 
   @Nullable
-  private static String firstGroupOf(Map<Integer, String> exprentGroups, Exprent... exprents) {
+  private static String firstGroupOf(Map<Pair<String, Integer>, String> exprentGroups, String methodKey, Exprent... exprents) {
     for (Exprent exprent : exprents) {
-      String groupName = exprentGroups.get(exprent.id);
+      String groupName = exprentGroups.get(Pair.of(methodKey, exprent.id));
       if (groupName != null) {
         return groupName;
       }
@@ -576,8 +551,8 @@ public class UnpickPass implements ClassPass {
     return null;
   }
 
-  private static void tryAssignGroup(MutableObject<Boolean> changed, Map<Integer, String> exprentGroups, Exprent exprent, String groupName) {
-    if (!groupName.equals(exprentGroups.putIfAbsent(exprent.id, groupName))) {
+  private static void tryAssignGroup(MutableObject<Boolean> changed, Map<Pair<String, Integer>, String> exprentGroups, String methodKey, Exprent exprent, String groupName) {
+    if (exprentGroups.putIfAbsent(Pair.of(methodKey, exprent.id), groupName) == null) {
       changed.set(true);
     }
   }
@@ -585,12 +560,14 @@ public class UnpickPass implements ClassPass {
   private static boolean substituteConstants(
     UnpickDefinitions defs,
     ClassesProcessor.ClassNode classNode,
-    Map<Integer, String> exprentGroups
+    Map<Pair<String, Integer>, String> exprentGroups
   ) {
     boolean res = false;
 
     for (MethodWrapper method : classNode.getWrapper().getMethods()) {
-      res |= substituteConstants(defs, method, method.root, exprentGroups);
+      if (method.root != null) {
+        res |= substituteConstants(defs, method, method.root, exprentGroups);
+      }
     }
     for (ClassesProcessor.ClassNode nested : classNode.nested) {
       res |= substituteConstants(defs, nested, exprentGroups);
@@ -603,7 +580,7 @@ public class UnpickPass implements ClassPass {
     UnpickDefinitions defs,
     MethodWrapper method,
     Statement stat,
-    Map<Integer, String> exprentGroups
+    Map<Pair<String, Integer>, String> exprentGroups
   ) {
     boolean res = false;
 
@@ -632,7 +609,7 @@ public class UnpickPass implements ClassPass {
     @Nullable StructField fieldAssignment,
     Exprent exprent,
     Consumer<Exprent> replace,
-    Map<Integer, String> exprentGroups
+    Map<Pair<String, Integer>, String> exprentGroups
   ) {
     boolean res = false;
 
@@ -658,8 +635,7 @@ public class UnpickPass implements ClassPass {
       return res;
     }
 
-    DataType constantType = DataTypeUtils.getDataType(constantValue);
-    String groupName = exprentGroups.get(exprent.id);
+    String groupName = exprentGroups.get(Pair.of(InterpreterUtil.makeUniqueKey(method.classStruct.qualifiedName, method.methodStruct.getName(), method.methodStruct.getDescriptor()), exprent.id));
 
     SubstitutionResult substitution = getBestSubstitution(
       defs,
@@ -684,34 +660,89 @@ public class UnpickPass implements ClassPass {
       return true;
     } else if (substitution instanceof SubstitutionResult.Format format) {
       if (exprent instanceof ConstExprent constExprent) {
-        if (format.format() == GroupFormat.CHAR) {
-          if (constantType == DataType.INT && !constExprent.getConstType().equals(VarType.VARTYPE_CHAR)) {
-            constExprent.setConstType(VarType.VARTYPE_CHAR);
-            res = true;
-          }
-        } else {
-          int radix = switch (format.format()) {
-            case BINARY -> 2;
-            case OCTAL -> 8;
-            case DECIMAL -> 10;
-            case HEX -> 16;
-            default -> throw new IllegalStateException("Unknown group format");
-          };
-          if (constExprent.getConstType().equals(VarType.VARTYPE_CHAR)) {
-            constExprent.setConstType(VarType.VARTYPE_INT);
-            res = true;
-          }
-          if (constExprent.getRadix() != radix) {
-            constExprent.setRadix(radix);
-            res = true;
-          }
-        }
+        res |= applyFormatToConst(constExprent, format.format());
       }
 
       return res;
     } else {
       return res;
     }
+  }
+
+  // Constants in the ConstantValue attribute are not stored in the exprent tree, so we have to handle them separately
+  private static boolean substituteConstantFieldInitializers(ClassesProcessor.ClassNode classNode, UnpickDefinitions defs) {
+    boolean res = false;
+
+    for (StructField fd : classNode.classStruct.getFields()) {
+      SubstitutionResult substitution = getFieldValueSubstitution(defs, classNode.classStruct, fd);
+      if (substitution instanceof SubstitutionResult.Expr expr) {
+        if (!detectInterClassFieldReferenceCycle(defs, classNode.classStruct, fd, expr.expr(), new HashSet<>())) {
+          if (fd.hasModifier(CodeConstants.ACC_STATIC)) {
+            ExpressionToExprent converter = new ExpressionToExprent(null, null);
+            expr.expr().accept(converter);
+            classNode.getWrapper().getStaticFieldInitializers().addWithKey(converter.result, InterpreterUtil.makeUniqueKey(fd.getName(), fd.getDescriptor()));
+            res = true;
+          } else {
+            MethodWrapper constructor = null;
+            for (MethodWrapper method : classNode.getWrapper().getMethods()) {
+              if (method.methodStruct.getName().equals("<init>")) {
+                constructor = method;
+                break;
+              }
+            }
+
+            if (constructor != null) {
+              ExpressionToExprent converter = new ExpressionToExprent(constructor, null);
+              expr.expr().accept(converter);
+              classNode.getWrapper().getDynamicFieldInitializers().addWithKey(converter.result, InterpreterUtil.makeUniqueKey(fd.getName(), fd.getDescriptor()));
+              res = true;
+            }
+          }
+        }
+      } else if (substitution instanceof SubstitutionResult.Format format) {
+        Object constantValue = classNode.classStruct.getPool().getPrimitiveConstant(fd.getAttribute(StructGeneralAttribute.ATTRIBUTE_CONSTANT_VALUE).getIndex()).value;
+        ConstExprent constExprent = new ConstExprent(new VarType(fd.getDescriptor()), constantValue, null);
+        if (applyFormatToConst(constExprent, format.format())) {
+          if (fd.hasModifier(CodeConstants.ACC_STATIC)) {
+            classNode.getWrapper().getStaticFieldInitializers().addWithKey(constExprent, InterpreterUtil.makeUniqueKey(fd.getName(), fd.getDescriptor()));
+          } else {
+            classNode.getWrapper().getDynamicFieldInitializers().addWithKey(constExprent, InterpreterUtil.makeUniqueKey(fd.getName(), fd.getDescriptor()));
+          }
+          res = true;
+        }
+      }
+    }
+
+    return res;
+  }
+
+  private static boolean applyFormatToConst(ConstExprent constExprent, GroupFormat format) {
+    boolean res = false;
+
+    if (format == GroupFormat.CHAR) {
+      if (DataTypeUtils.fromVarType(constExprent.getConstType()) == DataType.INT && !constExprent.getConstType().equals(VarType.VARTYPE_CHAR)) {
+        constExprent.setConstType(VarType.VARTYPE_CHAR);
+        res = true;
+      }
+    } else {
+      int radix = switch (format) {
+        case BINARY -> 2;
+        case OCTAL -> 8;
+        case DECIMAL -> 10;
+        case HEX -> 16;
+        default -> throw new IllegalStateException("Unknown group format");
+      };
+      if (constExprent.getConstType().equals(VarType.VARTYPE_CHAR)) {
+        constExprent.setConstType(VarType.VARTYPE_INT);
+        res = true;
+      }
+      if (constExprent.getRadix() != radix) {
+        constExprent.setRadix(radix);
+        res = true;
+      }
+    }
+
+    return res;
   }
 
   private sealed interface SubstitutionResult {
@@ -743,7 +774,7 @@ public class UnpickPass implements ClassPass {
         }
 
         // TODO: flags
-        UnpickDefinitions.ConstantReplacementData replacementData = scopedData.constantReplacementMap.get(constantValue);
+        UnpickDefinitions.ConstantReplacementData replacementData = scopedData.constantReplacementMap.get(DataTypeUtils.tryCastExact(constantValue, groupData.dataType));
         if (replacementData != null && !referencesDisallowedField(replacementData.replacementExpr(), containingClass, disallowedFieldRefs)) {
           if (!isStatic || !referencesInstanceField(replacementData.replacementExpr())) {
             boolean compatibleTypes = replacementData.strict() ? groupData.dataType == constantType : DataTypeUtils.isAssignable(constantType, groupData.dataType);
@@ -1016,6 +1047,8 @@ public class UnpickPass implements ClassPass {
       if (fileName.endsWith(".unpick")) {
         try (UnpickV3Reader reader = new UnpickV3Reader(Files.newBufferedReader(path))) {
           reader.accept(defs);
+        } catch (UnpickParseException e) {
+          DecompilerContext.getLogger().writeMessage(path + ":" + e.getMessage(), IFernflowerLogger.Severity.WARN);
         }
       } else if (fileName.endsWith(".zip") || fileName.endsWith(".jar")) {
         try (ZipFile zip = new ZipFile(path.toFile())) {
@@ -1025,6 +1058,8 @@ public class UnpickPass implements ClassPass {
             if (entry.getName().endsWith(".unpick")) {
               try (InputStream stream = zip.getInputStream(entry)) {
                 new UnpickV3Reader(new InputStreamReader(stream)).accept(defs);
+              } catch (UnpickParseException e) {
+                DecompilerContext.getLogger().writeMessage(path + "!/" + entry.getName() + ":" + e.getMessage(), IFernflowerLogger.Severity.WARN);
               }
             }
           }

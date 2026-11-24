@@ -1,0 +1,9 @@
+unpick v4
+
+group int group
+	@flags
+	pkg.Constants.INT_FLAG_BIT_0
+	pkg.Constants.INT_FLAG_BIT_1
+
+target_method pkg.TestIntToLongFlagCoercion test1 ()J
+	return group

@@ -1,0 +1,51 @@
+package pkg;
+
+public class TestNegatedIntFlagsReturn {
+   public int test1() {
+      return -5;// 5
+   }
+
+   public int test2() {
+      return -13;// 9
+   }
+
+   public int test3() {
+      return -11;// 13
+   }
+
+   public int test4() {
+      return -8;// 17
+   }
+}
+
+class 'pkg/TestNegatedIntFlagsReturn' {
+   method 'test1 ()I' {
+      0      4
+      1      4
+      2      4
+   }
+
+   method 'test2 ()I' {
+      0      8
+      1      8
+      2      8
+   }
+
+   method 'test3 ()I' {
+      0      12
+      1      12
+      2      12
+   }
+
+   method 'test4 ()I' {
+      0      16
+      1      16
+      2      16
+   }
+}
+
+Lines mapping:
+5 <-> 5
+9 <-> 9
+13 <-> 13
+17 <-> 17

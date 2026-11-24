@@ -1,0 +1,121 @@
+package pkg;
+
+public class TestKnownShortConstantsParameter {
+   public void test1() {
+      Constants.consumeShort(Constants.SHORT_CONST_M1);// 5
+   }// 6
+
+   public void test2() {
+      Constants.consumeShort(Constants.SHORT_CONST_0);// 9
+   }// 10
+
+   public void test3() {
+      Constants.consumeShort(Constants.SHORT_CONST_1);// 13
+   }// 14
+
+   public void test4() {
+      Constants.consumeShort(Constants.SHORT_CONST_2);// 17
+   }// 18
+
+   public void test5() {
+      Constants.consumeShort(Constants.SHORT_CONST_3);// 21
+   }// 22
+
+   public void test6() {
+      Constants.consumeShort(Constants.SHORT_CONST_4);// 25
+   }// 26
+
+   public void test7() {
+      Constants.consumeShort(Constants.SHORT_CONST_5);// 29
+   }// 30
+
+   public void test8() {
+      Constants.consumeShort(Constants.SHORT_CONST);// 33
+   }// 34
+}
+
+class 'pkg/TestKnownShortConstantsParameter' {
+   method 'test1 ()V' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      5
+   }
+
+   method 'test2 ()V' {
+      0      8
+      1      8
+      2      8
+      3      8
+      4      9
+   }
+
+   method 'test3 ()V' {
+      0      12
+      1      12
+      2      12
+      3      12
+      4      13
+   }
+
+   method 'test4 ()V' {
+      0      16
+      1      16
+      2      16
+      3      16
+      4      17
+   }
+
+   method 'test5 ()V' {
+      0      20
+      1      20
+      2      20
+      3      20
+      4      21
+   }
+
+   method 'test6 ()V' {
+      0      24
+      1      24
+      2      24
+      3      24
+      4      25
+   }
+
+   method 'test7 ()V' {
+      0      28
+      1      28
+      2      28
+      3      28
+      4      29
+   }
+
+   method 'test8 ()V' {
+      0      32
+      1      32
+      2      32
+      3      32
+      4      32
+      5      32
+      6      33
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 6
+9 <-> 9
+10 <-> 10
+13 <-> 13
+14 <-> 14
+17 <-> 17
+18 <-> 18
+21 <-> 21
+22 <-> 22
+25 <-> 25
+26 <-> 26
+29 <-> 29
+30 <-> 30
+33 <-> 33
+34 <-> 34
