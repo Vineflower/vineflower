@@ -62,7 +62,7 @@ public final class UnpickTargetUtils {
             identifyInvocationTargets(defs, methodKey, exprentGroups, newExprent.getConstructor(), newExprent);
           }
         } else if (exprent instanceof PatternExprent patternExprent) {
-          identifyPatternTargets(defs, varGroups, patternExprent, methodKey);
+          identifyPatternTargets(defs, methodKey, varGroups, patternExprent);
         }
         return 0;
       });
@@ -192,7 +192,7 @@ public final class UnpickTargetUtils {
     }
   }
 
-  private static void identifyPatternTargets(UnpickDefinitions defs, Map<Pair<String, VarVersionPair>, String> varGroups, PatternExprent patternExprent, String methodKey) {
+  private static void identifyPatternTargets(UnpickDefinitions defs, String methodKey, Map<Pair<String, VarVersionPair>, String> varGroups, PatternExprent patternExprent) {
     if (!(patternExprent.getData() instanceof PatternExprent.PatternData.RecordPatternData recordData)) {
       return;
     }
