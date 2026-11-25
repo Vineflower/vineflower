@@ -8,8 +8,10 @@ import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.AnnotationExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.AssignmentExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.ConstExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.ExprUtil;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FieldExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.TypeAnnotation;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.struct.StructClass;
@@ -102,7 +104,9 @@ public final class UnpickSubstitutionUtils {
     Consumer<Exprent> replace,
     Map<Pair<String, Integer>, String> exprentGroups
   ) {
-    boolean res = false;
+    if (substituteConstantsForSingleExprent(defs, method, disallowedFieldRefs, fieldAssignment, exprent, replace, exprentGroups)) {
+      return true;
+    }
 
     if (exprent instanceof AssignmentExprent assignmentExprent && assignmentExprent.getLeft() instanceof FieldExprent fieldExprent) {
       if (fieldExprent.getClassname().equals(method.classStruct.qualifiedName)) {
@@ -117,13 +121,25 @@ public final class UnpickSubstitutionUtils {
       }
     }
 
+    boolean res = false;
     for (Exprent subExprent : exprent.getAllExprents()) {
       res |= substituteConstants(defs, method, disallowedFieldRefs, fieldAssignment, subExprent, newExprent -> exprent.replaceExprent(subExprent, newExprent), exprentGroups);
     }
+    return res;
+  }
 
+  private static boolean substituteConstantsForSingleExprent(
+    UnpickDefinitions defs,
+    MethodWrapper method,
+    Set<String> disallowedFieldRefs,
+    @Nullable StructField fieldAssignment,
+    Exprent exprent,
+    Consumer<Exprent> replace,
+    Map<Pair<String, Integer>, String> exprentGroups
+  ) {
     Object constantValue = computeConstantValue(exprent);
     if (constantValue == null) {
-      return res;
+      return false;
     }
 
     String groupName = exprentGroups.get(Pair.of(InterpreterUtil.makeUniqueKey(method.classStruct.qualifiedName, method.methodStruct.getName(), method.methodStruct.getDescriptor()), exprent.id));
@@ -142,7 +158,7 @@ public final class UnpickSubstitutionUtils {
 
     if (substitution instanceof SubstitutionResult.Expr expr) {
       if (fieldAssignment != null && detectInterClassFieldReferenceCycle(defs, method.classStruct, fieldAssignment, expr.expr(), new HashSet<>())) {
-        return res;
+        return false;
       }
 
       ExpressionToExprent converter = new ExpressionToExprent(method.methodStruct.hasModifier(CodeConstants.ACC_STATIC) ? null : method, exprent.bytecode);
@@ -150,13 +166,9 @@ public final class UnpickSubstitutionUtils {
       replace.accept(converter.result);
       return true;
     } else if (substitution instanceof SubstitutionResult.Format format) {
-      if (exprent instanceof ConstExprent constExprent) {
-        res |= applyFormatToConst(constExprent, format.format());
-      }
-
-      return res;
+      return applyFormatToConst(exprent, format.format());
     } else {
-      return res;
+      return false;
     }
   }
 
@@ -207,7 +219,16 @@ public final class UnpickSubstitutionUtils {
     return res;
   }
 
-  private static boolean applyFormatToConst(ConstExprent constExprent, GroupFormat format) {
+  private static boolean applyFormatToConst(Exprent exprent, GroupFormat format) {
+    ConstExprent constExprent;
+    if (exprent instanceof ConstExprent c) {
+      constExprent = c;
+    } else if (exprent instanceof FunctionExprent functionExprent && functionExprent.getFuncType() == FunctionExprent.FunctionType.NEG && functionExprent.getLstOperands().get(0) instanceof ConstExprent c) {
+      constExprent = c;
+    } else {
+      return false;
+    }
+
     boolean res = false;
 
     if (format == GroupFormat.CHAR) {
@@ -568,7 +589,6 @@ public final class UnpickSubstitutionUtils {
     return result;
   }
 
-  // TODO: other types of exprent listed in the spec, including unary minus
   @Nullable
   private static Object computeConstantValue(Exprent exprent) {
     if (exprent instanceof ConstExprent constExprent) {
@@ -576,6 +596,35 @@ public final class UnpickSubstitutionUtils {
         return new ClassLiteral(constExprent.getValue().toString());
       } else {
         return constExprent.getValue();
+      }
+    } else if (exprent instanceof FunctionExprent functionExprent) {
+      if (functionExprent.getFuncType() == FunctionExprent.FunctionType.NEG && functionExprent.getLstOperands().get(0) instanceof ConstExprent constExprent) {
+        Object value = computeConstantValue(constExprent);
+        DataType valueType = DataTypeUtils.getDataType(value);
+        Double doubleValue = (Double) DataTypeUtils.tryCastExact(value, DataType.DOUBLE);
+        if (doubleValue != null) {
+          return DataTypeUtils.tryCast(-doubleValue, valueType);
+        }
+        Long longValue = (Long) DataTypeUtils.tryCastExact(value, DataType.LONG);
+        if (longValue != null) {
+          return DataTypeUtils.tryCast(-longValue, valueType);
+        }
+      }
+    } else if (exprent instanceof FieldExprent fieldExprent) {
+      if (fieldExprent.getName().equals("TYPE") && ExprUtil.PRIMITIVE_TYPES.containsKey(fieldExprent.getClassname())) {
+        String primitiveDesc = switch (fieldExprent.getClassname()) {
+          case "java/lang/Byte" -> "B";
+          case "java/lang/Character" -> "C";
+          case "java/lang/Double" -> "D";
+          case "java/lang/Float" -> "F";
+          case "java/lang/Integer" -> "I";
+          case "java/lang/Long" -> "J";
+          case "java/lang/Short" -> "S";
+          case "java/lang/Void" -> "V";
+          case "java/lang/Boolean" -> "Z";
+          default -> throw new IllegalStateException("Unknown primitive type " + fieldExprent.getClassname());
+        };
+        return new ClassLiteral(primitiveDesc);
       }
     }
 
