@@ -147,25 +147,26 @@ public class ExpressionToExprent extends ExpressionVisitor {
 
   @Override
   public void visitLiteralExpression(LiteralExpression literalExpression) {
+    ConstExprent constExpr;
     if (literalExpression.literal instanceof Literal.Integer intLiteral) {
-      ConstExprent constExpr = new ConstExprent(VarType.VARTYPE_INT, intLiteral.value(), bytecodeOffsets);
+      constExpr = new ConstExprent(VarType.VARTYPE_INT, intLiteral.value(), bytecodeOffsets);
       constExpr.setRadix(intLiteral.radix());
-      result = constExpr;
     } else if (literalExpression.literal instanceof Literal.Long longLiteral) {
-      ConstExprent constExpr = new ConstExprent(VarType.VARTYPE_LONG, longLiteral.value(), bytecodeOffsets);
+      constExpr = new ConstExprent(VarType.VARTYPE_LONG, longLiteral.value(), bytecodeOffsets);
       constExpr.setRadix(longLiteral.radix());
-      result = constExpr;
     } else if (literalExpression.literal instanceof Literal.Float floatLiteral) {
-      result = new ConstExprent(VarType.VARTYPE_FLOAT, floatLiteral.value(), bytecodeOffsets);
+      constExpr = new ConstExprent(VarType.VARTYPE_FLOAT, floatLiteral.value(), bytecodeOffsets);
     } else if (literalExpression.literal instanceof Literal.Double doubleLiteral) {
-      result = new ConstExprent(VarType.VARTYPE_DOUBLE, doubleLiteral.value(), bytecodeOffsets);
+      constExpr = new ConstExprent(VarType.VARTYPE_DOUBLE, doubleLiteral.value(), bytecodeOffsets);
     } else if (literalExpression.literal instanceof Literal.Character charLiteral) {
-      result = new ConstExprent(VarType.VARTYPE_CHAR, (int) charLiteral.value(), bytecodeOffsets);
+      constExpr = new ConstExprent(VarType.VARTYPE_CHAR, (int) charLiteral.value(), bytecodeOffsets);
     } else if (literalExpression.literal instanceof Literal.String stringLiteral) {
-      result = new ConstExprent(VarType.VARTYPE_STRING, stringLiteral.value(), bytecodeOffsets);
+      constExpr = new ConstExprent(VarType.VARTYPE_STRING, stringLiteral.value(), bytecodeOffsets);
     } else {
       throw new UnsupportedOperationException("Unknown literal type");
     }
+    constExpr.setConstTypeForced(true);
+    result = constExpr;
   }
 
   @Override

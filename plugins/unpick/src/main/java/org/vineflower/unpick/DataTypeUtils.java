@@ -128,6 +128,8 @@ public final class DataTypeUtils {
           yield (double) d.longValue() == d ? d.longValue() : null;
         } else if (value instanceof Number n) {
           yield n.longValue();
+        } else if (value instanceof Character c) {
+          yield (long) c;
         } else {
           yield null;
         }
@@ -136,7 +138,7 @@ public final class DataTypeUtils {
       case DOUBLE -> tryCastToDoubleFittingNumberExact(value, Number::doubleValue);
       case CHAR -> {
         Integer result = tryCastToDoubleFittingNumberExact(value, Number::intValue);
-        yield result == null ? null : (char) result.intValue();
+        yield result == null || result < 0 || result > Character.MAX_VALUE ? null : (char) result.intValue();
       }
       case STRING -> value instanceof String ? value : null;
       case CLASS -> value instanceof ClassLiteral ? value : null;

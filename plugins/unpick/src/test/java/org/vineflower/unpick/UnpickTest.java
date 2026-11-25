@@ -25,6 +25,7 @@ public class UnpickTest extends SingleClassesTestBase {
     register(JAVA_8, "TestPiDivision");
     registerWithDefinitions(JAVA_8, "TestByteToIntCoercion");
     registerWithDefinitions(JAVA_8, "TestByteToIntFlagCoercion");
+    registerWithDefinitions(JAVA_8, "TestCharFormatRequireCast");
     registerWithDefinitions(JAVA_8, "TestConstantDeclaration");
     registerWithDefinitions(JAVA_8, "TestExpressions");
     registerWithDefinitions(JAVA_8, "TestFloatToDoubleCoercion");

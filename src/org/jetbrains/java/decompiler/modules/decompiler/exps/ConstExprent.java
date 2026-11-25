@@ -35,6 +35,7 @@ public class ConstExprent extends Exprent {
   private final boolean boolPermitted;
   private boolean wasCondy = false;
   private int radix = 10;
+  private boolean constTypeForced = false;
 
   public ConstExprent(int val, boolean boolPermitted, BitSet bytecodeOffsets) {
     this(guessType(val, boolPermitted), val, boolPermitted, bytecodeOffsets);
@@ -44,10 +45,11 @@ public class ConstExprent extends Exprent {
     this(constType, value, false, bytecodeOffsets);
   }
 
-  public ConstExprent(VarType constType, Object value, BitSet bytecodeOffsets, boolean wasCondy, int radix) {
+  public ConstExprent(VarType constType, Object value, BitSet bytecodeOffsets, boolean wasCondy, int radix, boolean constTypeForced) {
     this(constType, value, false, bytecodeOffsets);
     this.wasCondy = wasCondy;
     this.radix = radix;
+    this.constTypeForced = constTypeForced;
   }
 
   protected ConstExprent(VarType constType, Object value, boolean boolPermitted, BitSet bytecodeOffsets) {
@@ -95,7 +97,7 @@ public class ConstExprent extends Exprent {
 
   @Override
   public Exprent copy() {
-    return new ConstExprent(constType, value, bytecode, wasCondy, radix);
+    return new ConstExprent(constType, value, bytecode, wasCondy, radix, constTypeForced);
   }
 
   @Override
@@ -464,6 +466,11 @@ public class ConstExprent extends Exprent {
   }
 
   public void adjustConstType(VarType expectedType) {
+    if (constTypeForced) {
+      // we are already confident on the const type from some other source
+      return;
+    }
+
     // BYTECHAR and SHORTCHAR => CHAR in the CHAR context
     if ((expectedType.equals(VarType.VARTYPE_CHAR) || expectedType.equals(VarType.VARTYPE_CHARACTER)) &&
             (constType.equals(VarType.VARTYPE_BYTECHAR) || constType.equals(VarType.VARTYPE_SHORTCHAR))) {
@@ -511,6 +518,14 @@ public class ConstExprent extends Exprent {
 
   public void setRadix(int radix) {
     this.radix = radix;
+  }
+
+  public boolean isConstTypeForced() {
+    return constTypeForced;
+  }
+
+  public void setConstTypeForced(boolean constTypeForced) {
+    this.constTypeForced = constTypeForced;
   }
 
   @Override

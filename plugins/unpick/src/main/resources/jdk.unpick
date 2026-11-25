@@ -501,3 +501,21 @@ group float
   # Positive and negative pi / 180
   (float) java.lang.Math.PI / 180.0F
   (float) -java.lang.Math.PI / 180.0F
+
+group int vf_char_format
+  @format char
+
+target_method java.lang.String indexOf (I)I
+  param 0 vf_char_format
+
+target_method java.lang.String indexOf (II)I
+  param 0 vf_char_format
+
+target_method java.lang.String indexOf (III)I
+  param 0 vf_char_format
+
+target_method java.lang.String lastIndexOf (I)I
+  param 0 vf_char_format
+
+target_method java.lang.String lastIndexOf (II)I
+  param 0 vf_char_format

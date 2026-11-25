@@ -234,8 +234,11 @@ public final class UnpickSubstitutionUtils {
 
     if (format == GroupFormat.CHAR) {
       if (DataTypeUtils.fromVarType(constExprent.getConstType()) == DataType.INT && !constExprent.getConstType().equals(VarType.VARTYPE_CHAR)) {
-        constExprent.setConstType(VarType.VARTYPE_CHAR);
-        res = true;
+        if (DataTypeUtils.tryCastExact(constExprent.getValue(), DataType.CHAR) != null) {
+          constExprent.setConstType(VarType.VARTYPE_CHAR);
+          constExprent.setConstTypeForced(true);
+          res = true;
+        }
       }
     } else {
       int radix = switch (format) {
@@ -247,6 +250,7 @@ public final class UnpickSubstitutionUtils {
       };
       if (constExprent.getConstType().equals(VarType.VARTYPE_CHAR)) {
         constExprent.setConstType(VarType.VARTYPE_INT);
+        constExprent.setConstTypeForced(true);
         res = true;
       }
       if (constExprent.getRadix() != radix) {
@@ -358,7 +362,7 @@ public final class UnpickSubstitutionUtils {
 
       if (positiveResidual != 0) {
         Expression residualExpr;
-        if (Long.compareUnsigned(positiveResidual, Character.MAX_VALUE) < 0 && bestFormat == GroupFormat.CHAR) {
+        if (bestFormat == GroupFormat.CHAR && DataTypeUtils.tryCastExact(positiveResidual, DataType.CHAR) != null) {
           residualExpr = new LiteralExpression(new Literal.Character((char) positiveResidual));
         } else {
           int radix;
