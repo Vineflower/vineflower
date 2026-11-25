@@ -60,11 +60,11 @@ public class UnpickDefinitions extends UnpickV3Visitor {
       for (GroupScope scope : groupDefinition.scopes()) {
         ScopedData scopeData;
         if (scope instanceof GroupScope.Package packageScope) {
-          scopeData = existingGroup.packageScopes.computeIfAbsent(packageScope.packageName(), k -> new ScopedData());
+          scopeData = existingGroup.packageScopes.computeIfAbsent(packageScope.packageName().replace('.', '/'), k -> new ScopedData());
         } else if (scope instanceof GroupScope.Class classScope) {
-          scopeData = existingGroup.classScopes.computeIfAbsent(classScope.className(), k -> new ScopedData());
+          scopeData = existingGroup.classScopes.computeIfAbsent(classScope.className().replace('.', '/'), k -> new ScopedData());
         } else if (scope instanceof GroupScope.Method methodScope) {
-          scopeData = existingGroup.methodScopes.computeIfAbsent(InterpreterUtil.makeUniqueKey(methodScope.className(), methodScope.methodName(), methodScope.methodDesc()), k -> new ScopedData());
+          scopeData = existingGroup.methodScopes.computeIfAbsent(InterpreterUtil.makeUniqueKey(methodScope.className().replace('.', '/'), methodScope.methodName(), methodScope.methodDesc()), k -> new ScopedData());
         } else {
           throw new IllegalStateException("Unexpected group scope type: " + scope.getClass().getName());
         }

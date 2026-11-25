@@ -986,7 +986,7 @@ public class UnpickPass implements ClassPass {
           return;
         }
 
-        StructClass resolvedClass = DecompilerContext.getStructContext().getClass(fieldExpression.className);
+        StructClass resolvedClass = DecompilerContext.getStructContext().getClass(fieldExpression.className.replace('.', '/'));
         StructField resolvedField = null;
         resolveLoop: while (resolvedClass != null) {
           for (StructField field : resolvedClass.getFields()) {
@@ -1017,7 +1017,7 @@ public class UnpickPass implements ClassPass {
     expression.accept(new ExpressionVisitor() {
       @Override
       public void visitFieldExpression(FieldExpression fieldExpression) {
-        if (fieldExpression.className.equals(className) && unreferenceableFields.contains(fieldExpression.fieldName)) {
+        if (fieldExpression.className.replace('.', '/').equals(className) && unreferenceableFields.contains(fieldExpression.fieldName)) {
           result.set(true);
         }
       }
