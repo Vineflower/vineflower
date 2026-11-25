@@ -284,7 +284,7 @@ public final class UnpickSubstitutionUtils {
 
         UnpickDefinitions.ConstantReplacementData replacementData = scopedData.constantReplacementMap.get(DataTypeUtils.tryCastExact(constantValue, groupData.dataType));
         if (replacementData != null && !referencesDisallowedField(replacementData.replacementExpr(), containingClass, disallowedFieldRefs)) {
-          if (!isStatic || !referencesInstanceField(replacementData.replacementExpr())) {
+          if (!referencesDisallowedInstanceField(replacementData.replacementExpr(), containingClass, isStatic)) {
             boolean compatibleTypes = replacementData.strict() ? groupData.dataType == constantType : DataTypeUtils.isAssignable(constantType, groupData.dataType);
             if (compatibleTypes) {
               return new SubstitutionResult.Expr(replacementData.replacementExpr());
@@ -322,7 +322,7 @@ public final class UnpickSubstitutionUtils {
         Long flag = (Long) DataTypeUtils.tryCastExact(value, DataType.LONG);
         if (flag != null) {
           if (!referencesDisallowedField(data.replacementExpr(), containingClass, disallowedFieldRefs)) {
-            if (!isStatic || !referencesInstanceField(data.replacementExpr())) {
+            if (!referencesDisallowedInstanceField(data.replacementExpr(), containingClass, isStatic)) {
               if (!data.strict() || groupData.dataType == constantType) {
                 flag &= flagsMask;
                 replacementData.putIfAbsent(flag, data.replacementExpr());
@@ -510,12 +510,12 @@ public final class UnpickSubstitutionUtils {
     return result.get();
   }
 
-  private static boolean referencesDisallowedField(Expression expression, String className, Set<String> unreferenceableFields) {
+  private static boolean referencesDisallowedField(Expression expression, String className, Set<String> disallowedFieldRefs) {
     MutableObject<Boolean> result = MutableObject.of(false);
     expression.accept(new ExpressionVisitor() {
       @Override
       public void visitFieldExpression(FieldExpression fieldExpression) {
-        if (fieldExpression.className.replace('.', '/').equals(className) && unreferenceableFields.contains(fieldExpression.fieldName)) {
+        if (fieldExpression.className.replace('.', '/').equals(className) && disallowedFieldRefs.contains(fieldExpression.fieldName)) {
           result.set(true);
         }
       }
@@ -523,12 +523,16 @@ public final class UnpickSubstitutionUtils {
     return result.get();
   }
 
-  private static boolean referencesInstanceField(Expression expression) {
+  // TODO: handle non-static field substitutions for Outer.this and custom variables (the information is present in the bytecode but not available this late in decompilation)
+  private static boolean referencesDisallowedInstanceField(Expression expression, String containingClass, boolean isStatic) {
     MutableObject<Boolean> result = MutableObject.of(false);
     expression.accept(new ExpressionVisitor() {
       @Override
       public void visitFieldExpression(FieldExpression fieldExpression) {
-        if (!fieldExpression.isStatic) {
+        if (fieldExpression.isStatic) {
+          return;
+        }
+        if (isStatic || !fieldExpression.className.replace('.', '/').equals(containingClass)) {
           result.set(true);
         }
       }

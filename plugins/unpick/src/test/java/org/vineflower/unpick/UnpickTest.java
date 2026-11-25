@@ -74,7 +74,7 @@ public class UnpickTest extends SingleClassesTestBase {
     registerWithDefinitions(JAVA_8, "TestNegatedLongFlagsReturn");
     registerWithDefinitions(JAVA_8, "TestNegatedShortFlagsParameter");
     registerWithDefinitions(JAVA_8, "TestNegatedShortFlagsReturn");
-    registerWithDefinitions(JAVA_8, "TestNonStaticConstants"); // TODO: inner classes use super rather than Outer.this
+    registerWithDefinitions(JAVA_8, "TestNonStaticConstants");
     registerWithDefinitions(JAVA_8, "TestSomeUnknownFlags");
     registerWithDefinitions(JAVA_8, "TestSubclass");
     registerWithDefinitions(JAVA_8, "TestTargetAnnotations");

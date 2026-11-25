@@ -21,12 +21,12 @@ public class TestNonStaticConstants {
 
    public class TestInner {
       public void test() {
-         Constants.consumeInt(super.foo);// 23
+         Constants.consumeInt(3);// 23
       }// 24
 
       public class TestInnerInner {
          public void test() {
-            Constants.consumeInt(super.foo);// 28
+            Constants.consumeInt(3);// 28
             System.out.println(TestNonStaticConstants.this);// 29
          }// 30
       }
