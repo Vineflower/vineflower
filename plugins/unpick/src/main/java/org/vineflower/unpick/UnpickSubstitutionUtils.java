@@ -18,6 +18,7 @@ import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.attr.StructConstantValueAttribute;
+import org.jetbrains.java.decompiler.struct.attr.StructEnclosingMethodAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
 import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
@@ -26,6 +27,7 @@ import org.jetbrains.java.decompiler.util.MutableObject;
 import org.jetbrains.java.decompiler.util.Pair;
 import org.vineflower.unpick.parser.tree.DataType;
 import org.vineflower.unpick.parser.tree.GroupFormat;
+import org.vineflower.unpick.parser.tree.GroupScope;
 import org.vineflower.unpick.parser.tree.Literal;
 import org.vineflower.unpick.parser.tree.TargetAnnotation;
 import org.vineflower.unpick.parser.tree.TargetField;
@@ -37,6 +39,7 @@ import org.vineflower.unpick.parser.tree.expr.LiteralExpression;
 import org.vineflower.unpick.parser.tree.expr.UnaryExpression;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -56,8 +59,29 @@ public final class UnpickSubstitutionUtils {
     Map<Pair<String, Integer>, String> exprentGroups
   ) {
     MutableObject<Boolean> res = MutableObject.of(false);
+
+    int slashIndex = classNode.classStruct.qualifiedName.lastIndexOf('/');
+    String packageName = slashIndex >= 0 ? classNode.classStruct.qualifiedName.substring(0, slashIndex) : null;
+
     UnpickUtils.iterateAllMethods(classNode, (node, method, classStack) -> {
-      if (method.root != null && substituteConstants(defs, method, method.root, exprentGroups)) {
+      List<GroupScope> scopeStack = new ArrayList<>(4);
+      if (packageName != null) {
+        scopeStack.add(new GroupScope.Package(packageName));
+      }
+      String lastClassName = null;
+      for (ClassesProcessor.ClassNode c : classStack) {
+        if (lastClassName != null && c.enclosingMethod != null) {
+          String[] nameAndDesc = c.enclosingMethod.split(" ", 2);
+          scopeStack.add(new GroupScope.Method(lastClassName, nameAndDesc[0], nameAndDesc[1]));
+        }
+        if (!c.classStruct.qualifiedName.equals(lastClassName)) {
+          lastClassName = c.classStruct.qualifiedName;
+          scopeStack.add(new GroupScope.Class(c.classStruct.qualifiedName));
+        }
+      }
+      scopeStack.add(new GroupScope.Method(node.classStruct.qualifiedName, method.methodStruct.getName(), method.methodStruct.getDescriptor()));
+
+      if (method.root != null && substituteConstants(defs, method, scopeStack, method.root, exprentGroups)) {
         res.set(true);
       }
     });
@@ -67,6 +91,7 @@ public final class UnpickSubstitutionUtils {
   private static boolean substituteConstants(
     UnpickDefinitions defs,
     MethodWrapper method,
+    List<GroupScope> scopeStack,
     Statement stat,
     Map<Pair<String, Integer>, String> exprentGroups
   ) {
@@ -74,15 +99,15 @@ public final class UnpickSubstitutionUtils {
 
     if (stat.getExprents() == null) {
       for (Exprent exprent : stat.getStatExprents()) {
-        res |= substituteConstants(defs, method, Set.of(), null, exprent, newExprent -> stat.replaceExprent(exprent, newExprent), exprentGroups);
+        res |= substituteConstants(defs, method, scopeStack, Set.of(), null, exprent, newExprent -> stat.replaceExprent(exprent, newExprent), exprentGroups);
       }
 
       for (Statement st : stat.getStats()) {
-        res |= substituteConstants(defs, method, st, exprentGroups);
+        res |= substituteConstants(defs, method, scopeStack, st, exprentGroups);
       }
     } else {
       for (Exprent exprent : stat.getExprents()) {
-        res |= substituteConstants(defs, method, Set.of(), null, exprent, newExprent -> stat.replaceExprent(exprent, newExprent), exprentGroups);
+        res |= substituteConstants(defs, method, scopeStack, Set.of(), null, exprent, newExprent -> stat.replaceExprent(exprent, newExprent), exprentGroups);
       }
     }
 
@@ -93,13 +118,14 @@ public final class UnpickSubstitutionUtils {
   private static boolean substituteConstants(
     UnpickDefinitions defs,
     MethodWrapper method,
+    List<GroupScope> scopeStack,
     Set<String> disallowedFieldRefs,
     @Nullable StructField fieldAssignment,
     Exprent exprent,
     Consumer<Exprent> replace,
     Map<Pair<String, Integer>, String> exprentGroups
   ) {
-    if (substituteConstantsForSingleExprent(defs, method, disallowedFieldRefs, fieldAssignment, exprent, replace, exprentGroups)) {
+    if (substituteConstantsForSingleExprent(defs, method, scopeStack, disallowedFieldRefs, fieldAssignment, exprent, replace, exprentGroups)) {
       return true;
     }
 
@@ -118,7 +144,7 @@ public final class UnpickSubstitutionUtils {
 
     boolean res = false;
     for (Exprent subExprent : exprent.getAllExprents()) {
-      res |= substituteConstants(defs, method, disallowedFieldRefs, fieldAssignment, subExprent, newExprent -> exprent.replaceExprent(subExprent, newExprent), exprentGroups);
+      res |= substituteConstants(defs, method, scopeStack, disallowedFieldRefs, fieldAssignment, subExprent, newExprent -> exprent.replaceExprent(subExprent, newExprent), exprentGroups);
     }
     return res;
   }
@@ -126,6 +152,7 @@ public final class UnpickSubstitutionUtils {
   private static boolean substituteConstantsForSingleExprent(
     UnpickDefinitions defs,
     MethodWrapper method,
+    List<GroupScope> scopeStack,
     Set<String> disallowedFieldRefs,
     @Nullable StructField fieldAssignment,
     Exprent exprent,
@@ -142,8 +169,7 @@ public final class UnpickSubstitutionUtils {
     SubstitutionResult substitution = getBestSubstitution(
       defs,
       method.classStruct.qualifiedName,
-      method.methodStruct.getName(),
-      method.methodStruct.getDescriptor(),
+      scopeStack,
       method.methodStruct.hasModifier(CodeConstants.ACC_STATIC),
       disallowedFieldRefs,
       groupName,
@@ -266,8 +292,7 @@ public final class UnpickSubstitutionUtils {
   private static SubstitutionResult getBestSubstitution(
     UnpickDefinitions defs,
     String containingClass,
-    String containingMethodName,
-    String containingMethodDesc,
+    List<GroupScope> scopeStack,
     boolean isStatic,
     Set<String> disallowedFieldRefs,
     @Nullable String groupName,
@@ -279,10 +304,10 @@ public final class UnpickSubstitutionUtils {
     for (UnpickDefinitions.GroupData groupData : getGroupData(defs, groupName, type)) {
       Long targetFlags;
       if (groupData.isFlags && (targetFlags = (Long) DataTypeUtils.tryCastExact(constantValue, DataType.LONG)) != null && targetFlags != 0 && targetFlags != -1) {
-        return getBestFlagsSubstitution(containingClass, containingMethodName, containingMethodDesc, isStatic, disallowedFieldRefs, groupData, constantType, targetFlags);
+        return getBestFlagsSubstitution(containingClass, scopeStack, isStatic, disallowedFieldRefs, groupData, constantType, targetFlags);
       }
 
-      for (UnpickDefinitions.ScopedData scopedData : getScopedData(groupData, containingClass, containingMethodName, containingMethodDesc)) {
+      for (UnpickDefinitions.ScopedData scopedData : getScopedData(groupData, scopeStack)) {
         if (bestFormat == null) {
           bestFormat = scopedData.format;
         }
@@ -305,8 +330,7 @@ public final class UnpickSubstitutionUtils {
   @Nullable
   private static SubstitutionResult getBestFlagsSubstitution(
     String containingClass,
-    String containingMethodName,
-    String containingMethodDesc,
+    List<GroupScope> scopeStack,
     boolean isStatic,
     Set<String> disallowedFieldRefs,
     UnpickDefinitions.GroupData groupData,
@@ -318,7 +342,7 @@ public final class UnpickSubstitutionUtils {
 
     GroupFormat bestFormat = null;
     Map<Long, Expression> replacementData = new LinkedHashMap<>();
-    for (UnpickDefinitions.ScopedData scopedData : getScopedData(groupData, containingClass, containingMethodName, containingMethodDesc)) {
+    for (UnpickDefinitions.ScopedData scopedData : getScopedData(groupData, scopeStack)) {
       if (bestFormat == null) {
         bestFormat = scopedData.format;
       }
@@ -455,17 +479,53 @@ public final class UnpickSubstitutionUtils {
       .map(StructField::getName)
       .collect(Collectors.toSet());
 
+    // We use a dumber method of getting a scope stack for fields. This is because we need it to work on external classes
+    // we're not decompiling and therefore haven't analyzed. It doesn't pick up on lambda method scopes, but that's okay
+    // as fields declared inside a class inside a lambda can't be referenced from outside the lambda anyway so the impact
+    // is limited to a small number of rare cases that likely don't matter much.
+    List<GroupScope> scopeStack = new ArrayList<>(4);
+    StructClass c = cl;
+    while (true) {
+      scopeStack.add(new GroupScope.Method(c.qualifiedName, containingMethodName, containingMethodDesc));
+      scopeStack.add(new GroupScope.Class(c.qualifiedName));
+
+      StructEnclosingMethodAttribute enclosingMethodAttr = c.getAttribute(StructGeneralAttribute.ATTRIBUTE_ENCLOSING_METHOD);
+      if (enclosingMethodAttr == null) {
+        break;
+      }
+      c = DecompilerContext.getStructContext().getClass(enclosingMethodAttr.getClassName());
+      if (c == null) {
+        break;
+      }
+      if (enclosingMethodAttr.getMethodName() != null) {
+        scopeStack.add(new GroupScope.Method(c.qualifiedName, enclosingMethodAttr.getMethodName(), enclosingMethodAttr.getMethodDescriptor()));
+      }
+      scopeStack.add(new GroupScope.Class(c.qualifiedName));
+    }
+    if (cl.qualifiedName.contains("/")) {
+      scopeStack.add(new GroupScope.Package(cl.qualifiedName.substring(0, cl.qualifiedName.lastIndexOf('/'))));
+    }
+    Collections.reverse(scopeStack);
+
     return getBestSubstitution(
       defs,
       cl.qualifiedName,
-      containingMethodName,
-      containingMethodDesc,
+      scopeStack,
       isStatic,
       disallowedFieldRefs,
       groupName,
       new VarType(fd.getDescriptor()),
       constantValue
     );
+  }
+
+  @Nullable
+  private static StructClass getOuterClass(StructClass innerClass) {
+    int dollarIndex = innerClass.qualifiedName.lastIndexOf('$');
+    if (dollarIndex <= innerClass.qualifiedName.lastIndexOf('/')) {
+      return null;
+    }
+    return DecompilerContext.getStructContext().getClass(innerClass.qualifiedName.substring(0, dollarIndex));
   }
 
   private static boolean detectInterClassFieldReferenceCycle(
@@ -573,24 +633,28 @@ public final class UnpickSubstitutionUtils {
     return result;
   }
 
-  // TODO: handle lambdas and anonymous classes
-  private static List<UnpickDefinitions.ScopedData> getScopedData(UnpickDefinitions.GroupData groupData, String owner, String name, String desc) {
+  private static List<UnpickDefinitions.ScopedData> getScopedData(UnpickDefinitions.GroupData groupData, List<GroupScope> scopeStack) {
     List<UnpickDefinitions.ScopedData> result = new ArrayList<>(4);
 
-    UnpickDefinitions.ScopedData methodData = groupData.methodScopes.get(InterpreterUtil.makeUniqueKey(owner, name, desc));
-    if (methodData != null) {
-      result.add(methodData);
-    }
-
-    UnpickDefinitions.ScopedData classData = groupData.classScopes.get(owner);
-    if (classData != null) {
-      result.add(classData);
-    }
-
-    if (owner.contains("/")) {
-      UnpickDefinitions.ScopedData packageData = groupData.packageScopes.get(owner.substring(0, owner.lastIndexOf('/')));
-      if (packageData != null) {
-        result.add(packageData);
+    for (int i = scopeStack.size() - 1; i >= 0; i--) {
+      GroupScope scope = scopeStack.get(i);
+      if (scope instanceof GroupScope.Package pkg) {
+        UnpickDefinitions.ScopedData packageData = groupData.packageScopes.get(pkg.packageName());
+        if (packageData != null) {
+          result.add(packageData);
+        }
+      } else if (scope instanceof GroupScope.Class clazz) {
+        UnpickDefinitions.ScopedData classData = groupData.classScopes.get(clazz.className());
+        if (classData != null) {
+          result.add(classData);
+        }
+      } else if (scope instanceof GroupScope.Method method) {
+        UnpickDefinitions.ScopedData methodData = groupData.methodScopes.get(InterpreterUtil.makeUniqueKey(method.className(), method.methodName(), method.methodName()));
+        if (methodData != null) {
+          result.add(methodData);
+        }
+      } else {
+        throw new UnsupportedOperationException("Unknown scope type " + scope.getClass());
       }
     }
 
