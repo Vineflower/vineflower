@@ -2,7 +2,7 @@ package pkg;
 
 public class TestLambdaGroupedFunctionalInterfaceParameter {
    void test() {
-      TestLambdaGroupedFunctionalInterfaceParameter.I itf = i -> System.out.println(i == 1);// 5
+      TestLambdaGroupedFunctionalInterfaceParameter.I itf = i -> System.out.println(i == Constants.INT_CONST_1);// 5
    }// 6
 
    @FunctionalInterface

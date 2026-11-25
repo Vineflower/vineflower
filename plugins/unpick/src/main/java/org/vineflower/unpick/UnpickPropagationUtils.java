@@ -28,23 +28,16 @@ public final class UnpickPropagationUtils {
 
   static boolean propagateGroups(
     ClassesProcessor.ClassNode classNode,
-    List<ClassesProcessor.ClassNode> classStack,
     Map<Pair<String, Integer>, String> exprentGroups,
     Map<Pair<String, VarVersionPair>, String> varGroups
   ) {
-    boolean res = false;
-    classStack.add(classNode);
-
-    for (MethodWrapper method : classNode.getWrapper().getMethods()) {
-      res |= propagateGroups(method, classStack, exprentGroups, varGroups);
-    }
-
-    for (ClassesProcessor.ClassNode nestedClass : classNode.nested) {
-      res |= propagateGroups(nestedClass, classStack, exprentGroups, varGroups);
-    }
-
-    classStack.remove(classStack.size() - 1);
-    return res;
+    MutableObject<Boolean> res = MutableObject.of(false);
+    UnpickUtils.iterateAllMethods(classNode, (node, method, classStack) -> {
+      if (propagateGroups(method, classStack, exprentGroups, varGroups)) {
+        res.set(true);
+      }
+    });
+    return res.get();
   }
 
   private static boolean propagateGroups(

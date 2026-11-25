@@ -19,10 +19,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -41,8 +39,7 @@ public class UnpickPass implements ClassPass {
     Map<Pair<String, VarVersionPair>, String> varGroups = new HashMap<>();
 
     UnpickTargetUtils.identifyTargets(defs, classNode, exprentGroups, varGroups);
-    List<ClassesProcessor.ClassNode> classStack = new ArrayList<>(1);
-    while (UnpickPropagationUtils.propagateGroups(classNode, classStack, exprentGroups, varGroups)) {
+    while (UnpickPropagationUtils.propagateGroups(classNode, exprentGroups, varGroups)) {
       // keep propagating while changed
     }
     boolean res = UnpickSubstitutionUtils.substituteConstants(defs, classNode, exprentGroups);

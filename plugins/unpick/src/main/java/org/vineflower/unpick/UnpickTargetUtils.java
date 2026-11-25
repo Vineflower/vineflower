@@ -38,9 +38,9 @@ public final class UnpickTargetUtils {
     Map<Pair<String, Integer>, String> exprentGroups,
     Map<Pair<String, VarVersionPair>, String> varGroups
   ) {
-    for (MethodWrapper method : classNode.getWrapper().getMethods()) {
-      String returnGroup = identifyContainingMethodTargets(defs, classNode, method, varGroups);
-      String methodKey = InterpreterUtil.makeUniqueKey(classNode.classStruct.qualifiedName, method.methodStruct.getName(), method.methodStruct.getDescriptor());
+    UnpickUtils.iterateAllMethods(classNode, (node, method, classStack) -> {
+      String returnGroup = identifyContainingMethodTargets(defs, node, method, varGroups);
+      String methodKey = InterpreterUtil.makeUniqueKey(node.classStruct.qualifiedName, method.methodStruct.getName(), method.methodStruct.getDescriptor());
 
       StatementIterator.iterate(method.root, exprent -> {
         if (exprent instanceof ExitExprent exitExprent) {
@@ -61,11 +61,7 @@ public final class UnpickTargetUtils {
         // TODO: pattern exprents
         return 0;
       });
-    }
-
-    for (ClassesProcessor.ClassNode nestedClass : classNode.nested) {
-      identifyTargets(defs, nestedClass, exprentGroups, varGroups);
-    }
+    });
   }
 
   @Nullable
@@ -77,28 +73,37 @@ public final class UnpickTargetUtils {
   ) {
     String methodKey = InterpreterUtil.makeUniqueKey(classNode.classStruct.qualifiedName, method.methodStruct.getName(), method.methodStruct.getDescriptor());
     MutableObject<String> returnGroup = MutableObject.of(null);
-    UnpickUtils.processSuperMethods(classNode.classStruct, method.methodStruct, mt -> {
+    boolean isOriginalMethodStatic = method.methodStruct.hasModifier(CodeConstants.ACC_STATIC);
+    VarType[] originalMethodParams = method.methodStruct.methodDescriptor().params;
+    UnpickUtils.processSuperMethods(classNode, classNode.classStruct, method.methodStruct, mt -> {
       String superMethodKey = InterpreterUtil.makeUniqueKey(mt.getClassQualifiedName(), mt.getName(), mt.getDescriptor());
       List<List<AnnotationExprent>> paramAnnotations = UnpickUtils.getParameterAnnotations(mt);
       TargetMethod targetMethod = defs.targetMethods.get(superMethodKey);
-      int varIndex = mt.hasModifier(CodeConstants.ACC_STATIC) ? 0 : 1;
+
+      // The var index for parameters can differ between the super method and the original method in the case of lambdas.
+      // Captured variables are added at the start, and the staticness can differ.
+      int originalVarIndex = isOriginalMethodStatic ? 0 : 1;
       VarType[] params = mt.methodDescriptor().params;
+      for (int i = 0; i < originalMethodParams.length - params.length; i++) {
+        originalVarIndex += originalMethodParams[i].stackSize;
+      }
+
       for (int paramIndex = 0; paramIndex < params.length; paramIndex++) {
         if (targetMethod != null) {
           String paramGroup = targetMethod.paramGroups().get(paramIndex);
           if (paramGroup != null) {
-            varGroups.putIfAbsent(Pair.of(methodKey, new VarVersionPair(varIndex, 0)), paramGroup);
+            varGroups.putIfAbsent(Pair.of(methodKey, new VarVersionPair(originalVarIndex, 0)), paramGroup);
           }
         }
         if (paramIndex < paramAnnotations.size()) {
           for (AnnotationExprent ann : paramAnnotations.get(paramIndex)) {
             TargetAnnotation targetAnnotation = defs.targetAnnotations.get(ann.getClassName());
             if (targetAnnotation != null) {
-              varGroups.putIfAbsent(Pair.of(methodKey, new VarVersionPair(varIndex, 0)), targetAnnotation.groupName());
+              varGroups.putIfAbsent(Pair.of(methodKey, new VarVersionPair(originalVarIndex, 0)), targetAnnotation.groupName());
             }
           }
         }
-        varIndex += params[paramIndex].stackSize;
+        originalVarIndex += params[paramIndex].stackSize;
       }
 
       if (targetMethod != null && targetMethod.returnGroup() != null && returnGroup.get() == null) {
@@ -148,7 +153,7 @@ public final class UnpickTargetUtils {
   private static void identifyInvocationTargets(UnpickDefinitions defs, String methodKey, Map<Pair<String, Integer>, String> exprentGroups, InvocationExprent invocationExprent, Exprent treeExprent) {
     StructClass resolvedClass = DecompilerContext.getStructContext().getClass(invocationExprent.getClassname());
     if (resolvedClass != null) {
-      UnpickUtils.processSuperMethods(resolvedClass, InterpreterUtil.makeUniqueKey(invocationExprent.getName(), invocationExprent.getStringDescriptor()), mt -> {
+      UnpickUtils.processSuperMethods(null, resolvedClass, InterpreterUtil.makeUniqueKey(invocationExprent.getName(), invocationExprent.getStringDescriptor()), mt -> {
         String targetMethodKey = InterpreterUtil.makeUniqueKey(mt.getClassQualifiedName(), mt.getName(), mt.getDescriptor());
         TargetMethod targetMethod = defs.targetMethods.get(targetMethodKey);
         if (targetMethod != null) {

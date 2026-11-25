@@ -55,18 +55,13 @@ public final class UnpickSubstitutionUtils {
     ClassesProcessor.ClassNode classNode,
     Map<Pair<String, Integer>, String> exprentGroups
   ) {
-    boolean res = false;
-
-    for (MethodWrapper method : classNode.getWrapper().getMethods()) {
-      if (method.root != null) {
-        res |= substituteConstants(defs, method, method.root, exprentGroups);
+    MutableObject<Boolean> res = MutableObject.of(false);
+    UnpickUtils.iterateAllMethods(classNode, (node, method, classStack) -> {
+      if (method.root != null && substituteConstants(defs, method, method.root, exprentGroups)) {
+        res.set(true);
       }
-    }
-    for (ClassesProcessor.ClassNode nested : classNode.nested) {
-      res |= substituteConstants(defs, nested, exprentGroups);
-    }
-
-    return res;
+    });
+    return res.get();
   }
 
   private static boolean substituteConstants(
@@ -175,6 +170,12 @@ public final class UnpickSubstitutionUtils {
   // Constants in the ConstantValue attribute are not stored in the exprent tree, so we have to handle them separately
   static boolean substituteConstantFieldInitializers(ClassesProcessor.ClassNode classNode, UnpickDefinitions defs) {
     boolean res = false;
+
+    for (ClassesProcessor.ClassNode nested : classNode.nested) {
+      if (nested.type != ClassesProcessor.ClassNode.Type.LAMBDA) {
+        res |= substituteConstantFieldInitializers(nested, defs);
+      }
+    }
 
     for (StructField fd : classNode.classStruct.getFields()) {
       SubstitutionResult substitution = getFieldValueSubstitution(defs, classNode.classStruct, fd);
