@@ -114,7 +114,6 @@ public final class UnpickSubstitutionUtils {
     return res;
   }
 
-  // TODO: handle casting to the right type when overload resolution is affected
   private static boolean substituteConstants(
     UnpickDefinitions defs,
     MethodWrapper method,

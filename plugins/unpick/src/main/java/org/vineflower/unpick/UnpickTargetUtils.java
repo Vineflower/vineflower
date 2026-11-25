@@ -11,10 +11,14 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FieldExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.InvocationExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.NewExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.PatternExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.TypeAnnotation;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructField;
+import org.jetbrains.java.decompiler.struct.StructMethod;
+import org.jetbrains.java.decompiler.struct.StructRecordComponent;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.MutableObject;
@@ -57,8 +61,9 @@ public final class UnpickTargetUtils {
           if (newExprent.getConstructor() != null) {
             identifyInvocationTargets(defs, methodKey, exprentGroups, newExprent.getConstructor(), newExprent);
           }
+        } else if (exprent instanceof PatternExprent patternExprent) {
+          identifyPatternTargets(defs, varGroups, patternExprent, methodKey);
         }
-        // TODO: pattern exprents
         return 0;
       });
     });
@@ -184,6 +189,42 @@ public final class UnpickTargetUtils {
           }
         }
       }, new HashSet<>());
+    }
+  }
+
+  private static void identifyPatternTargets(UnpickDefinitions defs, Map<Pair<String, VarVersionPair>, String> varGroups, PatternExprent patternExprent, String methodKey) {
+    if (!(patternExprent.getData() instanceof PatternExprent.PatternData.RecordPatternData recordData)) {
+      return;
+    }
+
+    List<StructRecordComponent> recordComponents = recordData.cl().getRecordComponents();
+    if (recordComponents == null) {
+      return;
+    }
+
+    for (int i = 0; i < Math.min(recordComponents.size(), patternExprent.getExprents().size()); i++) {
+      StructRecordComponent recordComponent = recordComponents.get(i);
+
+      String groupName = null;
+      TargetMethod targetMethod = defs.targetMethods.get(InterpreterUtil.makeUniqueKey(recordData.cl().qualifiedName, recordComponent.getName(), "()" + recordComponent.getDescriptor()));
+      if (targetMethod != null) {
+        groupName = targetMethod.returnGroup();
+      } else {
+        StructMethod mt = recordData.cl().getMethod(recordComponent.getName(), "()" + recordComponent.getDescriptor());
+        if (mt != null) {
+          for (AnnotationExprent ann : UnpickUtils.getMemberAnnotations(mt, TypeAnnotation.METHOD_RETURN_TYPE)) {
+            TargetAnnotation targetAnnotation = defs.targetAnnotations.get(ann.getClassName());
+            if (targetAnnotation != null) {
+              groupName = targetAnnotation.groupName();
+              break;
+            }
+          }
+        }
+      }
+
+      if (groupName != null && patternExprent.getExprents().get(i) instanceof VarExprent varExprent) {
+        varGroups.putIfAbsent(Pair.of(methodKey, varExprent.getVarVersionPair()), groupName);
+      }
     }
   }
 }
