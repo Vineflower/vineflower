@@ -1,6 +1,5 @@
 package org.vineflower.unpick;
 
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassesProcessor;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
@@ -21,14 +20,15 @@ import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.StructRecordComponent;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
-import org.jetbrains.java.decompiler.util.MutableObject;
 import org.jetbrains.java.decompiler.util.StatementIterator;
 import org.vineflower.unpick.parser.tree.TargetAnnotation;
 import org.vineflower.unpick.parser.tree.TargetField;
 import org.vineflower.unpick.parser.tree.TargetMethod;
 
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 public final class UnpickTargetUtils {
   private UnpickTargetUtils() {
@@ -36,14 +36,14 @@ public final class UnpickTargetUtils {
 
   static void identifyTargets(UnpickDefinitions defs, ClassesProcessor.ClassNode classNode, GroupTracker groupTracker) {
     UnpickUtils.iterateAllMethods(classNode, (node, method, classStack) -> {
-      String returnGroup = identifyContainingMethodTargets(defs, node, method, groupTracker);
+      Set<String> returnGroup = identifyContainingMethodTargets(defs, node, method, groupTracker);
       String methodKey = InterpreterUtil.makeUniqueKey(node.classStruct.qualifiedName, method.methodStruct.getName(), method.methodStruct.getDescriptor());
 
       StatementIterator.iterate(method.root, exprent -> {
         if (exprent instanceof ExitExprent exitExprent) {
           if (exitExprent.getExitType() == ExitExprent.Type.RETURN) {
             if (exitExprent.getValue() != null) {
-              groupTracker.trySetExprentGroup(methodKey, exitExprent.getValue(), returnGroup);
+              groupTracker.tryAddExprentGroups(methodKey, exitExprent.getValue(), returnGroup);
             }
           }
         } else if (exprent instanceof FieldExprent fieldExprent) {
@@ -62,15 +62,14 @@ public final class UnpickTargetUtils {
     });
   }
 
-  @Nullable
-  private static String identifyContainingMethodTargets(
+  private static Set<String> identifyContainingMethodTargets(
     UnpickDefinitions defs,
     ClassesProcessor.ClassNode classNode,
     MethodWrapper method,
     GroupTracker groupTracker
   ) {
     String methodKey = InterpreterUtil.makeUniqueKey(classNode.classStruct.qualifiedName, method.methodStruct.getName(), method.methodStruct.getDescriptor());
-    MutableObject<String> returnGroup = MutableObject.of(null);
+    Set<String> returnGroup = new LinkedHashSet<>();
     boolean isOriginalMethodStatic = method.methodStruct.hasModifier(CodeConstants.ACC_STATIC);
     VarType[] originalMethodParams = method.methodStruct.methodDescriptor().params;
     UnpickUtils.processSuperMethods(classNode, classNode.classStruct, method.methodStruct, mt -> {
@@ -90,36 +89,33 @@ public final class UnpickTargetUtils {
         if (targetMethod != null) {
           String paramGroup = targetMethod.paramGroups().get(paramIndex);
           if (paramGroup != null) {
-            groupTracker.trySetVarGroup(methodKey, new VarVersionPair(originalVarIndex, 0), paramGroup);
+            groupTracker.tryAddVarGroup(methodKey, new VarVersionPair(originalVarIndex, 0), paramGroup);
           }
         }
         if (paramIndex < paramAnnotations.size()) {
           for (AnnotationExprent ann : paramAnnotations.get(paramIndex)) {
             TargetAnnotation targetAnnotation = defs.targetAnnotations.get(ann.getClassName());
             if (targetAnnotation != null) {
-              groupTracker.trySetVarGroup(methodKey, new VarVersionPair(originalVarIndex, 0), targetAnnotation.groupName());
+              groupTracker.tryAddVarGroup(methodKey, new VarVersionPair(originalVarIndex, 0), targetAnnotation.groupName());
             }
           }
         }
         originalVarIndex += params[paramIndex].stackSize;
       }
 
-      if (targetMethod != null && targetMethod.returnGroup() != null && returnGroup.get() == null) {
-        returnGroup.set(targetMethod.returnGroup());
+      if (targetMethod != null && targetMethod.returnGroup() != null) {
+        returnGroup.add(targetMethod.returnGroup());
       }
 
-      if (returnGroup.get() == null) {
-        for (AnnotationExprent ann : UnpickUtils.getMemberAnnotations(mt, TypeAnnotation.METHOD_RETURN_TYPE)) {
-          TargetAnnotation targetAnnotation = defs.targetAnnotations.get(ann.getClassName());
-          if (targetAnnotation != null) {
-            returnGroup.set(targetAnnotation.groupName());
-            break;
-          }
+      for (AnnotationExprent ann : UnpickUtils.getMemberAnnotations(mt, TypeAnnotation.METHOD_RETURN_TYPE)) {
+        TargetAnnotation targetAnnotation = defs.targetAnnotations.get(ann.getClassName());
+        if (targetAnnotation != null) {
+          returnGroup.add(targetAnnotation.groupName());
         }
       }
     });
 
-    return returnGroup.get();
+    return returnGroup;
   }
 
   private static void identifyFieldTarget(UnpickDefinitions defs, String methodKey, GroupTracker groupTracker, FieldExprent fieldExprent) {
@@ -136,13 +132,12 @@ public final class UnpickTargetUtils {
     if (resolvedField != null) {
       TargetField targetField = defs.targetFields.get(InterpreterUtil.makeUniqueKey(ownerClass.qualifiedName, resolvedField.getName(), resolvedField.getDescriptor()));
       if (targetField != null) {
-        groupTracker.trySetExprentGroup(methodKey, fieldExprent, targetField.groupName());
-      } else {
-        for (AnnotationExprent ann : UnpickUtils.getMemberAnnotations(resolvedField, TypeAnnotation.FIELD)) {
-          TargetAnnotation targetAnnotation = defs.targetAnnotations.get(ann.getClassName());
-          if (targetAnnotation != null) {
-            groupTracker.trySetExprentGroup(methodKey, fieldExprent, targetAnnotation.groupName());
-          }
+        groupTracker.tryAddExprentGroup(methodKey, fieldExprent, targetField.groupName());
+      }
+      for (AnnotationExprent ann : UnpickUtils.getMemberAnnotations(resolvedField, TypeAnnotation.FIELD)) {
+        TargetAnnotation targetAnnotation = defs.targetAnnotations.get(ann.getClassName());
+        if (targetAnnotation != null) {
+          groupTracker.tryAddExprentGroup(methodKey, fieldExprent, targetAnnotation.groupName());
         }
       }
     }
@@ -150,39 +145,41 @@ public final class UnpickTargetUtils {
 
   private static void identifyInvocationTargets(UnpickDefinitions defs, String methodKey, GroupTracker groupTracker, InvocationExprent invocationExprent, Exprent treeExprent) {
     StructClass resolvedClass = DecompilerContext.getStructContext().getClass(invocationExprent.getClassname());
-    if (resolvedClass != null) {
-      UnpickUtils.processSuperMethods(null, resolvedClass, InterpreterUtil.makeUniqueKey(invocationExprent.getName(), invocationExprent.getStringDescriptor()), mt -> {
-        String targetMethodKey = InterpreterUtil.makeUniqueKey(mt.getClassQualifiedName(), mt.getName(), mt.getDescriptor());
-        TargetMethod targetMethod = defs.targetMethods.get(targetMethodKey);
-        if (targetMethod != null) {
-          targetMethod.paramGroups().forEach((paramIndex, groupName) -> {
-            if (paramIndex < invocationExprent.getLstParameters().size()) {
-              groupTracker.trySetExprentGroup(methodKey, invocationExprent.getLstParameters().get(paramIndex), groupName);
-            }
-          });
-          if (targetMethod.returnGroup() != null) {
-            groupTracker.trySetExprentGroup(methodKey, treeExprent, targetMethod.returnGroup());
-          }
-        }
+    if (resolvedClass == null) {
+      return;
+    }
 
-        List<List<AnnotationExprent>> parameterAnnotations = UnpickUtils.getParameterAnnotations(mt);
-        for (int paramIndex = 0; paramIndex < Math.min(parameterAnnotations.size(), invocationExprent.getLstParameters().size()); paramIndex++) {
-          for (AnnotationExprent ann : parameterAnnotations.get(paramIndex)) {
-            TargetAnnotation targetAnnotation = defs.targetAnnotations.get(ann.getClassName());
-            if (targetAnnotation != null) {
-              groupTracker.trySetExprentGroup(methodKey, invocationExprent.getLstParameters().get(paramIndex), targetAnnotation.groupName());
-            }
+    UnpickUtils.processSuperMethods(null, resolvedClass, InterpreterUtil.makeUniqueKey(invocationExprent.getName(), invocationExprent.getStringDescriptor()), mt -> {
+      String targetMethodKey = InterpreterUtil.makeUniqueKey(mt.getClassQualifiedName(), mt.getName(), mt.getDescriptor());
+      TargetMethod targetMethod = defs.targetMethods.get(targetMethodKey);
+      if (targetMethod != null) {
+        targetMethod.paramGroups().forEach((paramIndex, groupName) -> {
+          if (paramIndex < invocationExprent.getLstParameters().size()) {
+            groupTracker.tryAddExprentGroup(methodKey, invocationExprent.getLstParameters().get(paramIndex), groupName);
           }
+        });
+        if (targetMethod.returnGroup() != null) {
+          groupTracker.tryAddExprentGroup(methodKey, treeExprent, targetMethod.returnGroup());
         }
+      }
 
-        for (AnnotationExprent ann : UnpickUtils.getMemberAnnotations(mt, TypeAnnotation.METHOD_RETURN_TYPE)) {
+      List<List<AnnotationExprent>> parameterAnnotations = UnpickUtils.getParameterAnnotations(mt);
+      for (int paramIndex = 0; paramIndex < Math.min(parameterAnnotations.size(), invocationExprent.getLstParameters().size()); paramIndex++) {
+        for (AnnotationExprent ann : parameterAnnotations.get(paramIndex)) {
           TargetAnnotation targetAnnotation = defs.targetAnnotations.get(ann.getClassName());
           if (targetAnnotation != null) {
-            groupTracker.trySetExprentGroup(methodKey, treeExprent, targetAnnotation.groupName());
+            groupTracker.tryAddExprentGroup(methodKey, invocationExprent.getLstParameters().get(paramIndex), targetAnnotation.groupName());
           }
         }
-      }, new HashSet<>());
-    }
+      }
+
+      for (AnnotationExprent ann : UnpickUtils.getMemberAnnotations(mt, TypeAnnotation.METHOD_RETURN_TYPE)) {
+        TargetAnnotation targetAnnotation = defs.targetAnnotations.get(ann.getClassName());
+        if (targetAnnotation != null) {
+          groupTracker.tryAddExprentGroup(methodKey, treeExprent, targetAnnotation.groupName());
+        }
+      }
+    }, new HashSet<>());
   }
 
   private static void identifyPatternTargets(UnpickDefinitions defs, String methodKey, GroupTracker groupTracker, PatternExprent patternExprent) {
@@ -198,25 +195,23 @@ public final class UnpickTargetUtils {
     for (int i = 0; i < Math.min(recordComponents.size(), patternExprent.getExprents().size()); i++) {
       StructRecordComponent recordComponent = recordComponents.get(i);
 
-      String groupName = null;
+      Set<String> groupNames = new LinkedHashSet<>();
       TargetMethod targetMethod = defs.targetMethods.get(InterpreterUtil.makeUniqueKey(recordData.cl().qualifiedName, recordComponent.getName(), "()" + recordComponent.getDescriptor()));
       if (targetMethod != null) {
-        groupName = targetMethod.returnGroup();
-      } else {
-        StructMethod mt = recordData.cl().getMethod(recordComponent.getName(), "()" + recordComponent.getDescriptor());
-        if (mt != null) {
-          for (AnnotationExprent ann : UnpickUtils.getMemberAnnotations(mt, TypeAnnotation.METHOD_RETURN_TYPE)) {
-            TargetAnnotation targetAnnotation = defs.targetAnnotations.get(ann.getClassName());
-            if (targetAnnotation != null) {
-              groupName = targetAnnotation.groupName();
-              break;
-            }
+        groupNames.add(targetMethod.returnGroup());
+      }
+      StructMethod mt = recordData.cl().getMethod(recordComponent.getName(), "()" + recordComponent.getDescriptor());
+      if (mt != null) {
+        for (AnnotationExprent ann : UnpickUtils.getMemberAnnotations(mt, TypeAnnotation.METHOD_RETURN_TYPE)) {
+          TargetAnnotation targetAnnotation = defs.targetAnnotations.get(ann.getClassName());
+          if (targetAnnotation != null) {
+            groupNames.add(targetAnnotation.groupName());
           }
         }
       }
 
-      if (groupName != null && patternExprent.getExprents().get(i) instanceof VarExprent varExprent) {
-        groupTracker.trySetVarGroup(methodKey, varExprent.getVarVersionPair(), groupName);
+      if (patternExprent.getExprents().get(i) instanceof VarExprent varExprent) {
+        groupTracker.tryAddVarGroups(methodKey, varExprent.getVarVersionPair(), groupNames);
       }
     }
   }

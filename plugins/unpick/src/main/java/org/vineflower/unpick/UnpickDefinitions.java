@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 public class UnpickDefinitions extends UnpickV3Visitor {
-  public boolean canBeOverwritten = true;
+  public boolean areDefinitionsFromVineflower = true;
   public final Map<DataType, GroupData> defaultGroups = new HashMap<>();
   public final Map<String, GroupData> groups = new HashMap<>();
   public final Map<String, TargetField> targetFields = new HashMap<>();
@@ -96,8 +96,8 @@ public class UnpickDefinitions extends UnpickV3Visitor {
           continue;
         }
 
-        ConstantReplacementData existingConstant = scopeData.constantReplacementMap.put(value, new ConstantReplacementData(groupDefinition.strict(), nonWildcardExpression, canBeOverwritten));
-        if (existingConstant != null && (canBeOverwritten || !existingConstant.canBeOverwritten)) {
+        ConstantReplacementData existingConstant = scopeData.constantReplacementMap.put(value, new ConstantReplacementData(groupDefinition.strict(), nonWildcardExpression, areDefinitionsFromVineflower));
+        if (existingConstant != null && (areDefinitionsFromVineflower || !existingConstant.isFromVineflower)) {
           DecompilerContext.getLogger().writeMessage("Duplicate constant in group " + groupDisplayName + ": " + value, IFernflowerLogger.Severity.WARN);
         }
       }
@@ -216,6 +216,6 @@ public class UnpickDefinitions extends UnpickV3Visitor {
     public final Map<Object, ConstantReplacementData> constantReplacementMap = new HashMap<>();
   }
 
-  public record ConstantReplacementData(boolean strict, Expression replacementExpr, boolean canBeOverwritten) {
+  public record ConstantReplacementData(boolean strict, Expression replacementExpr, boolean isFromVineflower) {
   }
 }

@@ -1,6 +1,5 @@
 package org.vineflower.unpick;
 
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.main.ClassesProcessor;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.AssignmentExprent;
@@ -18,7 +17,9 @@ import org.jetbrains.java.decompiler.util.MutableObject;
 import org.jetbrains.java.decompiler.util.StatementIterator;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 public final class UnpickPropagationUtils {
   private UnpickPropagationUtils() {
@@ -62,48 +63,36 @@ public final class UnpickPropagationUtils {
         }
 
         if (varContainingMethod != null) {
-          String groupName = groupTracker.getVarGroup(varContainingMethod, var);
-          if (groupName == null) {
-            groupName = groupTracker.getExprentGroup(methodKey, varExprent);
-          }
-          if (groupName != null) {
-            tryAssignGroup(changed, groupTracker, methodKey, varExprent, groupName);
-            if (groupTracker.trySetVarGroup(varContainingMethod, var, groupName)) {
-              changed.set(true);
-            }
+          Set<String> groupNames = new LinkedHashSet<>(groupTracker.getVarGroups(varContainingMethod, var));
+          groupNames.addAll(groupTracker.getExprentGroups(methodKey, varExprent));
+          tryAssignGroup(changed, groupTracker, methodKey, varExprent, groupNames);
+          if (groupTracker.tryAddVarGroups(varContainingMethod, var, groupNames)) {
+            changed.set(true);
           }
         }
       } else if (exprent instanceof FunctionExprent functionExprent) {
         switch (functionExprent.getFuncType()) {
           case ADD, SUB, MUL, AND, OR, XOR, STR_CONCAT -> {
-            String groupName = firstGroupOf(groupTracker, methodKey, functionExprent, functionExprent.getLstOperands().get(0), functionExprent.getLstOperands().get(1));
-            if (groupName != null) {
-              tryAssignGroup(changed, groupTracker, methodKey, functionExprent, groupName);
-              tryAssignGroup(changed, groupTracker, methodKey, functionExprent.getLstOperands().get(0), groupName);
-              tryAssignGroup(changed, groupTracker, methodKey, functionExprent.getLstOperands().get(1), groupName);
-            }
+            Set<String> groupNames = groupsOf(groupTracker, methodKey, functionExprent, functionExprent.getLstOperands().get(0), functionExprent.getLstOperands().get(1));
+            tryAssignGroup(changed, groupTracker, methodKey, functionExprent, groupNames);
+            tryAssignGroup(changed, groupTracker, methodKey, functionExprent.getLstOperands().get(0), groupNames);
+            tryAssignGroup(changed, groupTracker, methodKey, functionExprent.getLstOperands().get(1), groupNames);
           }
           case DIV, REM, NEG, BIT_NOT, PPI, IPP, MMI, IMM -> {
-            String groupName = firstGroupOf(groupTracker, methodKey, functionExprent, functionExprent.getLstOperands().get(0));
-            if (groupName != null) {
-              tryAssignGroup(changed, groupTracker, methodKey, functionExprent, groupName);
-              tryAssignGroup(changed, groupTracker, methodKey, functionExprent.getLstOperands().get(0), groupName);
-            }
+            Set<String> groupNames = groupsOf(groupTracker, methodKey, functionExprent, functionExprent.getLstOperands().get(0));
+            tryAssignGroup(changed, groupTracker, methodKey, functionExprent, groupNames);
+            tryAssignGroup(changed, groupTracker, methodKey, functionExprent.getLstOperands().get(0), groupNames);
           }
           case EQ, NE, GT, LT, GE, LE -> {
-            String groupName = firstGroupOf(groupTracker, methodKey, functionExprent.getLstOperands().get(0), functionExprent.getLstOperands().get(1));
-            if (groupName != null) {
-              tryAssignGroup(changed, groupTracker, methodKey, functionExprent.getLstOperands().get(0), groupName);
-              tryAssignGroup(changed, groupTracker, methodKey, functionExprent.getLstOperands().get(1), groupName);
-            }
+            Set<String> groupNames = groupsOf(groupTracker, methodKey, functionExprent.getLstOperands().get(0), functionExprent.getLstOperands().get(1));
+            tryAssignGroup(changed, groupTracker, methodKey, functionExprent.getLstOperands().get(0), groupNames);
+            tryAssignGroup(changed, groupTracker, methodKey, functionExprent.getLstOperands().get(1), groupNames);
           }
           case TERNARY -> {
-            String groupName = firstGroupOf(groupTracker, methodKey, functionExprent, functionExprent.getLstOperands().get(1), functionExprent.getLstOperands().get(2));
-            if (groupName != null) {
-              tryAssignGroup(changed, groupTracker, methodKey, functionExprent, groupName);
-              tryAssignGroup(changed, groupTracker, methodKey, functionExprent.getLstOperands().get(1), groupName);
-              tryAssignGroup(changed, groupTracker, methodKey, functionExprent.getLstOperands().get(2), groupName);
-            }
+            Set<String> groupNames = groupsOf(groupTracker, methodKey, functionExprent, functionExprent.getLstOperands().get(1), functionExprent.getLstOperands().get(2));
+            tryAssignGroup(changed, groupTracker, methodKey, functionExprent, groupNames);
+            tryAssignGroup(changed, groupTracker, methodKey, functionExprent.getLstOperands().get(1), groupNames);
+            tryAssignGroup(changed, groupTracker, methodKey, functionExprent.getLstOperands().get(2), groupNames);
           }
         }
       } else if (exprent instanceof AssignmentExprent assignmentExprent) {
@@ -130,18 +119,16 @@ public final class UnpickPropagationUtils {
         }
 
         if (propagate) {
-          String groupName;
+          Set<String> groupNames;
           if (propagateToRight) {
-            groupName = firstGroupOf(groupTracker, methodKey, assignmentExprent, assignmentExprent.getLeft(), assignmentExprent.getRight());
+            groupNames = groupsOf(groupTracker, methodKey, assignmentExprent, assignmentExprent.getLeft(), assignmentExprent.getRight());
           } else {
-            groupName = firstGroupOf(groupTracker, methodKey, assignmentExprent, assignmentExprent.getLeft());
+            groupNames = groupsOf(groupTracker, methodKey, assignmentExprent, assignmentExprent.getLeft());
           }
-          if (groupName != null) {
-            tryAssignGroup(changed, groupTracker, methodKey, assignmentExprent, groupName);
-            tryAssignGroup(changed, groupTracker, methodKey, assignmentExprent.getLeft(), groupName);
-            if (propagateToRight) {
-              tryAssignGroup(changed, groupTracker, methodKey, assignmentExprent.getRight(), groupName);
-            }
+          tryAssignGroup(changed, groupTracker, methodKey, assignmentExprent, groupNames);
+          tryAssignGroup(changed, groupTracker, methodKey, assignmentExprent.getLeft(), groupNames);
+          if (propagateToRight) {
+            tryAssignGroup(changed, groupTracker, methodKey, assignmentExprent.getRight(), groupNames);
           }
         }
       } else if (exprent instanceof SwitchHeadExprent switchHeadExprent) {
@@ -150,20 +137,16 @@ public final class UnpickPropagationUtils {
         for (List<Exprent> caze : switchHeadExprent.getCaseValues()) {
           subjectAndCases.addAll(caze);
         }
-        String groupName = firstGroupOf(groupTracker, methodKey, subjectAndCases.toArray(Exprent[]::new));
-        if (groupName != null) {
-          for (Exprent expr : subjectAndCases) {
-            tryAssignGroup(changed, groupTracker, methodKey, expr, groupName);
-          }
+        Set<String> groupNames = groupsOf(groupTracker, methodKey, subjectAndCases.toArray(Exprent[]::new));
+        for (Exprent expr : subjectAndCases) {
+          tryAssignGroup(changed, groupTracker, methodKey, expr, groupNames);
         }
       } else if (exprent instanceof SwitchExprent switchExprent) {
         List<Exprent> switchAndYields = new ArrayList<>();
         collectYieldExprents(switchExprent.getBacking(), switchAndYields);
-        String groupName = firstGroupOf(groupTracker, methodKey, switchAndYields.toArray(Exprent[]::new));
-        if (groupName != null) {
-          for (Exprent expr : switchAndYields) {
-            tryAssignGroup(changed, groupTracker, methodKey, expr, groupName);
-          }
+        Set<String> groupNames = groupsOf(groupTracker, methodKey, switchAndYields.toArray(Exprent[]::new));
+        for (Exprent expr : switchAndYields) {
+          tryAssignGroup(changed, groupTracker, methodKey, expr, groupNames);
         }
       }
       return 0;
@@ -198,20 +181,18 @@ public final class UnpickPropagationUtils {
     }
   }
 
-  @Nullable
-  private static String firstGroupOf(GroupTracker groupTracker, String methodKey, Exprent... exprents) {
+  private static Set<String> groupsOf(GroupTracker groupTracker, String methodKey, Exprent... exprents) {
+    Set<String> groupNames = new LinkedHashSet<>();
+
     for (Exprent exprent : exprents) {
-      String groupName = groupTracker.getExprentGroup(methodKey, exprent);
-      if (groupName != null) {
-        return groupName;
-      }
+      groupNames.addAll(groupTracker.getExprentGroups(methodKey, exprent));
     }
 
-    return null;
+    return groupNames;
   }
 
-  private static void tryAssignGroup(MutableObject<Boolean> changed, GroupTracker groupTracker, String methodKey, Exprent exprent, String groupName) {
-    if (groupTracker.trySetExprentGroup(methodKey, exprent, groupName)) {
+  private static void tryAssignGroup(MutableObject<Boolean> changed, GroupTracker groupTracker, String methodKey, Exprent exprent, Set<String> groupNames) {
+    if (groupTracker.tryAddExprentGroups(methodKey, exprent, groupNames)) {
       changed.set(true);
     }
   }

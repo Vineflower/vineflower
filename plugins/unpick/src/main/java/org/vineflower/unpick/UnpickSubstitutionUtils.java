@@ -39,13 +39,17 @@ import org.vineflower.unpick.parser.tree.expr.LiteralExpression;
 import org.vineflower.unpick.parser.tree.expr.UnaryExpression;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -159,7 +163,7 @@ public final class UnpickSubstitutionUtils {
       return false;
     }
 
-    String groupName = groupTracker.getExprentGroup(InterpreterUtil.makeUniqueKey(method.classStruct.qualifiedName, method.methodStruct.getName(), method.methodStruct.getDescriptor()), exprent);
+    Set<String> groupNames = groupTracker.getExprentGroups(InterpreterUtil.makeUniqueKey(method.classStruct.qualifiedName, method.methodStruct.getName(), method.methodStruct.getDescriptor()), exprent);
 
     SubstitutionResult substitution = getBestSubstitution(
       defs,
@@ -167,7 +171,7 @@ public final class UnpickSubstitutionUtils {
       scopeStack,
       method.methodStruct.hasModifier(CodeConstants.ACC_STATIC),
       disallowedFieldRefs,
-      groupName,
+      groupNames,
       UnpickUtils.getExprType(exprent),
       constantValue
     );
@@ -290,88 +294,105 @@ public final class UnpickSubstitutionUtils {
     List<GroupScope> scopeStack,
     boolean isStatic,
     Set<String> disallowedFieldRefs,
-    @Nullable String groupName,
+    Set<String> groupNames,
     VarType type,
     Object constantValue
   ) {
     DataType constantType = DataTypeUtils.getDataType(constantValue);
-    GroupFormat bestFormat = null;
-    for (UnpickDefinitions.GroupData groupData : getGroupData(defs, groupName, type)) {
-      Long targetFlags;
-      if (groupData.isFlags && (targetFlags = (Long) DataTypeUtils.tryCastExact(constantValue, DataType.LONG)) != null && targetFlags != 0 && targetFlags != -1) {
-        return getBestFlagsSubstitution(containingClass, scopeStack, isStatic, disallowedFieldRefs, groupData, constantType, targetFlags);
+    MutableObject<Boolean> isReplacementExprFromVineflower = MutableObject.of(false);
+    MutableObject<Expression> replacementExpr = MutableObject.of(null);
+    Map<Long, Expression> replacementFlags = new LinkedHashMap<>();
+    Set<Long> replacementFlagsFromVineflower = new HashSet<>();
+    MutableObject<GroupFormat> bestFormat = MutableObject.of(null);
+
+    long flagsMask = constantType == DataType.LONG ? 0xffff_ffff_ffff_ffffL : 0xffff_ffffL;
+    Long targetFlags = getAsFlags(constantValue, flagsMask);
+
+    forEachGroupWithScope(getGroupData(defs, groupNames, type), scopeStack, (groupData, scopedData) -> {
+      if (bestFormat.get() == null) {
+        bestFormat.set(scopedData.format);
       }
 
-      for (UnpickDefinitions.ScopedData scopedData : getScopedData(groupData, scopeStack)) {
-        if (bestFormat == null) {
-          bestFormat = scopedData.format;
-        }
-
+      if (groupData.isFlags && targetFlags != null && targetFlags != 0 && targetFlags != flagsMask /* -1 */) {
+        scopedData.constantReplacementMap.forEach((value, replacementData) -> {
+          Long flag = getAsFlags(value, flagsMask);
+          if (flag != null) {
+            if (!referencesDisallowedField(replacementData.replacementExpr(), containingClass, disallowedFieldRefs)) {
+              if (!referencesDisallowedInstanceField(replacementData.replacementExpr(), containingClass, isStatic)) {
+                boolean compatibleTypes = replacementData.strict() ? groupData.dataType == constantType : DataTypeUtils.isAssignable(constantType, groupData.dataType);
+                if (compatibleTypes) {
+                  if (replacementFlagsFromVineflower.contains(flag) && !replacementData.isFromVineflower()) {
+                    replacementFlagsFromVineflower.remove(flag);
+                    replacementFlags.put(flag, replacementData.replacementExpr());
+                  } else if (!replacementFlags.containsKey(flag) && replacementData.isFromVineflower()) {
+                    replacementFlagsFromVineflower.add(flag);
+                    replacementFlags.put(flag, replacementData.replacementExpr());
+                  } else {
+                    replacementFlags.putIfAbsent(flag, replacementData.replacementExpr());
+                  }
+                }
+              }
+            }
+          }
+        });
+      } else {
         UnpickDefinitions.ConstantReplacementData replacementData = scopedData.constantReplacementMap.get(DataTypeUtils.tryCastExact(constantValue, groupData.dataType));
         if (replacementData != null && !referencesDisallowedField(replacementData.replacementExpr(), containingClass, disallowedFieldRefs)) {
           if (!referencesDisallowedInstanceField(replacementData.replacementExpr(), containingClass, isStatic)) {
             boolean compatibleTypes = replacementData.strict() ? groupData.dataType == constantType : DataTypeUtils.isAssignable(constantType, groupData.dataType);
             if (compatibleTypes) {
-              return new SubstitutionResult.Expr(replacementData.replacementExpr());
-            }
-          }
-        }
-      }
-    }
-
-    return bestFormat == null ? null : new SubstitutionResult.Format(bestFormat);
-  }
-
-  @Nullable
-  private static SubstitutionResult getBestFlagsSubstitution(
-    String containingClass,
-    List<GroupScope> scopeStack,
-    boolean isStatic,
-    Set<String> disallowedFieldRefs,
-    UnpickDefinitions.GroupData groupData,
-    DataType constantType,
-    long targetFlags
-  ) {
-    long flagsMask = constantType == DataType.LONG ? 0xffff_ffff_ffff_ffffL : 0xffff_ffffL;
-    targetFlags &= flagsMask;
-
-    GroupFormat bestFormat = null;
-    Map<Long, Expression> replacementData = new LinkedHashMap<>();
-    for (UnpickDefinitions.ScopedData scopedData : getScopedData(groupData, scopeStack)) {
-      if (bestFormat == null) {
-        bestFormat = scopedData.format;
-      }
-
-      scopedData.constantReplacementMap.forEach((value, data) -> {
-        Long flag = (Long) DataTypeUtils.tryCastExact(value, DataType.LONG);
-        if (flag != null) {
-          if (!referencesDisallowedField(data.replacementExpr(), containingClass, disallowedFieldRefs)) {
-            if (!referencesDisallowedInstanceField(data.replacementExpr(), containingClass, isStatic)) {
-              if (!data.strict() || groupData.dataType == constantType) {
-                flag &= flagsMask;
-                replacementData.putIfAbsent(flag, data.replacementExpr());
+              if (replacementExpr.get() == null || (isReplacementExprFromVineflower.get() && !replacementData.isFromVineflower())) {
+                replacementExpr.set(replacementData.replacementExpr());
+                isReplacementExprFromVineflower.set(replacementData.isFromVineflower());
               }
             }
           }
         }
-      });
+      }
+    });
+
+    if (replacementExpr.get() != null) {
+      return new SubstitutionResult.Expr(replacementExpr.get());
+    } else if (!replacementFlags.isEmpty()) {
+      assert targetFlags != null;
+      Expression flagsExpr = getBestFlagsExpression(replacementFlags, constantType, targetFlags, flagsMask, bestFormat.get());
+      if (flagsExpr != null) {
+        return new SubstitutionResult.Expr(flagsExpr);
+      }
     }
 
+    return bestFormat.get() == null ? null : new SubstitutionResult.Format(bestFormat.get());
+  }
+
+  @Nullable
+  private static Long getAsFlags(Object constantValue, long mask) {
+    Long targetLong = (Long) DataTypeUtils.tryCastExact(constantValue, DataType.LONG);
+    return targetLong == null ? null : targetLong & mask;
+  }
+
+  @Nullable
+  private static Expression getBestFlagsExpression(
+    Map<Long, Expression> replacementData,
+    DataType constantType,
+    long targetFlags,
+    long flagsMask,
+    GroupFormat bestFormat
+  ) {
     List<Expression> positiveSet = new ArrayList<>();
     long positiveResidual = getMinimalFlags(targetFlags, replacementData, positiveSet);
     List<Expression> negativeSet = new ArrayList<>();
     long negativeResidual = getMinimalFlags(~targetFlags & flagsMask, replacementData, negativeSet);
 
-    if (negativeResidual == 0 && (positiveResidual != 0 || negativeSet.size() < positiveSet.size())) {
+    if (negativeResidual == 0 && !negativeSet.isEmpty() && (positiveResidual != 0 || negativeSet.size() < positiveSet.size())) {
       Expression resultExpression = negativeSet.get(0);
       for (int i = 1; i < negativeSet.size(); i++) {
         resultExpression = new BinaryExpression(resultExpression, negativeSet.get(i), BinaryExpression.Operator.BIT_OR);
       }
       resultExpression = new UnaryExpression(resultExpression, UnaryExpression.Operator.BIT_NOT);
-      return new SubstitutionResult.Expr(resultExpression);
+      return resultExpression;
     } else {
       if (positiveSet.isEmpty()) {
-        return bestFormat == null ? null : new SubstitutionResult.Format(bestFormat);
+        return null;
       }
 
       Expression resultExpression = positiveSet.get(0);
@@ -404,7 +425,7 @@ public final class UnpickSubstitutionUtils {
         resultExpression = new BinaryExpression(resultExpression, residualExpr, BinaryExpression.Operator.BIT_OR);
       }
 
-      return new SubstitutionResult.Expr(resultExpression);
+      return resultExpression;
     }
   }
 
@@ -455,17 +476,15 @@ public final class UnpickSubstitutionUtils {
       }
     }
 
-    String groupName = null;
+    Set<String> groupNames = new LinkedHashSet<>();
     TargetField targetField = defs.targetFields.get(InterpreterUtil.makeUniqueKey(cl.qualifiedName, fd.getName(), fd.getDescriptor()));
     if (targetField != null) {
-      groupName = targetField.groupName();
-    } else {
-      for (AnnotationExprent ann : UnpickUtils.getMemberAnnotations(fd, TypeAnnotation.FIELD)) {
-        TargetAnnotation targetAnnotation = defs.targetAnnotations.get(ann.getClassName());
-        if (targetAnnotation != null) {
-          groupName = targetAnnotation.groupName();
-          break;
-        }
+      groupNames.add(targetField.groupName());
+    }
+    for (AnnotationExprent ann : UnpickUtils.getMemberAnnotations(fd, TypeAnnotation.FIELD)) {
+      TargetAnnotation targetAnnotation = defs.targetAnnotations.get(ann.getClassName());
+      if (targetAnnotation != null) {
+        groupNames.add(targetAnnotation.groupName());
       }
     }
 
@@ -508,7 +527,7 @@ public final class UnpickSubstitutionUtils {
       scopeStack,
       isStatic,
       disallowedFieldRefs,
-      groupName,
+      groupNames,
       new VarType(fd.getDescriptor()),
       constantValue
     );
@@ -600,10 +619,9 @@ public final class UnpickSubstitutionUtils {
     return result.get();
   }
 
-  private static List<UnpickDefinitions.GroupData> getGroupData(UnpickDefinitions defs, @Nullable String groupName, VarType varType) {
-    if (groupName != null) {
-      UnpickDefinitions.GroupData group = defs.groups.get(groupName);
-      return group == null ? List.of() : List.of(group);
+  private static List<UnpickDefinitions.GroupData> getGroupData(UnpickDefinitions defs, Set<String> groupNames, VarType varType) {
+    if (!groupNames.isEmpty()) {
+      return groupNames.stream().map(defs.groups::get).filter(Objects::nonNull).toList();
     }
 
     DataType dataType = DataTypeUtils.fromVarType(varType);
@@ -628,33 +646,38 @@ public final class UnpickSubstitutionUtils {
     return result;
   }
 
-  private static List<UnpickDefinitions.ScopedData> getScopedData(UnpickDefinitions.GroupData groupData, List<GroupScope> scopeStack) {
-    List<UnpickDefinitions.ScopedData> result = new ArrayList<>(4);
-
+  private static void forEachGroupWithScope(
+    Collection<UnpickDefinitions.GroupData> groupDatas,
+    List<GroupScope> scopeStack,
+    BiConsumer<UnpickDefinitions.GroupData, UnpickDefinitions.ScopedData> processor
+  ) {
     for (int i = scopeStack.size() - 1; i >= 0; i--) {
-      GroupScope scope = scopeStack.get(i);
-      if (scope instanceof GroupScope.Package pkg) {
-        UnpickDefinitions.ScopedData packageData = groupData.packageScopes.get(pkg.packageName());
-        if (packageData != null) {
-          result.add(packageData);
+      for (UnpickDefinitions.GroupData groupData : groupDatas) {
+        GroupScope scope = scopeStack.get(i);
+        if (scope instanceof GroupScope.Package pkg) {
+          UnpickDefinitions.ScopedData packageData = groupData.packageScopes.get(pkg.packageName());
+          if (packageData != null) {
+            processor.accept(groupData, packageData);
+          }
+        } else if (scope instanceof GroupScope.Class clazz) {
+          UnpickDefinitions.ScopedData classData = groupData.classScopes.get(clazz.className());
+          if (classData != null) {
+            processor.accept(groupData, classData);
+          }
+        } else if (scope instanceof GroupScope.Method method) {
+          UnpickDefinitions.ScopedData methodData = groupData.methodScopes.get(InterpreterUtil.makeUniqueKey(method.className(), method.methodName(), method.methodName()));
+          if (methodData != null) {
+            processor.accept(groupData, methodData);
+          }
+        } else {
+          throw new UnsupportedOperationException("Unknown scope type " + scope.getClass());
         }
-      } else if (scope instanceof GroupScope.Class clazz) {
-        UnpickDefinitions.ScopedData classData = groupData.classScopes.get(clazz.className());
-        if (classData != null) {
-          result.add(classData);
-        }
-      } else if (scope instanceof GroupScope.Method method) {
-        UnpickDefinitions.ScopedData methodData = groupData.methodScopes.get(InterpreterUtil.makeUniqueKey(method.className(), method.methodName(), method.methodName()));
-        if (methodData != null) {
-          result.add(methodData);
-        }
-      } else {
-        throw new UnsupportedOperationException("Unknown scope type " + scope.getClass());
       }
     }
 
-    result.add(groupData.globalScope);
-    return result;
+    for (UnpickDefinitions.GroupData groupData : groupDatas) {
+      processor.accept(groupData, groupData.globalScope);
+    }
   }
 
   @Nullable

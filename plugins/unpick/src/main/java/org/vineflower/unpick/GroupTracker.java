@@ -4,29 +4,46 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 public final class GroupTracker {
-  private final Map<ExprentKey, String> exprentGroups = new HashMap<>();
-  private final Map<VarKey, String> varGroups = new HashMap<>();
+  private final Map<ExprentKey, Set<String>> exprentGroups = new HashMap<>();
+  private final Map<VarKey, Set<String>> varGroups = new HashMap<>();
 
-  public boolean trySetExprentGroup(String containingMethod, Exprent exprent, String groupName) {
-    return exprentGroups.putIfAbsent(new ExprentKey(containingMethod, exprent.id), groupName) == null;
+  public boolean tryAddExprentGroup(String containingMethod, Exprent exprent, String groupName) {
+    return exprentGroups.computeIfAbsent(new ExprentKey(containingMethod, exprent.id), k -> new LinkedHashSet<>()).add(groupName);
   }
 
-  public boolean trySetVarGroup(String containingMethod, VarVersionPair varId, String groupName) {
-    return varGroups.putIfAbsent(new VarKey(containingMethod, varId), groupName) == null;
+  public boolean tryAddExprentGroups(String containingMethod, Exprent exprent, Collection<String> groupNames) {
+    if (groupNames.isEmpty()) {
+      return false;
+    }
+
+    return exprentGroups.computeIfAbsent(new ExprentKey(containingMethod, exprent.id), k -> new LinkedHashSet<>()).addAll(groupNames);
   }
 
-  @Nullable
-  public String getExprentGroup(String containingMethod, Exprent exprent) {
-    return exprentGroups.get(new ExprentKey(containingMethod, exprent.id));
+  public boolean tryAddVarGroup(String containingMethod, VarVersionPair varId, String groupName) {
+    return varGroups.computeIfAbsent(new VarKey(containingMethod, varId), k -> new LinkedHashSet<>()).add(groupName);
   }
 
-  @Nullable
-  public String getVarGroup(String containingMethod, VarVersionPair varId) {
-    return varGroups.get(new VarKey(containingMethod, varId));
+  public boolean tryAddVarGroups(String containingMethod, VarVersionPair varId, Collection<String> groupNames) {
+    if (groupNames.isEmpty()) {
+      return false;
+    }
+
+    return varGroups.computeIfAbsent(new VarKey(containingMethod, varId), k -> new LinkedHashSet<>()).addAll(groupNames);
+  }
+
+  public Set<String> getExprentGroups(String containingMethod, Exprent exprent) {
+    return exprentGroups.getOrDefault(new ExprentKey(containingMethod, exprent.id), Set.of());
+  }
+
+  public Set<String> getVarGroups(String containingMethod, VarVersionPair varId) {
+    return varGroups.getOrDefault(new VarKey(containingMethod, varId), Set.of());
   }
 
   private record ExprentKey(String containingMethod, int exprentId) {

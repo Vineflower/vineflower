@@ -54,7 +54,7 @@ public class UnpickPass implements ClassPass {
 
     try {
       loadBuiltInDefinitions(defs);
-      defs.canBeOverwritten = false;
+      defs.areDefinitionsFromVineflower = false;
       loadCustomDefinitions(defs);
     } catch (IOException e) {
       DecompilerContext.getLogger().writeMessage("Failed to load unpick definitions", e);
