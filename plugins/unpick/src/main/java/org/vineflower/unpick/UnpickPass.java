@@ -5,9 +5,7 @@ import org.jetbrains.java.decompiler.api.plugin.pass.ClassPass;
 import org.jetbrains.java.decompiler.main.ClassesProcessor;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
-import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.util.Key;
-import org.jetbrains.java.decompiler.util.Pair;
 import org.vineflower.unpick.parser.UnpickParseException;
 import org.vineflower.unpick.parser.UnpickV3Reader;
 
@@ -20,8 +18,6 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -35,15 +31,14 @@ public class UnpickPass implements ClassPass {
       return false;
     }
 
-    Map<Pair<String, Integer>, String> exprentGroups = new HashMap<>();
-    Map<Pair<String, VarVersionPair>, String> varGroups = new HashMap<>();
+    GroupTracker groupTracker = new GroupTracker();
 
-    UnpickTargetUtils.identifyTargets(defs, classNode, exprentGroups, varGroups);
-    while (UnpickPropagationUtils.propagateGroups(classNode, exprentGroups, varGroups)) {
+    UnpickTargetUtils.identifyTargets(defs, classNode, groupTracker);
+    while (UnpickPropagationUtils.propagateGroups(classNode, groupTracker)) {
       // keep propagating while changed
     }
-    boolean res = UnpickSubstitutionUtils.substituteConstants(defs, classNode, exprentGroups);
-    res |= UnpickSubstitutionUtils.substituteConstantFieldInitializers(classNode, defs);
+    boolean res = UnpickSubstitutionUtils.substituteConstants(defs, classNode, groupTracker);
+    res |= UnpickSubstitutionUtils.substituteConstantFieldInitializers(defs, classNode);
     return res;
   }
 

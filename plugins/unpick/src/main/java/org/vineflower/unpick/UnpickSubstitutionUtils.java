@@ -53,11 +53,7 @@ public final class UnpickSubstitutionUtils {
   private UnpickSubstitutionUtils() {
   }
 
-  static boolean substituteConstants(
-    UnpickDefinitions defs,
-    ClassesProcessor.ClassNode classNode,
-    Map<Pair<String, Integer>, String> exprentGroups
-  ) {
+  static boolean substituteConstants(UnpickDefinitions defs, ClassesProcessor.ClassNode classNode, GroupTracker groupTracker) {
     MutableObject<Boolean> res = MutableObject.of(false);
 
     int slashIndex = classNode.classStruct.qualifiedName.lastIndexOf('/');
@@ -81,7 +77,7 @@ public final class UnpickSubstitutionUtils {
       }
       scopeStack.add(new GroupScope.Method(node.classStruct.qualifiedName, method.methodStruct.getName(), method.methodStruct.getDescriptor()));
 
-      if (method.root != null && substituteConstants(defs, method, scopeStack, method.root, exprentGroups)) {
+      if (method.root != null && substituteConstants(defs, method, scopeStack, method.root, groupTracker)) {
         res.set(true);
       }
     });
@@ -93,21 +89,21 @@ public final class UnpickSubstitutionUtils {
     MethodWrapper method,
     List<GroupScope> scopeStack,
     Statement stat,
-    Map<Pair<String, Integer>, String> exprentGroups
+    GroupTracker groupTracker
   ) {
     boolean res = false;
 
     if (stat.getExprents() == null) {
       for (Exprent exprent : stat.getStatExprents()) {
-        res |= substituteConstants(defs, method, scopeStack, Set.of(), null, exprent, newExprent -> stat.replaceExprent(exprent, newExprent), exprentGroups);
+        res |= substituteConstants(defs, method, scopeStack, Set.of(), null, exprent, newExprent -> stat.replaceExprent(exprent, newExprent), groupTracker);
       }
 
       for (Statement st : stat.getStats()) {
-        res |= substituteConstants(defs, method, scopeStack, st, exprentGroups);
+        res |= substituteConstants(defs, method, scopeStack, st, groupTracker);
       }
     } else {
       for (Exprent exprent : stat.getExprents()) {
-        res |= substituteConstants(defs, method, scopeStack, Set.of(), null, exprent, newExprent -> stat.replaceExprent(exprent, newExprent), exprentGroups);
+        res |= substituteConstants(defs, method, scopeStack, Set.of(), null, exprent, newExprent -> stat.replaceExprent(exprent, newExprent), groupTracker);
       }
     }
 
@@ -122,9 +118,9 @@ public final class UnpickSubstitutionUtils {
     @Nullable StructField fieldAssignment,
     Exprent exprent,
     Consumer<Exprent> replace,
-    Map<Pair<String, Integer>, String> exprentGroups
+    GroupTracker groupTracker
   ) {
-    if (substituteConstantsForSingleExprent(defs, method, scopeStack, disallowedFieldRefs, fieldAssignment, exprent, replace, exprentGroups)) {
+    if (substituteConstantsForSingleExprent(defs, method, scopeStack, disallowedFieldRefs, fieldAssignment, exprent, replace, groupTracker)) {
       return true;
     }
 
@@ -143,7 +139,7 @@ public final class UnpickSubstitutionUtils {
 
     boolean res = false;
     for (Exprent subExprent : exprent.getAllExprents()) {
-      res |= substituteConstants(defs, method, scopeStack, disallowedFieldRefs, fieldAssignment, subExprent, newExprent -> exprent.replaceExprent(subExprent, newExprent), exprentGroups);
+      res |= substituteConstants(defs, method, scopeStack, disallowedFieldRefs, fieldAssignment, subExprent, newExprent -> exprent.replaceExprent(subExprent, newExprent), groupTracker);
     }
     return res;
   }
@@ -156,14 +152,14 @@ public final class UnpickSubstitutionUtils {
     @Nullable StructField fieldAssignment,
     Exprent exprent,
     Consumer<Exprent> replace,
-    Map<Pair<String, Integer>, String> exprentGroups
+    GroupTracker groupTracker
   ) {
     Object constantValue = computeConstantValue(exprent);
     if (constantValue == null) {
       return false;
     }
 
-    String groupName = exprentGroups.get(Pair.of(InterpreterUtil.makeUniqueKey(method.classStruct.qualifiedName, method.methodStruct.getName(), method.methodStruct.getDescriptor()), exprent.id));
+    String groupName = groupTracker.getExprentGroup(InterpreterUtil.makeUniqueKey(method.classStruct.qualifiedName, method.methodStruct.getName(), method.methodStruct.getDescriptor()), exprent);
 
     SubstitutionResult substitution = getBestSubstitution(
       defs,
@@ -193,12 +189,12 @@ public final class UnpickSubstitutionUtils {
   }
 
   // Constants in the ConstantValue attribute are not stored in the exprent tree, so we have to handle them separately
-  static boolean substituteConstantFieldInitializers(ClassesProcessor.ClassNode classNode, UnpickDefinitions defs) {
+  static boolean substituteConstantFieldInitializers(UnpickDefinitions defs, ClassesProcessor.ClassNode classNode) {
     boolean res = false;
 
     for (ClassesProcessor.ClassNode nested : classNode.nested) {
       if (nested.type != ClassesProcessor.ClassNode.Type.LAMBDA) {
-        res |= substituteConstantFieldInitializers(nested, defs);
+        res |= substituteConstantFieldInitializers(defs, nested);
       }
     }
 
