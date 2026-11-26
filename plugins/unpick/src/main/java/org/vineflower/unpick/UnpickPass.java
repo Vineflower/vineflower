@@ -39,6 +39,7 @@ public class UnpickPass implements ClassPass {
     }
     boolean res = UnpickSubstitutionUtils.substituteConstants(defs, classNode, groupTracker);
     res |= UnpickSubstitutionUtils.substituteConstantFieldInitializers(defs, classNode);
+    res |= UnpickSubstitutionUtils.substituteAnnotations(defs, classNode);
     return res;
   }
 

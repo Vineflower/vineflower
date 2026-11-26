@@ -197,7 +197,7 @@ public final class UnpickTargetUtils {
 
       Set<String> groupNames = new LinkedHashSet<>();
       TargetMethod targetMethod = defs.targetMethods.get(InterpreterUtil.makeUniqueKey(recordData.cl().qualifiedName, recordComponent.getName(), "()" + recordComponent.getDescriptor()));
-      if (targetMethod != null) {
+      if (targetMethod != null && targetMethod.returnGroup() != null) {
         groupNames.add(targetMethod.returnGroup());
       }
       StructMethod mt = recordData.cl().getMethod(recordComponent.getName(), "()" + recordComponent.getDescriptor());

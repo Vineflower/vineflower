@@ -2,6 +2,7 @@ package org.vineflower.unpick;
 
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.code.CodeConstants;
+import org.jetbrains.java.decompiler.main.ClassWriter;
 import org.jetbrains.java.decompiler.main.ClassesProcessor;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
@@ -16,13 +17,19 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.TypeAnnotation;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructField;
+import org.jetbrains.java.decompiler.struct.StructMember;
 import org.jetbrains.java.decompiler.struct.StructMethod;
+import org.jetbrains.java.decompiler.struct.attr.StructAnnDefaultAttribute;
+import org.jetbrains.java.decompiler.struct.attr.StructAnnotationAttribute;
+import org.jetbrains.java.decompiler.struct.attr.StructAnnotationParameterAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructConstantValueAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructEnclosingMethodAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
+import org.jetbrains.java.decompiler.struct.attr.StructTypeAnnotationAttribute;
 import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
+import org.jetbrains.java.decompiler.util.Key;
 import org.jetbrains.java.decompiler.util.MutableObject;
 import org.jetbrains.java.decompiler.util.Pair;
 import org.vineflower.unpick.parser.tree.DataType;
@@ -31,6 +38,7 @@ import org.vineflower.unpick.parser.tree.GroupScope;
 import org.vineflower.unpick.parser.tree.Literal;
 import org.vineflower.unpick.parser.tree.TargetAnnotation;
 import org.vineflower.unpick.parser.tree.TargetField;
+import org.vineflower.unpick.parser.tree.TargetMethod;
 import org.vineflower.unpick.parser.tree.expr.BinaryExpression;
 import org.vineflower.unpick.parser.tree.expr.Expression;
 import org.vineflower.unpick.parser.tree.expr.ExpressionVisitor;
@@ -243,6 +251,173 @@ public final class UnpickSubstitutionUtils {
     }
 
     return res;
+  }
+
+  static boolean substituteAnnotations(UnpickDefinitions defs, ClassesProcessor.ClassNode classNode) {
+    List<GroupScope> scopeStack = new ArrayList<>();
+    if (classNode.classStruct.qualifiedName.contains("/")) {
+      scopeStack.add(new GroupScope.Package(classNode.classStruct.qualifiedName.substring(0, classNode.classStruct.qualifiedName.lastIndexOf('/'))));
+    }
+    return substituteAnnotations(defs, classNode, scopeStack);
+  }
+
+  private static boolean substituteAnnotations(UnpickDefinitions defs, ClassesProcessor.ClassNode classNode, List<GroupScope> scopeStack) {
+    boolean res = false;
+    scopeStack.add(new GroupScope.Class(classNode.classStruct.qualifiedName));
+
+    for (ClassesProcessor.ClassNode nested : classNode.nested) {
+      if (nested.type != ClassesProcessor.ClassNode.Type.LAMBDA) {
+        res |= substituteAnnotations(defs, nested, scopeStack);
+      }
+    }
+
+    res |= substituteAnnotations(defs, classNode.classStruct, classNode.classStruct.qualifiedName, scopeStack, Set.of());
+
+    Set<String> disallowedFields = classNode.classStruct.getFields().stream().map(StructField::getName).collect(Collectors.toCollection(HashSet::new));
+    for (StructField field : classNode.classStruct.getFields()) {
+      res |= substituteAnnotations(defs, field, classNode.classStruct.qualifiedName, scopeStack, disallowedFields);
+      disallowedFields.remove(field.getName());
+    }
+
+    for (StructMethod method : classNode.classStruct.getMethods()) {
+      res |= substituteAnnotations(defs, method, classNode.classStruct.qualifiedName, scopeStack, Set.of());
+
+      for (Key<?> attributeKey : ClassWriter.PARAMETER_ANNOTATION_ATTRIBUTES) {
+        StructAnnotationParameterAttribute attribute = (StructAnnotationParameterAttribute) method.getAttribute(attributeKey);
+        if (attribute != null) {
+          for (List<AnnotationExprent> annotationsForParam : attribute.getParamAnnotations()) {
+            for (AnnotationExprent ann : annotationsForParam) {
+              res |= substituteExprentsInAnnotation(defs, ann, classNode.classStruct.qualifiedName, scopeStack, Set.of());
+            }
+          }
+        }
+      }
+
+      res |= substituteAnnotationDefault(defs, method, classNode.classStruct.qualifiedName, scopeStack);
+    }
+
+    scopeStack.remove(scopeStack.size() - 1);
+    return res;
+  }
+
+  private static boolean substituteAnnotations(UnpickDefinitions defs, StructMember member, String containingClass, List<GroupScope> scopeStack, Set<String> disallowedFields) {
+    boolean res = false;
+
+    for (Key<?> attributeKey : ClassWriter.ANNOTATION_ATTRIBUTES) {
+      StructAnnotationAttribute attribute = (StructAnnotationAttribute) member.getAttribute(attributeKey);
+      if (attribute != null) {
+        for (AnnotationExprent ann : attribute.getAnnotations()) {
+          res |= substituteExprentsInAnnotation(defs, ann, containingClass, scopeStack, disallowedFields);
+        }
+      }
+    }
+
+    for (Key<?> attributeKey : ClassWriter.TYPE_ANNOTATION_ATTRIBUTES) {
+      StructTypeAnnotationAttribute attribute = (StructTypeAnnotationAttribute) member.getAttribute(attributeKey);
+      if (attribute != null) {
+        for (TypeAnnotation typeAnnotation : attribute.getAnnotations()) {
+          res |= substituteExprentsInAnnotation(defs, typeAnnotation.getAnnotation(), containingClass, scopeStack, disallowedFields);
+        }
+      }
+    }
+
+    return res;
+  }
+
+  private static boolean substituteExprentsInAnnotation(UnpickDefinitions defs, Exprent exprent, String containingClass, List<GroupScope> scopeStack, Set<String> disallowedFields) {
+    boolean res = false;
+    for (Exprent subExprent : exprent.getAllExprents()) {
+      res |= substituteExprentsInAnnotation(defs, subExprent, containingClass, scopeStack, disallowedFields);
+    }
+
+    if (exprent instanceof AnnotationExprent annotationExprent) {
+      StructClass annotationClass = DecompilerContext.getStructContext().getClass(annotationExprent.getClassName());
+      if (annotationClass != null) {
+        for (int i = 0; i < annotationExprent.getParNames().size(); i++) {
+          String parName = annotationExprent.getParNames().get(i);
+          Exprent subExprent = annotationExprent.getParValues().get(i);
+          StructMethod mt = annotationClass.getMethods().stream().filter(md -> md.getName().equals(parName)).findFirst().orElse(null);
+          if (mt != null) {
+            Set<String> groupNames = new LinkedHashSet<>();
+            TargetMethod targetMethod = defs.targetMethods.get(InterpreterUtil.makeUniqueKey(annotationClass.qualifiedName, mt.getName(), mt.getDescriptor()));
+            if (targetMethod != null && targetMethod.returnGroup() != null) {
+              groupNames.add(targetMethod.returnGroup());
+            }
+            for (AnnotationExprent ann : UnpickUtils.getMemberAnnotations(mt, TypeAnnotation.METHOD_RETURN_TYPE)) {
+              TargetAnnotation targetAnnotation = defs.targetAnnotations.get(ann.getClassName());
+              if (targetAnnotation != null) {
+                groupNames.add(targetAnnotation.groupName());
+              }
+            }
+
+            SubstitutionResult substitution = getBestSubstitution(
+              defs,
+              containingClass,
+              scopeStack,
+              true,
+              disallowedFields,
+              groupNames,
+              mt.methodDescriptor().ret,
+              computeConstantValue(subExprent)
+            );
+            if (substitution instanceof SubstitutionResult.Expr expr) {
+              ExpressionToExprent converter = new ExpressionToExprent(null, null);
+              expr.expr().accept(converter);
+              annotationExprent.replaceExprent(subExprent, converter.result);
+              res = true;
+            } else if (substitution instanceof SubstitutionResult.Format format) {
+              res |= applyFormatToConst(subExprent, format.format());
+            }
+          }
+        }
+      }
+    }
+
+    return res;
+  }
+
+  private static boolean substituteAnnotationDefault(UnpickDefinitions defs, StructMethod mt, String containingClass, List<GroupScope> scopeStack) {
+    StructAnnDefaultAttribute attribute = mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_ANNOTATION_DEFAULT);
+    if (attribute == null) {
+      return false;
+    }
+
+    if (attribute.getDefaultValue() instanceof ConstExprent constExprent) {
+      Set<String> groupNames = new LinkedHashSet<>();
+      TargetMethod targetMethod = defs.targetMethods.get(InterpreterUtil.makeUniqueKey(containingClass, mt.getName(), mt.getDescriptor()));
+      if (targetMethod != null && targetMethod.returnGroup() != null) {
+        groupNames.add(targetMethod.returnGroup());
+      }
+      for (AnnotationExprent ann : UnpickUtils.getMemberAnnotations(mt, TypeAnnotation.METHOD_RETURN_TYPE)) {
+        TargetAnnotation targetAnnotation = defs.targetAnnotations.get(ann.getClassName());
+        if (targetAnnotation != null) {
+          groupNames.add(targetAnnotation.groupName());
+        }
+      }
+
+      SubstitutionResult substitution = getBestSubstitution(
+        defs,
+        containingClass,
+        scopeStack,
+        true,
+        Set.of(),
+        groupNames,
+        mt.methodDescriptor().ret,
+        computeConstantValue(constExprent)
+      );
+      if (substitution instanceof SubstitutionResult.Expr expr) {
+        ExpressionToExprent converter = new ExpressionToExprent(null, null);
+        expr.expr().accept(converter);
+        attribute.setDefaultValue(converter.result);
+        return true;
+      } else if (substitution instanceof SubstitutionResult.Format format) {
+        return applyFormatToConst(constExprent, format.format());
+      } else {
+        return false;
+      }
+    } else {
+      return substituteExprentsInAnnotation(defs, attribute.getDefaultValue(), containingClass, scopeStack, Set.of());
+    }
   }
 
   private static boolean applyFormatToConst(Exprent exprent, GroupFormat format) {
