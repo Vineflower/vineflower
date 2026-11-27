@@ -77,7 +77,7 @@ public class TestUnnamedVar1 {
       Object var2 = o;// 52
       switch (var2) {
          case Integer var4 when var2 instanceof Integer || var2 instanceof String:// 53
-         case <UNEXPECTED CONST. TYPE: Ljava/lang/Object; VALUE: 1> when var2 instanceof Integer || var2 instanceof String:
+         case /* $VF: Unexpected constant type Ljava/lang/Object; */ 1 when var2 instanceof Integer || var2 instanceof String:
             System.out.println("1");
             break;
          default:
