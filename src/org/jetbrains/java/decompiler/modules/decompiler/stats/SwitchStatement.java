@@ -587,7 +587,7 @@ public class SwitchStatement extends Statement {
     // Basichead is always the first stat
     this.getStats().addWithKeyAndIndex(1 + index, stat, stat.id);
     this.getCaseStatements().add(index, stat);
-    this.getCaseValues().add(index, values);
+    this.getCaseValues().add(index, new ArrayList<>(values));
 
     // If it's a default case, or a regular case
     if (values.size() == 1 && values.get(0) == null) {
