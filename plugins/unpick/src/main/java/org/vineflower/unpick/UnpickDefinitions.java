@@ -185,9 +185,14 @@ public class UnpickDefinitions extends UnpickV3Visitor {
 
   @Override
   public void visitTargetMethod(TargetMethod targetMethod) {
-    targetMethods.put(
+    targetMethods.merge(
       InterpreterUtil.makeUniqueKey(targetMethod.className().replace('.', '/'), targetMethod.methodName(), targetMethod.methodDesc()),
-      targetMethod
+      targetMethod,
+      (targetA, targetB) -> TargetMethod.Builder.builder(targetA.className(), targetA.methodName(), targetA.methodDesc())
+        .paramGroups(targetB.paramGroups())
+        .paramGroups(targetA.paramGroups())
+        .returnGroup(targetA.returnGroup() == null ? targetB.returnGroup() : targetA.returnGroup())
+        .build()
     );
   }
 
