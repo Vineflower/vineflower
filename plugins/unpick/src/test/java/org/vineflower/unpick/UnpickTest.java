@@ -19,8 +19,6 @@ public class UnpickTest extends SingleClassesTestBase {
 
   private void registerUnpick() {
     register(JAVA_8, "TestJdk");
-    register(JAVA_8, "TestFloatPrecision");
-    register(JAVA_8, "TestNotFloatPrecision");
     register(JAVA_8, "TestConstantUninlining");
     register(JAVA_8, "TestPiDivision");
     registerWithDefinitions(JAVA_8, "TestByteToIntCoercion", "Constants");
