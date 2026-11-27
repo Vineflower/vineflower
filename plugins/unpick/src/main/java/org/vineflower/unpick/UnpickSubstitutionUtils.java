@@ -801,7 +801,7 @@ public final class UnpickSubstitutionUtils {
             processor.accept(groupData, classData);
           }
         } else if (scope instanceof GroupScope.Method method) {
-          UnpickDefinitions.ScopedData methodData = groupData.methodScopes.get(InterpreterUtil.makeUniqueKey(method.className(), method.methodName(), method.methodName()));
+          UnpickDefinitions.ScopedData methodData = groupData.methodScopes.get(InterpreterUtil.makeUniqueKey(method.className(), method.methodName(), method.methodDesc()));
           if (methodData != null) {
             processor.accept(groupData, methodData);
           }

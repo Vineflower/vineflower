@@ -76,6 +76,7 @@ public class UnpickTest extends SingleClassesTestBase {
     registerWithDefinitions(JAVA_8, "TestNegatedShortFlagsParameter", "Constants");
     registerWithDefinitions(JAVA_8, "TestNegatedShortFlagsReturn", "Constants");
     registerWithDefinitions(JAVA_8, "TestNonStaticConstants", "Constants");
+    registerWithDefinitions(JAVA_8, "TestScopes", "Constants");
     registerWithDefinitions(JAVA_8, "TestSomeUnknownFlags", "Constants");
     registerWithDefinitions(JAVA_8, "TestSubclass", "Constants");
     registerWithDefinitions(JAVA_8, "TestSwitchUninlining", "Constants");

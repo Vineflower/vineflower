@@ -1,0 +1,17 @@
+unpick v4
+
+group int
+  @scope package pkg
+  pkg.Constants.INT_CONST_0
+
+group int
+  @scope method pkg.TestScopes methodScope ()I
+  @scope method pkg.TestScopes lambdaScope1 ()Ljava/util/function/IntSupplier;
+  @scope method pkg.TestScopes lambda$lambdaScope2$1 ()I
+  @scope method pkg.TestScopes anonymousClassScope ()Ljava/util/function/IntSupplier;
+  @scope class pkg.TestScopes$Nested
+  pkg.Constants.INT_CONST_1
+
+group int
+  @scope class pkg.TestScopes
+  pkg.Constants.INT_CONST_2
