@@ -551,15 +551,17 @@ public final class UnpickSubstitutionUtils {
         if (bestFormat == GroupFormat.CHAR && DataTypeUtils.tryCastExact(positiveResidual, DataType.CHAR) != null) {
           residualExpr = new LiteralExpression(new Literal.Character((char) positiveResidual));
         } else {
+          int defaultRadix = positiveResidual >= 0 && positiveResidual <= 9 ? 10 : 16;
           int radix;
           if (bestFormat == null) {
-            radix = 16;
+            radix = defaultRadix;
           } else {
             radix = switch (bestFormat) {
               case BINARY -> 2;
               case OCTAL -> 8;
               case DECIMAL -> 10;
-              default -> 16;
+              case HEX -> 16;
+              default -> defaultRadix;
             };
           }
           if (constantType == DataType.LONG) {
