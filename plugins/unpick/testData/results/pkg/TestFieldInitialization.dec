@@ -1,0 +1,15 @@
+package pkg;
+
+public class TestFieldInitialization {
+   private static final int FLAG_1 = 1;
+   private static final int FLAG_2 = 2;
+   private static final int FLAG_3 = FLAG_1 | FLAG_2;
+   private static final int FLAG_4 = FLAG_3 | 0x4;
+   private static final int FLAG_5 = 4;
+   private static final int TEST_CIRCULAR = 0;
+
+   static class Nested {
+      private static final int TEST_CIRCULAR = 1;
+   }
+}
+

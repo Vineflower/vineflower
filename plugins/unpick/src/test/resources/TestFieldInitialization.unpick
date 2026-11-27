@@ -1,0 +1,22 @@
+unpick v4
+
+group int test_flags
+  @flags
+  pkg.TestFieldInitialization.FLAG_1
+  pkg.TestFieldInitialization.FLAG_2
+  pkg.TestFieldInitialization.FLAG_3
+  pkg.TestFieldInitialization.FLAG_4
+  pkg.TestFieldInitialization.FLAG_5
+
+target_field pkg.TestFieldInitialization FLAG_1 I test_flags
+target_field pkg.TestFieldInitialization FLAG_2 I test_flags
+target_field pkg.TestFieldInitialization FLAG_3 I test_flags
+target_field pkg.TestFieldInitialization FLAG_4 I test_flags
+target_field pkg.TestFieldInitialization FLAG_5 I test_flags
+
+group int test_circular
+  pkg.TestFieldInitialization.TEST_CIRCULAR + 1
+  pkg.TestFieldInitialization$Nested.TEST_CIRCULAR - 1
+
+target_field pkg.TestFieldInitialization TEST_CIRCULAR I test_circular
+target_field pkg.TestFieldInitialization$Nested TEST_CIRCULAR I test_circular

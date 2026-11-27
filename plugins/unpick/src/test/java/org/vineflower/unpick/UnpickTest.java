@@ -26,6 +26,7 @@ public class UnpickTest extends SingleClassesTestBase {
     registerWithDefinitions(JAVA_8, "TestCharFormatRequireCast", "Constants");
     registerWithDefinitions(JAVA_8, "TestConstantDeclaration", "Constants");
     registerWithDefinitions(JAVA_8, "TestExpressions", "Constants");
+    registerWithDefinitions(JAVA_8, "TestFieldInitialization", "Constants");
     registerWithDefinitions(JAVA_8, "TestFloatToDoubleCoercion", "Constants");
     registerWithDefinitions(JAVA_8, "TestFloatToDoubleImplicitCast", "Constants");
     registerWithDefinitions(JAVA_8, "TestGlobalClassConstant", "Constants");
