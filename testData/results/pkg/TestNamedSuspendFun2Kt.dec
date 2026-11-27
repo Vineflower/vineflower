@@ -48,7 +48,7 @@ public final class TestNamedSuspendFun2Kt {
       label272: {
          if ($completion instanceof NamelessClass_1) {
             $continuation = (NamelessClass_1)$completion;
-            if (($continuation.label & -2147483648) != 0) {
+            if (($continuation.label & 0x80000000) != 0) {
                $continuation.label -= -2147483648;
                break label272;
             }

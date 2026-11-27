@@ -9,15 +9,15 @@ public class TestMultiAssignmentInDynamicBlock {
    private final int e;
 
    public TestMultiAssignmentInDynamicBlock() {
-      this.i = this.i * 14151 + 151 ^ 414;// 13
+      this.i = this.i * 14151 + 151 ^ 0x19E;// 13
       this.b = this.i * 11;// 14
-      this.i = this.i * 14151 + 151 ^ 414;// 15
+      this.i = this.i * 14151 + 151 ^ 0x19E;// 15
       this.c = this.i * 11;// 16
-      this.i = this.i * 14151 + 151 ^ 414;// 17
+      this.i = this.i * 14151 + 151 ^ 0x19E;// 17
       this.d = this.i * 11;// 18
-      this.i = this.i * 14151 + 151 ^ 414;// 19
+      this.i = this.i * 14151 + 151 ^ 0x19E;// 19
       this.e = this.i * 11;// 20
-      this.i = this.i * 14151 + 151 ^ 414;// 21
+      this.i = this.i * 14151 + 151 ^ 0x19E;// 21
    }// 22
 }
 

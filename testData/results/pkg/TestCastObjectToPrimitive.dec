@@ -10,7 +10,7 @@ public class TestCastObjectToPrimitive {
    boolean isObject6 = (Integer)object1 == 6;// 12
    boolean booleanOr = (Boolean)object1 || (Boolean)object1;// 13
    int integerXor = (Integer)object1 ^ 5;// 14
-   short shorXor = (short)((Short)object1 ^ 58);// 15
+   short shorXor = (short)((Short)object1 ^ 0x3A);// 15
    long longXor = 8L ^ (Long)object1;// 16
    boolean integerGe = (Integer)object1 <= 48;// 17
 

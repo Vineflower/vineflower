@@ -32,6 +32,7 @@ public class UnpickTest extends SingleClassesTestBase {
     registerWithDefinitions(JAVA_8, "TestFloatToDoubleImplicitCast", "Constants");
     registerWithDefinitions(JAVA_8, "TestGlobalClassConstant", "Constants");
     registerWithDefinitions(JAVA_8, "TestGlobalStringConstant", "Constants");
+    registerWithDefinitions(JAVA_8, "TestGroupFormat", "Constants");
     registerWithDefinitions(JAVA_8, "TestInsideAnnotations", "Constants");
     registerWithDefinitions(JAVA_8, "TestIntToLongCoercion", "Constants");
     registerWithDefinitions(JAVA_8, "TestIntToLongFlagCoercion", "Constants");
@@ -79,13 +80,14 @@ public class UnpickTest extends SingleClassesTestBase {
     registerWithDefinitions(JAVA_8, "TestNonStaticConstants", "Constants");
     registerWithDefinitions(JAVA_8, "TestSomeUnknownFlags", "Constants");
     registerWithDefinitions(JAVA_8, "TestSubclass", "Constants");
+    registerWithDefinitions(JAVA_8, "TestSwitchUninlining", "Constants");
     registerWithDefinitions(JAVA_8, "TestTargetAnnotations", "Constants");
     registerWithDefinitions(JAVA_8, "TestUnknownConstants", "Constants");
     registerWithDefinitions(JAVA_8, "TestUnknownFlags", "Constants");
     registerWithDefinitions(JAVA_8, "TestWildcardFieldParameter", "Constants");
     registerWithDefinitions(JAVA_8, "TestZeroFlags", "Constants");
     registerWithDefinitions(JAVA_8, "TestWildcardFieldReturn", "Constants");
-    register(JAVA_17, "TestJdk17");
+    registerWithDefinitions(JAVA_17, "TestSwitchExpressionUninlining"); // TODO: yield has redundant cast
     registerWithDefinitions(JAVA_21, "TestPatternVar");
   }
 

@@ -35,6 +35,7 @@ public class ConstExprent extends Exprent {
   private final boolean boolPermitted;
   private boolean wasCondy = false;
   private int radix = 10;
+  private boolean hasSetRadix = false;
   private boolean constTypeForced = false;
 
   public ConstExprent(int val, boolean boolPermitted, BitSet bytecodeOffsets) {
@@ -45,10 +46,11 @@ public class ConstExprent extends Exprent {
     this(constType, value, false, bytecodeOffsets);
   }
 
-  public ConstExprent(VarType constType, Object value, BitSet bytecodeOffsets, boolean wasCondy, int radix, boolean constTypeForced) {
+  public ConstExprent(VarType constType, Object value, BitSet bytecodeOffsets, boolean wasCondy, int radix, boolean hasSetRadix, boolean constTypeForced) {
     this(constType, value, false, bytecodeOffsets);
     this.wasCondy = wasCondy;
     this.radix = radix;
+    this.hasSetRadix = hasSetRadix;
     this.constTypeForced = constTypeForced;
   }
 
@@ -97,7 +99,7 @@ public class ConstExprent extends Exprent {
 
   @Override
   public Exprent copy() {
-    return new ConstExprent(constType, value, bytecode, wasCondy, radix, constTypeForced);
+    return new ConstExprent(constType, value, bytecode, wasCondy, radix, hasSetRadix, constTypeForced);
   }
 
   @Override
@@ -518,6 +520,11 @@ public class ConstExprent extends Exprent {
 
   public void setRadix(int radix) {
     this.radix = radix;
+    this.hasSetRadix = true;
+  }
+
+  public boolean hasSetRadix() {
+    return hasSetRadix;
   }
 
   public boolean isConstTypeForced() {

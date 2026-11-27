@@ -1,0 +1,8 @@
+unpick v4
+
+group int test
+  pkg.Constants.INT_CONST_0
+  pkg.Constants.INT_CONST_1
+
+target_method pkg.TestSwitchUninlining test (I)V
+  param 0 test

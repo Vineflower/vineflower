@@ -2,7 +2,7 @@ package pkg;
 
 public class TestDanglingBoxingCall {
    public void test(int x) {
-      if ((x ^ 126) == 7) {// 5
+      if ((x ^ 0x7E) == 7) {// 5
          Integer.valueOf(65535);// 6
       } else {
          Boolean.valueOf(false);// 8

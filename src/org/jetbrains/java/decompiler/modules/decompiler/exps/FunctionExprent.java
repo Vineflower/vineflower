@@ -12,12 +12,10 @@ import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.gen.CodeType;
-import org.jetbrains.java.decompiler.struct.gen.TypeFamily;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.struct.match.MatchEngine;
 import org.jetbrains.java.decompiler.struct.match.MatchNode;
-import org.jetbrains.java.decompiler.util.IntHelper;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.Typed;
@@ -555,27 +553,20 @@ public class FunctionExprent extends Exprent {
         }
       }
 
+      // Check for bitwise operators and convert operands to hex to make them easier to read
+      if (this.funcType == FunctionType.AND || this.funcType == FunctionType.OR || this.funcType == FunctionType.XOR) {
+        if (left instanceof ConstExprent leftConst && !leftConst.hasSetRadix() && leftConst.getValue() instanceof Number n && (n.longValue() < 0 || n.longValue() > 9)) {
+          leftConst.setRadix(16);
+        }
+
+        if (right instanceof ConstExprent rightConst && !rightConst.hasSetRadix() && rightConst.getValue() instanceof Number n && (n.longValue() < 0 || n.longValue() > 9)) {
+          rightConst.setRadix(16);
+        }
+      }
+
       // Initialize the operands with the defaults
       TextBuffer leftOperand = wrapOperandString(left, false, indent, true);
       TextBuffer rightOperand = wrapOperandString(right, true, indent, true);
-
-      // Check for special cased integers on the right and left hand side, and then return if they are found.
-      // This only applies to bitwise and as well as bitwise or functions.
-      if (this.funcType == FunctionType.AND || this.funcType == FunctionType.OR) {
-        // Check if the right is an int constant and adjust accordingly
-        if (right instanceof ConstExprent && right.getExprType() == VarType.VARTYPE_INT) {
-          Integer value = (Integer) ((ConstExprent)right).getValue();
-          rightOperand.setLength(0);
-          rightOperand.append(IntHelper.adjustedIntRepresentation(value));
-        }
-
-        // Check if the left is an int constant and adjust accordingly
-        if (left instanceof ConstExprent && left.getExprType() == VarType.VARTYPE_INT) {
-          Integer value = (Integer) ((ConstExprent)left).getValue();
-          leftOperand.setLength(0);
-          leftOperand.append(IntHelper.adjustedIntRepresentation(value));
-        }
-      }
 
       // Return the applied operands and operators.
       if (!disableNewlineGroupCreation) {

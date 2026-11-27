@@ -1,0 +1,63 @@
+unpick v4
+
+group int test_decimal
+  @format decimal
+
+target_method pkg.TestGroupFormat testDecimal ()C
+  return test_decimal
+
+group int test_binary
+  @format binary
+
+target_method pkg.TestGroupFormat testBinary ()I
+  return test_binary
+
+group int test_octal
+  @format octal
+
+target_method pkg.TestGroupFormat testOctal ()I
+  return test_octal
+
+group int test_hex
+  @format hex
+
+target_method pkg.TestGroupFormat testHex ()I
+  return test_hex
+
+group int test_char
+  @format char
+
+target_method pkg.TestGroupFormat testChar ()I
+  return test_char
+
+group long test_binary_long
+  @format binary
+
+target_method pkg.TestGroupFormat testBinaryLong ()J
+  return test_binary_long
+
+group long test_octal_long
+  @format octal
+
+target_method pkg.TestGroupFormat testOctalLong ()J
+  return test_octal_long
+
+group long test_hex_long
+  @format hex
+
+target_method pkg.TestGroupFormat testHexLong ()J
+  return test_hex_long
+
+group int test_char_out_of_bounds
+  @format char
+
+target_method pkg.TestGroupFormat testCharOutOfBounds ()I
+  return test_char_out_of_bounds
+
+group int test_flag_residual_format
+  @format binary
+  @flags
+  pkg.Constants.INT_FLAG_BIT_2
+
+target_method pkg.TestGroupFormat testFlagResidualFormat ()I
+  return test_flag_residual_format

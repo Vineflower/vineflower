@@ -135,7 +135,11 @@ public final class UnpickPropagationUtils {
         List<Exprent> subjectAndCases = new ArrayList<>();
         subjectAndCases.add(switchHeadExprent.getValue());
         for (List<Exprent> caze : switchHeadExprent.getCaseValues()) {
-          subjectAndCases.addAll(caze);
+          for (Exprent caseValue : caze) {
+            if (caseValue != null) {
+              subjectAndCases.add(caseValue);
+            }
+          }
         }
         Set<String> groupNames = groupsOf(groupTracker, methodKey, subjectAndCases.toArray(Exprent[]::new));
         for (Exprent expr : subjectAndCases) {
@@ -143,7 +147,8 @@ public final class UnpickPropagationUtils {
         }
       } else if (exprent instanceof SwitchExprent switchExprent) {
         List<Exprent> switchAndYields = new ArrayList<>();
-        collectYieldExprents(switchExprent.getBacking(), switchAndYields);
+        switchAndYields.add(switchExprent);
+        collectYieldValues(switchExprent.getBacking(), switchAndYields);
         Set<String> groupNames = groupsOf(groupTracker, methodKey, switchAndYields.toArray(Exprent[]::new));
         for (Exprent expr : switchAndYields) {
           tryAssignGroup(changed, groupTracker, methodKey, expr, groupNames);
@@ -155,18 +160,18 @@ public final class UnpickPropagationUtils {
     return changed.get();
   }
 
-  private static void collectYieldExprents(Statement stat, List<? super YieldExprent> yields) {
+  private static void collectYieldValues(Statement stat, List<Exprent> yieldValues) {
     if (stat.getExprents() == null) {
       for (Statement childStat : stat.getStats()) {
         if (!(childStat instanceof SwitchStatement)) {
-          collectYieldExprents(childStat, yields);
+          collectYieldValues(childStat, yieldValues);
         }
       }
 
       for (Exprent exprent : stat.getStatExprents()) {
         for (Exprent expr : exprent.getAllExprents(true, true)) {
           if (expr instanceof YieldExprent yield) {
-            yields.add(yield);
+            yieldValues.add(yield.getContent());
           }
         }
       }
@@ -174,7 +179,7 @@ public final class UnpickPropagationUtils {
       for (Exprent exprent : stat.getExprents()) {
         for (Exprent expr : exprent.getAllExprents(true, true)) {
           if (expr instanceof YieldExprent yield) {
-            yields.add(yield);
+            yieldValues.add(yield.getContent());
           }
         }
       }

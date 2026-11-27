@@ -425,12 +425,9 @@ public final class UnpickSubstitutionUtils {
       if (constExprent.getConstType().equals(VarType.VARTYPE_CHAR)) {
         constExprent.setConstType(VarType.VARTYPE_INT);
         constExprent.setConstTypeForced(true);
-        res = true;
       }
-      if (constExprent.getRadix() != radix) {
-        constExprent.setRadix(radix);
-        res = true;
-      }
+      constExprent.setRadix(radix);
+      res = true;
     }
 
     return res;
@@ -556,13 +553,13 @@ public final class UnpickSubstitutionUtils {
         } else {
           int radix;
           if (bestFormat == null) {
-            radix = 10;
+            radix = 16;
           } else {
             radix = switch (bestFormat) {
               case BINARY -> 2;
               case OCTAL -> 8;
-              case HEX -> 16;
-              default -> 10;
+              case DECIMAL -> 10;
+              default -> 16;
             };
           }
           if (constantType == DataType.LONG) {
