@@ -359,7 +359,7 @@ public class ConstExprent extends Exprent {
         }
     }
 
-    buf.append("<UNEXPECTED CONST. TYPE: " + constType + " VALUE: " + value + ">");
+    buf.append("/* $VF: Unexpected constant type " + constType + " */ " + value);
     return buf;
   }
 
