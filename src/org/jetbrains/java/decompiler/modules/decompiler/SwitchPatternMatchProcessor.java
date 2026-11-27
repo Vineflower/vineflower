@@ -1,5 +1,6 @@
 package org.jetbrains.java.decompiler.modules.decompiler;
 
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
@@ -116,6 +117,10 @@ public final class SwitchPatternMatchProcessor {
       for (Pair<Statement, Exprent> reference : references) {
         eliminateGuardRef(stat, guards, reference, false);
       }
+    }
+
+    if (duplicateMultiCase(stat)) {
+      stat.sortEdgesAndNodes();
     }
 
     int defaultCase = -1;
@@ -408,6 +413,30 @@ public final class SwitchPatternMatchProcessor {
     }
 
     throw new IllegalStateException("Unexpected case in switch pattern matching");
+  }
+
+  private static boolean duplicateMultiCase(SwitchStatement stat) {
+    boolean changed = false;
+    List<List<@Nullable Exprent>> copy = new ArrayList<>(stat.getCaseValues());
+
+    for (int i = 0; i < copy.size(); i++) {
+      List<@Nullable Exprent> caseValues = copy.get(i);
+
+      if (stat.getCaseStatements().get(i) instanceof BasicBlockStatement block && block.getExprents().isEmpty()) {
+        if (caseValues.size() > 1 && caseValues.stream().allMatch(e -> e instanceof ConstExprent)) {
+          StatEdge suc = block.getFirstSuccessor();
+          for (Exprent caseValue : caseValues) {
+            BasicBlockStatement newBlock = BasicBlockStatement.create();
+            newBlock.addSuccessor(new StatEdge(StatEdge.TYPE_BREAK, newBlock, suc.getDestination(), suc.closure));
+            stat.addCase(List.of(caseValue), newBlock);
+          }
+          stat.removeCase(i);
+          i--;
+        }
+      }
+    }
+
+    return changed;
   }
 
   private static boolean eliminateGuardRef(SwitchStatement stat, Map<List<Exprent>, Exprent> guards, Pair<Statement, Exprent> reference, boolean simulate) {
