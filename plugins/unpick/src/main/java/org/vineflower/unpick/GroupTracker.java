@@ -1,6 +1,5 @@
 package org.vineflower.unpick;
 
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 

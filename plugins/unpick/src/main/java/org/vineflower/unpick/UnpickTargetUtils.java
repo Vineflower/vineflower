@@ -103,16 +103,7 @@ public final class UnpickTargetUtils {
         originalVarIndex += params[paramIndex].stackSize;
       }
 
-      if (targetMethod != null && targetMethod.returnGroup() != null) {
-        returnGroup.add(targetMethod.returnGroup());
-      }
-
-      for (AnnotationExprent ann : UnpickUtils.getMemberAnnotations(mt, TypeAnnotation.METHOD_RETURN_TYPE)) {
-        TargetAnnotation targetAnnotation = defs.targetAnnotations.get(ann.getClassName());
-        if (targetAnnotation != null) {
-          returnGroup.add(targetAnnotation.groupName());
-        }
-      }
+      returnGroup.addAll(getReturnGroups(defs, mt));
     });
 
     return returnGroup;
@@ -130,16 +121,7 @@ public final class UnpickTargetUtils {
     }
 
     if (resolvedField != null) {
-      TargetField targetField = defs.targetFields.get(InterpreterUtil.makeUniqueKey(ownerClass.qualifiedName, resolvedField.getName(), resolvedField.getDescriptor()));
-      if (targetField != null) {
-        groupTracker.tryAddExprentGroup(methodKey, fieldExprent, targetField.groupName());
-      }
-      for (AnnotationExprent ann : UnpickUtils.getMemberAnnotations(resolvedField, TypeAnnotation.FIELD)) {
-        TargetAnnotation targetAnnotation = defs.targetAnnotations.get(ann.getClassName());
-        if (targetAnnotation != null) {
-          groupTracker.tryAddExprentGroup(methodKey, fieldExprent, targetAnnotation.groupName());
-        }
-      }
+      groupTracker.tryAddExprentGroups(methodKey, fieldExprent, getFieldGroups(defs, ownerClass.qualifiedName, resolvedField));
     }
   }
 
@@ -193,26 +175,45 @@ public final class UnpickTargetUtils {
     }
 
     for (int i = 0; i < Math.min(recordComponents.size(), patternExprent.getExprents().size()); i++) {
-      StructRecordComponent recordComponent = recordComponents.get(i);
-
-      Set<String> groupNames = new LinkedHashSet<>();
-      TargetMethod targetMethod = defs.targetMethods.get(InterpreterUtil.makeUniqueKey(recordData.cl().qualifiedName, recordComponent.getName(), "()" + recordComponent.getDescriptor()));
-      if (targetMethod != null && targetMethod.returnGroup() != null) {
-        groupNames.add(targetMethod.returnGroup());
-      }
-      StructMethod mt = recordData.cl().getMethod(recordComponent.getName(), "()" + recordComponent.getDescriptor());
-      if (mt != null) {
-        for (AnnotationExprent ann : UnpickUtils.getMemberAnnotations(mt, TypeAnnotation.METHOD_RETURN_TYPE)) {
-          TargetAnnotation targetAnnotation = defs.targetAnnotations.get(ann.getClassName());
-          if (targetAnnotation != null) {
-            groupNames.add(targetAnnotation.groupName());
-          }
+      if (patternExprent.getExprents().get(i) instanceof VarExprent varExprent) {
+        StructRecordComponent recordComponent = recordComponents.get(i);
+        StructMethod mt = recordData.cl().getMethod(recordComponent.getName(), "()" + recordComponent.getDescriptor());
+        if (mt != null) {
+          Set<String> groupNames = getReturnGroups(defs, mt);
+          groupTracker.tryAddVarGroups(methodKey, varExprent.getVarVersionPair(), groupNames);
         }
       }
+    }
+  }
 
-      if (patternExprent.getExprents().get(i) instanceof VarExprent varExprent) {
-        groupTracker.tryAddVarGroups(methodKey, varExprent.getVarVersionPair(), groupNames);
+  static Set<String> getFieldGroups(UnpickDefinitions defs, String className, StructField fd) {
+    Set<String> groupNames = new LinkedHashSet<>();
+    TargetField targetField = defs.targetFields.get(InterpreterUtil.makeUniqueKey(className, fd.getName(), fd.getDescriptor()));
+    if (targetField != null) {
+      groupNames.add(targetField.groupName());
+    }
+    for (AnnotationExprent ann : UnpickUtils.getMemberAnnotations(fd, TypeAnnotation.FIELD)) {
+      TargetAnnotation targetAnnotation = defs.targetAnnotations.get(ann.getClassName());
+      if (targetAnnotation != null) {
+        groupNames.add(targetAnnotation.groupName());
       }
     }
+    return groupNames;
+  }
+
+  // does not process super methods!
+  static Set<String> getReturnGroups(UnpickDefinitions defs, StructMethod mt) {
+    Set<String> groupNames = new LinkedHashSet<>();
+    TargetMethod targetMethod = defs.targetMethods.get(InterpreterUtil.makeUniqueKey(mt.getClassQualifiedName(), mt.getName(), mt.getDescriptor()));
+    if (targetMethod != null && targetMethod.returnGroup() != null) {
+      groupNames.add(targetMethod.returnGroup());
+    }
+    for (AnnotationExprent ann : UnpickUtils.getMemberAnnotations(mt, TypeAnnotation.METHOD_RETURN_TYPE)) {
+      TargetAnnotation targetAnnotation = defs.targetAnnotations.get(ann.getClassName());
+      if (targetAnnotation != null) {
+        groupNames.add(targetAnnotation.groupName());
+      }
+    }
+    return groupNames;
   }
 }

@@ -36,9 +36,6 @@ import org.vineflower.unpick.parser.tree.DataType;
 import org.vineflower.unpick.parser.tree.GroupFormat;
 import org.vineflower.unpick.parser.tree.GroupScope;
 import org.vineflower.unpick.parser.tree.Literal;
-import org.vineflower.unpick.parser.tree.TargetAnnotation;
-import org.vineflower.unpick.parser.tree.TargetField;
-import org.vineflower.unpick.parser.tree.TargetMethod;
 import org.vineflower.unpick.parser.tree.expr.BinaryExpression;
 import org.vineflower.unpick.parser.tree.expr.Expression;
 import org.vineflower.unpick.parser.tree.expr.ExpressionVisitor;
@@ -52,7 +49,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -338,18 +334,7 @@ public final class UnpickSubstitutionUtils {
           Exprent subExprent = annotationExprent.getParValues().get(i);
           StructMethod mt = annotationClass.getMethods().stream().filter(md -> md.getName().equals(parName)).findFirst().orElse(null);
           if (mt != null) {
-            Set<String> groupNames = new LinkedHashSet<>();
-            TargetMethod targetMethod = defs.targetMethods.get(InterpreterUtil.makeUniqueKey(annotationClass.qualifiedName, mt.getName(), mt.getDescriptor()));
-            if (targetMethod != null && targetMethod.returnGroup() != null) {
-              groupNames.add(targetMethod.returnGroup());
-            }
-            for (AnnotationExprent ann : UnpickUtils.getMemberAnnotations(mt, TypeAnnotation.METHOD_RETURN_TYPE)) {
-              TargetAnnotation targetAnnotation = defs.targetAnnotations.get(ann.getClassName());
-              if (targetAnnotation != null) {
-                groupNames.add(targetAnnotation.groupName());
-              }
-            }
-
+            Set<String> groupNames = UnpickTargetUtils.getReturnGroups(defs, mt);
             SubstitutionResult substitution = getBestSubstitution(
               defs,
               containingClass,
@@ -383,18 +368,7 @@ public final class UnpickSubstitutionUtils {
     }
 
     if (attribute.getDefaultValue() instanceof ConstExprent constExprent) {
-      Set<String> groupNames = new LinkedHashSet<>();
-      TargetMethod targetMethod = defs.targetMethods.get(InterpreterUtil.makeUniqueKey(containingClass, mt.getName(), mt.getDescriptor()));
-      if (targetMethod != null && targetMethod.returnGroup() != null) {
-        groupNames.add(targetMethod.returnGroup());
-      }
-      for (AnnotationExprent ann : UnpickUtils.getMemberAnnotations(mt, TypeAnnotation.METHOD_RETURN_TYPE)) {
-        TargetAnnotation targetAnnotation = defs.targetAnnotations.get(ann.getClassName());
-        if (targetAnnotation != null) {
-          groupNames.add(targetAnnotation.groupName());
-        }
-      }
-
+      Set<String> groupNames = UnpickTargetUtils.getReturnGroups(defs, mt);
       SubstitutionResult substitution = getBestSubstitution(
         defs,
         containingClass,
@@ -651,17 +625,7 @@ public final class UnpickSubstitutionUtils {
       }
     }
 
-    Set<String> groupNames = new LinkedHashSet<>();
-    TargetField targetField = defs.targetFields.get(InterpreterUtil.makeUniqueKey(cl.qualifiedName, fd.getName(), fd.getDescriptor()));
-    if (targetField != null) {
-      groupNames.add(targetField.groupName());
-    }
-    for (AnnotationExprent ann : UnpickUtils.getMemberAnnotations(fd, TypeAnnotation.FIELD)) {
-      TargetAnnotation targetAnnotation = defs.targetAnnotations.get(ann.getClassName());
-      if (targetAnnotation != null) {
-        groupNames.add(targetAnnotation.groupName());
-      }
-    }
+    Set<String> groupNames = UnpickTargetUtils.getFieldGroups(defs, cl.qualifiedName, fd);
 
     Set<String> disallowedFieldRefs = cl.getFields().stream()
       .dropWhile(f -> f != fd)
