@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class KUtils {
-  public static List<? extends Exprent> replaceExprents(List<? extends Exprent> exprs) {
+  public static List<Exprent> replaceExprents(List<Exprent> exprs) {
     List<Exprent> res = new ArrayList<>();
 
     for (Exprent expr : exprs) {
