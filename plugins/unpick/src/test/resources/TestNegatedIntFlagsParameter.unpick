@@ -1,0 +1,49 @@
+unpick v4
+
+group int byteFlags
+	@flags
+	pkg.Constants.BYTE_FLAG_BIT_0:byte
+	pkg.Constants.BYTE_FLAG_BIT_1:byte
+	pkg.Constants.BYTE_FLAG_BIT_2:byte
+	pkg.Constants.BYTE_FLAG_BIT_3:byte
+	pkg.Constants.BYTE_FLAG_0:byte
+	pkg.Constants.BYTE_FLAG_M1:byte
+
+group int shortFlags
+	@flags
+	pkg.Constants.SHORT_FLAG_BIT_0:short
+	pkg.Constants.SHORT_FLAG_BIT_1:short
+	pkg.Constants.SHORT_FLAG_BIT_2:short
+	pkg.Constants.SHORT_FLAG_BIT_3:short
+	pkg.Constants.SHORT_FLAG_0:short
+	pkg.Constants.SHORT_FLAG_M1:short
+
+group int intFlags
+	@flags
+	pkg.Constants.INT_FLAG_BIT_0:int
+	pkg.Constants.INT_FLAG_BIT_1:int
+	pkg.Constants.INT_FLAG_BIT_2:int
+	pkg.Constants.INT_FLAG_BIT_3:int
+	pkg.Constants.INT_FLAG_0:int
+	pkg.Constants.INT_FLAG_M1:int
+
+group long longFlags
+	@flags
+	pkg.Constants.LONG_FLAG_BIT_0:long
+	pkg.Constants.LONG_FLAG_BIT_1:long
+	pkg.Constants.LONG_FLAG_BIT_2:long
+	pkg.Constants.LONG_FLAG_BIT_3:long
+	pkg.Constants.LONG_FLAG_0:long
+	pkg.Constants.LONG_FLAG_M1:long
+
+target_method pkg.Constants consumeByte (B)V
+	param 0 byteFlags
+
+target_method pkg.Constants consumeShort (S)V
+	param 0 shortFlags
+
+target_method pkg.Constants consumeInt (I)V
+	param 0 intFlags
+
+target_method pkg.Constants consumeLong (J)V
+	param 0 longFlags

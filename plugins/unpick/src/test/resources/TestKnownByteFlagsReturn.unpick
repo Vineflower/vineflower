@@ -1,0 +1,22 @@
+unpick v4
+
+group int flags
+	@flags
+	pkg.Constants.BYTE_FLAG_BIT_0:byte
+	pkg.Constants.BYTE_FLAG_BIT_1:byte
+	pkg.Constants.BYTE_FLAG_BIT_2:byte
+	pkg.Constants.BYTE_FLAG_BIT_3:byte
+	pkg.Constants.BYTE_FLAG_0:byte
+	pkg.Constants.BYTE_FLAG_M1:byte
+
+target_method pkg.TestKnownByteFlagsReturn test1 ()B
+	return flags
+
+target_method pkg.TestKnownByteFlagsReturn test2 ()B
+	return flags
+
+target_method pkg.TestKnownByteFlagsReturn test3 ()B
+	return flags
+
+target_method pkg.TestKnownByteFlagsReturn test4 ()B
+	return flags

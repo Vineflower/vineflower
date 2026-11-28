@@ -3,5 +3,8 @@ package org.jetbrains.java.decompiler.api.java;
 public enum ClassPassLocation {
   BEFORE_PROCESSING,
   AFTER_PROCESSING,
-  BEFORE_WRITING
+  BEFORE_WRITING,
+  BEFORE_LATE_METHOD_PROCESSING,
+  AFTER_LATE_METHOD_PROCESSING,
+  AFTER_LATE_CLASS_PROCESSING,
 }

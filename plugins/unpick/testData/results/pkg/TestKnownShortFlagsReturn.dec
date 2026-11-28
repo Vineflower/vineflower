@@ -1,0 +1,50 @@
+package pkg;
+
+public class TestKnownShortFlagsReturn {
+   public short test1() {
+      return Constants.SHORT_FLAG_BIT_2;// 5
+   }
+
+   public short test2() {
+      return (short)(Constants.SHORT_FLAG_BIT_2 | Constants.SHORT_FLAG_BIT_3);// 9
+   }
+
+   public short test3() {
+      return (short)(Constants.SHORT_FLAG_BIT_1 | Constants.SHORT_FLAG_BIT_3);// 13
+   }
+
+   public short test4() {
+      return (short)(Constants.SHORT_FLAG_BIT_0 | Constants.SHORT_FLAG_BIT_1 | Constants.SHORT_FLAG_BIT_2);// 17
+   }
+}
+
+class 'pkg/TestKnownShortFlagsReturn' {
+   method 'test1 ()S' {
+      0      4
+      1      4
+   }
+
+   method 'test2 ()S' {
+      0      8
+      1      8
+      2      8
+   }
+
+   method 'test3 ()S' {
+      0      12
+      1      12
+      2      12
+   }
+
+   method 'test4 ()S' {
+      0      16
+      1      16
+      2      16
+   }
+}
+
+Lines mapping:
+5 <-> 5
+9 <-> 9
+13 <-> 13
+17 <-> 17

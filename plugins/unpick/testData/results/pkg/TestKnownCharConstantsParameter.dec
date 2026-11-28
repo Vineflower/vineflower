@@ -1,0 +1,107 @@
+package pkg;
+
+public class TestKnownCharConstantsParameter {
+   public void test1() {
+      Constants.consumeChar(Constants.CHAR_CONST_0);// 5
+   }// 6
+
+   public void test2() {
+      Constants.consumeChar(Constants.CHAR_CONST_1);// 9
+   }// 10
+
+   public void test3() {
+      Constants.consumeChar(Constants.CHAR_CONST_2);// 13
+   }// 14
+
+   public void test4() {
+      Constants.consumeChar(Constants.CHAR_CONST_3);// 17
+   }// 18
+
+   public void test5() {
+      Constants.consumeChar(Constants.CHAR_CONST_4);// 21
+   }// 22
+
+   public void test6() {
+      Constants.consumeChar(Constants.CHAR_CONST_5);// 25
+   }// 26
+
+   public void test7() {
+      Constants.consumeChar(Constants.CHAR_CONST);// 29
+   }// 30
+}
+
+class 'pkg/TestKnownCharConstantsParameter' {
+   method 'test1 ()V' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      5
+   }
+
+   method 'test2 ()V' {
+      0      8
+      1      8
+      2      8
+      3      8
+      4      9
+   }
+
+   method 'test3 ()V' {
+      0      12
+      1      12
+      2      12
+      3      12
+      4      13
+   }
+
+   method 'test4 ()V' {
+      0      16
+      1      16
+      2      16
+      3      16
+      4      17
+   }
+
+   method 'test5 ()V' {
+      0      20
+      1      20
+      2      20
+      3      20
+      4      21
+   }
+
+   method 'test6 ()V' {
+      0      24
+      1      24
+      2      24
+      3      24
+      4      25
+   }
+
+   method 'test7 ()V' {
+      0      28
+      1      28
+      2      28
+      3      28
+      4      28
+      5      28
+      6      29
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 6
+9 <-> 9
+10 <-> 10
+13 <-> 13
+14 <-> 14
+17 <-> 17
+18 <-> 18
+21 <-> 21
+22 <-> 22
+25 <-> 25
+26 <-> 26
+29 <-> 29
+30 <-> 30

@@ -22,10 +22,10 @@ public class AnnotationExprent extends Exprent {
 
   private final String className;
   private final List<String> parNames;
-  private final List<? extends Exprent> parValues;
+  private final List<Exprent> parValues;
   private boolean didWriteAlready;
 
-  public AnnotationExprent(String className, List<String> parNames, List<? extends Exprent> parValues) {
+  public AnnotationExprent(String className, List<String> parNames, List<Exprent> parValues) {
     super(Exprent.Type.ANNOTATION);
     this.className = className;
     this.parNames = parNames;
@@ -108,6 +108,16 @@ public class AnnotationExprent extends Exprent {
     return parValue instanceof NewExprent newExpr && newExpr.isDirectArrayInit();
   }
 
+  @Override
+  public void replaceExprent(Exprent oldExpr, Exprent newExpr) {
+    for (int i = 0; i < parValues.size(); i++) {
+      if (parValues.get(i) == oldExpr) {
+        parValues.set(i, newExpr);
+        break;
+      }
+    }
+  }
+
   public String getClassName() {
     return className;
   }
@@ -139,7 +149,7 @@ public class AnnotationExprent extends Exprent {
     return parNames;
   }
 
-  public List<? extends Exprent> getParValues() {
+  public List<Exprent> getParValues() {
     return parValues;
   }
 

@@ -2,11 +2,11 @@ package pkg;
 
 public class TestPiDivision {
    public double div(double val) {
-      return val / (180.0 / Math.PI);// 5
+      return val / (180 / Math.PI);// 5
    }
 
    public float mul(float f) {
-      return f * (float) (Math.PI / 180.0);// 9
+      return f * ((float)Math.PI / 180.0F);// 9
    }
 
    public float mul2(float f) {
@@ -14,11 +14,11 @@ public class TestPiDivision {
    }
 
    public float mul2_ok(float f) {
-      return f * 180.0F / (float) Math.PI;// 17
+      return f * 180.0F / (float)Math.PI;// 17
    }
 
    public double mul3(double val) {
-      return val * (180.0 / Math.PI);// 21
+      return val * (180 / Math.PI);// 21
    }
 
    public double mul3_ok(double val) {

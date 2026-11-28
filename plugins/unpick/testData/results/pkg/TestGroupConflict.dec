@@ -1,0 +1,46 @@
+package pkg;
+
+public class TestGroupConflict {
+   private static final float FLOAT_PI = 3.1415927F;
+   private static final int CLASS_SCOPE = 1;
+   private static final int METHOD_SCOPE = 1;
+
+   float testConflictWithVineflower() {
+      return FLOAT_PI;// 9
+   }
+
+   int testMoreSpecificScopeWins(int i) {
+      return i + METHOD_SCOPE;// 13
+   }
+
+   int testMoreSpecificScopeWinsControl(int i) {
+      return i + CLASS_SCOPE;// 17
+   }
+}
+
+class 'pkg/TestGroupConflict' {
+   method 'testConflictWithVineflower ()F' {
+      0      8
+      1      8
+      2      8
+   }
+
+   method 'testMoreSpecificScopeWins (I)I' {
+      0      12
+      1      12
+      2      12
+      3      12
+   }
+
+   method 'testMoreSpecificScopeWinsControl (I)I' {
+      0      16
+      1      16
+      2      16
+      3      16
+   }
+}
+
+Lines mapping:
+9 <-> 9
+13 <-> 13
+17 <-> 17

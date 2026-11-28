@@ -1,0 +1,127 @@
+package pkg;
+
+public class TestSwitchExpressionUninlining {
+   private static final int CONST_0 = 0;
+   private static final int CONST_1 = 1;
+   private static final int CONST = 257;
+
+   public int test1(int i) {
+      return switch (i) {// 9
+         case 0 -> CONST_0;// 10
+         case 1 -> CONST_1;// 11
+         default -> {
+            System.out.println("Block");// 13
+            yield (short)CONST;// 14
+         }
+      };
+   }
+
+   public int test2(int i) {
+      return switch (i) {// 20
+         case CONST_0 -> 0;// 21
+         case CONST_1, CONST -> 1;// 22
+         default -> 2;// 23
+      };
+   }
+}
+
+class 'pkg/TestSwitchExpressionUninlining' {
+   method 'test1 (I)I' {
+      0      8
+      1      8
+      2      8
+      3      8
+      4      8
+      5      8
+      6      8
+      7      8
+      8      8
+      9      8
+      a      8
+      b      8
+      c      8
+      d      8
+      e      8
+      f      8
+      10      8
+      11      8
+      12      8
+      13      8
+      14      8
+      15      8
+      16      8
+      17      8
+      18      8
+      19      8
+      1a      8
+      1b      8
+      1c      9
+      20      10
+      24      12
+      25      12
+      26      12
+      27      12
+      28      12
+      29      12
+      2a      12
+      2b      12
+      2c      13
+      2d      13
+      2e      13
+      2f      8
+   }
+
+   method 'test2 (I)I' {
+      0      19
+      1      19
+      2      19
+      3      19
+      4      19
+      5      19
+      6      19
+      7      19
+      8      19
+      9      19
+      a      19
+      b      19
+      c      19
+      d      19
+      e      19
+      f      19
+      10      19
+      11      19
+      12      19
+      13      19
+      14      19
+      15      19
+      16      19
+      17      19
+      18      19
+      19      19
+      1a      19
+      1b      19
+      1c      19
+      1d      19
+      1e      19
+      1f      19
+      20      19
+      21      19
+      22      19
+      23      19
+      24      20
+      28      21
+      2c      22
+      2d      19
+   }
+}
+
+Lines mapping:
+9 <-> 9
+10 <-> 10
+11 <-> 11
+13 <-> 13
+14 <-> 14
+20 <-> 20
+21 <-> 21
+22 <-> 22
+23 <-> 23

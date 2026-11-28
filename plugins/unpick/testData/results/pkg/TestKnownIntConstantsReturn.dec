@@ -1,0 +1,89 @@
+package pkg;
+
+public class TestKnownIntConstantsReturn {
+   public int test1() {
+      return Constants.INT_CONST_M1;// 5
+   }
+
+   public int test2() {
+      return Constants.INT_CONST_0;// 9
+   }
+
+   public int test3() {
+      return Constants.INT_CONST_1;// 13
+   }
+
+   public int test4() {
+      return Constants.INT_CONST_2;// 17
+   }
+
+   public int test5() {
+      return Constants.INT_CONST_3;// 21
+   }
+
+   public int test6() {
+      return Constants.INT_CONST_4;// 25
+   }
+
+   public int test7() {
+      return Constants.INT_CONST_5;// 29
+   }
+
+   public int test8() {
+      return Constants.INT_CONST;// 33
+   }
+}
+
+class 'pkg/TestKnownIntConstantsReturn' {
+   method 'test1 ()I' {
+      0      4
+      1      4
+   }
+
+   method 'test2 ()I' {
+      0      8
+      1      8
+   }
+
+   method 'test3 ()I' {
+      0      12
+      1      12
+   }
+
+   method 'test4 ()I' {
+      0      16
+      1      16
+   }
+
+   method 'test5 ()I' {
+      0      20
+      1      20
+   }
+
+   method 'test6 ()I' {
+      0      24
+      1      24
+   }
+
+   method 'test7 ()I' {
+      0      28
+      1      28
+   }
+
+   method 'test8 ()I' {
+      0      32
+      1      32
+      2      32
+      3      32
+   }
+}
+
+Lines mapping:
+5 <-> 5
+9 <-> 9
+13 <-> 13
+17 <-> 17
+21 <-> 21
+25 <-> 25
+29 <-> 29
+33 <-> 33

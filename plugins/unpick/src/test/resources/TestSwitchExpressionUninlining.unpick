@@ -1,0 +1,12 @@
+unpick v4
+
+group int test
+  pkg.TestSwitchExpressionUninlining.CONST_0
+  pkg.TestSwitchExpressionUninlining.CONST_1
+  pkg.TestSwitchExpressionUninlining.CONST
+
+target_method pkg.TestSwitchExpressionUninlining test1 (I)I
+  return test
+
+target_method pkg.TestSwitchExpressionUninlining test2 (I)I
+  param 0 test

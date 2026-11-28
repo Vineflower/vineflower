@@ -1,0 +1,39 @@
+package pkg;
+
+public class TestKnownLongConstantsReturn {
+   public long test1() {
+      return Constants.LONG_CONST_0;// 5
+   }
+
+   public long test2() {
+      return Constants.LONG_CONST_1;// 9
+   }
+
+   public long test3() {
+      return Constants.LONG_CONST;// 13
+   }
+}
+
+class 'pkg/TestKnownLongConstantsReturn' {
+   method 'test1 ()J' {
+      0      4
+      1      4
+   }
+
+   method 'test2 ()J' {
+      0      8
+      1      8
+   }
+
+   method 'test3 ()J' {
+      0      12
+      1      12
+      2      12
+      3      12
+   }
+}
+
+Lines mapping:
+5 <-> 5
+9 <-> 9
+13 <-> 13

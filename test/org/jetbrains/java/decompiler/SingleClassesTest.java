@@ -43,22 +43,12 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.INCLUDE_JAVA_RUNTIME, "1",
       IFernflowerPreferences.VERIFY_PRE_POST_VARIABLE_MERGES, "1"
     );
-    registerSet("Literals", this::registerLiterals,
-      IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
-      IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
-      IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
-      IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
-      IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
-      IFernflowerPreferences.LITERALS_AS_IS, "0",
-      IFernflowerPreferences.VERIFY_PRE_POST_VARIABLE_MERGES, "1"
-    );
     registerSet("Ternary Constant Simplification", this::registerTernaryConstantSimplification,
       IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
       IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
       IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
       IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
       IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
-      IFernflowerPreferences.LITERALS_AS_IS, "0",
       IFernflowerPreferences.TERNARY_CONSTANT_SIMPLIFICATION, "1",
       IFernflowerPreferences.VERIFY_PRE_POST_VARIABLE_MERGES, "1"
     );
@@ -866,6 +856,9 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8_NODEBUG, "TestByteVarIntMerge");
     register(JAVA_8, "TestFloatDupStoreTernary");
     register(JAVA_16, "TestRecordFakeSyntheticConstructor");
+
+    register(JAVA_8, "TestFloatPrecision");
+    register(JAVA_8, "TestNotFloatPrecision");
   }
 
   private void registerEntireClassPath() {
@@ -966,13 +959,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestGenericLattice");
     // TODO: parsing failure
     register(JAVA_21, "TestTryWithResourcesJ21");
-  }
-
-  private void registerLiterals() {
-    register(JAVA_8, "TestFloatPrecision");
-    register(JAVA_8, "TestNotFloatPrecision");
-    register(JAVA_8, "TestConstantUninlining");
-    register(JAVA_8, "TestPiDivision");
   }
 
   private void registerTernaryConstantSimplification() {

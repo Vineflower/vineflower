@@ -1,0 +1,51 @@
+package pkg;
+
+public class TestNegatedByteFlagsReturn {
+   public byte test1() {
+      return (byte)(~Constants.BYTE_FLAG_BIT_2);// 5
+   }
+
+   public byte test2() {
+      return (byte)(~(Constants.BYTE_FLAG_BIT_2 | Constants.BYTE_FLAG_BIT_3));// 9
+   }
+
+   public byte test3() {
+      return (byte)(~(Constants.BYTE_FLAG_BIT_1 | Constants.BYTE_FLAG_BIT_3));// 13
+   }
+
+   public byte test4() {
+      return (byte)(~(Constants.BYTE_FLAG_BIT_0 | Constants.BYTE_FLAG_BIT_1 | Constants.BYTE_FLAG_BIT_2));// 17
+   }
+}
+
+class 'pkg/TestNegatedByteFlagsReturn' {
+   method 'test1 ()B' {
+      0      4
+      1      4
+      2      4
+   }
+
+   method 'test2 ()B' {
+      0      8
+      1      8
+      2      8
+   }
+
+   method 'test3 ()B' {
+      0      12
+      1      12
+      2      12
+   }
+
+   method 'test4 ()B' {
+      0      16
+      1      16
+      2      16
+   }
+}
+
+Lines mapping:
+5 <-> 5
+9 <-> 9
+13 <-> 13
+17 <-> 17

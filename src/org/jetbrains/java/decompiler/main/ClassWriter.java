@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.fabricmc.fernflower.api.FabricJavadocStyle;
 import net.fabricmc.fernflower.api.IFabricJavadocProvider;
+import org.jetbrains.java.decompiler.api.java.ClassPassLocation;
 import org.jetbrains.java.decompiler.api.java.JavaPassLocation;
 import org.jetbrains.java.decompiler.api.plugin.StatementWriter;
 import org.jetbrains.java.decompiler.api.plugin.pass.PassContext;
@@ -87,6 +88,20 @@ public class ClassWriter implements StatementWriter {
     }
     StructClass cl = wrapper.getClassStruct();
 
+    try {
+      DecompilerContext.getCurrentContext().structContext.getPluginContext()
+        .runClassPasses(ClassPassLocation.BEFORE_LATE_METHOD_PROCESSING, node);
+    } catch (CancelationManager.CanceledException e) {
+      throw e;
+    } catch (Throwable t) {
+      DecompilerContext.getLogger().writeMessage("Class " + node.simpleName + " couldn't be written.",
+        IFernflowerLogger.Severity.WARN,
+        t);
+      writeException(buffer, t);
+
+      return false;
+    }
+
     // Very late switch processing, needs entire class to be decompiled for eclipse switchmap style switch-on-enum
     for (MethodWrapper method : wrapper.getMethods()) {
       DecompileRecord rec = new DecompileRecord(method.methodStruct);
@@ -125,6 +140,9 @@ public class ClassWriter implements StatementWriter {
     }
 
     try {
+      DecompilerContext.getCurrentContext().structContext.getPluginContext()
+        .runClassPasses(ClassPassLocation.AFTER_LATE_METHOD_PROCESSING, node);
+
       InitializerProcessor.extractInitializers(wrapper);
       InitializerProcessor.hideInitalizers(wrapper);
 
@@ -145,6 +163,9 @@ public class ClassWriter implements StatementWriter {
           mw.varproc.rerunClashing(mw.root);
         }
       }
+
+      DecompilerContext.getCurrentContext().structContext.getPluginContext()
+        .runClassPasses(ClassPassLocation.AFTER_LATE_CLASS_PROCESSING, node);
     } catch (CancelationManager.CanceledException e) {
       throw e;
     } catch (Throwable t) {

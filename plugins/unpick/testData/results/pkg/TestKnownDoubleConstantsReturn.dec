@@ -1,0 +1,39 @@
+package pkg;
+
+public class TestKnownDoubleConstantsReturn {
+   public double test1() {
+      return Constants.DOUBLE_CONST_0;// 5
+   }
+
+   public double test2() {
+      return Constants.DOUBLE_CONST_1;// 9
+   }
+
+   public double test3() {
+      return Constants.DOUBLE_CONST;// 13
+   }
+}
+
+class 'pkg/TestKnownDoubleConstantsReturn' {
+   method 'test1 ()D' {
+      0      4
+      1      4
+   }
+
+   method 'test2 ()D' {
+      0      8
+      1      8
+   }
+
+   method 'test3 ()D' {
+      0      12
+      1      12
+      2      12
+      3      12
+   }
+}
+
+Lines mapping:
+5 <-> 5
+9 <-> 9
+13 <-> 13

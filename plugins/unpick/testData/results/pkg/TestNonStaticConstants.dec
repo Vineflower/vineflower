@@ -1,0 +1,130 @@
+package pkg;
+
+public class TestNonStaticConstants {
+   public final int foo = 3;// 4
+   public final String bar = "Hello, World!";// 5
+   public final Class<?> baz = String.class;// 6
+   public final String nullConstant = null;// 7
+
+   public void test() {
+      Constants.consumeInt(this.foo);// 10
+      Constants.consumeString(this.bar);// 11
+      Constants.consumeClass(String.class);// 12
+      Constants.consumeString(null);// 13
+   }// 14
+
+   public void testOther(TestNonStaticConstants other) {
+      Constants.consumeInt(this.foo);// 17
+      new TestNonStaticConstants();
+      Constants.consumeString(this.bar);// 18
+   }// 19
+
+   public class TestInner {
+      public void test() {
+         Constants.consumeInt(3);// 23
+      }// 24
+
+      public class TestInnerInner {
+         public void test() {
+            Constants.consumeInt(3);// 28
+            System.out.println(TestNonStaticConstants.this);// 29
+         }// 30
+      }
+   }
+}
+
+class 'pkg/TestNonStaticConstants' {
+   method '<init> ()V' {
+      5      3
+      a      4
+      b      4
+      10      5
+      11      5
+      16      6
+   }
+
+   method 'test ()V' {
+      0      9
+      1      9
+      2      9
+      3      9
+      4      10
+      5      10
+      6      10
+      7      10
+      8      10
+      9      11
+      a      11
+      b      11
+      c      11
+      d      11
+      e      12
+      f      12
+      10      12
+      11      12
+      12      13
+   }
+
+   method 'testOther (Lpkg/TestNonStaticConstants;)V' {
+      5      16
+      6      16
+      7      16
+      8      16
+      14      18
+      15      18
+      16      18
+      17      18
+      18      18
+      19      19
+   }
+}
+
+class 'pkg/TestNonStaticConstants$TestInner' {
+   method 'test ()V' {
+      0      23
+      1      23
+      2      23
+      3      23
+      4      24
+   }
+}
+
+class 'pkg/TestNonStaticConstants$TestInner$TestInnerInner' {
+   method 'test ()V' {
+      0      28
+      1      28
+      2      28
+      3      28
+      4      29
+      5      29
+      6      29
+      b      29
+      c      29
+      d      29
+      e      29
+      f      29
+      10      29
+      11      30
+   }
+}
+
+Lines mapping:
+4 <-> 4
+5 <-> 5
+6 <-> 6
+7 <-> 7
+10 <-> 10
+11 <-> 11
+12 <-> 12
+13 <-> 13
+14 <-> 14
+17 <-> 17
+18 <-> 19
+19 <-> 20
+23 <-> 24
+24 <-> 25
+28 <-> 29
+29 <-> 30
+30 <-> 31
+Not mapped:
+3

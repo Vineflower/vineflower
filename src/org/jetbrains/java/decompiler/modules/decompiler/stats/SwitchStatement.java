@@ -287,6 +287,14 @@ public class SwitchStatement extends Statement {
       int idx = caseGuards.indexOf(oldexpr);
       if (idx > -1) {
         caseGuards.set(idx, newexpr);
+      } else {
+        for (List<@Nullable Exprent> caze : caseValues) {
+          idx = caze.indexOf(oldexpr);
+          if (idx > -1) {
+            caze.set(idx, newexpr);
+            break;
+          }
+        }
       }
     }
   }

@@ -1,0 +1,7 @@
+unpick v4
+
+group int group
+	pkg.Constants.INT_CONST
+
+target_method pkg.TestSubclass test (I)V
+	param 0 group

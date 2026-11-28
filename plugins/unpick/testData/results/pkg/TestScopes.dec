@@ -1,0 +1,113 @@
+package pkg;
+
+import java.util.function.IntSupplier;
+
+public class TestScopes {
+   public int packageScope() {
+      return Constants.INT_CONST_0;// 7
+   }
+
+   public int methodScope() {
+      return Constants.INT_CONST_1;// 11
+   }
+
+   public int methodOutOfScope() {
+      return 1;// 15
+   }
+
+   public IntSupplier lambdaScope1() {
+      return () -> Constants.INT_CONST_1;// 19
+   }
+
+   public IntSupplier lambdaScope2() {
+      return () -> Constants.INT_CONST_1;// 23
+   }
+
+   public IntSupplier anonymousClassScope() {
+      return new IntSupplier() {// 27
+         @Override
+         public int getAsInt() {
+            return Constants.INT_CONST_1;// 30
+         }
+      };
+   }
+
+   static class Nested {
+      int ownScope() {
+         return Constants.INT_CONST_1;// 37
+      }
+
+      int outerScope() {
+         return Constants.INT_CONST_2;// 41
+      }
+   }
+}
+
+class 'pkg/TestScopes' {
+   method 'packageScope ()I' {
+      0      6
+      1      6
+   }
+
+   method 'methodScope ()I' {
+      0      10
+      1      10
+   }
+
+   method 'methodOutOfScope ()I' {
+      0      14
+      1      14
+   }
+
+   method 'lambdaScope1 ()Ljava/util/function/IntSupplier;' {
+      5      18
+   }
+
+   method 'lambda$lambdaScope1$0 ()I' {
+      0      18
+      1      18
+   }
+
+   method 'lambdaScope2 ()Ljava/util/function/IntSupplier;' {
+      5      22
+   }
+
+   method 'lambda$lambdaScope2$1 ()I' {
+      0      22
+      1      22
+   }
+
+   method 'anonymousClassScope ()Ljava/util/function/IntSupplier;' {
+      8      26
+   }
+}
+
+class 'pkg/TestScopes$1' {
+   method 'getAsInt ()I' {
+      0      29
+      1      29
+   }
+}
+
+class 'pkg/TestScopes$Nested' {
+   method 'ownScope ()I' {
+      0      36
+      1      36
+   }
+
+   method 'outerScope ()I' {
+      0      40
+      1      40
+   }
+}
+
+Lines mapping:
+7 <-> 7
+11 <-> 11
+15 <-> 15
+19 <-> 19
+23 <-> 23
+27 <-> 27
+30 <-> 30
+37 <-> 37
+41 <-> 41

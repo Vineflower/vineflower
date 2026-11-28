@@ -1,0 +1,67 @@
+package pkg;
+
+public class TestNegatedIntFlagsParameter {
+   public void test1() {
+      Constants.consumeInt(~Constants.INT_FLAG_BIT_2);// 5
+   }// 6
+
+   public void test2() {
+      Constants.consumeInt(~(Constants.INT_FLAG_BIT_2 | Constants.INT_FLAG_BIT_3));// 9
+   }// 10
+
+   public void test3() {
+      Constants.consumeInt(~(Constants.INT_FLAG_BIT_1 | Constants.INT_FLAG_BIT_3));// 13
+   }// 14
+
+   public void test4() {
+      Constants.consumeInt(~(Constants.INT_FLAG_BIT_0 | Constants.INT_FLAG_BIT_1 | Constants.INT_FLAG_BIT_2));// 17
+   }// 18
+}
+
+class 'pkg/TestNegatedIntFlagsParameter' {
+   method 'test1 ()V' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      5      5
+   }
+
+   method 'test2 ()V' {
+      0      8
+      1      8
+      2      8
+      3      8
+      4      8
+      5      9
+   }
+
+   method 'test3 ()V' {
+      0      12
+      1      12
+      2      12
+      3      12
+      4      12
+      5      13
+   }
+
+   method 'test4 ()V' {
+      0      16
+      1      16
+      2      16
+      3      16
+      4      16
+      5      17
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 6
+9 <-> 9
+10 <-> 10
+13 <-> 13
+14 <-> 14
+17 <-> 17
+18 <-> 18

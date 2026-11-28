@@ -1,0 +1,68 @@
+package pkg;
+
+public class TestUnknownFlags {
+   public void testByte() {
+      Constants.consumeByte((byte)16);// 5
+   }// 6
+
+   public void testShort() {
+      Constants.consumeShort((short)16);// 9
+   }// 10
+
+   public void testInt() {
+      Constants.consumeInt(16);// 13
+   }// 14
+
+   public void testLong() {
+      Constants.consumeLong(16L);// 17
+   }// 18
+}
+
+class 'pkg/TestUnknownFlags' {
+   method 'testByte ()V' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      5      5
+   }
+
+   method 'testShort ()V' {
+      0      8
+      1      8
+      2      8
+      3      8
+      4      8
+      5      9
+   }
+
+   method 'testInt ()V' {
+      0      12
+      1      12
+      2      12
+      3      12
+      4      12
+      5      13
+   }
+
+   method 'testLong ()V' {
+      0      16
+      1      16
+      2      16
+      3      16
+      4      16
+      5      16
+      6      17
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 6
+9 <-> 9
+10 <-> 10
+13 <-> 13
+14 <-> 14
+17 <-> 17
+18 <-> 18

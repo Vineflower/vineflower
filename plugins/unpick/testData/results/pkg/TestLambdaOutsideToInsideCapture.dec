@@ -1,0 +1,47 @@
+package pkg;
+
+import java.util.function.IntUnaryOperator;
+
+public class TestLambdaOutsideToInsideCapture {
+   private static int supplyInt() {
+      return 0;// 7
+   }
+
+   private static void test() {
+      int n = supplyInt();// 11
+      IntUnaryOperator iuo = i -> n == Constants.INT_CONST_1 ? 0 : 1;// 12
+   }// 13
+}
+
+class 'pkg/TestLambdaOutsideToInsideCapture' {
+   method 'supplyInt ()I' {
+      0      6
+      1      6
+   }
+
+   method 'test ()V' {
+      0      10
+      1      10
+      2      10
+      3      10
+      a      11
+      b      12
+   }
+
+   method 'lambda$test$0 (II)I' {
+      0      11
+      1      11
+      2      11
+      3      11
+      4      11
+      5      11
+      9      11
+      a      11
+   }
+}
+
+Lines mapping:
+7 <-> 7
+11 <-> 11
+12 <-> 12
+13 <-> 13

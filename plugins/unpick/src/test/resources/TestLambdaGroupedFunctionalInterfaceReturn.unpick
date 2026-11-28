@@ -1,0 +1,7 @@
+unpick v4
+
+group int test
+	pkg.Constants.INT_CONST_1
+
+target_method pkg.TestLambdaGroupedFunctionalInterfaceReturn$I run ()I
+	return test

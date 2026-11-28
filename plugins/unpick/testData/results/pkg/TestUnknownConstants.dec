@@ -1,0 +1,130 @@
+package pkg;
+
+public class TestUnknownConstants {
+   public void testByte() {
+      Constants.consumeByte((byte)42);// 5
+   }// 6
+
+   public void testShort() {
+      Constants.consumeShort((short)42);// 9
+   }// 10
+
+   public void testChar() {
+      Constants.consumeChar('ඞ');// 13
+   }// 14
+
+   public void testInt() {
+      Constants.consumeInt(42);// 17
+   }// 18
+
+   public void testLong() {
+      Constants.consumeLong(42L);// 21
+   }// 22
+
+   public void testFloat() {
+      Constants.consumeFloat(42.0F);// 25
+   }// 26
+
+   public void testDouble() {
+      Constants.consumeDouble(42.0);// 29
+   }// 30
+
+   public void testString() {
+      Constants.consumeString("baz");// 33
+   }// 34
+}
+
+class 'pkg/TestUnknownConstants' {
+   method 'testByte ()V' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      5      5
+   }
+
+   method 'testShort ()V' {
+      0      8
+      1      8
+      2      8
+      3      8
+      4      8
+      5      9
+   }
+
+   method 'testChar ()V' {
+      0      12
+      1      12
+      2      12
+      3      12
+      4      12
+      5      12
+      6      13
+   }
+
+   method 'testInt ()V' {
+      0      16
+      1      16
+      2      16
+      3      16
+      4      16
+      5      17
+   }
+
+   method 'testLong ()V' {
+      0      20
+      1      20
+      2      20
+      3      20
+      4      20
+      5      20
+      6      21
+   }
+
+   method 'testFloat ()V' {
+      0      24
+      1      24
+      2      24
+      3      24
+      4      24
+      5      25
+   }
+
+   method 'testDouble ()V' {
+      0      28
+      1      28
+      2      28
+      3      28
+      4      28
+      5      28
+      6      29
+   }
+
+   method 'testString ()V' {
+      0      32
+      1      32
+      2      32
+      3      32
+      4      32
+      5      33
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 6
+9 <-> 9
+10 <-> 10
+13 <-> 13
+14 <-> 14
+17 <-> 17
+18 <-> 18
+21 <-> 21
+22 <-> 22
+25 <-> 25
+26 <-> 26
+29 <-> 29
+30 <-> 30
+33 <-> 33
+34 <-> 34

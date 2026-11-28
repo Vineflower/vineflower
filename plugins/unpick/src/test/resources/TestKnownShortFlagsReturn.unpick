@@ -1,0 +1,22 @@
+unpick v4
+
+group int flags
+	@flags
+	pkg.Constants.SHORT_FLAG_BIT_0:short
+	pkg.Constants.SHORT_FLAG_BIT_1:short
+	pkg.Constants.SHORT_FLAG_BIT_2:short
+	pkg.Constants.SHORT_FLAG_BIT_3:short
+	pkg.Constants.SHORT_FLAG_0:short
+	pkg.Constants.SHORT_FLAG_M1:short
+
+target_method pkg.TestKnownShortFlagsReturn test1 ()S
+	return flags
+
+target_method pkg.TestKnownShortFlagsReturn test2 ()S
+	return flags
+
+target_method pkg.TestKnownShortFlagsReturn test3 ()S
+	return flags
+
+target_method pkg.TestKnownShortFlagsReturn test4 ()S
+	return flags

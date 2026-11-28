@@ -1,0 +1,14 @@
+unpick v4
+
+group int test_int
+  pkg.Constants.INT_CONST_0
+
+group String test_string
+  pkg.Constants.STRING_CONST_FOO
+  pkg.Constants.STRING_CONST_BAR
+
+target_method pkg.TestInsideAnnotations$Ann2 testInt ()I
+  return test_int
+
+target_method pkg.TestInsideAnnotations$Ann testStr ()Ljava/lang/String;
+  return test_string

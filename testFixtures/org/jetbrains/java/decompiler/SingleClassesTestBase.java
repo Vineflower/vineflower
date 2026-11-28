@@ -184,6 +184,7 @@ public abstract class SingleClassesTestBase {
     public final boolean failable;
     private final DecompilerTestFixture fixture = new DecompilerTestFixture();
     private String expectedFileName;
+    private final List<Object> additionalOptions = new ArrayList<>();
 
     public TestDefinition(Version version, String testClass, List<String> others, boolean failable) {
       this.version = version;
@@ -204,8 +205,17 @@ public abstract class SingleClassesTestBase {
       this.expectedFileName = expectedFileName;
     }
 
+    public void setOption(String key, Object value) {
+      additionalOptions.add(key);
+      additionalOptions.add(value);
+    }
+
     public void run(Object[] options, SingleClassesTestBase base) throws IOException {
-      fixture.setUp(options);
+      Object[] newOptions = new Object[options.length + additionalOptions.size()];
+      System.arraycopy(options, 0, newOptions, 0, options.length);
+      System.arraycopy(additionalOptions.toArray(), 0, newOptions, options.length, additionalOptions.size());
+      fixture.setUp(newOptions);
+
       ConsoleDecompiler decompiler = fixture.getDecompiler();
       Path classFile = getClassFile(base);
       assertTrue(Files.isRegularFile(classFile), classFile + " should exist");

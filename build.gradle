@@ -113,35 +113,39 @@ task testDataClasses {
 }
 testClasses.dependsOn(testDataClasses)
 
-void createJavaTestDataSet(int version, String suffix = "", List<String> compilerArgs = []) {
-  sourceSets.create("testDataJava${version}${suffix}") {
-    it.java.srcDirs file("testData/src/java${version}${suffix.toLowerCase()}")
-    compileClasspath += sourceSets.testMarkers.output
+void createJavaTestDataSet(Project myProject, int version, String suffix = "", List<String> compilerArgs = [], boolean testMarkers = false) {
+  myProject.sourceSets.create("testDataJava${version}${suffix}") {
+    it.java.srcDirs myProject.file("testData/src/java${version}${suffix.toLowerCase(Locale.ROOT)}")
+    if (testMarkers) {
+      compileClasspath += myProject.sourceSets.testMarkers.output
+    }
   }
-  tasks.getByName("compileTestDataJava${version}${suffix}Java") {
-    destinationDirectory = file("testData/classes/java${version}${suffix.toLowerCase()}")
+  myProject.tasks.getByName("compileTestDataJava${version}${suffix}Java") {
+    destinationDirectory = myProject.file("testData/classes/java${version}${suffix.toLowerCase(Locale.ROOT)}")
     javaCompiler = javaToolchains.compilerFor {
       languageVersion = JavaLanguageVersion.of(version)
     }
 
     options.compilerArgs = compilerArgs
   }
-  tasks.getByName("testDataJava${version}${suffix}Classes") {
-    dependsOn testMarkersClasses
+  if (testMarkers) {
+    myProject.tasks.getByName("testDataJava${version}${suffix}Classes") {
+      dependsOn myProject.testMarkersClasses
+    }
   }
-  testDataClasses.dependsOn("testDataJava${version}${suffix}Classes")
+  myProject.testDataClasses.dependsOn("testDataJava${version}${suffix}Classes")
 }
 
 def testJavaRuntimes = [:]
 
 [8, 9, 11, 16, 17, 21, 25].forEach { version ->
-    createJavaTestDataSet(version)
+    createJavaTestDataSet(project, version, "", [], true)
     testJavaRuntimes[version] = javaToolchains.launcherFor {
         languageVersion = JavaLanguageVersion.of(version)
     }
 }
-[16, 17, 21].forEach { version -> createJavaTestDataSet(version, "Preview", ["--enable-preview"]) }
-[8, 16].forEach { version -> createJavaTestDataSet(version, "NoDebug", ["-g:none"])}
+[16, 17, 21].forEach { version -> createJavaTestDataSet(project, version, "Preview", ["--enable-preview"], true) }
+[8, 16].forEach { version -> createJavaTestDataSet(project, version, "NoDebug", ["-g:none"], true)}
 
 compileTestMarkersJava {
   javaCompiler = javaToolchains.compilerFor {

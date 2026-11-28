@@ -1,0 +1,19 @@
+unpick v4
+
+group int test_char
+  @format char
+
+target_method pkg.TestCharFormatRequireCast consumeChar (I)V
+  param 0 test_char
+
+target_method pkg.TestCharFormatRequireCast consumeChar (C)V
+  param 0 test_char
+
+group int test_int
+  @format decimal
+
+target_method pkg.TestCharFormatRequireCast consumeInt (I)V
+  param 0 test_int
+
+target_method pkg.TestCharFormatRequireCast consumeInt (C)V
+  param 0 test_int

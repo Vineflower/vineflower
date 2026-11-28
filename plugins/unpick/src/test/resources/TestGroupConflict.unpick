@@ -1,0 +1,24 @@
+unpick v4
+
+group float
+  pkg.TestGroupConflict.FLOAT_PI
+
+group int conflicting_scope_1
+  @scope class pkg.TestGroupConflict
+  pkg.TestGroupConflict.CLASS_SCOPE
+
+target_method pkg.TestGroupConflict testMoreSpecificScopeWins (I)I
+  return conflicting_scope_1
+
+target_method pkg.TestGroupConflict testMoreSpecificScopeWinsControl (I)I
+  return conflicting_scope_1
+
+group int conflicting_scope_2
+  @scope method pkg.TestGroupConflict testMoreSpecificScopeWins (I)I
+  pkg.TestGroupConflict.METHOD_SCOPE
+
+target_method pkg.TestGroupConflict testMoreSpecificScopeWins (I)I
+  param 0 conflicting_scope_2
+
+target_method pkg.TestGroupConflict testMoreSpecificScopeWinsControl (I)I
+  param 0 conflicting_scope_2

@@ -1,0 +1,7 @@
+unpick v4
+
+group int test
+  pkg.TestPatternVar.CONSTANT_VALUE
+
+target_method pkg.TestPatternVar$R value ()I
+  return test

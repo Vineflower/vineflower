@@ -1,0 +1,22 @@
+unpick v4
+
+group long flags
+	@flags
+	pkg.Constants.LONG_FLAG_BIT_0:long
+	pkg.Constants.LONG_FLAG_BIT_1:long
+	pkg.Constants.LONG_FLAG_BIT_2:long
+	pkg.Constants.LONG_FLAG_BIT_3:long
+	pkg.Constants.LONG_FLAG_0:long
+	pkg.Constants.LONG_FLAG_M1:long
+
+target_method pkg.TestNegatedLongFlagsReturn test1 ()J
+	return flags
+
+target_method pkg.TestNegatedLongFlagsReturn test2 ()J
+	return flags
+
+target_method pkg.TestNegatedLongFlagsReturn test3 ()J
+	return flags
+
+target_method pkg.TestNegatedLongFlagsReturn test4 ()J
+	return flags

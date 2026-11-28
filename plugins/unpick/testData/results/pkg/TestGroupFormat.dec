@@ -1,0 +1,123 @@
+package pkg;
+
+public class TestGroupFormat {
+   public char testDecimal() {
+      return (char)42;// 5
+   }
+
+   public int testBinary() {
+      return 0b1010;// 9
+   }
+
+   public int testOctal() {
+      return 0377;// 13
+   }
+
+   public int testHex() {
+      return 0xCAFEBABE;// 17
+   }
+
+   public int testChar() {
+      return 'ඞ';// 21
+   }
+
+   public long testBinaryLong() {
+      return 0b101010101010101010101010101010101010L;// 25
+   }
+
+   public long testOctalLong() {
+      return 01234567012345L;// 29
+   }
+
+   public long testHexLong() {
+      return 0xCAFEBABEDEADBEEFL;// 33
+   }
+
+   public int testCharOutOfBounds() {
+      return 305419896;// 37
+   }
+
+   public int testFlagResidualFormat() {
+      return Constants.INT_FLAG_BIT_2 | 0b10000000;// 41
+   }
+}
+
+class 'pkg/TestGroupFormat' {
+   method 'testDecimal ()C' {
+      0      4
+      1      4
+      2      4
+   }
+
+   method 'testBinary ()I' {
+      0      8
+      1      8
+      2      8
+   }
+
+   method 'testOctal ()I' {
+      0      12
+      1      12
+      2      12
+      3      12
+   }
+
+   method 'testHex ()I' {
+      0      16
+      1      16
+      2      16
+   }
+
+   method 'testChar ()I' {
+      0      20
+      1      20
+      2      20
+      3      20
+   }
+
+   method 'testBinaryLong ()J' {
+      0      24
+      1      24
+      2      24
+      3      24
+   }
+
+   method 'testOctalLong ()J' {
+      0      28
+      1      28
+      2      28
+      3      28
+   }
+
+   method 'testHexLong ()J' {
+      0      32
+      1      32
+      2      32
+      3      32
+   }
+
+   method 'testCharOutOfBounds ()I' {
+      0      36
+      1      36
+      2      36
+   }
+
+   method 'testFlagResidualFormat ()I' {
+      0      40
+      1      40
+      2      40
+      3      40
+   }
+}
+
+Lines mapping:
+5 <-> 5
+9 <-> 9
+13 <-> 13
+17 <-> 17
+21 <-> 21
+25 <-> 25
+29 <-> 29
+33 <-> 33
+37 <-> 37
+41 <-> 41

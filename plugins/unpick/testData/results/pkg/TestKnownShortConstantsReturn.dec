@@ -1,0 +1,89 @@
+package pkg;
+
+public class TestKnownShortConstantsReturn {
+   public short test1() {
+      return Constants.SHORT_CONST_M1;// 5
+   }
+
+   public short test2() {
+      return Constants.SHORT_CONST_0;// 9
+   }
+
+   public short test3() {
+      return Constants.SHORT_CONST_1;// 13
+   }
+
+   public short test4() {
+      return Constants.SHORT_CONST_2;// 17
+   }
+
+   public short test5() {
+      return Constants.SHORT_CONST_3;// 21
+   }
+
+   public short test6() {
+      return Constants.SHORT_CONST_4;// 25
+   }
+
+   public short test7() {
+      return Constants.SHORT_CONST_5;// 29
+   }
+
+   public short test8() {
+      return Constants.SHORT_CONST;// 33
+   }
+}
+
+class 'pkg/TestKnownShortConstantsReturn' {
+   method 'test1 ()S' {
+      0      4
+      1      4
+   }
+
+   method 'test2 ()S' {
+      0      8
+      1      8
+   }
+
+   method 'test3 ()S' {
+      0      12
+      1      12
+   }
+
+   method 'test4 ()S' {
+      0      16
+      1      16
+   }
+
+   method 'test5 ()S' {
+      0      20
+      1      20
+   }
+
+   method 'test6 ()S' {
+      0      24
+      1      24
+   }
+
+   method 'test7 ()S' {
+      0      28
+      1      28
+   }
+
+   method 'test8 ()S' {
+      0      32
+      1      32
+      2      32
+      3      32
+   }
+}
+
+Lines mapping:
+5 <-> 5
+9 <-> 9
+13 <-> 13
+17 <-> 17
+21 <-> 21
+25 <-> 25
+29 <-> 29
+33 <-> 33

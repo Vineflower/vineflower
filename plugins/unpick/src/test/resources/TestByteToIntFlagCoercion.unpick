@@ -1,0 +1,9 @@
+unpick v4
+
+group int group
+	@flags
+	pkg.Constants.BYTE_FLAG_BIT_0:byte
+	pkg.Constants.BYTE_FLAG_BIT_1:byte
+
+target_method pkg.TestByteToIntFlagCoercion test1 ()I
+	return group

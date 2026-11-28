@@ -1,0 +1,19 @@
+package pkg;
+
+public class TestIntToLongCoercion {
+   public long test1() {
+      return (long)Constants.INT_CONST_3;// 5
+   }
+}
+
+class 'pkg/TestIntToLongCoercion' {
+   method 'test1 ()J' {
+      0      4
+      1      4
+      2      4
+      3      4
+   }
+}
+
+Lines mapping:
+5 <-> 5

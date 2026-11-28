@@ -12,25 +12,10 @@ task testDataClasses {
 }
 testClasses.dependsOn(testDataClasses)
 
-void createJavaTestDataSet(int version, String suffix = "", List<String> compilerArgs = []) {
-  sourceSets.create("testDataJava${version}${suffix}") {
-    it.java.srcDirs file("testData/src/java${version}${suffix.toLowerCase()}")
-  }
-  tasks.getByName("compileTestDataJava${version}${suffix}Java") {
-    destinationDirectory = file("testData/classes/java${version}${suffix.toLowerCase()}")
-    javaCompiler = javaToolchains.compilerFor {
-      languageVersion = JavaLanguageVersion.of(version)
-    }
-
-    options.compilerArgs = compilerArgs
-  }
-  testDataClasses.dependsOn("testDataJava${version}${suffix}Classes")
-}
-
 def testJavaRuntimes = [:]
 
 [8].forEach { version ->
-  createJavaTestDataSet(version)
+  rootProject.createJavaTestDataSet(project, version)
   testJavaRuntimes[version] = javaToolchains.launcherFor {
     languageVersion = JavaLanguageVersion.of(version)
   }

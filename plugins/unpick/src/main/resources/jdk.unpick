@@ -1,0 +1,521 @@
+unpick v4
+
+group int
+  java.lang.Integer.MAX_VALUE
+  java.lang.Integer.MIN_VALUE
+
+group long
+  java.lang.Long.MAX_VALUE
+  java.lang.Long.MIN_VALUE
+
+group double
+  java.lang.Double.NaN
+  java.lang.Double.POSITIVE_INFINITY
+  java.lang.Double.NEGATIVE_INFINITY
+
+  # Min and max values
+  java.lang.Double.MAX_VALUE
+  java.lang.Double.MIN_NORMAL
+  java.lang.Double.MIN_VALUE
+  -java.lang.Double.MAX_VALUE
+  -java.lang.Double.MIN_NORMAL
+  -java.lang.Double.MIN_VALUE
+
+  # Positive and negative e
+  java.lang.Math.E
+  -java.lang.Math.E
+
+  # Positive and negative pi
+  java.lang.Math.PI
+  -java.lang.Math.PI
+
+  # Positive and negative pi divisors
+  java.lang.Math.PI / 2
+  -java.lang.Math.PI / 2
+  java.lang.Math.PI / 3
+  -java.lang.Math.PI / 3
+  java.lang.Math.PI / 4
+  -java.lang.Math.PI / 4
+  java.lang.Math.PI / 5
+  -java.lang.Math.PI / 5
+  java.lang.Math.PI / 6
+  -java.lang.Math.PI / 6
+  java.lang.Math.PI / 7
+  -java.lang.Math.PI / 7
+  java.lang.Math.PI / 8
+  -java.lang.Math.PI / 8
+  java.lang.Math.PI / 9
+  -java.lang.Math.PI / 9
+  java.lang.Math.PI / 10
+  -java.lang.Math.PI / 10
+  java.lang.Math.PI / 11
+  -java.lang.Math.PI / 11
+  java.lang.Math.PI / 12
+  -java.lang.Math.PI / 12
+  java.lang.Math.PI / 13
+  -java.lang.Math.PI / 13
+  java.lang.Math.PI / 14
+  -java.lang.Math.PI / 14
+  java.lang.Math.PI / 15
+  -java.lang.Math.PI / 15
+  java.lang.Math.PI / 16
+  -java.lang.Math.PI / 16
+  java.lang.Math.PI / 17
+  -java.lang.Math.PI / 17
+  java.lang.Math.PI / 18
+  -java.lang.Math.PI / 18
+  java.lang.Math.PI / 19
+  -java.lang.Math.PI / 19
+  java.lang.Math.PI / 20
+  -java.lang.Math.PI / 20
+
+  # Positive and negative pi multipliers
+  java.lang.Math.PI * 2
+  -java.lang.Math.PI * 2
+  java.lang.Math.PI * 3
+  -java.lang.Math.PI * 3
+  java.lang.Math.PI * 4
+  -java.lang.Math.PI * 4
+  java.lang.Math.PI * 5
+  -java.lang.Math.PI * 5
+  java.lang.Math.PI * 6
+  -java.lang.Math.PI * 6
+  java.lang.Math.PI * 7
+  -java.lang.Math.PI * 7
+  java.lang.Math.PI * 8
+  -java.lang.Math.PI * 8
+  java.lang.Math.PI * 9
+  -java.lang.Math.PI * 9
+  java.lang.Math.PI * 10
+  -java.lang.Math.PI * 10
+  java.lang.Math.PI * 11
+  -java.lang.Math.PI * 11
+  java.lang.Math.PI * 12
+  -java.lang.Math.PI * 12
+  java.lang.Math.PI * 13
+  -java.lang.Math.PI * 13
+  java.lang.Math.PI * 14
+  -java.lang.Math.PI * 14
+  java.lang.Math.PI * 15
+  -java.lang.Math.PI * 15
+  java.lang.Math.PI * 16
+  -java.lang.Math.PI * 16
+  java.lang.Math.PI * 17
+  -java.lang.Math.PI * 17
+  java.lang.Math.PI * 18
+  -java.lang.Math.PI * 18
+  java.lang.Math.PI * 19
+  -java.lang.Math.PI * 19
+  java.lang.Math.PI * 20
+  -java.lang.Math.PI * 20
+
+  # Extra pi values on the unit circle
+  java.lang.Math.PI * 2 / 3
+  -java.lang.Math.PI * 2 / 3
+  java.lang.Math.PI * 2 / 5
+  -java.lang.Math.PI * 2 / 5
+  java.lang.Math.PI * 2 / 7
+  -java.lang.Math.PI * 2 / 7
+  java.lang.Math.PI * 2 / 9
+  -java.lang.Math.PI * 2 / 9
+  java.lang.Math.PI * 2 / 11
+  -java.lang.Math.PI * 2 / 11
+  java.lang.Math.PI * 3 / 2
+  -java.lang.Math.PI * 3 / 2
+  java.lang.Math.PI * 3 / 4
+  -java.lang.Math.PI * 3 / 4
+  java.lang.Math.PI * 3 / 5
+  -java.lang.Math.PI * 3 / 5
+  java.lang.Math.PI * 3 / 7
+  -java.lang.Math.PI * 3 / 7
+  java.lang.Math.PI * 3 / 8
+  -java.lang.Math.PI * 3 / 8
+  java.lang.Math.PI * 3 / 10
+  -java.lang.Math.PI * 3 / 10
+  java.lang.Math.PI * 3 / 11
+  -java.lang.Math.PI * 3 / 11
+  java.lang.Math.PI * 4 / 3
+  -java.lang.Math.PI * 4 / 3
+  java.lang.Math.PI * 4 / 5
+  -java.lang.Math.PI * 4 / 5
+  java.lang.Math.PI * 4 / 7
+  -java.lang.Math.PI * 4 / 7
+  java.lang.Math.PI * 4 / 9
+  -java.lang.Math.PI * 4 / 9
+  java.lang.Math.PI * 4 / 11
+  -java.lang.Math.PI * 4 / 11
+  java.lang.Math.PI * 5 / 2
+  -java.lang.Math.PI * 5 / 2
+  java.lang.Math.PI * 5 / 3
+  -java.lang.Math.PI * 5 / 3
+  java.lang.Math.PI * 5 / 4
+  -java.lang.Math.PI * 5 / 4
+  java.lang.Math.PI * 5 / 6
+  -java.lang.Math.PI * 5 / 6
+  java.lang.Math.PI * 5 / 7
+  -java.lang.Math.PI * 5 / 7
+  java.lang.Math.PI * 5 / 8
+  -java.lang.Math.PI * 5 / 8
+  java.lang.Math.PI * 5 / 9
+  -java.lang.Math.PI * 5 / 9
+  java.lang.Math.PI * 5 / 11
+  -java.lang.Math.PI * 5 / 11
+  java.lang.Math.PI * 5 / 12
+  -java.lang.Math.PI * 5 / 12
+  java.lang.Math.PI * 6 / 5
+  -java.lang.Math.PI * 6 / 5
+  java.lang.Math.PI * 6 / 7
+  -java.lang.Math.PI * 6 / 7
+  java.lang.Math.PI * 6 / 11
+  -java.lang.Math.PI * 6 / 11
+  java.lang.Math.PI * 7 / 2
+  -java.lang.Math.PI * 7 / 2
+  java.lang.Math.PI * 7 / 3
+  -java.lang.Math.PI * 7 / 3
+  java.lang.Math.PI * 7 / 4
+  -java.lang.Math.PI * 7 / 4
+  java.lang.Math.PI * 7 / 5
+  -java.lang.Math.PI * 7 / 5
+  java.lang.Math.PI * 7 / 6
+  -java.lang.Math.PI * 7 / 6
+  java.lang.Math.PI * 7 / 8
+  -java.lang.Math.PI * 7 / 8
+  java.lang.Math.PI * 7 / 9
+  -java.lang.Math.PI * 7 / 9
+  java.lang.Math.PI * 7 / 10
+  -java.lang.Math.PI * 7 / 10
+  java.lang.Math.PI * 7 / 11
+  -java.lang.Math.PI * 7 / 11
+  java.lang.Math.PI * 7 / 12
+  -java.lang.Math.PI * 7 / 12
+  java.lang.Math.PI * 8 / 3
+  -java.lang.Math.PI * 8 / 3
+  java.lang.Math.PI * 8 / 5
+  -java.lang.Math.PI * 8 / 5
+  java.lang.Math.PI * 8 / 7
+  -java.lang.Math.PI * 8 / 7
+  java.lang.Math.PI * 8 / 9
+  -java.lang.Math.PI * 8 / 9
+  java.lang.Math.PI * 8 / 11
+  -java.lang.Math.PI * 8 / 11
+  java.lang.Math.PI * 9 / 2
+  -java.lang.Math.PI * 9 / 2
+  java.lang.Math.PI * 9 / 4
+  -java.lang.Math.PI * 9 / 4
+  java.lang.Math.PI * 9 / 5
+  -java.lang.Math.PI * 9 / 5
+  java.lang.Math.PI * 9 / 7
+  -java.lang.Math.PI * 9 / 7
+  java.lang.Math.PI * 9 / 8
+  -java.lang.Math.PI * 9 / 8
+  java.lang.Math.PI * 9 / 10
+  -java.lang.Math.PI * 9 / 10
+  java.lang.Math.PI * 9 / 11
+  -java.lang.Math.PI * 9 / 11
+  java.lang.Math.PI * 10 / 3
+  -java.lang.Math.PI * 10 / 3
+  java.lang.Math.PI * 10 / 7
+  -java.lang.Math.PI * 10 / 7
+  java.lang.Math.PI * 10 / 9
+  -java.lang.Math.PI * 10 / 9
+  java.lang.Math.PI * 10 / 11
+  -java.lang.Math.PI * 10 / 11
+  java.lang.Math.PI * 11 / 2
+  -java.lang.Math.PI * 11 / 2
+  java.lang.Math.PI * 11 / 3
+  -java.lang.Math.PI * 11 / 3
+  java.lang.Math.PI * 11 / 4
+  -java.lang.Math.PI * 11 / 4
+  java.lang.Math.PI * 11 / 5
+  -java.lang.Math.PI * 11 / 5
+  java.lang.Math.PI * 11 / 6
+  -java.lang.Math.PI * 11 / 6
+  java.lang.Math.PI * 11 / 7
+  -java.lang.Math.PI * 11 / 7
+  java.lang.Math.PI * 11 / 8
+  -java.lang.Math.PI * 11 / 8
+  java.lang.Math.PI * 11 / 9
+  -java.lang.Math.PI * 11 / 9
+  java.lang.Math.PI * 11 / 10
+  -java.lang.Math.PI * 11 / 10
+  java.lang.Math.PI * 11 / 12
+  -java.lang.Math.PI * 11 / 12
+  java.lang.Math.PI * 12 / 5
+  -java.lang.Math.PI * 12 / 5
+  java.lang.Math.PI * 12 / 7
+  -java.lang.Math.PI * 12 / 7
+  java.lang.Math.PI * 12 / 11
+  -java.lang.Math.PI * 12 / 11
+
+  # Positive and negative 180 / pi
+  180 / java.lang.Math.PI
+  -180 / java.lang.Math.PI
+
+  # Positive and negative pi / 180
+  java.lang.Math.PI / 180
+  -java.lang.Math.PI / 180
+
+group float
+  java.lang.Float.NaN
+  java.lang.Float.POSITIVE_INFINITY
+  java.lang.Float.NEGATIVE_INFINITY
+
+  # Min and max values
+  java.lang.Float.MAX_VALUE
+  java.lang.Float.MIN_NORMAL
+  java.lang.Float.MIN_VALUE
+  -java.lang.Float.MAX_VALUE
+  -java.lang.Float.MIN_NORMAL
+  -java.lang.Float.MIN_VALUE
+
+  # Positive and negative e
+  (float) java.lang.Math.E
+  (float) -java.lang.Math.E
+
+  # Positive and negative pi
+  (float) java.lang.Math.PI
+  (float) -java.lang.Math.PI
+
+  # Positive and negative pi divisors
+  (float) java.lang.Math.PI / 2
+  (float) -java.lang.Math.PI / 2
+  (float) java.lang.Math.PI / 3
+  (float) -java.lang.Math.PI / 3
+  (float) java.lang.Math.PI / 4
+  (float) -java.lang.Math.PI / 4
+  (float) java.lang.Math.PI / 5
+  (float) -java.lang.Math.PI / 5
+  (float) java.lang.Math.PI / 6
+  (float) -java.lang.Math.PI / 6
+  (float) java.lang.Math.PI / 7
+  (float) -java.lang.Math.PI / 7
+  (float) java.lang.Math.PI / 8
+  (float) -java.lang.Math.PI / 8
+  (float) java.lang.Math.PI / 9
+  (float) -java.lang.Math.PI / 9
+  (float) java.lang.Math.PI / 10
+  (float) -java.lang.Math.PI / 10
+  (float) java.lang.Math.PI / 11
+  (float) -java.lang.Math.PI / 11
+  (float) java.lang.Math.PI / 12
+  (float) -java.lang.Math.PI / 12
+  (float) java.lang.Math.PI / 13
+  (float) -java.lang.Math.PI / 13
+  (float) java.lang.Math.PI / 14
+  (float) -java.lang.Math.PI / 14
+  (float) java.lang.Math.PI / 15
+  (float) -java.lang.Math.PI / 15
+  (float) java.lang.Math.PI / 16
+  (float) -java.lang.Math.PI / 16
+  (float) java.lang.Math.PI / 17
+  (float) -java.lang.Math.PI / 17
+  (float) java.lang.Math.PI / 18
+  (float) -java.lang.Math.PI / 18
+  (float) java.lang.Math.PI / 19
+  (float) -java.lang.Math.PI / 19
+  (float) java.lang.Math.PI / 20
+  (float) -java.lang.Math.PI / 20
+
+  # Positive and negative pi multipliers
+  (float) java.lang.Math.PI * 2
+  (float) -java.lang.Math.PI * 2
+  (float) java.lang.Math.PI * 3
+  (float) -java.lang.Math.PI * 3
+  (float) java.lang.Math.PI * 4
+  (float) -java.lang.Math.PI * 4
+  (float) java.lang.Math.PI * 5
+  (float) -java.lang.Math.PI * 5
+  (float) java.lang.Math.PI * 6
+  (float) -java.lang.Math.PI * 6
+  (float) java.lang.Math.PI * 7
+  (float) -java.lang.Math.PI * 7
+  (float) java.lang.Math.PI * 8
+  (float) -java.lang.Math.PI * 8
+  (float) java.lang.Math.PI * 9
+  (float) -java.lang.Math.PI * 9
+  (float) java.lang.Math.PI * 10
+  (float) -java.lang.Math.PI * 10
+  (float) java.lang.Math.PI * 11
+  (float) -java.lang.Math.PI * 11
+  (float) java.lang.Math.PI * 12
+  (float) -java.lang.Math.PI * 12
+  (float) java.lang.Math.PI * 13
+  (float) -java.lang.Math.PI * 13
+  (float) java.lang.Math.PI * 14
+  (float) -java.lang.Math.PI * 14
+  (float) java.lang.Math.PI * 15
+  (float) -java.lang.Math.PI * 15
+  (float) java.lang.Math.PI * 16
+  (float) -java.lang.Math.PI * 16
+  (float) java.lang.Math.PI * 17
+  (float) -java.lang.Math.PI * 17
+  (float) java.lang.Math.PI * 18
+  (float) -java.lang.Math.PI * 18
+  (float) java.lang.Math.PI * 19
+  (float) -java.lang.Math.PI * 19
+  (float) java.lang.Math.PI * 20
+  (float) -java.lang.Math.PI * 20
+
+  # Extra pi values on the unit circle
+  (float) java.lang.Math.PI * 2 / 3
+  (float) -java.lang.Math.PI * 2 / 3
+  (float) java.lang.Math.PI * 2 / 5
+  (float) -java.lang.Math.PI * 2 / 5
+  (float) java.lang.Math.PI * 2 / 7
+  (float) -java.lang.Math.PI * 2 / 7
+  (float) java.lang.Math.PI * 2 / 9
+  (float) -java.lang.Math.PI * 2 / 9
+  (float) java.lang.Math.PI * 2 / 11
+  (float) -java.lang.Math.PI * 2 / 11
+  (float) java.lang.Math.PI * 3 / 2
+  (float) -java.lang.Math.PI * 3 / 2
+  (float) java.lang.Math.PI * 3 / 4
+  (float) -java.lang.Math.PI * 3 / 4
+  (float) java.lang.Math.PI * 3 / 5
+  (float) -java.lang.Math.PI * 3 / 5
+  (float) java.lang.Math.PI * 3 / 7
+  (float) -java.lang.Math.PI * 3 / 7
+  (float) java.lang.Math.PI * 3 / 8
+  (float) -java.lang.Math.PI * 3 / 8
+  (float) java.lang.Math.PI * 3 / 10
+  (float) -java.lang.Math.PI * 3 / 10
+  (float) java.lang.Math.PI * 3 / 11
+  (float) -java.lang.Math.PI * 3 / 11
+  (float) java.lang.Math.PI * 4 / 3
+  (float) -java.lang.Math.PI * 4 / 3
+  (float) java.lang.Math.PI * 4 / 5
+  (float) -java.lang.Math.PI * 4 / 5
+  (float) java.lang.Math.PI * 4 / 7
+  (float) -java.lang.Math.PI * 4 / 7
+  (float) java.lang.Math.PI * 4 / 9
+  (float) -java.lang.Math.PI * 4 / 9
+  (float) java.lang.Math.PI * 4 / 11
+  (float) -java.lang.Math.PI * 4 / 11
+  (float) java.lang.Math.PI * 5 / 2
+  (float) -java.lang.Math.PI * 5 / 2
+  (float) java.lang.Math.PI * 5 / 3
+  (float) -java.lang.Math.PI * 5 / 3
+  (float) java.lang.Math.PI * 5 / 4
+  (float) -java.lang.Math.PI * 5 / 4
+  (float) java.lang.Math.PI * 5 / 6
+  (float) -java.lang.Math.PI * 5 / 6
+  (float) java.lang.Math.PI * 5 / 7
+  (float) -java.lang.Math.PI * 5 / 7
+  (float) java.lang.Math.PI * 5 / 8
+  (float) -java.lang.Math.PI * 5 / 8
+  (float) java.lang.Math.PI * 5 / 9
+  (float) -java.lang.Math.PI * 5 / 9
+  (float) java.lang.Math.PI * 5 / 11
+  (float) -java.lang.Math.PI * 5 / 11
+  (float) java.lang.Math.PI * 5 / 12
+  (float) -java.lang.Math.PI * 5 / 12
+  (float) java.lang.Math.PI * 6 / 5
+  (float) -java.lang.Math.PI * 6 / 5
+  (float) java.lang.Math.PI * 6 / 7
+  (float) -java.lang.Math.PI * 6 / 7
+  (float) java.lang.Math.PI * 6 / 11
+  (float) -java.lang.Math.PI * 6 / 11
+  (float) java.lang.Math.PI * 7 / 2
+  (float) -java.lang.Math.PI * 7 / 2
+  (float) java.lang.Math.PI * 7 / 3
+  (float) -java.lang.Math.PI * 7 / 3
+  (float) java.lang.Math.PI * 7 / 4
+  (float) -java.lang.Math.PI * 7 / 4
+  (float) java.lang.Math.PI * 7 / 5
+  (float) -java.lang.Math.PI * 7 / 5
+  (float) java.lang.Math.PI * 7 / 6
+  (float) -java.lang.Math.PI * 7 / 6
+  (float) java.lang.Math.PI * 7 / 8
+  (float) -java.lang.Math.PI * 7 / 8
+  (float) java.lang.Math.PI * 7 / 9
+  (float) -java.lang.Math.PI * 7 / 9
+  (float) java.lang.Math.PI * 7 / 10
+  (float) -java.lang.Math.PI * 7 / 10
+  (float) java.lang.Math.PI * 7 / 11
+  (float) -java.lang.Math.PI * 7 / 11
+  (float) java.lang.Math.PI * 7 / 12
+  (float) -java.lang.Math.PI * 7 / 12
+  (float) java.lang.Math.PI * 8 / 3
+  (float) -java.lang.Math.PI * 8 / 3
+  (float) java.lang.Math.PI * 8 / 5
+  (float) -java.lang.Math.PI * 8 / 5
+  (float) java.lang.Math.PI * 8 / 7
+  (float) -java.lang.Math.PI * 8 / 7
+  (float) java.lang.Math.PI * 8 / 9
+  (float) -java.lang.Math.PI * 8 / 9
+  (float) java.lang.Math.PI * 8 / 11
+  (float) -java.lang.Math.PI * 8 / 11
+  (float) java.lang.Math.PI * 9 / 2
+  (float) -java.lang.Math.PI * 9 / 2
+  (float) java.lang.Math.PI * 9 / 4
+  (float) -java.lang.Math.PI * 9 / 4
+  (float) java.lang.Math.PI * 9 / 5
+  (float) -java.lang.Math.PI * 9 / 5
+  (float) java.lang.Math.PI * 9 / 7
+  (float) -java.lang.Math.PI * 9 / 7
+  (float) java.lang.Math.PI * 9 / 8
+  (float) -java.lang.Math.PI * 9 / 8
+  (float) java.lang.Math.PI * 9 / 10
+  (float) -java.lang.Math.PI * 9 / 10
+  (float) java.lang.Math.PI * 9 / 11
+  (float) -java.lang.Math.PI * 9 / 11
+  (float) java.lang.Math.PI * 10 / 3
+  (float) -java.lang.Math.PI * 10 / 3
+  (float) java.lang.Math.PI * 10 / 7
+  (float) -java.lang.Math.PI * 10 / 7
+  (float) java.lang.Math.PI * 10 / 9
+  (float) -java.lang.Math.PI * 10 / 9
+  (float) java.lang.Math.PI * 10 / 11
+  (float) -java.lang.Math.PI * 10 / 11
+  (float) java.lang.Math.PI * 11 / 2
+  (float) -java.lang.Math.PI * 11 / 2
+  (float) java.lang.Math.PI * 11 / 3
+  (float) -java.lang.Math.PI * 11 / 3
+  (float) java.lang.Math.PI * 11 / 4
+  (float) -java.lang.Math.PI * 11 / 4
+  (float) java.lang.Math.PI * 11 / 5
+  (float) -java.lang.Math.PI * 11 / 5
+  (float) java.lang.Math.PI * 11 / 6
+  (float) -java.lang.Math.PI * 11 / 6
+  (float) java.lang.Math.PI * 11 / 7
+  (float) -java.lang.Math.PI * 11 / 7
+  (float) java.lang.Math.PI * 11 / 8
+  (float) -java.lang.Math.PI * 11 / 8
+  (float) java.lang.Math.PI * 11 / 9
+  (float) -java.lang.Math.PI * 11 / 9
+  (float) java.lang.Math.PI * 11 / 10
+  (float) -java.lang.Math.PI * 11 / 10
+  (float) java.lang.Math.PI * 11 / 12
+  (float) -java.lang.Math.PI * 11 / 12
+  (float) java.lang.Math.PI * 12 / 5
+  (float) -java.lang.Math.PI * 12 / 5
+  (float) java.lang.Math.PI * 12 / 7
+  (float) -java.lang.Math.PI * 12 / 7
+  (float) java.lang.Math.PI * 12 / 11
+  (float) -java.lang.Math.PI * 12 / 11
+
+  # Positive and negative 180 / pi
+  180.0F / (float) java.lang.Math.PI
+  -180.0F / (float) java.lang.Math.PI
+
+  # Positive and negative pi / 180
+  (float) java.lang.Math.PI / 180.0F
+  (float) -java.lang.Math.PI / 180.0F
+
+group int vf_char_format
+  @format char
+
+target_method java.lang.String indexOf (I)I
+  param 0 vf_char_format
+
+target_method java.lang.String indexOf (II)I
+  param 0 vf_char_format
+
+target_method java.lang.String indexOf (III)I
+  param 0 vf_char_format
+
+target_method java.lang.String lastIndexOf (I)I
+  param 0 vf_char_format
+
+target_method java.lang.String lastIndexOf (II)I
+  param 0 vf_char_format

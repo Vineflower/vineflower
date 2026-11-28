@@ -1,0 +1,11 @@
+unpick v4
+
+group int
+	pkg.TestNonStaticConstants.foo:instance
+
+group String
+	pkg.TestNonStaticConstants.bar:instance
+	pkg.TestNonStaticConstants.nullConstant:instance
+
+group Class
+	pkg.TestNonStaticConstants.baz:instance
