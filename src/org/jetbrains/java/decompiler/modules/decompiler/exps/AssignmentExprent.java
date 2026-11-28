@@ -94,7 +94,7 @@ public class AssignmentExprent extends Exprent {
   }
 
   @Override
-  public Exprent copy() {
+  public AssignmentExprent copy() {
     return new AssignmentExprent(left.copy(), right.copy(), condType, bytecode);
   }
 
